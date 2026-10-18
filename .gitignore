@@ -89,6 +89,7 @@ playwright-report/
 *.pid
 *.seed
 *.pid.lock
+*.tmp-*.json
 .cache/
 tmp/
 temp/
