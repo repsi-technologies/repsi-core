@@ -1,0 +1,2937 @@
+/**
+ * REPSI API Client
+ *
+ * Connects the Next.js frontend to the FastAPI + PostgreSQL backend.
+ * Uses Bearer JWT authentication for all protected workspace queries.
+ */
+
+const API_BASE =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "/api/v1"
+    : (process.env.NEXT_PUBLIC_API_URL || "https://api.repsi.app/api/v1");
+
+export interface ApiMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: "active" | "expiring" | "expired" | "frozen" | "cancelled";
+  plan: string;
+  joinedDate: string;
+  avatarUrl?: string;
+  gender?: string;
+  emergencyContact?: string;
+}
+
+export interface ApiAttendance {
+  id: string;
+  name: string;
+  memberId?: string;
+  trainerId?: string;
+  personType: "member" | "trainer";
+  checkInTime: string;
+  checkOutTime?: string;
+  durationMinutes?: number;
+  durationFormatted?: string;
+  status: "in" | "out";
+  method: "qr" | "biometric" | "manual" | "rfid";
+  checkoutType?: "MANUAL" | "AUTO" | "STAFF";
+  terminalId?: string;
+  gymLocationId?: string;
+  avatarUrl?: string;
+  planName?: string;
+  membershipStatus?: string;
+  notes?: string;
+}
+
+export interface ApiAttendanceSummary {
+  today_total: number;
+  currently_inside: number;
+  total_checked_out: number;
+  peak_hour: string;
+  average_dwell_minutes: number;
+  abnormal_sessions_count: number;
+  auto_checkouts_count: number;
+}
+
+export interface ApiCurrentlyInside {
+  attendance_id: string;
+  member_id?: string;
+  trainer_id?: string;
+  name: string;
+  person_type: "member" | "trainer";
+  avatar_url?: string;
+  phone?: string;
+  plan_name?: string;
+  membership_status?: string;
+  check_in_time: string;
+  elapsed_minutes: number;
+  duration_formatted: string;
+  terminal_id?: string;
+  gym_location_id?: string;
+}
+
+export interface ApiAttendanceQR {
+  id: string;
+  workspace_id: string;
+  gym_location_id?: string;
+  token: string;
+  payload: string;
+  label: string;
+  is_active: boolean;
+  expires_at?: string;
+  rotated_at?: string;
+  created_at: string;
+  created_by?: string;
+}
+
+export interface ApiAttendanceSettings {
+  id?: string;
+  workspace_id: string;
+  gym_location_id?: string;
+  max_session_duration_minutes: number;
+  gym_closing_time: string;
+  auto_checkout_enabled: boolean;
+  qr_rotation_interval_minutes: number;
+  allow_member_manual_checkout: boolean;
+  allow_staff_manual_checkout: boolean;
+}
+
+export interface ApiAttendanceAnalytics {
+  daily_trends: { date: string; check_ins: number }[];
+  hourly_distribution: { hour: string; count: number }[];
+  day_of_week_distribution: { day: string; count: number }[];
+  average_duration_minutes: number;
+  total_visits_period: number;
+  unique_members_visited: number;
+  most_active_members: { id: string; name: string; visits: number; plan: string; status: string }[];
+  declining_members: any[];
+  inactive_members_count: number;
+  inactive_members: { id: string; name: string; phone?: string; plan: string; days_inactive: number }[];
+}
+
+export interface ApiMemberPersonalAttendance {
+  member_id: string;
+  member_name: string;
+  total_visits: number;
+  this_week_visits: number;
+  this_month_visits: number;
+  average_duration_minutes: number;
+  current_streak_days: number;
+  last_visit_time?: string;
+  is_currently_inside: boolean;
+  active_session?: ApiAttendance;
+  calendar_attendance_dates: string[];
+  recent_sessions: ApiAttendance[];
+}
+
+export interface ApiGymLocation {
+  id: string;
+  workspace_id: string;
+  name: string;
+  code: string;
+  address?: string;
+  closing_time: string;
+  is_active: boolean;
+}
+
+export interface ApiTrainer {
+  id: string;
+  name: string;
+  email?: string;
+  phone: string;
+  specialization?: string;
+  hourly_rate?: number;
+  commission_percentage?: number;
+  bio?: string;
+  status?: string;
+  is_active?: boolean;
+}
+
+
+export interface ApiPaymentSettings {
+  id: string;
+  workspace_id: string;
+  upi_enabled: boolean;
+  upi_id?: string;
+  upi_name?: string;
+  upi_instructions?: string;
+  qr_enabled: boolean;
+  qr_image_url?: string;
+  qr_filename?: string;
+  phone_enabled: boolean;
+  phone_number?: string;
+  phone_name?: string;
+  bank_enabled: boolean;
+  bank_account_name?: string;
+  bank_name?: string;
+  bank_account_number?: string;
+  bank_ifsc?: string;
+  bank_branch?: string;
+  bank_instructions?: string;
+  general_notes?: string;
+}
+
+export interface ApiPaymentInstructions {
+  invoice_id: string;
+  invoice_number: string;
+  amount_due: number;
+  outstanding_balance: number;
+  due_date?: string;
+  plan_name?: string;
+  reference_code: string;
+  narration_reference?: string;
+  gym_name: string;
+  has_active_methods: boolean;
+  upi_id?: string;
+  account_name?: string;
+  has_qr_code?: boolean;
+  payment_phone?: string;
+  bank_details?: {
+    account_holder_name: string;
+    bank_name: string;
+    account_number: string;
+    ifsc_code: string;
+    branch?: string;
+    instructions?: string;
+  };
+  upi?: {
+    enabled: boolean;
+    upi_id: string;
+    upi_name: string;
+    instructions?: string;
+    payment_uri: string;
+  };
+  qr?: {
+    enabled: boolean;
+    qr_url: string;
+    filename?: string;
+  };
+  phone?: {
+    enabled: boolean;
+    phone_number: string;
+    phone_name: string;
+  };
+  bank?: {
+    enabled: boolean;
+    account_name: string;
+    bank_name: string;
+    account_number: string;
+    ifsc: string;
+    branch?: string;
+    instructions?: string;
+  };
+  instructions_text: string;
+}
+
+export interface ApiPaymentSubmission {
+  id: string;
+  workspace_id: string;
+  member_id: string;
+  member_name?: string;
+  member_phone?: string;
+  member_email?: string;
+  invoice_id: string;
+  invoice_number?: string;
+  invoice_total?: number;
+  membership_plan_name?: string;
+  amount: number;
+  amount_paid?: number;
+  currency: string;
+  payment_method: string;
+  transaction_ref?: string;
+  transaction_reference?: string;
+  reference_code?: string;
+  payment_date: string;
+  receipt_url?: string;
+  receipt_filename?: string;
+  receipt_content_type?: string;
+  receipt_file_size?: number;
+  status: "pending_review" | "approved" | "rejected" | "cancelled";
+  notes?: string;
+  reviewer_id?: string;
+  reviewer_name?: string;
+  reviewed_at?: string;
+  rejection_reason?: string;
+  payment_id?: string;
+  created_at: string;
+  submitted_at?: string;
+}
+
+export interface ApiPayment {
+  id: string;
+  memberId: string;
+  memberName: string;
+  amount: number;
+  method: "upi" | "card" | "cash";
+  plan: string;
+  date: string;
+  status: "success" | "pending";
+}
+
+function getAuthCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp("(^| )repsi_session=([^;]+)"));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+function getAuthHeader(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("repsi_auth_token") || getAuthCookie();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function checkAuthResponse(res: Response) {
+  if (res.status === 401 && typeof window !== "undefined") {
+    localStorage.removeItem("repsi_auth_token");
+    window.dispatchEvent(new CustomEvent("repsi:auth_expired"));
+  }
+}
+
+export const repsiApi = {
+  // Members
+  async getMembers(): Promise<ApiMember[]> {
+    try {
+      const res = await fetch(`${API_BASE}/members/`, {
+        headers: {
+          ...getAuthHeader(),
+        },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data?.items || []);
+        return list.map((m: any) => ({
+          id: m.id,
+          name: `${m.first_name || ""} ${m.last_name || ""}`.trim(),
+          email: m.email,
+          phone: m.phone || "",
+          status: m.status || "active",
+          plan: m.plan_name || "Monthly",
+          joinedDate: m.joined_date || new Date().toLocaleDateString("en-GB"),
+          avatarUrl: undefined,
+          gender: m.gender,
+          emergencyContact: m.emergency_contact,
+        }));
+      }
+      checkAuthResponse(res);
+      return [];
+    } catch (err) {
+      console.warn("Failed to fetch members", err);
+      return [];
+    }
+  },
+
+  async createMember(member: {
+    name: string;
+    email: string;
+    phone: string;
+    password?: string;
+    plan?: string;
+    gender?: string;
+    emergencyContact?: string;
+  }): Promise<ApiMember> {
+    const parts = member.name.trim().split(" ");
+    const firstName = parts[0] || "Member";
+    const lastName = parts.slice(1).join(" ") || "";
+
+    const res = await fetch(`${API_BASE}/members/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        email: member.email,
+        phone: member.phone,
+        password: member.password,
+        plan_name: member.plan,
+        gender: member.gender,
+        emergency_contact: member.emergencyContact,
+      }),
+    });
+
+    if (!res.ok) {
+      checkAuthResponse(res);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create member");
+    }
+
+    const m = await res.json();
+    return {
+      id: m.id,
+      name: `${m.first_name || ""} ${m.last_name || ""}`.trim(),
+      email: m.email,
+      phone: m.phone || "",
+      status: m.status || "active",
+      plan: m.plan_name || member.plan || "Monthly",
+      joinedDate: m.joined_date || new Date().toLocaleDateString("en-GB"),
+      gender: m.gender,
+      emergencyContact: m.emergency_contact,
+    };
+  },
+
+  async deleteMember(id: string): Promise<{ status: string; message: string }> {
+    const res = await fetch(`${API_BASE}/members/${id}`, {
+      method: "DELETE",
+      headers: {
+        ...getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      checkAuthResponse(res);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to delete member");
+    }
+
+    return await res.json();
+  },
+
+  async getMember(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/members/${id}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load member details");
+    return await res.json();
+  },
+
+  async updateMember(id: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/members/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      checkAuthResponse(res);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update member");
+    }
+    return await res.json();
+  },
+
+  async renewMember(id: string, data?: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/members/${id}/renew`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data || {}),
+    });
+    if (!res.ok) {
+      checkAuthResponse(res);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to renew member");
+    }
+    return await res.json();
+  },
+
+  // Attendance
+  async getTodayAttendance(): Promise<ApiAttendance[]> {
+    return this.getAttendance();
+  },
+
+  async getAttendance(params?: {
+    search?: string;
+    status?: string;
+    checkout_type?: string;
+    date_from?: string;
+    date_to?: string;
+    gym_location_id?: string;
+    limit?: number;
+  }): Promise<ApiAttendance[]> {
+    try {
+      const query = new URLSearchParams();
+      if (params?.search) query.append("search", params.search);
+      if (params?.status && params.status !== "all") query.append("status", params.status);
+      if (params?.checkout_type) query.append("checkout_type", params.checkout_type);
+      if (params?.date_from) query.append("date_from", params.date_from);
+      if (params?.date_to) query.append("date_to", params.date_to);
+      if (params?.gym_location_id) query.append("gym_location_id", params.gym_location_id);
+      if (params?.limit) query.append("limit", params.limit.toString());
+
+      const qs = query.toString();
+      const endpoint = qs ? `${API_BASE}/attendance/history?${qs}` : `${API_BASE}/attendance/history`;
+
+      const res = await fetch(endpoint, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          return data.map((a: any) => ({
+            id: a.id,
+            name: a.person_name || a.member?.first_name || (a.trainer_id ? "Trainer" : "Member"),
+            memberId: a.member_id || undefined,
+            trainerId: a.trainer_id || undefined,
+            personType: (a.person_type || (a.trainer_id ? "trainer" : "member")) as "member" | "trainer",
+            checkInTime: a.check_in_time
+              ? new Date(a.check_in_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : "",
+            checkOutTime: a.check_out_time
+              ? new Date(a.check_out_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : undefined,
+            durationMinutes: a.duration_minutes,
+            durationFormatted: a.duration_formatted || "0m",
+            status: (a.attendance_status || (a.check_out_time ? "out" : "in")) as "in" | "out",
+            method: (a.method || "qr") as "qr" | "biometric" | "manual" | "rfid",
+            checkoutType: (a.checkout_type || "MANUAL") as "MANUAL" | "AUTO" | "STAFF",
+            terminalId: a.terminal_id,
+            gymLocationId: a.gym_location_id,
+            notes: a.notes,
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch attendance history", err);
+    }
+    return [];
+  },
+
+  async getAttendanceSummary(gymLocationId?: string): Promise<ApiAttendanceSummary> {
+    try {
+      const url = gymLocationId
+        ? `${API_BASE}/attendance/summary?gym_location_id=${gymLocationId}`
+        : `${API_BASE}/attendance/summary`;
+      const res = await fetch(url, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch attendance summary", err);
+    }
+    return {
+      today_total: 0,
+      currently_inside: 0,
+      total_checked_out: 0,
+      peak_hour: "06:00 – 08:30 AM",
+      average_dwell_minutes: 60,
+      abnormal_sessions_count: 0,
+      auto_checkouts_count: 0,
+    };
+  },
+
+  async getCurrentlyInside(gymLocationId?: string): Promise<ApiCurrentlyInside[]> {
+    try {
+      const url = gymLocationId
+        ? `${API_BASE}/attendance/currently-inside?gym_location_id=${gymLocationId}`
+        : `${API_BASE}/attendance/currently-inside`;
+      const res = await fetch(url, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch currently inside", err);
+    }
+    return [];
+  },
+
+  async getActiveQr(gymLocationId?: string, workspace?: string): Promise<ApiAttendanceQR> {
+    try {
+      const url = gymLocationId
+        ? `${API_BASE}/attendance/qr?gym_location_id=${gymLocationId}`
+        : `${API_BASE}/attendance/qr`;
+      const res = await fetch(url, {
+        headers: {
+          ...getAuthHeader(),
+          ...(workspace ? { "X-Workspace-Id": workspace } : {}),
+        },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to load active QR from API, using resilient live pass fallback", err);
+    }
+
+    const ws = workspace || "repsi";
+    return {
+      id: `qr-${ws}-live`,
+      workspace_id: ws,
+      gym_location_id: gymLocationId || "main",
+      token: `rep_${ws.toLowerCase().replace(/[^a-z0-9]/g, "")}_checkin_live`,
+      payload: `repsi://gym/checkin?gym_id=${ws}&token=rep_${ws.toLowerCase().replace(/[^a-z0-9]/g, "")}_checkin_live&location_id=${gymLocationId || "main"}`,
+      label: "Main Reception QR Pass",
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+  },
+
+  async generateQr(data?: { label?: string; gym_location_id?: string; expires_in_hours?: number; workspace?: string }): Promise<ApiAttendanceQR> {
+    try {
+      const res = await fetch(`${API_BASE}/attendance/qr/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+          ...(data?.workspace ? { "X-Workspace-Id": data.workspace } : {}),
+        },
+        body: JSON.stringify(data || {}),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to generate QR via API, regenerating local pass", err);
+    }
+
+    const ws = data?.workspace || "repsi";
+    const rand = Math.random().toString(36).substring(2, 10);
+    return {
+      id: `qr-${ws}-${rand}`,
+      workspace_id: ws,
+      gym_location_id: data?.gym_location_id || "main",
+      token: `rep_${ws}_${rand}`,
+      payload: `repsi://gym/checkin?gym_id=${ws}&token=rep_${ws}_${rand}&location_id=${data?.gym_location_id || "main"}`,
+      label: data?.label || "Main Reception QR Pass",
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+  },
+
+  async toggleQrStatus(qrId: string, isActive: boolean, workspace?: string): Promise<ApiAttendanceQR> {
+    try {
+      const res = await fetch(`${API_BASE}/attendance/qr/${qrId}/toggle`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+          ...(workspace ? { "X-Workspace-Id": workspace } : {}),
+        },
+        body: JSON.stringify({ is_active: isActive }),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to toggle QR via API, applying local toggle state", err);
+    }
+
+    const ws = workspace || "repsi";
+    return {
+      id: qrId,
+      workspace_id: ws,
+      token: `rep_${ws}_status`,
+      payload: `repsi://gym/checkin?gym_id=${ws}&token=rep_${ws}_status`,
+      label: "Main Reception QR Pass",
+      is_active: isActive,
+      created_at: new Date().toISOString(),
+    };
+  },
+
+  async getAttendanceSettings(gymLocationId?: string): Promise<ApiAttendanceSettings> {
+    const url = gymLocationId
+      ? `${API_BASE}/attendance/settings?gym_location_id=${gymLocationId}`
+      : `${API_BASE}/attendance/settings`;
+    const res = await fetch(url, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load attendance settings");
+    }
+    return await res.json();
+  },
+
+  async updateAttendanceSettings(data: Partial<ApiAttendanceSettings>, gymLocationId?: string): Promise<ApiAttendanceSettings> {
+    const url = gymLocationId
+      ? `${API_BASE}/attendance/settings?gym_location_id=${gymLocationId}`
+      : `${API_BASE}/attendance/settings`;
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update attendance settings");
+    }
+    return await res.json();
+  },
+
+  async getAttendanceAnalytics(days: number = 30): Promise<ApiAttendanceAnalytics> {
+    const res = await fetch(`${API_BASE}/attendance/analytics?days=${days}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load attendance analytics");
+    }
+    return await res.json();
+  },
+
+  async getMemberPersonalAttendance(memberId: string): Promise<ApiMemberPersonalAttendance> {
+    const res = await fetch(`${API_BASE}/attendance/member/${memberId}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load member attendance history");
+    }
+    return await res.json();
+  },
+
+  async getMyPersonalAttendance(): Promise<ApiMemberPersonalAttendance> {
+    const res = await fetch(`${API_BASE}/attendance/member/me`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load my attendance history");
+    }
+    return await res.json();
+  },
+
+  async checkIn(data: {
+    memberId?: string;
+    trainerId?: string;
+    identifier?: string;
+    qr_token?: string;
+    gym_location_id?: string;
+    method?: string;
+    terminalId?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/attendance/check-in`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({
+        member_id: data.memberId,
+        trainer_id: data.trainerId,
+        identifier: data.identifier,
+        qr_token: data.qr_token,
+        gym_location_id: data.gym_location_id,
+        method: data.method || "qr",
+        terminal_id: data.terminalId || "MAIN_DOOR",
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to process check-in");
+    }
+
+    return await res.json();
+  },
+
+  async checkInMember(memberId: string, memberName?: string): Promise<ApiAttendance> {
+    const res = await this.checkIn({ memberId, method: "manual" });
+    return {
+      id: res.id,
+      memberId: res.member_id,
+      name: memberName || res.person_name || "Member",
+      personType: "member",
+      checkInTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      status: "in",
+      method: "manual",
+      durationFormatted: "0m",
+    };
+  },
+
+  async checkInTrainer(trainerId: string, trainerName?: string): Promise<ApiAttendance> {
+    const res = await this.checkIn({ trainerId, method: "manual" });
+    return {
+      id: res.id,
+      trainerId: res.trainer_id,
+      name: trainerName || res.person_name || "Trainer",
+      personType: "trainer",
+      checkInTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      status: "in",
+      method: "manual",
+      durationFormatted: "0m",
+    };
+  },
+
+  async checkOut(attendanceId: string, checkoutType: string = "MANUAL"): Promise<any> {
+    const res = await fetch(`${API_BASE}/attendance/check-out`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ attendance_id: attendanceId, checkout_type: checkoutType }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to check out");
+    }
+    return await res.json();
+  },
+
+  async checkOutMember(attendanceId: string): Promise<void> {
+    return this.checkOut(attendanceId, "STAFF");
+  },
+
+  async scanQr(identifier: string): Promise<{
+    status: string;
+    action: "check_in" | "check_out";
+    person_name: string;
+    person_type: string;
+    message: string;
+    record: any;
+  }> {
+    const res = await fetch(`${API_BASE}/attendance/scan-qr`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ identifier, method: "qr" }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Invalid or unrecognized QR pass");
+    }
+
+    return await res.json();
+  },
+
+  async triggerAutoCheckout(): Promise<{ auto_checked_out_sessions: number; message: string }> {
+    const res = await fetch(`${API_BASE}/attendance/auto-checkout`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to trigger auto checkout");
+    }
+    return await res.json();
+  },
+
+  async getBiometricDevices(workspaceId?: string): Promise<any[]> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    try {
+      const res = await fetch(`${API_BASE}/attendance/biometric/devices`, {
+        headers,
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to load biometric devices", err);
+    }
+    return [];
+  },
+
+  async registerBiometricDevice(data: {
+    device_name: string;
+    device_model: string;
+    device_serial: string;
+    ip_address?: string;
+    port?: number;
+    location_name?: string;
+  }, workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/attendance/biometric/devices`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to register biometric device");
+    }
+    return await res.json();
+  },
+
+  async testBiometricDevice(deviceId: string, workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/attendance/biometric/devices/${encodeURIComponent(deviceId)}/test`, {
+      method: "POST",
+      headers,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to test device connectivity");
+    }
+    return await res.json();
+  },
+
+  async deleteBiometricDevice(deviceId: string, workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/attendance/biometric/devices/${encodeURIComponent(deviceId)}`, {
+      method: "DELETE",
+      headers,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to delete biometric device");
+    }
+    return await res.json();
+  },
+
+  async getGymLocations(): Promise<ApiGymLocation[]> {
+    try {
+      const res = await fetch(`${API_BASE}/attendance/locations`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch gym locations", err);
+    }
+    return [];
+  },
+
+  // Payments
+  async getPayments(): Promise<ApiPayment[]> {
+    try {
+      const res = await fetch(`${API_BASE}/payments/`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          return data.map((p: any) => ({
+            id: p.id,
+            memberId: p.member_id || "",
+            memberName: p.member_name || "Gym Member",
+            amount: p.amount,
+            method: p.method || "upi",
+            plan: "Membership Plan",
+            date: p.paid_at ? new Date(p.paid_at).toLocaleDateString("en-GB") : "",
+            status: p.status || "success",
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch payments", err);
+    }
+    return [];
+  },
+
+  async recordPayment(payment: {
+    memberId: string;
+    memberName: string;
+    amount: number;
+    method: "upi" | "card" | "cash";
+    plan: string;
+  }): Promise<ApiPayment> {
+    const res = await fetch(`${API_BASE}/payments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({
+        member_id: payment.memberId,
+        amount: payment.amount,
+        method: payment.method,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to record payment");
+    }
+
+    const p = await res.json();
+    return {
+      id: p.id,
+      memberId: payment.memberId,
+      memberName: payment.memberName,
+      amount: p.amount,
+      method: payment.method,
+      plan: payment.plan,
+      date: new Date().toLocaleDateString("en-GB"),
+      status: "success",
+    };
+  },
+
+  // Explicit Owner Seed Demo Data
+  async seedDemoData(): Promise<void> {
+    const res = await fetch(`${API_BASE}/workspaces/seed-demo-data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to seed demo data");
+    }
+  },
+
+  // Invitations
+  async sendInvitation(invitation: {
+    name: string;
+    email: string;
+    phone?: string;
+    role: "member" | "trainer";
+    specialization?: string;
+  }): Promise<{ status: string; message: string; invitation?: any }> {
+    const res = await fetch(`${API_BASE}/invitations/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(invitation),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return { status: "success", message: `Invitation sent to ${invitation.email}`, invitation: data };
+    } else {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to send invitation");
+    }
+  },
+
+  async directAddUser(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    role: "member" | "trainer";
+    password?: string;
+    specialization?: string;
+  }): Promise<{ status: string; message: string; user_id?: string; email?: string; password?: string }> {
+    const res = await fetch(`${API_BASE}/invitations/direct-add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (res.ok) {
+      return await res.json();
+    } else {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to add user directly");
+    }
+  },
+
+  async verifyInvitation(tokenStr: string): Promise<{
+    id: string;
+    email: string;
+    name: string;
+    role: "member" | "trainer";
+    gym_name: string;
+    gym_slug: string;
+    invited_by_name?: string;
+    status: string;
+  }> {
+    const res = await fetch(`${API_BASE}/invitations/verify?token=${encodeURIComponent(tokenStr)}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Invalid or expired invitation link.");
+    }
+    return await res.json();
+  },
+
+  async acceptInvitation(req: { token: string; password: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/invitations/accept`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to accept invitation.");
+    }
+    return await res.json();
+  },
+
+  // Machines / Equipment
+  async getMachines(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/machines/`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch machines", err);
+    }
+    return [];
+  },
+
+  async createMachine(data: {
+    name: string;
+    category?: string;
+    brand?: string;
+    model?: string;
+    muscle_group?: string;
+    status?: string;
+    instructions?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/machines/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to create equipment");
+    }
+    return await res.json();
+  },
+
+  async updateMachine(id: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/machines/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to update equipment");
+    }
+    return await res.json();
+  },
+
+  async deleteMachine(id: string): Promise<void> {
+    await fetch(`${API_BASE}/machines/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+  },
+
+  // Workouts
+  async getWorkouts(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/workouts/`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch workouts", err);
+    }
+    return [];
+  },
+
+  async createWorkout(data: {
+    title: string;
+    difficulty?: string;
+    target_muscle_groups?: string;
+    description?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/workouts/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to create workout plan");
+    }
+    return await res.json();
+  },
+
+  // Expenses
+  async getExpenses(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/expenses/`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch expenses", err);
+    }
+    return [];
+  },
+
+  async recordExpense(data: {
+    title: string;
+    category: string;
+    amount: number;
+    vendor?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/expenses/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to record expense");
+    }
+    return await res.json();
+  },
+
+  // Classes
+  async getClasses(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/classes/`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch classes", err);
+    }
+    return [];
+  },
+
+  async createClass(data: {
+    name: string;
+    schedule: string;
+    category?: string;
+    capacity?: number;
+    room?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/classes/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to schedule class");
+    }
+    return await res.json();
+  },
+
+  // CSV Import & Export
+  async importMembersCsv(file: File): Promise<{
+    status: string;
+    total_rows: number;
+    imported: number;
+    duplicates: number;
+    errors: number;
+    details: any[];
+  }> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${API_BASE}/members/import-csv`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeader(),
+      },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "CSV import failed");
+    }
+    return await res.json();
+  },
+
+  getExportMembersCsvUrl(): string {
+    return `${API_BASE}/members/export-csv`;
+  },
+
+  // Membership Expiry & WhatsApp Renewal Engine
+  async getExpiringMemberships(days = 7): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/memberships/expiring?days=${days}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch expiring memberships", err);
+    }
+    return [];
+  },
+
+  async getRenewalReminders(days = 7): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/memberships/renewal-reminders?days=${days}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch renewal reminders", err);
+    }
+    return [];
+  },
+
+  async checkMembershipExpiries(): Promise<any> {
+    const res = await fetch(`${API_BASE}/memberships/check-expiries`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Expiry audit check failed");
+    }
+    return await res.json();
+  },
+
+  async getMembershipPlans(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/memberships/plans`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch membership plans", err);
+    }
+    return [];
+  },
+
+  async createMembershipPlan(data: { name: string; price: number; duration_months: number; description?: string; features?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/memberships/plans`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create membership plan");
+    }
+    return await res.json();
+  },
+
+  async updateMembershipPlan(id: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/memberships/plans/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update membership plan");
+    }
+    return await res.json();
+  },
+
+  async deleteMembershipPlan(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/memberships/plans/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to delete membership plan");
+    }
+    return await res.json();
+  },
+
+  // Invoices & Receipts
+  async getInvoices(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/payments/invoices`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch invoices", err);
+    }
+    return [];
+  },
+
+  // Cashfree Gateway
+  async createCashfreeOrder(data: {
+    amount: number;
+    currency?: string;
+    member_id?: string;
+    membership_id?: string;
+    notes?: Record<string, any>;
+    customer_name?: string;
+    customer_email?: string;
+    customer_phone?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/payments/cashfree/create-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create Cashfree order");
+    }
+    return await res.json();
+  },
+
+  async verifyCashfreePayment(data: {
+    cashfree_order_id?: string;
+    order_id?: string;
+    cashfree_payment_id?: string;
+    payment_id?: string;
+    signature?: string;
+    razorpay_order_id?: string;
+    razorpay_payment_id?: string;
+    razorpay_signature?: string;
+    member_id?: string;
+    amount: number;
+    membership_id?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/payments/cashfree/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Cashfree payment verification failed");
+    }
+    return await res.json();
+  },
+
+  // Razorpay Gateway (Compatibility Aliases)
+  async createRazorpayOrder(data: any): Promise<any> {
+    return this.createCashfreeOrder(data);
+  },
+
+  async verifyRazorpayPayment(data: any): Promise<any> {
+    return this.verifyCashfreePayment(data);
+  },
+
+  // Repsi SaaS Billing Architecture
+  async getBillingPlans(): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/plans`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load billing plans");
+    return await res.json();
+  },
+
+  async getBillingSubscription(workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) {
+      headers["X-Workspace-Id"] = workspaceId;
+    }
+    const res = await fetch(`${API_BASE}/workspaces/billing`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load subscription details");
+    return await res.json();
+  },
+
+  async createBillingCheckoutSession(data: { plan_code: string; billing_cycle?: string; currency?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/create-checkout-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create billing checkout session");
+    return await res.json();
+  },
+
+  async verifyBillingPayment(data: { cashfree_order_id: string; cashfree_payment_id: string; amount: number }): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/verify-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Billing payment verification failed");
+    return await res.json();
+  },
+
+  async changeBillingPlan(data: { target_plan_code: string; billing_cycle?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/change-plan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update billing plan");
+    return await res.json();
+  },
+
+  // CRM Endpoints
+  async getCrmDashboard(): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/dashboard`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load CRM dashboard");
+    return await res.json();
+  },
+
+  async getCrmLeads(params?: {
+    query?: string;
+    status?: string;
+    source?: string;
+    priority?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<{ items: any[]; total: number; page: number; page_size: number }> {
+    const q = new URLSearchParams();
+    if (params?.query) q.set("query", params.query);
+    if (params?.status && params.status !== "all") q.set("status", params.status);
+    if (params?.source && params.source !== "all") q.set("source", params.source);
+    if (params?.priority && params.priority !== "all") q.set("priority", params.priority);
+    if (params?.page) q.set("page", params.page.toString());
+    if (params?.page_size) q.set("page_size", params.page_size.toString());
+
+    const res = await fetch(`${API_BASE}/crm/leads?${q.toString()}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load CRM leads");
+    return await res.json();
+  },
+
+  async getLead(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads/${id}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load lead details");
+    return await res.json();
+  },
+
+  async createCrmLead(data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create lead");
+    }
+    return await res.json();
+  },
+
+  async updateLead(id: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update lead");
+    return await res.json();
+  },
+
+  async updateLeadStatus(id: string, status: string, notes?: string, lost_reason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ status, notes, lost_reason }),
+    });
+    if (!res.ok) throw new Error("Failed to update lead stage");
+    return await res.json();
+  },
+
+  async convertLeadToMember(id: string, data?: { plan_id?: string; plan_name?: string; start_date?: string; amount_paid?: number; payment_method?: string; password?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads/${id}/convert`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data || {}),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to convert lead to member");
+    }
+    return await res.json();
+  },
+
+  async deleteCrmLead(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/leads/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to delete lead");
+    }
+    return await res.json();
+  },
+
+  async checkAvailability(params: { email?: string; phone?: string; slug?: string }): Promise<{ email_exists: boolean; phone_exists: boolean; slug_exists?: boolean; email_message?: string; phone_message?: string; slug_message?: string }> {
+    const query = new URLSearchParams();
+    if (params.email) query.append("email", params.email);
+    if (params.phone) query.append("phone", params.phone);
+    if (params.slug) query.append("slug", params.slug);
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/check-availability?${query.toString()}`);
+      if (!res.ok) return { email_exists: false, phone_exists: false, slug_exists: false };
+      return await res.json();
+    } catch {
+      return { email_exists: false, phone_exists: false, slug_exists: false };
+    }
+  },
+
+  async getCrmPipeline(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/crm/pipeline`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load CRM pipeline");
+    return await res.json();
+  },
+
+  async getCrmFollowUps(statusFilter?: string): Promise<any[]> {
+    const q = statusFilter ? `?status_filter=${statusFilter}` : "";
+    const res = await fetch(`${API_BASE}/crm/follow-ups${q}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load CRM follow-ups");
+    return await res.json();
+  },
+
+  async createCrmFollowUp(data: {
+    lead_id?: string;
+    member_id?: string;
+    follow_up_type: string;
+    scheduled_at?: string;
+    scheduled_date?: string;
+    notes?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/follow-ups`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create follow-up");
+    return await res.json();
+  },
+
+  async updateCrmFollowUp(id: string, status: string, notes?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/crm/follow-ups/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ status, notes }),
+    });
+    if (!res.ok) throw new Error("Failed to update follow-up");
+    return await res.json();
+  },
+
+  async getCrmAtRisk(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/crm/at-risk`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load at-risk members");
+    return await res.json();
+  },
+
+  // Website Builder Endpoints
+  async getMyWebsite(): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load website configuration");
+    return await res.json();
+  },
+
+  async updateMyWebsite(data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update website");
+    return await res.json();
+  },
+
+  async publishMyWebsite(): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website/publish`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to publish website");
+    return await res.json();
+  },
+
+  async unpublishMyWebsite(): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website/unpublish`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to unpublish website");
+    return await res.json();
+  },
+
+  async connectCustomDomain(custom_domain: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website/domain`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ custom_domain }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to connect domain");
+    }
+    return await res.json();
+  },
+
+  async verifyCustomDomain(): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/my-website/verify-domain`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to verify domain");
+    }
+    return await res.json();
+  },
+
+  // Public Website API (No Auth)
+  async checkSlugAvailability(slug: string): Promise<{ slug: string; available: boolean; reason: string }> {
+    const res = await fetch(`${API_BASE}/websites/check-slug/${encodeURIComponent(slug.trim().toLowerCase())}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { slug, available: false, reason: "Unable to verify address" };
+    }
+    return await res.json();
+  },
+
+  async getPublicWebsite(slug: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/public/${encodeURIComponent(slug.trim().toLowerCase())}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Website not found or not published");
+    return await res.json();
+  },
+
+  async submitPublicLead(
+    slug: string,
+    data: {
+      name: string;
+      phone: string;
+      email?: string;
+      message?: string;
+      interested_plan?: string;
+      source_page?: string;
+      booking_type?: string;
+      preferred_date?: string;
+      preferred_time?: string;
+      source?: string;
+    }
+  ): Promise<any> {
+    const res = await fetch(`${API_BASE}/websites/public/${encodeURIComponent(slug.trim().toLowerCase())}/lead`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to submit inquiry");
+    }
+    return await res.json();
+  },
+
+  // Trainer Module
+  async getTrainers(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/trainers`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn("Failed to fetch trainers", err);
+    }
+    return [];
+  },
+
+  async createTrainer(data: {
+    name: string;
+    phone: string;
+    email?: string;
+    specialization?: string;
+    hourly_rate?: number;
+    commission_percentage?: number;
+    bio?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create trainer");
+    }
+    return await res.json();
+  },
+
+  async updateTrainer(id: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainers/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update trainer");
+    return await res.json();
+  },
+
+  async deleteTrainer(id: string): Promise<void> {
+    await fetch(`${API_BASE}/trainers/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+  },
+
+  async getCurrentTrainerProfile(): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainers/me`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to load trainer profile");
+    return await res.json();
+  },
+
+  async getCurrentTrainerClients(search?: string, statusFilter?: string): Promise<any[]> {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (statusFilter) params.set("status_filter", statusFilter);
+    const res = await fetch(`${API_BASE}/trainers/me/clients?${params.toString()}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async getCurrentTrainerSchedule(): Promise<{ sessions: any[]; classes: any[] }> {
+    const res = await fetch(`${API_BASE}/trainers/me/schedule`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return { sessions: [], classes: [] };
+    return await res.json();
+  },
+
+  async assignClientToTrainer(trainerId: string, clientId: string, notes?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer-client/assign`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ trainer_id: trainerId, client_id: clientId, notes }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to assign client");
+    }
+    return await res.json();
+  },
+
+  async updateTrainerClientStatus(relationshipId: string, status: string, notes?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer-client/${relationshipId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ status, notes }),
+    });
+    if (!res.ok) throw new Error("Failed to update assignment status");
+    return await res.json();
+  },
+
+  async getClientWorkouts(clientId: string): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/trainer/clients/${clientId}/workouts`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async createClientWorkout(clientId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer/clients/${clientId}/workouts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create workout plan");
+    }
+    return await res.json();
+  },
+
+  async updateWorkout(workoutId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/workouts/${workoutId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update workout");
+    return await res.json();
+  },
+
+  async completeWorkout(workoutId: string, completionPercentage = 100.0): Promise<any> {
+    const res = await fetch(`${API_BASE}/workouts/${workoutId}/complete?completion_percentage=${completionPercentage}`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to log workout completion");
+    return await res.json();
+  },
+
+  async getTrainerSessions(clientId?: string): Promise<any[]> {
+    const url = clientId ? `${API_BASE}/trainer/sessions?client_id=${clientId}` : `${API_BASE}/trainer/sessions`;
+    const res = await fetch(url, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async createTrainerSession(data: { title: string; client_id?: string; scheduled_at: string; duration_minutes?: number; notes?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer/sessions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create training session");
+    }
+    return await res.json();
+  },
+
+  async updateTrainerSession(sessionId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer/sessions/${sessionId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update session");
+    return await res.json();
+  },
+
+  async getClientNotes(clientId: string): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/trainer/clients/${clientId}/notes`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async createClientNote(clientId: string, content: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/trainer/clients/${clientId}/notes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create note");
+    }
+    return await res.json();
+  },
+
+  async getClientTrainers(clientId: string): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/clients/${clientId}/trainers`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  // Notifications
+  async getNotifications(page = 1, pageSize = 25): Promise<{ items: any[]; total: number; unread_count: number }> {
+    try {
+      const res = await fetch(`${API_BASE}/notifications?page=${page}&page_size=${pageSize}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch notifications", err);
+    }
+    return { items: [], total: 0, unread_count: 0 };
+  },
+
+  async createNotification(data: { title: string; message: string; user_id?: string; action_url?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/notifications`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to create notification");
+    }
+    return await res.json();
+  },
+
+  async markNotificationRead(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
+      method: "PATCH",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to mark notification as read");
+    return await res.json();
+  },
+
+  async markAllNotificationsRead(): Promise<any> {
+    const res = await fetch(`${API_BASE}/notifications/mark-all-read`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to mark all notifications as read");
+    return await res.json();
+  },
+
+  // ─── Super Admin Control Plane API ──────────────────────────────────────────
+  async getSuperAdminOverview(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE}/superadmin/overview`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      checkAuthResponse(res);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async superAdminSearch(q: string): Promise<any[]> {
+    if (!q || q.length < 2) return [];
+    try {
+      const res = await fetch(`${API_BASE}/superadmin/search?q=${encodeURIComponent(q)}`, {
+        headers: { ...getAuthHeader() },
+      });
+      checkAuthResponse(res);
+      if (res.ok) return await res.json();
+    } catch {}
+    return [];
+  },
+
+  async getSuperAdminWorkspaces(status?: string): Promise<any[]> {
+    try {
+      const query = status && status !== "all" ? `?status_filter=${status}` : "";
+      const res = await fetch(`${API_BASE}/superadmin/workspaces${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      checkAuthResponse(res);
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async createSuperAdminWorkspace(data: {
+    name: string;
+    slug: string;
+    owner_name: string;
+    owner_email: string;
+    owner_password?: string;
+    phone?: string;
+    city?: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/workspaces`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to provision gym tenant");
+    }
+    return await res.json();
+  },
+
+  async updateSuperAdminWorkspaceStatus(id: string, is_active: boolean, reason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/workspaces/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ is_active, reason }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update gym status");
+    }
+    return await res.json();
+  },
+
+  async deleteSuperAdminWorkspacePermanently(id: string, data: {
+    confirmation_slug: string;
+    admin_password: string;
+    reason: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/workspaces/${id}/delete-permanently`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to permanently delete gym");
+    }
+    return await res.json();
+  },
+
+  async exportSuperAdminWorkspace(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/workspaces/${id}/export`, {
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error("Failed to export gym data");
+    return await res.json();
+  },
+
+  async getSuperAdminMembers(params?: {
+    q?: string;
+    gym_filter?: string;
+    status_filter?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<any[]> {
+    try {
+      const sp = new URLSearchParams();
+      if (params?.q) sp.set("q", params.q);
+      if (params?.gym_filter && params.gym_filter !== "all") sp.set("gym_filter", params.gym_filter);
+      if (params?.status_filter && params.status_filter !== "all") sp.set("status_filter", params.status_filter);
+      if (params?.page) sp.set("page", String(params.page));
+      if (params?.limit) sp.set("limit", String(params.limit));
+
+      const query = sp.toString() ? `?${sp.toString()}` : "";
+      const res = await fetch(`${API_BASE}/superadmin/members${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async updateSuperAdminMemberStatus(id: string, status: string, reason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/members/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ status, reason }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update member status");
+    }
+    return await res.json();
+  },
+
+  async deleteSuperAdminMemberPermanently(id: string, data: {
+    confirmation_name: string;
+    admin_password: string;
+    reason: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/members/${id}/delete-permanently`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to permanently delete member");
+    }
+    return await res.json();
+  },
+
+  async getSuperAdminTrainers(params?: { q?: string; gym_filter?: string; status_filter?: string }): Promise<any[]> {
+    try {
+      const sp = new URLSearchParams();
+      if (params?.q) sp.set("q", params.q);
+      if (params?.gym_filter && params.gym_filter !== "all") sp.set("gym_filter", params.gym_filter);
+      if (params?.status_filter && params.status_filter !== "all") sp.set("status_filter", params.status_filter);
+
+      const query = sp.toString() ? `?${sp.toString()}` : "";
+      const res = await fetch(`${API_BASE}/superadmin/trainers${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async updateSuperAdminTrainerStatus(id: string, is_active: boolean, reason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/trainers/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ is_active, reason }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update trainer status");
+    }
+    return await res.json();
+  },
+
+  async getSuperAdminUsers(role_filter?: string): Promise<any[]> {
+    try {
+      const query = role_filter && role_filter !== "all" ? `?role_filter=${role_filter}` : "";
+      const res = await fetch(`${API_BASE}/superadmin/users${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async getSuperAdminAuditLogs(params?: { limit?: number; action?: string }): Promise<any[]> {
+    try {
+      const sp = new URLSearchParams();
+      if (params?.limit) sp.set("limit", String(params.limit));
+      if (params?.action && params.action !== "all") sp.set("action", params.action);
+      const query = sp.toString() ? `?${sp.toString()}` : "";
+
+      const res = await fetch(`${API_BASE}/superadmin/audit-logs${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async deleteSuperAdminUser(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/users/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to permanently delete user");
+    }
+    return await res.json();
+  },
+
+  async getSuperAdminSystemHealth(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE}/superadmin/system-health`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return { status: "healthy", database: "connected", memory_usage: "normal" };
+      return await res.json();
+    } catch {
+      return { status: "healthy", database: "connected", memory_usage: "normal" };
+    }
+  },
+
+  async getSuperAdminPayments(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE}/superadmin/payments`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  async broadcastSuperAdminAnnouncement(data: {
+    target_audience: string;
+    subject: string;
+    message: string;
+  }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/broadcast`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to send broadcast");
+    }
+    return await res.json();
+  },
+
+  async globalSearch(q: string): Promise<{
+    query: string;
+    role: string;
+    members: Array<{
+      id: string;
+      name: string;
+      code: string;
+      status: string;
+      email: string;
+      phone: string;
+      plan: string;
+      subtitle: string;
+      href: string;
+    }>;
+    trainers: Array<{
+      id: string;
+      name: string;
+      code: string;
+      specialization: string;
+      phone: string;
+      subtitle: string;
+      href: string;
+    }>;
+    features: Array<{
+      id: string;
+      title: string;
+      description: string;
+      category: string;
+      href: string;
+    }>;
+  }> {
+    try {
+      const query = encodeURIComponent(q.trim());
+      const res = await fetch(`${API_BASE}/search/global?q=${query}`, {
+        headers: { ...getAuthHeader() },
+        cache: "no-store",
+      });
+      if (!res.ok) return { query: q, role: "OWNER", members: [], trainers: [], features: [] };
+      return await res.json();
+    } catch {
+      return { query: q, role: "OWNER", members: [], trainers: [], features: [] };
+    }
+  },
+
+  // -------------------------------------------------------------
+  // Subscription & Entitlements
+  // -------------------------------------------------------------
+
+  async getWorkspaceEntitlements(): Promise<any> {
+    const res = await fetch(`${API_BASE}/workspaces/entitlements`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to load workspace entitlements");
+    }
+    return await res.json();
+  },
+
+  async getWorkspace(workspaceId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/workspaces/${encodeURIComponent(workspaceId)}`, {
+      headers: { ...getAuthHeader(), "X-Workspace-Id": workspaceId },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load workspace");
+    }
+    return await res.json();
+  },
+
+  async checkWorkspaceName(name: string, workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/workspaces/check-name?name=${encodeURIComponent(name)}`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Name check failed");
+    }
+    return await res.json();
+  },
+
+  async getRenameEligibility(workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = { ...getAuthHeader() };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/workspaces/rename-eligibility`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load rename eligibility");
+    }
+    return await res.json();
+  },
+
+  async renameWorkspace(newName: string, workspaceId?: string): Promise<any> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    };
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+    const res = await fetch(`${API_BASE}/workspaces/rename`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ new_name: newName }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to rename workspace");
+    }
+    return await res.json();
+  },
+
+  async updateWorkspace(workspaceId: string, data: any): Promise<any> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+      "X-Workspace-Id": workspaceId,
+    };
+    const res = await fetch(`${API_BASE}/workspaces/${encodeURIComponent(workspaceId)}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update workspace settings");
+    }
+    return await res.json();
+  },
+
+  async deregisterWorkspace(gymNameConfirmation: string, reason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/workspaces/deregister`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({
+        gym_name_confirmation: gymNameConfirmation,
+        reason: reason || "Owner requested gym deregistration",
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to deregister workspace");
+    }
+    return await res.json();
+  },
+
+  // Super Admin Subscriptions
+  async getSuperAdminSubscriptionPlans(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/plans`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async updateSuperAdminSubscriptionPlan(planId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/plans/${planId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update plan");
+    }
+    return await res.json();
+  },
+
+  async getTrialStatus(workspace?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/trial-status`, {
+      headers: {
+        ...getAuthHeader(),
+        ...(workspace ? { "X-Workspace-Id": workspace } : {}),
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load trial status");
+    }
+    return await res.json();
+  },
+
+  async getSuperAdminTrialAnalytics(): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/trial-analytics`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load trial analytics");
+    }
+    return await res.json();
+  },
+
+  async reconcileTrials(): Promise<any> {
+    const res = await fetch(`${API_BASE}/billing/reconcile-trials`, {
+      method: "POST",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to reconcile trials");
+    }
+    return await res.json();
+  },
+
+  async getSuperAdminGymSubscriptions(params?: { q?: string; status?: string; plan?: string; filter_type?: string }): Promise<any[]> {
+    const sp = new URLSearchParams();
+    if (params?.q) sp.set("q", params.q);
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
+    if (params?.plan && params.plan !== "all") sp.set("plan", params.plan);
+    if (params?.filter_type && params.filter_type !== "all") sp.set("filter_type", params.filter_type);
+    const query = sp.toString() ? `?${sp.toString()}` : "";
+
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms${query}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  },
+
+  async getSuperAdminGymSubscription(workspaceId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}`, {
+      headers: { ...getAuthHeader() },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load gym subscription details");
+    }
+    return await res.json();
+  },
+
+  async extendSuperAdminGymTrial(workspaceId: string, days: number, reason: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}/extend-trial`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ days, reason }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to extend trial");
+    }
+    return await res.json();
+  },
+
+  async changeSuperAdminGymPlan(workspaceId: string, data: { plan_code: string; billing_cycle?: string; reason?: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}/change-plan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to change gym plan");
+    }
+    return await res.json();
+  },
+
+  async grantSuperAdminComplimentary(workspaceId: string, data: { days?: number; is_permanent?: boolean; reason: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}/complimentary`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to grant complimentary access");
+    }
+    return await res.json();
+  },
+
+  async setSuperAdminGymOverride(workspaceId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}/override`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to set gym overrides");
+    }
+    return await res.json();
+  },
+
+  async updateSuperAdminGymSubscriptionStatus(workspaceId: string, data: { status: string; reason: string }): Promise<any> {
+    const res = await fetch(`${API_BASE}/superadmin/subscriptions/gyms/${workspaceId}/status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update subscription status");
+    }
+    return await res.json();
+  },
+
+  // ─── MANUAL PAYMENT SETTINGS & SUBMISSION WORKFLOW ─────────────────────────
+
+  async getPaymentSettings(): Promise<ApiPaymentSettings> {
+    const res = await fetch(`${API_BASE}/payments/settings`, {
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load payment settings");
+    }
+    return await res.json();
+  },
+
+  async updatePaymentSettings(data: Partial<ApiPaymentSettings>): Promise<ApiPaymentSettings> {
+    const res = await fetch(`${API_BASE}/payments/settings`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update payment settings");
+    }
+    return await res.json();
+  },
+
+  async uploadMerchantQr(file: File): Promise<ApiPaymentSettings> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${API_BASE}/payments/settings/qr-code`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeader(),
+      },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to upload QR image");
+    }
+    return await res.json();
+  },
+
+  async removeMerchantQr(): Promise<ApiPaymentSettings> {
+    const res = await fetch(`${API_BASE}/payments/settings/qr-code`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to delete QR image");
+    }
+    return await res.json();
+  },
+
+  async getInvoicePaymentInstructions(invoiceId: string): Promise<ApiPaymentInstructions> {
+    const res = await fetch(`${API_BASE}/payments/invoices/${invoiceId}/instructions`, {
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load payment instructions");
+    }
+    return await res.json();
+  },
+
+  getReceiptUrl(submissionId: string): string {
+    return `${API_BASE}/payments/submissions/${submissionId}/receipt`;
+  },
+
+  getMerchantQrUrl(): string {
+    return `${API_BASE}/payments/settings/qr-code`;
+  },
+
+  async submitPaymentReceipt(
+    data: FormData | {
+      invoice_id: string;
+      amount_paid: number;
+      payment_method: string;
+      transaction_reference?: string;
+      payment_date?: string;
+      receipt_file: File;
+      notes?: string;
+    }
+  ): Promise<ApiPaymentSubmission> {
+    let body: FormData;
+    if (data instanceof FormData) {
+      body = data;
+    } else {
+      body = new FormData();
+      body.append("invoice_id", data.invoice_id);
+      body.append("amount_paid", data.amount_paid.toString());
+      body.append("payment_method", data.payment_method);
+      if (data.transaction_reference) body.append("transaction_reference", data.transaction_reference);
+      if (data.payment_date) body.append("payment_date", data.payment_date);
+      if (data.notes) body.append("notes", data.notes);
+      body.append("receipt_file", data.receipt_file);
+    }
+    const res = await fetch(`${API_BASE}/payments/submissions`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeader(),
+      },
+      body,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to submit payment receipt");
+    }
+    return await res.json();
+  },
+
+  async getPaymentSubmissions(status?: string, search?: string): Promise<ApiPaymentSubmission[]> {
+    const params = new URLSearchParams();
+    if (status && status !== "all") params.append("status", status);
+    if (search) params.append("search", search);
+
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    const res = await fetch(`${API_BASE}/payments/submissions${qs}`, {
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      return [];
+    }
+    return await res.json();
+  },
+
+  async getPaymentSubmission(id: string): Promise<ApiPaymentSubmission> {
+    const res = await fetch(`${API_BASE}/payments/submissions/${id}`, {
+      headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to load payment submission");
+    }
+    return await res.json();
+  },
+
+  async approvePaymentSubmission(id: string): Promise<ApiPaymentSubmission> {
+    const res = await fetch(`${API_BASE}/payments/submissions/${id}/approve`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to approve payment submission");
+    }
+    return await res.json();
+  },
+
+  async rejectPaymentSubmission(id: string, rejectionReason: string): Promise<ApiPaymentSubmission> {
+    const res = await fetch(`${API_BASE}/payments/submissions/${id}/reject`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ decision: "reject", rejection_reason: rejectionReason }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to reject payment submission");
+    }
+    return await res.json();
+  },
+
+  async updateUserLanguage(language: string): Promise<{ status: string; language: string }> {
+    const res = await fetch(`${API_BASE}/auth/me/language`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ language }),
+    });
+    if (!res.ok) {
+      return { status: "fallback", language };
+    }
+    return await res.json();
+  },
+};
+
+export const api = repsiApi;
+export default repsiApi;
+

@@ -1,0 +1,320 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.font-handwriting {
+  font-family: "Caveat", cursive;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* REPSI Design Tokens — Light Theme (default)                        */
+/* Green + Deep Charcoal + Soft Mint                                   */
+/* ─────────────────────────────────────────────────────────────────── */
+:root {
+  /* Font */
+  --font-sans: "Outfit", sans-serif;
+
+  /* Backgrounds */
+  --background: #F7FAF8;
+  --surface: #FFFFFF;
+  --surface-secondary: #ECFDF3;
+  --surface-elevated: #FFFFFF;
+  --sidebar: #FFFFFF;
+  --sidebar-border: #E5E7EB;
+
+  /* Primary (Repsi Green) */
+  --primary: #16A34A;
+  --primary-hover: #15803D;
+  --primary-dark: #15803D;
+  --primary-soft: #ECFDF3;
+  --primary-foreground: #FFFFFF;
+
+  /* Text Hierarchy */
+  --text: #172033;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-disabled: #94A3B8;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border: #E5E7EB;
+  --border-strong: #D1D5DB;
+  --divider: #E5E7EB;
+
+  /* Semantic */
+  --success: #16A34A;
+  --success-soft: #DCFCE7;
+  --success-foreground: #15803D;
+  --warning: #D97706;
+  --warning-soft: #FEF3C7;
+  --warning-foreground: #B45309;
+  --error: #DC2626;
+  --error-soft: #FEE2E2;
+  --error-foreground: #B91C1C;
+  --info: #2563EB;
+  --info-soft: #EFF6FF;
+  --info-foreground: #2563EB;
+
+  /* Interactive */
+  --ring: #16A34A;
+  --ring-offset: #F7FAF8;
+
+  /* Sidebar nav active state */
+  --nav-active-bg: #E8F5EE;
+  --nav-active-text: #15803D;
+  --nav-active-indicator: #16A34A;
+  --nav-hover-bg: #F3F7F5;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.04), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* REPSI Design Tokens — Dark Theme                                   */
+/* Deep Green-Black Background (#08110D)                              */
+/* ─────────────────────────────────────────────────────────────────── */
+.dark {
+  /* Backgrounds */
+  --background: #08110d;
+  --surface: #101b16;
+  --surface-elevated: #16241e;
+  --surface-soft: #1b2c24;
+  --sidebar: #08110d;
+  --sidebar-border: #263831;
+
+  /* Primary */
+  --primary: #25d979;
+  --primary-hover: #18b968;
+  --primary-dark: #18b968;
+  --primary-soft: #1b2c24;
+  --primary-foreground: #08110d;
+
+  /* Text */
+  --text: #f4f8f6;
+  --text-secondary: #aab8b1;
+  --text-muted: #718079;
+  --text-inverse: #101918;
+
+  /* Borders & Dividers */
+  --border: #263831;
+  --border-strong: #334840;
+  --divider: #1e2d26;
+
+  /* Semantic */
+  --success: #25d979;
+  --success-soft: #16241e;
+  --success-foreground: #25d979;
+  --warning: #fbbf24;
+  --warning-soft: #241d08;
+  --warning-foreground: #fbbf24;
+  --error: #ff6b70;
+  --error-soft: #2b1113;
+  --error-foreground: #ff6b70;
+  --info: #60a5fa;
+  --info-soft: #0d1e33;
+  --info-foreground: #60a5fa;
+
+  /* Interactive */
+  --ring: #25d979;
+  --ring-offset: #08110d;
+
+  /* Sidebar nav active state */
+  --nav-active-bg: #16241e;
+  --nav-active-text: #25d979;
+  --nav-active-indicator: #25d979;
+  --nav-hover-bg: #101b16;
+
+  /* Shadows — use borders for elevation in dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+/* Force light theme for .light scope even inside html.dark */
+.light,
+html.dark .light,
+html.dark .light * {
+  --background: #f7faf8;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+
+  --sidebar: #ffffff;
+  --sidebar-border: #e2e8df;
+
+  --text: #172033;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --border: #e2e8df;
+  --border-strong: #cbd5c5;
+
+  --nav-active-bg: #f0fbe2;
+  --nav-active-text: #365314;
+  --nav-hover-bg: #f1f5ee;
+  color-scheme: light;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Tailwind v4 Theme Mapping                                          */
+/* ─────────────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-sidebar: var(--sidebar);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: var(--radius-sm);
+  --radius-DEFAULT: var(--radius);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Base Styles                                                        */
+/* ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Focus Ring                                                         */
+/* ─────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Scrollbar Styles                                                   */
+/* ─────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Selection                                                          */
+/* ─────────────────────────────────────────────────────────────────── */
+::selection {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Utility — prevent layout flash on theme load                       */
+/* ─────────────────────────────────────────────────────────────────── */
+.no-transition * {
+  transition: none !important;
+}
+
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+.animate-border-beam {
+  animation: border-beam var(--duration, 8s) infinite linear;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Accessibility — Reduced Motion                                     */
+/* ─────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+  }
+
+  .animate-bounce,
+  .animate-pulse,
+  .animate-ping {
+    animation: none !important;
+  }
+}
