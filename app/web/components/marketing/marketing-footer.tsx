@@ -25,12 +25,12 @@ export function MarketingFooter() {
   }, []);
 
   return (
-    <footer className="relative bg-[#FAF9F6] text-[#191919] border-t border-[#E7E4DE] overflow-hidden pt-16 sm:pt-20 pb-8 sm:pb-10 font-sans">
+    <footer className="relative bg-[#FAF9F6] text-[#191919] border-t border-[#E7E4DE] overflow-hidden pt-8 sm:pt-10 pb-5 sm:pb-6 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
         {/* ───────────────────────────────────────────────────────────── */}
         {/* 01. UPPER FOOTER: FOUR CLEAN COLUMNS                          */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12 sm:pb-16 border-b border-[#E7E4DE]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-6 sm:pb-8 border-b border-[#E7E4DE]">
           {/* Brand Column (Spans 5 cols on lg) */}
           <div className="lg:col-span-5 space-y-4">
             <Link
@@ -232,7 +232,7 @@ export function MarketingFooter() {
         {/* 02. OVERSIZED WORDMARK IN ORANGE WITH HALFTONE REVEAL & 3D LANYARD */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div
-          className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[440px] xl:h-[480px] overflow-hidden select-none flex items-center justify-center my-4 sm:my-6"
+          className="relative w-full h-[140px] sm:h-[180px] md:h-[220px] lg:h-[260px] overflow-hidden select-none flex items-center justify-center my-2 sm:my-3"
           aria-hidden="true"
         >
           {/* Halftone Reveal Canvas Component from ReactBits */}
@@ -256,7 +256,7 @@ export function MarketingFooter() {
               />
             </div>
           ) : (
-            <span className="font-heading font-black text-[clamp(6.5rem,27vw,24rem)] leading-[0.72] tracking-[-0.04em] text-[#E25822] select-none text-center whitespace-nowrap pointer-events-none drop-shadow-xs">
+            <span className="font-heading font-black text-[clamp(3.5rem,14vw,10rem)] leading-[0.72] tracking-[-0.04em] text-[#E25822] select-none text-center whitespace-nowrap pointer-events-none drop-shadow-xs">
               REPSI
             </span>
           )}

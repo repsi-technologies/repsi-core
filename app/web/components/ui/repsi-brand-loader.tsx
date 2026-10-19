@@ -10,13 +10,12 @@ interface RepsiBrandLoaderProps {
 }
 
 /**
- * Signature R Reveal Loader (Idea 1)
- * Displays the custom REPSI R logo in the center on #FAF9F6 cream background.
- * The coral-orange diagonal accent draws in first, followed by the charcoal R body,
- * with a thin coral-orange progress line beneath.
+ * Signature R Reveal Loader
+ * Displays the official REPSI R logo in the center on #FAF9F6 cream background,
+ * with Flame Orange accent slice and a fluid indeterminate progress line.
  */
 export function RepsiBrandLoader({
-  message = "Loading workspace...",
+  message = "Loading...",
   fullScreen = true,
   className = "",
 }: RepsiBrandLoaderProps) {
@@ -28,82 +27,50 @@ export function RepsiBrandLoader({
 
   return (
     <div className={containerClasses} role="status" aria-live="polite">
-      <div className="flex flex-col items-center justify-center space-y-5">
-        {/* REPSI R Animated Logo */}
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center space-y-6">
+        {/* REPSI Iconic R Logo Mark */}
+        <div className="relative w-24 h-20 sm:w-28 sm:h-24 flex items-center justify-center">
+          {/* Ambient Pulsing Aura */}
+          <div className="absolute inset-0 rounded-full bg-[#E25822]/15 blur-2xl animate-pulse pointer-events-none" />
+
           <svg
-            viewBox="0 0 100 100"
+            viewBox="-25 -5 155 115"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-full drop-shadow-sm"
+            className="w-full h-full relative z-10 drop-shadow-md overflow-visible"
           >
-            {/* Charcoal R Body: Vertical Stem + Upper Loop */}
-            <motion.path
-              d="M 28 82 V 18 H 54 C 68 18 78 26 78 38 C 78 50 68 58 54 58 H 28"
-              stroke="#191919"
-              strokeWidth="11"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={
-                shouldReduceMotion
-                  ? { opacity: 1, pathLength: 1 }
-                  : { opacity: 0, pathLength: 0 }
-              }
-              animate={{ opacity: 1, pathLength: 1 }}
-              transition={{
-                duration: 0.55,
-                delay: shouldReduceMotion ? 0 : 0.12,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+            <defs>
+              <linearGradient id="repsiSlashGradLoader" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FF7A45" />
+                <stop offset="100%" stopColor="#E25822" />
+              </linearGradient>
+            </defs>
+
+            {/* Charcoal Upper R Body & Loop */}
+            <path
+              d="M 0 0 L 80 0 C 105 0 118 10 118 30 C 118 46 108 55 92 58 L 120 100 L 86 100 L 62 62 L 32 62 L 32 100 L 0 100 Z M 32 20 L 32 44 L 75 44 C 84 44 90 40 90 32 C 90 24 84 20 75 20 Z"
+              fill="#191919"
             />
 
-            {/* Signature Coral-Orange Diagonal Slash Leg */}
-            <motion.path
-              d="M 50 56 L 76 82"
-              stroke="#E25822"
-              strokeWidth="11"
-              strokeLinecap="round"
-              initial={
-                shouldReduceMotion
-                  ? { opacity: 1, pathLength: 1, scale: 1 }
-                  : { opacity: 0, pathLength: 0, scale: 0.85 }
-              }
-              animate={{ opacity: 1, pathLength: 1, scale: 1 }}
-              transition={{
-                duration: 0.45,
-                delay: shouldReduceMotion ? 0 : 0.02,
-                ease: "easeOut",
-              }}
-            />
-
-            {/* Subtle glow / dot accent at intersection */}
-            <motion.circle
-              cx="50"
-              cy="56"
-              r="2.5"
-              fill="#E25822"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35, duration: 0.2 }}
+            {/* Signature Flame Orange Diagonal Slash Leg */}
+            <polygon
+              points="0,55 30,55 5,100 -20,100"
+              fill="url(#repsiSlashGradLoader)"
+              className="filter drop-shadow-[0_2px_8px_rgba(226,88,34,0.45)]"
             />
           </svg>
         </div>
 
         {/* Wordmark & Status Line */}
-        <div className="flex flex-col items-center space-y-2.5">
-          <motion.span
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="font-heading font-black text-sm tracking-[0.2em] text-[#191919] uppercase"
-          >
+        <div className="flex flex-col items-center space-y-3">
+          <span className="font-heading font-black text-sm tracking-[0.25em] text-[#191919] uppercase">
             REPSI
-          </motion.span>
+          </span>
 
-          {/* Thin Coral-Orange Progress Line */}
-          <div className="w-32 sm:w-36 h-[2.5px] bg-[#E7E4DE] rounded-full overflow-hidden relative">
+          {/* Fluid Indeterminate Flame Orange Progress Line */}
+          <div className="w-40 sm:w-48 h-1.5 bg-[#E7E4DE] rounded-full overflow-hidden relative shadow-inner">
             <motion.div
-              className="absolute top-0 bottom-0 bg-[#E25822] rounded-full"
+              className="absolute top-0 bottom-0 bg-gradient-to-r from-[#E25822] via-[#FF6D2E] to-[#E25822] rounded-full shadow-[0_0_8px_rgba(226,88,34,0.4)]"
               initial={
                 shouldReduceMotion
                   ? { left: 0, right: 0 }
@@ -129,14 +96,9 @@ export function RepsiBrandLoader({
           </div>
 
           {message && (
-            <motion.p
-              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="text-xs font-medium text-[#62666D]"
-            >
+            <p className="text-xs font-mono text-[#858890] pt-1">
               {message}
-            </motion.p>
+            </p>
           )}
         </div>
       </div>
