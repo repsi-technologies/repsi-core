@@ -79,30 +79,30 @@ export function GettingStartedDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl rounded-2xl bg-white dark:bg-[#131a16] border border-[#E5EAE6] dark:border-[#223127] p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-xl rounded-2xl bg-white dark:bg-[#131a16] border border-[var(--border)] dark:border-[#223127] p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-[#64748B] hover:text-[#111714] dark:hover:text-white hover:bg-[#F1F5F2] dark:hover:bg-[#1b2520] transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] dark:hover:text-white hover:bg-[var(--surface-hover)] dark:hover:bg-[#1b2520] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header with Mascot */}
-        <div className="flex items-center gap-4 border-b border-[#E5EAE6] dark:border-[#223127] pb-5">
+        <div className="flex items-center gap-4 border-b border-[var(--border)] dark:border-[#223127] pb-5">
           <RepsiMascot pose="onboarding" size="sm" animate={false} />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#16A34A] bg-[#E8F8ED] dark:bg-[#163321] px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[#E8F8ED] dark:bg-[#163321] px-2 py-0.5 rounded">
                 Getting Started Guide
               </span>
-              <span className="text-xs font-bold text-[#64748B]">
+              <span className="text-xs font-bold text-[var(--text-muted)]">
                 {completedCount} of {steps.length} completed
               </span>
             </div>
-            <h2 className="text-xl font-bold text-[#111714] dark:text-white mt-1">
+            <h2 className="text-xl font-bold text-[var(--text)] dark:text-white mt-1">
               Set up your gym
             </h2>
-            <p className="text-xs text-[#64748B] dark:text-[#8D9C94] mt-0.5">
+            <p className="text-xs text-[var(--text-muted)] dark:text-[#8D9C94] mt-0.5">
               Follow these recommended steps to have your gym operational in minutes.
             </p>
           </div>
@@ -110,13 +110,13 @@ export function GettingStartedDialog({
 
         {/* Progress Bar */}
         <div className="my-5">
-          <div className="flex items-center justify-between text-xs font-semibold text-[#111714] dark:text-[#E8F0EC] mb-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)] dark:text-[#E8F0EC] mb-1.5">
             <span>Setup progress</span>
-            <span className="text-[#16A34A]">{progressPct}%</span>
+            <span className="text-[var(--primary-dark)]">{progressPct}%</span>
           </div>
-          <div className="w-full h-2 rounded-full bg-[#F1F5F2] dark:bg-[#1a251e] overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-[var(--surface-hover)] dark:bg-[#1a251e] overflow-hidden">
             <div
-              className="h-full bg-[#16A34A] transition-all duration-500 rounded-full"
+              className="h-full bg-[var(--primary)] transition-all duration-500 rounded-full"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -129,21 +129,21 @@ export function GettingStartedDialog({
               key={s.id}
               className={`flex items-center justify-between gap-3 p-3.5 rounded-xl border transition-all ${
                 s.completed
-                  ? "bg-[#F7FCF9] dark:bg-[#102317]/40 border-[#16A34A]/20"
-                  : "bg-white dark:bg-[#16201b] border-[#E5EAE6] dark:border-[#223127] hover:border-[#16A34A]/40"
+                  ? "bg-[#F7FCF9] dark:bg-[#102317]/40 border-[var(--primary)]/20"
+                  : "bg-white dark:bg-[#16201b] border-[var(--border)] dark:border-[#223127] hover:border-[var(--primary)]/40"
               }`}
             >
               <div className="flex items-start gap-3">
                 {s.completed ? (
-                  <CheckCircle2 className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-[var(--primary-dark)] shrink-0 mt-0.5" />
                 ) : (
                   <Circle className="w-5 h-5 text-[#94A3B8] shrink-0 mt-0.5" />
                 )}
                 <div>
-                  <h4 className="text-xs font-bold text-[#111714] dark:text-white">
+                  <h4 className="text-xs font-bold text-[var(--text)] dark:text-white">
                     {s.title}
                   </h4>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#8D9C94] mt-0.5">
+                  <p className="text-[11px] text-[var(--text-muted)] dark:text-[#8D9C94] mt-0.5">
                     {s.desc}
                   </p>
                 </div>
@@ -154,8 +154,8 @@ export function GettingStartedDialog({
                 onClick={onClose}
                 className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${
                   s.completed
-                    ? "text-[#16A34A] bg-[#16A34A]/10 hover:bg-[#16A34A]/20"
-                    : "bg-[#111714] dark:bg-white text-white dark:text-[#111714] hover:opacity-90"
+                    ? "text-[var(--primary-dark)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20"
+                    : "bg-[#111714] dark:bg-white text-white dark:text-[var(--text)] hover:opacity-90"
                 }`}
               >
                 <span>{s.completed ? "✓ Completed" : "Set up"}</span>
@@ -165,8 +165,8 @@ export function GettingStartedDialog({
           ))}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[#E5EAE6] dark:border-[#223127] flex items-center justify-between">
-          <span className="text-[11px] text-[#64748B] dark:text-[#8D9C94]">
+        <div className="mt-6 pt-4 border-t border-[var(--border)] dark:border-[#223127] flex items-center justify-between">
+          <span className="text-[11px] text-[var(--text-muted)] dark:text-[#8D9C94]">
             You can reopen this checklist anytime from the top bar.
           </span>
           <Button size="sm" variant="outline" onClick={onClose} className="text-xs">

@@ -70,7 +70,7 @@ export default function FitnessIntegrationsPage(props: { params: Promise<{ works
             className={`px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-colors ${
               stravaConnected
                 ? "border border-[var(--border)] bg-[var(--background)] text-[var(--text-muted)] hover:text-[var(--text)]"
-                : "bg-orange-600 text-white"
+                : "bg-orange-600 text-[var(--primary-foreground)]"
             }`}
           >
             {stravaConnected ? "Disconnect" : "Connect Strava"}

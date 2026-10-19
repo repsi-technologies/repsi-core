@@ -126,7 +126,7 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <Link href={`/${workspace}/trainer/workouts`}>
-            <Button size="sm" className="gap-1.5 bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)] text-xs">
+            <Button size="sm" className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)] text-xs">
               <Dumbbell className="h-3.5 w-3.5" />
               + Assign Workout
             </Button>
@@ -360,7 +360,7 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
                 <Button type="button" variant="outline" onClick={() => setSessionModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={scheduling || !selectedClientId} className="bg-emerald-600 text-white hover:bg-emerald-700">
+                <Button type="submit" disabled={scheduling || !selectedClientId} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]">
                   {scheduling ? "Scheduling..." : "Schedule Session"}
                 </Button>
               </div>

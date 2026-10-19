@@ -97,9 +97,9 @@ export function RepsiMascot({
   return (
     <div className={cn("relative inline-flex flex-col items-center select-none", className)}>
       {speechBubble && bubblePosition === "top" && (
-        <div className="relative mb-2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1a211e] border border-[#E5EAE6] dark:border-[#27352d] shadow-sm text-xs font-semibold text-[#111714] dark:text-[#E8F0EC] max-w-[220px] text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="relative mb-2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1a211e] border border-[var(--border)] dark:border-[#27352d] shadow-sm text-xs font-semibold text-[var(--text)] dark:text-[#E8F0EC] max-w-[220px] text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
           {speechBubble}
-          <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#1a211e] border-b border-r border-[#E5EAE6] dark:border-[#27352d] rotate-45" />
+          <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#1a211e] border-b border-r border-[var(--border)] dark:border-[#27352d] rotate-45" />
         </div>
       )}
 
@@ -121,9 +121,9 @@ export function RepsiMascot({
       </div>
 
       {speechBubble && bubblePosition === "right" && (
-        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1a211e] border border-[#E5EAE6] dark:border-[#27352d] shadow-sm text-xs font-semibold text-[#111714] dark:text-[#E8F0EC] whitespace-nowrap">
+        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1a211e] border border-[var(--border)] dark:border-[#27352d] shadow-sm text-xs font-semibold text-[var(--text)] dark:text-[#E8F0EC] whitespace-nowrap">
           {speechBubble}
-          <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white dark:bg-[#1a211e] border-b border-l border-[#E5EAE6] dark:border-[#27352d] rotate-45" />
+          <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white dark:bg-[#1a211e] border-b border-l border-[var(--border)] dark:border-[#27352d] rotate-45" />
         </div>
       )}
     </div>

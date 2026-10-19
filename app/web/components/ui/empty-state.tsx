@@ -56,7 +56,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-12 px-4 max-w-2xl mx-auto rounded-2xl bg-white/70 dark:bg-[#151c18]/70 border border-[#E5EAE6] dark:border-[#243329] backdrop-blur-sm shadow-xs transition-all",
+        "flex flex-col items-center justify-center text-center py-12 px-4 max-w-2xl mx-auto rounded-2xl bg-white/70 dark:bg-[#151c18]/70 border border-[var(--border)] dark:border-[#243329] backdrop-blur-sm shadow-xs transition-all",
         className
       )}
     >
@@ -91,7 +91,7 @@ export function EmptyState({
           {action && (
             <Button
               onClick={action.onClick}
-              className="bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold shadow-xs"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-xs"
             >
               {action.icon}
               {action.label}
@@ -101,7 +101,7 @@ export function EmptyState({
             <Button
               variant="outline"
               onClick={secondaryAction.onClick}
-              className="border-[#E5EAE6] dark:border-[#27352d] text-[var(--text)] hover:bg-[var(--surface-hover)]"
+              className="border-[var(--border)] dark:border-[#27352d] text-[var(--text)] hover:bg-[var(--surface-hover)]"
             >
               {secondaryAction.icon}
               {secondaryAction.label}
@@ -112,30 +112,30 @@ export function EmptyState({
 
       {/* Optional Interactive Template Card */}
       {templateCard && (
-        <div className="w-full max-w-sm my-4 text-left p-4 rounded-xl border border-dashed border-[#16A34A]/40 bg-[#F4FBF6] dark:bg-[#112317] space-y-3">
+        <div className="w-full max-w-sm my-4 text-left p-4 rounded-xl border border-dashed border-[var(--primary)]/40 bg-[#F4FBF6] dark:bg-[#112317] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#16A34A] bg-[#E8F8ED] dark:bg-[#1a3824] px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[#E8F8ED] dark:bg-[#1a3824] px-2 py-0.5 rounded">
               Example Template
             </span>
-            <span className="text-[11px] text-[#66706A] dark:text-[#8D9C94] font-medium">
+            <span className="text-[11px] text-[var(--text-muted)] dark:text-[#8D9C94] font-medium">
               Not saved to database
             </span>
           </div>
 
           <div>
-            <h4 className="text-sm font-bold text-[#111714] dark:text-[#E8F0EC]">
+            <h4 className="text-sm font-bold text-[var(--text)] dark:text-[#E8F0EC]">
               {templateCard.title}
             </h4>
-            <p className="text-xs text-[#16A34A] font-semibold mt-0.5">
+            <p className="text-xs text-[var(--primary-dark)] font-semibold mt-0.5">
               {templateCard.subtitle}
             </p>
           </div>
 
           {templateCard.details && templateCard.details.length > 0 && (
-            <ul className="text-xs text-[#66706A] dark:text-[#A1B0A8] space-y-1 pl-1">
+            <ul className="text-xs text-[var(--text-muted)] dark:text-[#A1B0A8] space-y-1 pl-1">
               {templateCard.details.map((d, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
                   <span>{d}</span>
                 </li>
               ))}
@@ -146,7 +146,7 @@ export function EmptyState({
             size="sm"
             variant="outline"
             onClick={templateCard.onUseTemplate}
-            className="w-full text-xs font-bold border-[#16A34A]/40 text-[#16A34A] hover:bg-[#16A34A] hover:text-white transition-colors"
+            className="w-full text-xs font-bold border-[var(--primary)]/40 text-[var(--primary-dark)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5 mr-1" />
             {templateCard.actionLabel || "Use as template"}
@@ -156,17 +156,17 @@ export function EmptyState({
 
       {/* Mini-Guide Section */}
       {guideSteps && guideSteps.length > 0 && (
-        <div className="w-full max-w-md mt-2 pt-4 border-t border-[#E5EAE6] dark:border-[#243329] text-left">
+        <div className="w-full max-w-md mt-2 pt-4 border-t border-[var(--border)] dark:border-[#243329] text-left">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-[var(--text)] flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5 text-[#16A34A]" />
+              <HelpCircle className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
               {guideTitle}
             </span>
             {onGuideClick ? (
               <button
                 type="button"
                 onClick={onGuideClick}
-                className="text-[11px] text-[#16A34A] hover:underline font-semibold"
+                className="text-[11px] text-[var(--primary-dark)] hover:underline font-semibold"
               >
                 {guideLinkText}
               </button>
@@ -174,7 +174,7 @@ export function EmptyState({
               <button
                 type="button"
                 onClick={() => setShowGuideModal(!showGuideModal)}
-                className="text-[11px] text-[#16A34A] hover:underline font-semibold"
+                className="text-[11px] text-[var(--primary-dark)] hover:underline font-semibold"
               >
                 {showGuideModal ? "Hide steps" : "View steps →"}
               </button>
@@ -184,7 +184,7 @@ export function EmptyState({
           <ol className="space-y-1.5 text-xs text-[var(--text-muted)] bg-[var(--surface)] p-3 rounded-xl border border-[var(--border)]">
             {guideSteps.map((step, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="font-bold text-[#16A34A] shrink-0">{idx + 1}.</span>
+                <span className="font-bold text-[var(--primary-dark)] shrink-0">{idx + 1}.</span>
                 <span>{step}</span>
               </li>
             ))}

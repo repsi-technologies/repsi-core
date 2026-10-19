@@ -44,14 +44,14 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     const found = allBlogs.find((b) => b.slug === slug);
     if (!found) {
       return (
-        <div className="min-h-screen bg-[#070D09] text-zinc-100 flex flex-col justify-between">
+        <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] flex flex-col justify-between">
           <MarketingNav />
           <div className="text-center py-40 px-4">
             <h1 className="text-3xl font-bold text-white mb-4">Article Not Found</h1>
             <p className="text-zinc-400 mb-6">The blog post you're looking for might have been moved or unpublished.</p>
             <Link
               href="/blog"
-              className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-500"
+              className="px-5 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-sm font-semibold hover:bg-[var(--primary-hover)]"
             >
               ← Back to Blog Hub
             </Link>
@@ -118,27 +118,27 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
   } : null;
 
   return (
-    <div className="min-h-screen bg-[#070D09] text-zinc-100 font-sans antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+    <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] font-sans antialiased flex flex-col selection:bg-[var(--primary)]/30 selection:text-[var(--primary-dark)]">
       <JsonLd data={articleSchema} />
       {faqSchema && <JsonLd data={faqSchema} />}
       <MarketingNav />
 
       {/* Breadcrumbs & Header */}
       <section className="pt-28 pb-10 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-[var(--primary)]/10 rounded-full blur-[140px] pointer-events-none -z-10" />
 
         <div className="max-w-4xl mx-auto space-y-5">
           {/* Breadcrumb row */}
           <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <Link href="/" className="hover:text-emerald-400 transition-colors">Home</Link>
+            <Link href="/" className="hover:text-[var(--primary-dark)] transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-            <Link href="/blog" className="hover:text-emerald-400 transition-colors">Blog</Link>
+            <Link href="/blog" className="hover:text-[var(--primary-dark)] transition-colors">Blog</Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
             <span className="text-zinc-300 truncate max-w-xs">{currentPost.category}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase">
+            <span className="px-3 py-1 rounded-md bg-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold uppercase">
               {currentPost.category}
             </span>
             <span className="flex items-center gap-1 text-xs text-zinc-400">
@@ -166,7 +166,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 />
               </div>
               <div>
-                <div className="text-sm font-semibold text-zinc-100">{currentPost.author.name}</div>
+                <div className="text-sm font-semibold text-[#F7F7F5]">{currentPost.author.name}</div>
                 <div className="text-xs text-zinc-400 flex items-center gap-2">
                   <span>{currentPost.author.role}</span>
                   <span>•</span>
@@ -213,7 +213,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             }
             if (trimmed.startsWith("### ")) {
               return (
-                <h3 key={idx} className="text-xl sm:text-2xl font-semibold text-emerald-300 pt-3">
+                <h3 key={idx} className="text-xl sm:text-2xl font-semibold text-[var(--primary-dark)] pt-3">
                   {trimmed.replace("### ", "")}
                 </h3>
               );
@@ -241,7 +241,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         {/* Tags */}
         <div className="pt-6 border-t border-zinc-800 flex items-center flex-wrap gap-2">
           <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5 mr-2">
-            <Tag className="w-3.5 h-3.5 text-emerald-400" />
+            <Tag className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
             Topic Tags:
           </span>
           {currentPost.tags.map((t) => (
@@ -258,7 +258,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         {currentPost.faqs && currentPost.faqs.length > 0 && (
           <section className="space-y-4 pt-6 border-t border-zinc-800">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-emerald-400" />
+              <HelpCircle className="w-5 h-5 text-[var(--primary-dark)]" />
               <span>Frequently Asked Questions</span>
             </h3>
             <div className="space-y-3">
@@ -271,10 +271,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   >
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : i)}
-                      className="w-full p-4 text-left flex items-center justify-between gap-4 font-semibold text-sm text-zinc-200 hover:text-emerald-300 transition-colors"
+                      className="w-full p-4 text-left flex items-center justify-between gap-4 font-semibold text-sm text-zinc-200 hover:text-[var(--primary-dark)] transition-colors"
                     >
                       <span>{faq.question}</span>
-                      <span className="text-emerald-400 text-lg font-mono">{isOpen ? "−" : "+"}</span>
+                      <span className="text-[var(--primary-dark)] text-lg font-mono">{isOpen ? "−" : "+"}</span>
                     </button>
                     {isOpen && (
                       <div className="p-4 pt-0 text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-zinc-800/60 bg-zinc-950/40">
@@ -289,8 +289,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         )}
 
         {/* Mid-Article Repsi Showcase Banner */}
-        <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/70 via-zinc-900 to-zinc-950 p-6 sm:p-8 space-y-4 shadow-xl">
-          <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+        <div className="rounded-2xl border border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary)]/15 via-zinc-900 to-zinc-950 p-6 sm:p-8 space-y-4 shadow-xl">
+          <div className="flex items-center gap-2 text-[var(--primary-dark)] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-4 h-4" />
             <span>Repsi All-In-One Fitness OS</span>
           </div>
@@ -303,14 +303,14 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           <div className="flex items-center gap-4 pt-2">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs shadow-lg transition-all"
             >
               <span>Get Started Free</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
               href="/partners"
-              className="text-xs font-semibold text-zinc-300 hover:text-emerald-400 underline underline-offset-4"
+              className="text-xs font-semibold text-zinc-300 hover:text-[var(--primary-dark)] underline underline-offset-4"
             >
               Become a Repsi Partner →
             </Link>
@@ -326,7 +326,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 <Link
                   key={r.id}
                   href={`/blog/${r.slug}`}
-                  className="group rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 hover:border-emerald-500/40 transition-all block space-y-2.5"
+                  className="group rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 hover:border-[var(--primary)]/40 transition-all block space-y-2.5"
                 >
                   <div className="h-32 rounded-lg overflow-hidden relative">
                     <img
@@ -335,10 +335,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
+                  <span className="text-[10px] font-bold text-[var(--primary-dark)] uppercase tracking-wide">
                     {r.category}
                   </span>
-                  <h5 className="text-xs sm:text-sm font-bold text-zinc-200 group-hover:text-emerald-300 line-clamp-2">
+                  <h5 className="text-xs sm:text-sm font-bold text-zinc-200 group-hover:text-[var(--primary-dark)] line-clamp-2">
                     {r.title}
                   </h5>
                 </Link>

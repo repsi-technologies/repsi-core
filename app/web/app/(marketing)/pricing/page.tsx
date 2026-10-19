@@ -5,765 +5,503 @@ import Link from "next/link";
 import {
   Check,
   ArrowRight,
-  HelpCircle,
+  ShieldCheck,
   CheckCircle2,
+  Sparkles,
+  Layers,
+  Users,
+  CalendarCheck,
+  CreditCard,
+  Building2,
+  HelpCircle,
+  Smartphone,
+  Zap,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { PricingSection } from "@/components/marketing/pricing-section";
 import { RepsiMascot } from "@/components/ui/repsi-mascot";
-
-export type BillingCycle = "monthly" | "annual";
-export type Currency = "INR" | "USD";
+import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function FullPricingPage() {
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("annual");
-  const [currency, setCurrency] = useState<Currency>("INR");
+  const [selectedCatalogCategory, setSelectedCatalogCategory] = useState<
+    "all" | "core" | "members" | "operations" | "communication" | "finance" | "advanced"
+  >("all");
 
-  const plans = [
+  const catalogCategories = [
     {
-      id: "free_trial",
-      name: "Free Trial (Growth features)",
-      description: "14-day free access to Growth tier with up to 35 members.",
-      badge: "14 DAYS FREE",
-      highlight: false,
-      ctaText: "Start Free Trial",
-      memberLimit: "35 Members",
-      trainerLimit: "5 Trainers",
-      branchLimit: "1 Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹0", period: "/ 14 days", billedText: "Zero charge · No card required", savings: null },
-          annual: { displayPrice: "₹0", period: "/ 14 days", billedText: "Zero charge · No card required", savings: null },
-        },
-        USD: {
-          monthly: { displayPrice: "$0", period: "/ 14 days", billedText: "Zero charge · No card required", savings: null },
-          annual: { displayPrice: "$0", period: "/ 14 days", billedText: "Zero charge · No card required", savings: null },
-        },
-      },
-      keyFeatures: [
-        "14-day complete Growth access",
-        "Up to 35 active members",
-        "QR attendance & check-in",
-        "Trainer accounts & assignment",
-        "Structured workout scheduling",
-        "Zero automatic charge at expiry",
+      id: "core",
+      name: "1. Core Platform Modules",
+      description: "Essential workspace foundations included with the ₹199 base fee or free.",
+      items: [
+        { module: "Owner dashboard & business settings", price: "₹199 / month", note: "Base workspace platform" },
+        { module: "Trainer management & staff roster", price: "Free", note: "Included in base" },
+        { module: "Roles & granular staff permissions", price: "Free", note: "Included in base" },
+        { module: "Branch management", price: "₹49 / branch", note: "Single branch included; ₹49 per additional" },
+        { module: "Subscription & billing management", price: "Included", note: "Cashfree mandate management" },
+        { module: "Notifications centre", price: "Free", note: "In-app operational alerts" },
+        { module: "Audit logs & security", price: "Included", note: "Role-based action timestamps" },
+        { module: "Data export & backup tools", price: "Included", note: "CSV / Excel downloads" },
       ],
     },
     {
-      id: "basic",
-      name: "Basic",
-      description: "Essential gym operations for small studios & personal gyms.",
-      badge: null,
-      highlight: false,
-      ctaText: "Choose Basic",
-      memberLimit: "10 Members",
-      trainerLimit: "1 Trainer",
-      branchLimit: "1 Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹149", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "₹129", period: "/month", billedText: "Billed ₹1,548/year", savings: "Save ₹240/year" },
-        },
-        USD: {
-          monthly: { displayPrice: "$1.99", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "$1.69", period: "/month", billedText: "Billed $20.28/year", savings: "Save $3.60/year" },
-        },
-      },
-      keyFeatures: [
-        "Maximum 10 active gym members",
-        "Member registration & profiles",
-        "Membership records & expiry tracking",
-        "QR mobile attendance",
-        "Manual payment & fee records",
-        "Basic workout scheduling",
-        "Basic dashboard & reminders",
+      id: "members",
+      name: "2. Member Management Modules",
+      description: "Member records, digital portal, onboarding, documents, and progress tracking.",
+      items: [
+        { module: "Member profiles & directory", price: "₹99 / month (up to 25 members)", note: "Scales with capacity tier" },
+        { module: "Member portal / login", price: "₹49 / month", note: "Optional self-serve access" },
+        { module: "Member registration & onboarding", price: "Free", note: "Walk-in & QR self-registration" },
+        { module: "Member status management", price: "Free", note: "Active, expired & frozen states" },
+        { module: "Member documents & waivers", price: "₹29 / month", note: "Cloud ID & health records storage" },
+        { module: "Member progress tracking", price: "₹49 / month", note: "Body measurements & weigh-in logs" },
+        { module: "Member feedback & assessments", price: "₹49 / month", note: "Trainer reviews & fitness scores" },
       ],
     },
     {
-      id: "growth",
-      name: "Growth",
-      description: "Complete gym management with trainer workflows & attendance reports.",
-      badge: "MOST POPULAR ★",
-      highlight: true,
-      ctaText: "Choose Growth",
-      memberLimit: "35 Members",
-      trainerLimit: "5 Trainers",
-      branchLimit: "1 Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹499", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "₹469", period: "/month", billedText: "Billed ₹5,628/year", savings: "Save ₹360/year" },
-        },
-        USD: {
-          monthly: { displayPrice: "$6.49", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "$5.99", period: "/month", billedText: "Billed $71.88/year", savings: "Save $6.00/year" },
-        },
-      },
-      keyFeatures: [
-        "Maximum 35 active gym members",
-        "Everything in Basic",
-        "Trainer accounts & member assignments",
-        "Structured workout schedules",
-        "Attendance reports & export",
-        "Membership expiry notifications",
-        "Fee collection summaries",
+      id: "operations",
+      name: "3. Fitness Business Operations",
+      description: "Daily floor operations from check-ins to scheduling, diet, and leads.",
+      items: [
+        { module: "Attendance management", price: "₹49 / month", note: "1-second QR check-in & reception desk" },
+        { module: "Membership plans & renewals", price: "₹49 / month", note: "Custom duration plans & renewal queue" },
+        { module: "Membership expiry tracking", price: "Free", note: "Automated status transitions" },
+        { module: "Payment records & receipt verification", price: "₹49 / month", note: "UPI, card & cash with instant receipts" },
+        { module: "Payment reminders", price: "₹29 / mo + messaging", note: "WhatsApp & SMS dues follow-up" },
+        { module: "Trainer schedules & rosters", price: "₹49 / month", note: "Personal training shifts & client assignments" },
+        { module: "Class & batch management", price: "₹49 / month", note: "Group fitness, yoga & spinning slots" },
+        { module: "Workout plans & routines", price: "₹49 / month", note: "Structured routine builder" },
+        { module: "Diet & nutrition plans", price: "₹49 / month", note: "Calorie & macro targets" },
+        { module: "Equipment management", price: "₹29 / month", note: "Machine service & warranty logs" },
+        { module: "Enquiries & lead management", price: "₹49 / month", note: "Walk-in pipeline & trial conversions" },
+        { module: "Offers & promotional discounts", price: "₹29 / month", note: "Coupon codes & seasonal discounts" },
       ],
     },
     {
-      id: "premium",
-      name: "Premium",
-      description: "Diet plans, nutrition planning, and personalized workout tracking.",
-      badge: "BEST VALUE",
-      highlight: false,
-      ctaText: "Choose Premium",
-      memberLimit: "100 Members",
-      trainerLimit: "15 Trainers",
-      branchLimit: "1 Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹1,299", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "₹1,099", period: "/month", billedText: "Billed ₹13,188/year", savings: "Save ₹2,400/year" },
-        },
-        USD: {
-          monthly: { displayPrice: "$15.99", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "$13.99", period: "/month", billedText: "Billed $167.88/year", savings: "Save $24.00/year" },
-        },
-      },
-      keyFeatures: [
-        "Maximum 100 active gym members",
-        "Everything in Growth",
-        "Manual diet & nutrition plan creation",
-        "Assign diet plans to members",
-        "Personalized workout plans",
-        "Member progress tracking & history",
-        "Trainer workload overview & reports",
+      id: "communication",
+      name: "4. Communication Modules",
+      description: "Direct notifications across in-app, email, WhatsApp, and SMS.",
+      items: [
+        { module: "In-app notifications", price: "Free", note: "Bell alert center for all staff & members" },
+        { module: "Email notifications", price: "Free", note: "Within generous fair-use limits" },
+        { module: "WhatsApp reminders", price: "₹0 fee + message charges", note: "Direct Meta Cloud API messaging" },
+        { module: "SMS notifications", price: "₹0 fee + SMS charges", note: "Direct DLT-approved SMS gateways" },
+        { module: "WhatsApp OTP verification", price: "Usage-based", note: "At cost per delivered verification" },
+        { module: "SMS OTP verification", price: "Usage-based", note: "At cost per delivered verification" },
+        { module: "Automated renewal reminders", price: "₹29 / mo + messaging", note: "3-day, 1-day, and same-day alerts" },
+        { module: "Bulk announcements", price: "₹29 / mo + messaging", note: "Broadcast holiday & class schedule updates" },
       ],
     },
     {
-      id: "pro",
-      name: "Pro",
-      description: "Advanced analytics, revenue reports, templates, and data exports.",
-      badge: "HIGH CAPACITY",
-      highlight: false,
-      ctaText: "Choose Pro",
-      memberLimit: "250 Members",
-      trainerLimit: "30 Trainers",
-      branchLimit: "1 Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹2,499", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "₹2,149", period: "/month", billedText: "Billed ₹25,788/year", savings: "Save ₹4,200/year" },
-        },
-        USD: {
-          monthly: { displayPrice: "$29.99", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "$25.99", period: "/month", billedText: "Billed $311.88/year", savings: "Save $48.00/year" },
-        },
-      },
-      keyFeatures: [
-        "Maximum 250 active gym members",
-        "Everything in Premium",
-        "Advanced business analytics",
-        "Detailed revenue & dues reports",
-        "Data export (CSV / Excel)",
-        "Trainer performance summaries",
-        "Workout & diet templates",
-        "Granular staff permissions",
+      id: "finance",
+      name: "5. Finance and Reporting",
+      description: "Clear cashflow tracking, P&L, dues collections, and trainer payouts.",
+      items: [
+        { module: "Revenue dashboard (Basic)", price: "Free", note: "Monthly collection summary" },
+        { module: "Payment history & logs", price: "Included", note: "Included with payment tracking" },
+        { module: "Outstanding dues tracking", price: "₹29 / month", note: "Overdue balances queue with 1-click follow-up" },
+        { module: "Expense tracking", price: "₹49 / month", note: "Log rent, electricity, and maintenance" },
+        { module: "Income & expense reports", price: "₹49 / month", note: "Consolidated P&L and cashflow statements" },
+        { module: "Trainer commission tracking", price: "₹49 / month", note: "Auto-calculate PT commission percentages" },
+        { module: "GST Invoice generation", price: "₹29 / month", note: "Downloadable compliant PDF invoices" },
+        { module: "Advanced analytics & heatmaps", price: "₹99 / month", note: "Peak-hour traffic & retention radar" },
+        { module: "Data export (CSV / Excel)", price: "Included", note: "Zero lock-in full exports" },
       ],
     },
     {
-      id: "pro_plus",
-      name: "Pro Plus+",
-      description: "Unlimited gym members with bulk operations and priority concierge support.",
-      badge: "UNLIMITED MEMBERS",
-      highlight: false,
-      ctaText: "Choose Pro Plus+",
-      memberLimit: "Unlimited",
-      trainerLimit: "Unlimited",
-      branchLimit: "2 Branches",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "₹4,999", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "₹4,599", period: "/month", billedText: "Billed ₹55,188/year", savings: "Save ₹4,800/year" },
-        },
-        USD: {
-          monthly: { displayPrice: "$59.99", period: "/month", billedText: "Billed monthly", savings: null },
-          annual: { displayPrice: "$54.99", period: "/month", billedText: "Billed $659.88/year", savings: "Save $60.00/year" },
-        },
-      },
-      keyFeatures: [
-        "Unlimited active members (fair-use)",
-        "Everything in Pro",
-        "Advanced staff roles & permissions",
-        "Custom reporting & dashboards",
-        "Bulk member operations & imports",
-        "Enhanced audit logs",
-        "Priority 24/7 support & onboarding",
-      ],
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      description: "Multi-branch chains, consolidated branch reports & dedicated SLA.",
-      badge: "CUSTOM",
-      highlight: false,
-      ctaText: "Contact Sales",
-      memberLimit: "Custom Limit",
-      trainerLimit: "Custom Limit",
-      branchLimit: "Multi-Branch",
-      pricing: {
-        INR: {
-          monthly: { displayPrice: "Contact Sales", period: "", billedText: "Tailored enterprise agreements", savings: null },
-          annual: { displayPrice: "Contact Sales", period: "", billedText: "Tailored enterprise agreements", savings: null },
-        },
-        USD: {
-          monthly: { displayPrice: "Contact Sales", period: "", billedText: "Tailored enterprise agreements", savings: null },
-          annual: { displayPrice: "Contact Sales", period: "", billedText: "Tailored enterprise agreements", savings: null },
-        },
-      },
-      keyFeatures: [
-        "Everything in Pro Plus+",
-        "Custom member and staff limits",
-        "Multi-branch management & consolidated reports",
-        "Centralized administration",
-        "Custom integrations & dedicated API access",
-        "Tailored onboarding & SLA arrangements",
+      id: "advanced",
+      name: "6. Advanced and Optional Modules",
+      description: "Multi-branch expansion, white-label, APIs, and dedicated concierge onboarding.",
+      items: [
+        { module: "Multiple branches", price: "₹49 / additional branch", note: "Unified database & centralized owner control" },
+        { module: "Custom branding", price: "₹99 / month", note: "Display your logo on member passes & invoices" },
+        { module: "Custom domain (yourgym.com)", price: "₹99 / mo + domain costs", note: "SSL certificate & custom DNS setup" },
+        { module: "REST API & Webhooks access", price: "₹99 / month", note: "Biometric turnstile integrations & custom portals" },
+        { module: "Advanced third-party integrations", price: "₹49+ / month", note: "Accounting and external hardware" },
+        { module: "AI-generated workout suggestions", price: "Usage-based", note: "Token-based AI workout assistance" },
+        { module: "AI-generated business reports", price: "Usage-based", note: "Token-based natural language summaries" },
+        { module: "Automated business insights", price: "₹99 / mo + AI usage", note: "Member churn predictions" },
+        { module: "Priority support & phone onboarding", price: "₹199 / month", note: "Dedicated WhatsApp hotline & staff training" },
+        { module: "White-label mobile application", price: "Custom pricing", note: "Dedicated App Store & Play Store listing" },
       ],
     },
   ];
 
-  const row1Plans = plans.slice(0, 4); // Free Trial, Basic, Growth, Premium
-  const row2Plans = plans.slice(4, 7); // Pro, Pro Plus+, Enterprise
-
-  const comparisonCategories = [
-    {
-      name: "CATEGORY 1 — CORE MANAGEMENT",
-      rows: [
-        { name: "Member management & profiles", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Trainer management", starter: "1 Trainer", basic: "3 Trainers", growth: "5 Trainers", pro: "10 Trainers", business: "Unlimited" },
-        { name: "Staff management", starter: "Basic", basic: "✓", growth: "✓", pro: "Advanced", business: "Advanced" },
-        { name: "Gym profile & location setup", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Membership plans & pricing", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Membership expiry tracking", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Search & multi-filter", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Member notes & history", starter: "Basic", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 2 — ATTENDANCE",
-      rows: [
-        { name: "Manual attendance check-in", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "QR code mobile attendance", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Attendance history logs", starter: "7 days", basic: "90 days", growth: "1 Year", pro: "Unlimited", business: "Unlimited" },
-        { name: "Auto checkout at gym closing", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Attendance reports & export", starter: "Basic", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Attendance peak hour analytics", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 3 — PAYMENTS & BILLING",
-      rows: [
-        { name: "Payment tracking & logging", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "GST Invoice & receipt generation", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Automated payment reminders", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Revenue dashboard", starter: "Basic", basic: "✓", growth: "Advanced", pro: "Advanced", business: "Multi-branch" },
-        { name: "Cashfree / Online payment gateway", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 4 — TRAINER MODULE",
-      rows: [
-        { name: "Trainer profiles & schedules", starter: "1 Trainer", basic: "3 Trainers", growth: "5 Trainers", pro: "10 Trainers", business: "Unlimited" },
-        { name: "Trainer → Client assignment", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Workout plan builder", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Client progress tracking", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Trainer performance analytics", starter: "—", basic: "—", growth: "Basic", pro: "Advanced", business: "Advanced" },
-      ],
-    },
-    {
-      name: "CATEGORY 5 — MOBILE APPS",
-      rows: [
-        { name: "Member Mobile App (iOS & Android)", starter: "—", basic: "—", growth: "✓ Included", pro: "✓ Included", business: "✓ Included" },
-        { name: "Trainer Mobile App", starter: "—", basic: "—", growth: "✓ Included", pro: "✓ Included", business: "✓ Included" },
-        { name: "Push notifications to members", starter: "—", basic: "—", growth: "✓ Included", pro: "✓ Included", business: "✓ Included" },
-        { name: "Mobile attendance check-in", starter: "—", basic: "—", growth: "✓ Included", pro: "✓ Included", business: "✓ Included" },
-      ],
-    },
-    {
-      name: "CATEGORY 6 — SALES CRM & LEADS",
-      rows: [
-        { name: "Lead capture & inquiry list", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Sales Kanban Pipeline", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Follow-up schedule & call logs", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Lead conversion analytics", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 7 — AUTOMATION & MESSAGING",
-      rows: [
-        { name: "Expiry & renewal alerts", starter: "Basic", basic: "✓", growth: "Automated", pro: "Automated", business: "Automated" },
-        { name: "WhatsApp & SMS notification triggers", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Automated drip campaigns", starter: "—", basic: "—", growth: "—", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 8 — ANALYTICS & REPORTS",
-      rows: [
-        { name: "Basic business dashboard", starter: "✓", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Member retention radar", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Revenue forecasting & trends", starter: "—", basic: "—", growth: "Basic", pro: "Advanced", business: "Advanced" },
-        { name: "CSV & Excel Data Export", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 9 — BUSINESS & MULTI-BRANCH",
-      rows: [
-        { name: "Multiple branch locations", starter: "1 Location", basic: "1 Location", growth: "1 Location", pro: "1 Location", business: "Unlimited" },
-        { name: "Branch-wise revenue dashboards", starter: "—", basic: "—", growth: "—", pro: "—", business: "✓" },
-        { name: "Centralized member database", starter: "—", basic: "—", growth: "—", pro: "—", business: "✓" },
-        { name: "Franchise view & owner hierarchy", starter: "—", basic: "—", growth: "—", pro: "—", business: "✓" },
-        { name: "Audit log history", starter: "—", basic: "—", growth: "—", pro: "—", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 10 — INTEGRATIONS & API",
-      rows: [
-        { name: "Google Fit integration", starter: "—", basic: "—", growth: "✓", pro: "✓", business: "✓" },
-        { name: "Cashfree payment integration", starter: "—", basic: "✓", growth: "✓", pro: "✓", business: "✓" },
-        { name: "REST API & Webhook access", starter: "—", basic: "—", growth: "—", pro: "—", business: "✓" },
-        { name: "Custom domain (yourgym.com)", starter: "—", basic: "—", growth: "—", pro: "✓", business: "✓" },
-      ],
-    },
-    {
-      name: "CATEGORY 11 — SUPPORT & ONBOARDING",
-      rows: [
-        { name: "Support level", starter: "Standard", basic: "Standard", growth: "Priority", pro: "Priority 24/7", business: "Dedicated Concierge" },
-        { name: "Data migration assistance", starter: "Self-serve", basic: "Assisted", growth: "Full Migration", pro: "Full Migration", business: "White-glove Concierge" },
-      ],
-    },
+  const activeMemberCapacityTiers = [
+    { tier: "Owner-only (0 members)", price: "₹199 base", desc: "For personal trainers or solo facilities without member logins." },
+    { tier: "Up to 25 members", price: "₹99 / month", desc: "Ideal for boutique studios, private training gyms, and launch setups." },
+    { tier: "Up to 50 members", price: "₹149 / month", desc: "For neighborhood fitness centers and personal training studios." },
+    { tier: "Up to 100 members", price: "₹249 / month", desc: "For standard gym facilities with active daily floor traffic." },
+    { tier: "Up to 250 members", price: "₹499 / month", desc: "For high-capacity fitness centers and expanding clubs." },
+    { tier: "Up to 500 members", price: "₹899 / month", desc: "For established gyms, multi-floor centers, and wellness clubs." },
+    { tier: "Up to 1,000 members", price: "₹1,499 / month", desc: "For premier clubs, multi-batch studios, and fitness chains." },
   ];
 
-  const faqs = [
+  const exampleBills = [
     {
-      q: "What happens after the 14-day free trial?",
-      a: "Your trial gives you complete 14-day access to Repsi. At the end of the trial, you can select the Starter, Basic, Growth, Pro, or Business plan that best fits your gym. Your data is preserved safely.",
+      title: "Owner-Only Setup",
+      subtitle: "For personal trainers and solo studio owners",
+      total: "₹199",
+      period: "/ month",
+      breakdown: [
+        { item: "Owner dashboard & workspace", amount: "₹199" },
+        { item: "Basic business settings", amount: "Included" },
+        { item: "Trainer & staff management", amount: "Free" },
+        { item: "Roles & permissions", amount: "Free" },
+        { item: "Basic reports & export", amount: "Included" },
+      ],
+      idealFor: "Solo trainers managing clients directly without member logins.",
     },
     {
-      q: "Can I change plans or upgrade later?",
-      a: "Yes! You can upgrade or switch plans anytime directly from your Gym Owner Billing dashboard. Upgrades take effect immediately with prorated billing.",
+      title: "Small Studio",
+      subtitle: "Daily operations for small gyms & boutique spaces",
+      total: "₹396",
+      period: "/ month",
+      breakdown: [
+        { item: "Base workspace platform", amount: "₹199" },
+        { item: "Up to 25 active members", amount: "₹99" },
+        { item: "Attendance management", amount: "₹49" },
+        { item: "Membership plans & renewals", amount: "₹49" },
+      ],
+      idealFor: "CrossFit boxes, yoga studios, and neighborhood fitness centers.",
+      recommended: true,
     },
     {
-      q: "Can I cancel my subscription anytime?",
-      a: "Yes. Repsi operates on a monthly or annual commitment with zero cancellation penalties. You can cancel from settings at any time.",
-    },
-    {
-      q: "What happens when I reach my member limit?",
-      a: "When your gym reaches 80% of your plan's member limit, we send a helpful notification. At 100%, you can easily upgrade to the next tier with one click to continue adding members without interrupting operations.",
-    },
-    {
-      q: "What counts as an active member?",
-      a: "An active member is any individual registered with a current active or valid gym membership in your workspace. Expired or archived members do not count towards active limits.",
-    },
-    {
-      q: "Can I upgrade from monthly to yearly billing?",
-      a: "Yes! Switching to annual billing saves up to ~20% across all tiers. You can toggle between monthly and annual anytime.",
-    },
-    {
-      q: "What happens to my data if I downgrade?",
-      a: "Repsi never deletes your member records, attendance history, or financial data automatically upon downgrade. If your active members exceed the lower plan's limit, you will be prompted to manage active statuses before switching.",
-    },
-    {
-      q: "Does every plan include the mobile apps?",
-      a: "Member and Trainer mobile apps (iOS & Android) are included starting from the Growth plan ($14.99/mo / ₹1,299/mo) and above.",
-    },
-    {
-      q: "Do you support multiple branches or franchises?",
-      a: "Yes. The Business plan provides full multi-branch management, branch-wise dashboards, owner hierarchy, and centralized database control.",
-    },
-    {
-      q: "Are taxes included in the displayed pricing?",
-      a: "Displayed pricing excludes local taxes/GST where applicable. Exact tax breakdowns are detailed on your official tax invoice during Cashfree checkout.",
-    },
-    {
-      q: "How does payment processing work?",
-      a: "Payments are processed securely via Cashfree Subscriptions with 256-bit SSL encryption. We support Credit/Debit Cards, UPI AutoPay, NetBanking, and Wallet mandates.",
-    },
-    {
-      q: "Is my gym data secure and exportable?",
-      a: "Yes! All gym data is encrypted in transit and at rest. You can export complete member, attendance, and revenue data as CSV or Excel at any time.",
+      title: "Growing Fitness Business",
+      subtitle: "Comprehensive operations, dues follow-up & P&L",
+      total: "₹694",
+      period: "/ month",
+      breakdown: [
+        { item: "Base workspace platform", amount: "₹199" },
+        { item: "Up to 100 active members", amount: "₹249" },
+        { item: "Attendance management", amount: "₹49" },
+        { item: "Membership plans & renewals", amount: "₹49" },
+        { item: "Payment tracking & verification", amount: "₹49" },
+        { item: "Advanced analytics & reports", amount: "₹99" },
+      ],
+      idealFor: "Established gyms scaling revenue with multi-trainer staff.",
     },
   ];
-
-  const renderPricingCard = (p: typeof plans[0]) => {
-    const pricingInfo = p.pricing[currency][billingCycle];
-    const isGrowth = p.id === "growth";
-    const isPro = p.id === "pro";
-    const isBusiness = p.id === "business";
-
-    const cardStyle = isGrowth
-      ? "bg-[var(--surface)] border-2 border-[#16A34A] shadow-lg ring-4 ring-[#16A34A]/10 bg-gradient-to-b from-[#16A34A]/5 via-transparent to-transparent z-10"
-      : isPro
-      ? "bg-[var(--surface)] border border-indigo-500/30 hover:border-indigo-500/60 shadow-xs hover:shadow-md"
-      : isBusiness
-      ? "bg-[var(--surface)] border border-slate-700/60 hover:border-slate-500 shadow-xs hover:shadow-md"
-      : "bg-[var(--surface)] border border-[var(--border)] shadow-xs hover:shadow-md opacity-95 hover:opacity-100";
-
-    return (
-      <div
-        key={p.id}
-        className={`relative flex flex-col justify-between rounded-2xl p-6 sm:p-7 transition-all duration-200 h-full hover:-translate-y-1 ${cardStyle}`}
-      >
-        <div>
-          {/* 1. Reserved Badge Slot - Keeps ALL 6 Cards 100% Aligned Vertically */}
-          <div className="h-7 mb-2 flex items-center justify-center">
-            {p.badge ? (
-              <span
-                className={`px-3 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase shadow-2xs ${
-                  isGrowth
-                    ? "bg-[#16A34A] text-white shadow-[#16A34A]/20"
-                    : isPro
-                    ? "bg-indigo-600 text-white"
-                    : isBusiness
-                    ? "bg-slate-800 text-white border border-slate-700"
-                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-                }`}
-              >
-                {p.badge}
-              </span>
-            ) : (
-              <div className="h-7" />
-            )}
-          </div>
-
-          {/* 2. Plan Name & 3. Short Description */}
-          <div className="space-y-1 mb-4">
-            <h3 className="text-xl font-black text-[var(--text)] tracking-tight">{p.name}</h3>
-            <p className="text-xs font-medium text-[var(--text-muted)] line-clamp-2 min-h-[36px]">
-              {p.description}
-            </p>
-          </div>
-
-          {/* 4. Price & 5. Billing Text & 6. Savings Indicator */}
-          <div className="py-4 border-y border-[var(--border)] my-4">
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-tight">
-                {pricingInfo.displayPrice}
-              </span>
-              <span className="text-xs font-semibold text-[var(--text-muted)]">{pricingInfo.period}</span>
-            </div>
-
-            <div className="mt-2 space-y-0.5">
-              <p className="text-[11px] font-semibold text-[var(--text-muted)] min-h-[16px]">
-                {pricingInfo.billedText}
-              </p>
-              {/* Savings text ONLY shown when annual billing is active */}
-              <p className="text-[11px] font-bold text-[#16A34A] min-h-[16px]">
-                {billingCycle === "annual" && pricingInfo.savings ? pricingInfo.savings : ""}
-              </p>
-            </div>
-          </div>
-
-          {/* 7. Usage Limits Box */}
-          <div className="p-3 rounded-xl bg-[var(--surface-secondary)]/50 border border-[var(--border)]/60 text-xs space-y-1.5 font-sans mb-6">
-            <div className="flex justify-between items-center text-[11px]">
-              <span className="text-[var(--text-muted)]">Members</span>
-              <span className="font-mono font-bold text-[var(--text)]">{p.memberLimit}</span>
-            </div>
-            <div className="flex justify-between items-center text-[11px]">
-              <span className="text-[var(--text-muted)]">Trainers</span>
-              <span className="font-mono font-bold text-[var(--text)]">{p.trainerLimit}</span>
-            </div>
-            <div className="flex justify-between items-center text-[11px]">
-              <span className="text-[var(--text-muted)]">Branches</span>
-              <span className="font-mono font-bold text-[var(--text)]">{p.branchLimit}</span>
-            </div>
-          </div>
-
-          {/* 8. Feature List */}
-          <div className="space-y-2.5 mb-6 text-xs text-[var(--text-secondary)]">
-            {p.keyFeatures.map((feat, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
-                <span className={i === 0 ? "font-bold text-[var(--text)]" : ""}>{feat}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 9. CTA Button */}
-        <div className="pt-4 mt-auto">
-          <Link
-            href={`/signup?plan=${p.id}&billing=${billingCycle}`}
-            className={`w-full h-11 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-xs ${
-              isGrowth
-                ? "bg-[#16A34A] hover:bg-[#15803D] text-white shadow-md shadow-[#16A34A]/20"
-                : "bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border)] text-[var(--text)]"
-            }`}
-          >
-            <span>{p.ctaText}</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-    );
-  };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text)] selection:bg-[#16A34A] selection:text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#F07858] selection:text-white flex flex-col">
       <MarketingNav />
 
-      <main className="flex-1 pb-24">
-        {/* HERO SECTION */}
-        <section className="pt-24 pb-12 px-4 md:px-8 text-center max-w-5xl mx-auto space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#16A34A]/10 border border-[#16A34A]/20 text-[#16A34A] text-xs font-bold uppercase tracking-wider">
-            Repsi Enterprise SaaS Pricing
-          </span>
-
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-[var(--text)]">
-            Simple pricing that grows <br className="hidden sm:block" />
-            with your gym.
+      <main className="flex-1">
+        {/* HERO BANNER (NO EYEBROW) */}
+        <section className="pt-28 pb-8 px-4 sm:px-6 lg:px-8 text-center max-w-4xl mx-auto">
+          <h1 className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#191919] tracking-tight leading-[1.12] mb-4">
+            Pay only for what <br className="hidden sm:inline" />
+            <span className="text-[#F07858]">your fitness business uses.</span>
           </h1>
 
-          <p className="text-base text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
-            Start free for 14 days. Choose the plan that fits your gym today and upgrade as your member base expands. No complicated setup.
+          <p className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed">
+            Choose an affordable pre-configured bundle or build your custom subscription module-by-module. Upgrade capacity as your gym grows.
           </p>
 
-          {/* Guarantee Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-1 text-xs font-semibold text-[var(--text-muted)]">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-5 text-xs font-semibold text-[#62666D]">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
+              <CheckCircle2 className="w-4 h-4 text-[#F07858]" />
               14-Day Free Trial
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
+              <CheckCircle2 className="w-4 h-4 text-[#F07858]" />
               No Credit Card Required
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
-              Upgrade Anytime
+              <CheckCircle2 className="w-4 h-4 text-[#F07858]" />
+              Data Safely Preserved on Downgrade
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
-              Cancel Anytime
+              <CheckCircle2 className="w-4 h-4 text-[#F07858]" />
+              Cancel or Switch Anytime
             </span>
           </div>
+        </section>
 
-          {/* Premium Billing Toggle & Currency Switcher */}
-          <div className="pt-6 flex flex-wrap items-center justify-center gap-4">
-            {/* Premium Segmented Billing Cycle Toggle */}
-            <div className="inline-flex p-1 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] shadow-xs">
-              <button
-                type="button"
-                onClick={() => setBillingCycle("monthly")}
-                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
-                  billingCycle === "monthly"
-                    ? "bg-[var(--surface)] text-[var(--text)] shadow-xs"
-                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                Monthly
-              </button>
+        {/* 01. INTERACTIVE PRICING SECTION (BUNDLES + DYNAMIC BUILDER) */}
+        <PricingSection />
 
-              <button
-                type="button"
-                onClick={() => setBillingCycle("annual")}
-                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
-                  billingCycle === "annual"
-                    ? "bg-[#16A34A] text-white shadow-md shadow-[#16A34A]/25"
-                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                <span>Yearly</span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${
-                    billingCycle === "annual" ? "bg-white/20 text-white" : "bg-[#16A34A]/10 text-[#16A34A]"
+        {/* 02. SECTION: REAL-WORLD EXAMPLE CUSTOMER BILLS */}
+        <section className="py-20 bg-white border-y border-[#E7E4DE]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#191919] mb-2">
+                Example Customer Bills
+              </h2>
+              <p className="text-sm text-[#62666D]">
+                See how different fitness facilities configure REPSI to keep monthly operational costs remarkably low.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+              {exampleBills.map((bill, bIdx) => (
+                <div
+                  key={bIdx}
+                  className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 ${
+                    bill.recommended
+                      ? "bg-[#FAF9F6] border-2 border-[#F07858] ring-4 ring-[#F07858]/10 shadow-md"
+                      : "bg-[#FAF9F6] border border-[#E7E4DE] shadow-xs hover:shadow-md"
                   }`}
                 >
-                  SAVE UP TO 20%
-                </span>
-              </button>
-            </div>
+                  <div>
+                    {bill.recommended && (
+                      <div className="text-[10px] font-mono font-bold text-white bg-[#F07858] px-3 py-0.5 rounded-full uppercase tracking-wider inline-block mb-3">
+                        Most Popular Starter
+                      </div>
+                    )}
+                    <h3 className="font-heading font-extrabold text-2xl text-[#191919]">
+                      {bill.title}
+                    </h3>
+                    <p className="text-xs text-[#62666D] mt-1 mb-5 leading-relaxed">
+                      {bill.subtitle}
+                    </p>
 
-            {/* Currency Selector */}
-            <div className="inline-flex p-1 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] shadow-xs">
-              <button
-                type="button"
-                onClick={() => setCurrency("INR")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currency === "INR" ? "bg-[#16A34A] text-white" : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                ₹ INR
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrency("USD")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currency === "USD" ? "bg-[#16A34A] text-white" : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                $ USD
-              </button>
+                    <div className="py-4 border-y border-[#E7E4DE] mb-5">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-heading font-extrabold text-[#191919] tracking-tight">
+                          {bill.total}
+                        </span>
+                        <span className="text-xs font-medium text-[#62666D]">
+                          {bill.period}
+                        </span>
+                      </div>
+                      <div className="text-[11px] font-mono text-[#858890] mt-1">
+                        Before applicable taxes · Billed monthly
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mb-6">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#191919]">
+                        Configuration Breakdown:
+                      </div>
+                      {bill.breakdown.map((row, rIdx) => (
+                        <div
+                          key={rIdx}
+                          className="flex justify-between items-center text-xs text-[#191919] py-1 border-b border-[#F0EDE7] last:border-0"
+                        >
+                          <span className="text-[#62666D]">{row.item}</span>
+                          <span className="font-mono font-bold">{row.amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#E7E4DE] space-y-3">
+                    <p className="text-[11px] text-[#62666D] italic">
+                      Ideal for: {bill.idealFor}
+                    </p>
+                    <Link
+                      href="/signup"
+                      className="w-full inline-flex items-center justify-center gap-1.5 h-11 rounded-full bg-white hover:bg-[#F5F2ED] border border-[#E7E4DE] text-[#191919] text-xs font-semibold shadow-2xs transition-all"
+                    >
+                      <span>Get Started with This Setup</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* 4 × 2 PRICING CARDS GRID (CONTAINER MAX 1280px) */}
-        <section className="max-w-[1280px] mx-auto px-4 md:px-8 mb-20">
-          {/* Row 1: Free Trial → Starter → Basic → Growth (4 columns on Desktop) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch">
-            {row1Plans.map((p) => renderPricingCard(p))}
-          </div>
-
-          {/* Row 2: Pro → Business (Centered Row on Desktop, exact same card width ~290-300px) */}
-          <div className="flex flex-col sm:flex-row justify-center gap-5 lg:gap-6 mt-6 sm:mt-8">
-            {row2Plans.map((p) => (
-              <div key={p.id} className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] lg:max-w-[305px]">
-                {renderPricingCard(p)}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 11-CATEGORY DETAILED FEATURE COMPARISON TABLE */}
-        <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
-          <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-            <span className="text-xs font-bold text-[#16A34A] uppercase tracking-wider">Detailed Matrix</span>
-            <h2 className="text-3xl font-black text-[var(--text)]">Compare Plan Entitlements</h2>
-            <p className="text-xs text-[var(--text-muted)]">
-              Complete feature breakdown across Starter, Basic, Growth, Pro, and Business tiers.
+        {/* 03. SECTION: FULL MODULAR CATALOG PRICE LIST (SECTIONS 1 TO 7) */}
+        <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#191919] mb-2">
+              REPSI Launch Module Catalog & Pricing
+            </h2>
+            <p className="text-sm text-[#62666D]">
+              Complete transparency on all standalone modules, capacity pricing, and messaging charges. All prices are monthly and before applicable taxes.
             </p>
+
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+              <button
+                type="button"
+                onClick={() => setSelectedCatalogCategory("all")}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedCatalogCategory === "all"
+                    ? "bg-[#191919] text-white"
+                    : "bg-white text-[#62666D] border border-[#E7E4DE] hover:bg-[#F5F2ED]"
+                }`}
+              >
+                All Sections
+              </button>
+              {catalogCategories.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedCatalogCategory(c.id as typeof selectedCatalogCategory)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    selectedCatalogCategory === c.id
+                      ? "bg-[#191919] text-white"
+                      : "bg-white text-[#62666D] border border-[#E7E4DE] hover:bg-[#F5F2ED]"
+                  }`}
+                >
+                  {c.name.split(". ")[1]}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="overflow-x-auto rounded-3xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--background)] text-xs">
-                  <th className="p-4 font-bold text-[var(--text)] min-w-[220px]">Feature Category</th>
-                  <th className="p-3 font-bold text-center text-[var(--text)]">STARTER</th>
-                  <th className="p-3 font-bold text-center text-[var(--text)]">BASIC</th>
-                  <th className="p-3 font-bold text-center text-[#16A34A] bg-[#16A34A]/10">GROWTH ★</th>
-                  <th className="p-3 font-bold text-center text-[var(--text)]">PRO</th>
-                  <th className="p-3 font-bold text-center text-[var(--text)]">BUSINESS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {comparisonCategories.map((cat) => (
-                  <React.Fragment key={cat.name}>
-                    <tr className="bg-[var(--background)]/80">
-                      <td colSpan={6} className="p-3 font-extrabold text-[11px] text-[#16A34A] tracking-wider uppercase">
+          {/* Module Tables */}
+          <div className="space-y-8">
+            {catalogCategories
+              .filter(
+                (cat) =>
+                  selectedCatalogCategory === "all" || selectedCatalogCategory === cat.id
+              )
+              .map((cat) => (
+                <div
+                  key={cat.id}
+                  className="bg-white rounded-3xl border border-[#E7E4DE] overflow-hidden shadow-xs"
+                >
+                  <div className="p-5 sm:p-6 bg-[#FAF9F6] border-b border-[#E7E4DE] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#191919]">
                         {cat.name}
-                      </td>
-                    </tr>
-                    {cat.rows.map((r, rIdx) => (
-                      <tr key={rIdx} className="hover:bg-[var(--surface-hover)]/50 transition">
-                        <td className="p-3.5 font-medium text-[var(--text)]">{r.name}</td>
-                        <td className="p-3 text-center text-[var(--text-muted)] font-mono">{r.starter}</td>
-                        <td className="p-3 text-center text-[var(--text-muted)] font-mono">{r.basic}</td>
-                        <td className="p-3 text-center font-mono font-bold text-[#16A34A] bg-[#16A34A]/5">
-                          {r.growth}
-                        </td>
-                        <td className="p-3 text-center text-[var(--text)] font-mono font-semibold">{r.pro}</td>
-                        <td className="p-3 text-center text-[var(--text)] font-mono font-bold">{r.business}</td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
+                      </h3>
+                      <p className="text-xs text-[#62666D] mt-0.5">{cat.description}</p>
+                    </div>
+                    <span className="text-[11px] font-mono text-[#858890] shrink-0">
+                      {cat.items.length} Modules Listed
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-[#E7E4DE] bg-[#FAF9F6]/50 text-[#858890] font-mono text-[11px] uppercase tracking-wider">
+                          <th className="py-3 px-5 font-semibold">Module / Feature</th>
+                          <th className="py-3 px-5 font-semibold">Minimum Launch Price</th>
+                          <th className="py-3 px-5 font-semibold">Operational Scope & Rules</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#F0EDE7]">
+                        {cat.items.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-[#FAF9F6]/60 transition-colors">
+                            <td className="py-3.5 px-5 font-bold text-[#191919]">
+                              {item.module}
+                            </td>
+                            <td className="py-3.5 px-5 font-mono font-bold text-[#F07858] whitespace-nowrap">
+                              {item.price}
+                            </td>
+                            <td className="py-3.5 px-5 text-[#62666D]">
+                              {item.note}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+          </div>
+
+          {/* 04. SECTION 7: ACTIVE-MEMBER CAPACITY PRICING TABLE */}
+          <div className="mt-12 bg-white rounded-3xl border border-[#E7E4DE] p-6 sm:p-8 shadow-xs">
+            <div className="max-w-2xl mb-6">
+              <h3 className="font-heading font-extrabold text-2xl text-[#191919]">
+                7. Active-Member Capacity Pricing
+              </h3>
+              <p className="text-xs text-[#62666D] mt-1 leading-relaxed">
+                Keep active-member capacity separate from individual functional modules. Only pay for members who currently hold valid, non-expired memberships.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {activeMemberCapacityTiers.map((t, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-2xl bg-[#FAF9F6] border border-[#E7E4DE] flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="text-sm font-bold text-[#191919]">{t.tier}</div>
+                    <p className="text-[11px] text-[#62666D] mt-1 leading-relaxed">
+                      {t.desc}
+                    </p>
+                  </div>
+                  <div className="pt-3 mt-3 border-t border-[#E7E4DE] flex items-baseline justify-between">
+                    <span className="text-[10px] font-mono uppercase text-[#858890]">
+                      Monthly
+                    </span>
+                    <span className="font-mono font-extrabold text-sm text-[#F07858]">
+                      {t.price}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 05. SECTION: REPSI PRICING PRINCIPLES */}
+          <div className="mt-12 rounded-3xl bg-[#FAF9F6] border border-[#E7E4DE] p-6 sm:p-8">
+            <h3 className="font-heading font-extrabold text-xl text-[#191919] mb-4">
+              How REPSI Dynamic Modular Pricing Operates
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[#62666D] leading-relaxed">
+              <div className="space-y-1.5 p-4 rounded-2xl bg-white border border-[#E7E4DE]">
+                <div className="font-bold text-[#191919] text-sm flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>1. Safe Data Preservation</span>
+                </div>
+                <p>
+                  When you remove or disable an optional module (e.g., Diet Plans or Class Schedules), REPSI preserves all historical records, notes, and receipts safely. Only the active UI tool is disabled.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 p-4 rounded-2xl bg-white border border-[#E7E4DE]">
+                <div className="font-bold text-[#191919] text-sm flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-[#F07858]" />
+                  <span>2. Bundle vs. Build Your Own</span>
+                </div>
+                <p>
+                  Pre-configured bundles offer deep discounts on popular combinations. If you customize an existing bundle by adding or removing modules, our calculator transparently recalculates your custom bill.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 p-4 rounded-2xl bg-white border border-[#E7E4DE]">
+                <div className="font-bold text-[#191919] text-sm flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-indigo-600" />
+                  <span>3. Active Members Only</span>
+                </div>
+                <p>
+                  You are never billed for inactive, graduated, or archived members. Only individuals with current active gym memberships count against your chosen member tier limit.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* MODULAR ADD-ONS */}
-        <section className="max-w-6xl mx-auto px-4 md:px-8 mb-24">
-          <div className="text-center max-w-xl mx-auto mb-8 space-y-1">
-            <span className="text-xs font-bold text-[#16A34A] uppercase tracking-wider">Modular Growth</span>
-            <h3 className="text-2xl font-bold text-[var(--text)] tracking-tight">Optional Add-ons</h3>
-            <p className="text-xs text-[var(--text-muted)]">Extend Repsi capabilities as your gym business scales.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-[var(--text)]">Additional Gym Branch Location</h4>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1.5 leading-relaxed">
-                  Connect secondary branch locations to your unified owner portal with centralized member database.
-                </p>
-              </div>
-              <div className="text-xs font-mono font-extrabold text-[#16A34A] mt-4 pt-3 border-t border-[var(--border)]">
-                + ₹499 / branch / month ($5.99/mo)
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-[var(--text)]">Custom Root Domain</h4>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1.5 leading-relaxed">
-                  Connect your custom root domain (e.g. yourgym.com) with SSL certificate and brand styling.
-                </p>
-              </div>
-              <div className="text-xs font-mono font-extrabold text-[#16A34A] mt-4 pt-3 border-t border-[var(--border)]">
-                + ₹999 / month ($11.99/mo)
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-[var(--text)]">Dedicated Account Concierge</h4>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1.5 leading-relaxed">
-                  Priority WhatsApp hotline, bi-weekly data audits, staff training sessions, and hardware setup.
-                </p>
-              </div>
-              <div className="text-xs font-mono font-extrabold text-[#16A34A] mt-4 pt-3 border-t border-[var(--border)]">
-                + ₹1,499 / month ($17.99/mo)
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* PRICING FAQS */}
-        <section className="max-w-4xl mx-auto px-4 md:px-8 mb-24">
-          <div className="text-center mb-10 space-y-1">
-            <h3 className="text-3xl font-black text-[var(--text)]">Frequently Asked Questions</h3>
-            <p className="text-xs text-[var(--text-muted)]">Clear, transparent answers about Repsi billing & plans.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {faqs.map((f, i) => (
-              <div key={i} className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1.5">
-                <h4 className="font-bold text-sm text-[var(--text)] flex items-start gap-2">
-                  <HelpCircle className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
-                  <span>{f.q}</span>
-                </h4>
-                <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-6">{f.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* MASCOT ASSISTANT BANNER */}
-        <section className="mx-auto max-w-4xl px-4">
-          <div className="bg-gradient-to-r from-[#16A34A]/10 via-[var(--surface)] to-[#16A34A]/5 border border-[#16A34A]/30 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-xs">
+        {/* 06. MASCOT ADVISOR BANNER */}
+        <section className="mx-auto max-w-4xl px-4 pb-20">
+          <div className="bg-gradient-to-r from-[#FFF0EA] via-white to-[#FAF9F6] border border-[#FFD2C3] rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-xs">
             <RepsiMascot pose="help" size="sm" />
             <div className="space-y-1 text-center sm:text-left flex-1">
-              <h3 className="text-lg font-bold text-[var(--text)]">Unsure which plan fits your gym best?</h3>
-              <p className="text-xs text-[var(--text-muted)]">
-                Our team helps gym owners migrate existing Excel records, set up attendance hardware, and launch within 48 hours.
+              <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#191919]">
+                Need guidance choosing the right modules for your facility?
+              </h3>
+              <p className="text-xs text-[#62666D] leading-relaxed">
+                Our fitness business advisors can help configure your exact module list, migrate existing Excel data, and get your reception running in under 24 hours.
               </p>
             </div>
             <a
-              href="https://wa.me/918667783321?text=Hi%20Repsi%20team,%20I'd%20like%20guidance%20on%20choosing%20a%20plan%20for%20my%20gym"
+              href="https://wa.me/918667783321?text=Hi%20Repsi%20team,%20I'd%20like%20guidance%20on%20choosing%20the%20right%20modular%20pricing%20for%20my%20gym"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition-all shrink-0 shadow-xs flex items-center gap-2"
+              className="px-5 py-2.5 rounded-full bg-[#F07858] hover:bg-[#E76543] text-white text-xs font-semibold transition-all shrink-0 shadow-sm shadow-[#F07858]/30 flex items-center gap-2"
             >
-              <span>Talk to an Advisor</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Chat with an Advisor</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
         </section>
       </main>
 
       <MarketingFooter />
+      <BackToTop />
     </div>
   );
 }

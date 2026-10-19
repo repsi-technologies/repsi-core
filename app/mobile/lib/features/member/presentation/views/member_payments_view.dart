@@ -442,7 +442,7 @@ class _PaymentInstructionsSheet extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.account_balance_rounded, color: Colors.amber, size: 18),
+                      Icon(Icons.account_balance_rounded, color: AppColors.primary, size: 18),
                       SizedBox(width: 8),
                       Text('Direct Bank Transfer (NEFT/IMPS)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                     ],

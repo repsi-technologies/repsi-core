@@ -167,7 +167,7 @@ export function AddMemberDialog({
         <DialogHeader className="space-y-2">
           <div className="flex items-center gap-2">
             <DialogTitle className="text-xl font-extrabold text-slate-900 dark:text-white">Add New Member</DialogTitle>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-[var(--nav-active-bg)] dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Direct Active
             </span>
           </div>
@@ -231,7 +231,7 @@ export function AddMemberDialog({
                 placeholder="Min. 6 chars (Auto-generated if blank)"
                 value={form.password || ""}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                className="rounded-xl h-10 pr-10 text-sm border-[#D5DDD7] dark:border-zinc-800 focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A]"
+                className="rounded-xl h-10 pr-10 text-sm border-[#D5DDD7] dark:border-zinc-800 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)]"
               />
               <button
                 type="button"
@@ -255,7 +255,7 @@ export function AddMemberDialog({
                   className={cn(
                     "flex flex-col items-start rounded-xl border p-3 text-left transition-all duration-150 cursor-pointer",
                     form.plan === plan
-                      ? "border-[#16A34A] bg-[#F0FDF4] dark:bg-emerald-950/60 shadow-2xs"
+                      ? "border-[var(--primary)] bg-[var(--primary-soft)] dark:bg-[var(--primary-soft)] shadow-2xs"
                       : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-slate-300"
                   )}
                 >
@@ -263,7 +263,7 @@ export function AddMemberDialog({
                     className={cn(
                       "text-xs font-bold",
                       form.plan === plan
-                        ? "text-[#15803D] dark:text-emerald-400"
+                        ? "text-[var(--primary-dark)] dark:text-[var(--primary-dark)]"
                         : "text-slate-800 dark:text-zinc-200"
                     )}
                   >
@@ -298,7 +298,7 @@ export function AddMemberDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
+            <Button type="submit" loading={loading} className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
               <UserCheck className="w-4 h-4" />
               {loading ? "Adding Member..." : "Add Member"}
             </Button>

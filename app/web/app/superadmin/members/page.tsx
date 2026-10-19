@@ -277,7 +277,7 @@ export default function SuperAdminMembersPage() {
                           className={`p-1.5 rounded-lg transition-colors ${
                             m.status.toUpperCase() === "ACTIVE"
                               ? "text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
-                              : "text-emerald-400 hover:bg-emerald-500/10"
+                              : "text-emerald-400 hover:bg-[var(--primary-hover)]/10"
                           }`}
                         >
                           {m.status.toUpperCase() === "ACTIVE" ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -384,7 +384,7 @@ export default function SuperAdminMembersPage() {
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowDeleteModal(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" disabled={actionLoading} className="bg-rose-600 hover:bg-rose-700 text-white font-bold gap-2">
+                <Button type="submit" size="sm" disabled={actionLoading} className="bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-bold gap-2">
                   {actionLoading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                   Delete Member
                 </Button>

@@ -229,7 +229,7 @@ export function AttendanceClient() {
           <Button
             size="sm"
             onClick={() => setShowQrModal(true)}
-            className="text-xs gap-1.5 h-9 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm cursor-pointer"
+            className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold shadow-sm cursor-pointer"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>Show QR Code</span>
@@ -359,7 +359,7 @@ export function AttendanceClient() {
           {/* Quick Reception Check-in QR Access Banner */}
           <div className="rounded-2xl border border-emerald-500/25 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-950/30 dark:via-emerald-900/10 dark:to-transparent p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--primary)]/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                 <QrCode className="w-6 h-6" />
               </div>
               <div>
@@ -379,7 +379,7 @@ export function AttendanceClient() {
               <Button
                 size="sm"
                 onClick={() => setShowQrModal(true)}
-                className="text-xs gap-1.5 h-9 bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer shadow-sm"
+                className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold cursor-pointer shadow-sm"
               >
                 <QrCode className="w-3.5 h-3.5" />
                 <span>Show QR Pass</span>
@@ -480,7 +480,7 @@ export function AttendanceClient() {
               <Button
                 type="submit"
                 disabled={scanning || !scanInput.trim()}
-                className="w-full text-xs font-semibold h-10 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full text-xs font-semibold h-10 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]"
               >
                 {scanning ? "Processing..." : "Process Entrance Scan"}
               </Button>
@@ -586,7 +586,7 @@ export function AttendanceClient() {
                           <Button
                             size="sm"
                             onClick={() => handleManualCheckOut(activeInside!.attendance_id)}
-                            className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+                            className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-semibold"
                           >
                             Check Out
                           </Button>
@@ -598,7 +598,7 @@ export function AttendanceClient() {
                             className={`h-7 text-xs font-semibold ${
                               isExpired
                                 ? "opacity-50 cursor-not-allowed bg-slate-400 text-white"
-                                : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                : "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]"
                             }`}
                           >
                             {isExpired ? "Membership Expired" : "Check In"}
@@ -638,7 +638,7 @@ export function AttendanceClient() {
                           <Button
                             size="sm"
                             onClick={() => handleManualCheckOut(activeInside!.attendance_id)}
-                            className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+                            className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-semibold"
                           >
                             Check Out
                           </Button>
@@ -646,7 +646,7 @@ export function AttendanceClient() {
                           <Button
                             size="sm"
                             onClick={() => handleManualCheckInTrainer(t)}
-                            className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                            className="h-7 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold"
                           >
                             Check In
                           </Button>
@@ -713,7 +713,7 @@ export function AttendanceClient() {
                   setShowQrModal(false);
                   setActiveTab("qr_manager");
                 }}
-                className="w-full text-xs font-bold h-10 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 cursor-pointer shadow-sm"
+                className="w-full text-xs font-bold h-10 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] gap-1.5 cursor-pointer shadow-sm"
               >
                 <span>Manage / Print</span>
                 <ArrowRight className="w-3.5 h-3.5" />

@@ -35,21 +35,21 @@ def send_registration_otp(email: str, otp: str) -> None:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>REPSI Verification Code</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F8FAFC; padding: 40px 15px;">
+<body style="margin: 0; padding: 0; background-color: #F7F7F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F7F7F5; padding: 40px 15px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 540px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); overflow: hidden;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 540px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #E4E2DC; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); overflow: hidden;">
           <!-- Header Branding -->
           <tr>
-            <td style="padding: 32px 40px 24px 40px; text-align: left; border-bottom: 1px solid #F1F5F9;">
+            <td style="padding: 32px 40px 24px 40px; text-align: left; border-bottom: 1px solid #E4E2DC;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td style="background-color: #16A34A; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
+                  <td style="background-color: #D9532F; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
                     <span style="color: #FFFFFF; font-size: 20px; font-weight: 800; line-height: 36px; display: inline-block;">R</span>
                   </td>
                   <td style="padding-left: 12px;">
-                    <span style="font-size: 20px; font-weight: 700; color: #0F172A; letter-spacing: -0.5px;">REPSI</span>
+                    <span style="font-size: 20px; font-weight: 700; color: #17191C; letter-spacing: -0.5px;">REPSI</span>
                   </td>
                 </tr>
               </table>
@@ -59,37 +59,37 @@ def send_registration_otp(email: str, otp: str) -> None:
           <!-- Main Content -->
           <tr>
             <td style="padding: 32px 40px 24px 40px;">
-              <h1 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #0F172A; letter-spacing: -0.3px;">
+              <h1 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #17191C; letter-spacing: -0.3px;">
                 Verify your email address
               </h1>
-              <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 24px; color: #475569;">
+              <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 24px; color: #6B6F76;">
                 Thank you for choosing REPSI. Use the verification code below to confirm your email and continue setting up your fitness business:
               </p>
 
               <!-- OTP Code Card -->
-              <div style="background-color: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 24px 20px; text-align: center; margin: 24px 0;">
-                <span style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #166534; margin-bottom: 8px;">
+              <div style="background-color: #EFEEEA; border: 1px solid #E4E2DC; border-radius: 12px; padding: 24px 20px; text-align: center; margin: 24px 0;">
+                <span style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #6B6F76; margin-bottom: 8px;">
                   Your Verification Code
                 </span>
-                <div style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, Monaco, monospace; font-size: 38px; font-weight: 700; letter-spacing: 12px; color: #0F172A; padding: 4px 0 4px 12px; user-select: all; -webkit-user-select: all;">
+                <div style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, Monaco, monospace; font-size: 38px; font-weight: 700; letter-spacing: 12px; color: #17191C; padding: 4px 0 4px 12px; user-select: all; -webkit-user-select: all;">
                   {otp}
                 </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #15803D;">
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #6B6F76;">
                   Double-click or press &amp; hold to copy
                 </p>
               </div>
 
               <!-- Notice & Expiry -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 20px; background-color: #F8FAFC; border-radius: 8px; padding: 14px 16px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 20px; background-color: #F7F7F5; border-radius: 8px; padding: 14px 16px;">
                 <tr>
-                  <td style="font-size: 13px; line-height: 20px; color: #64748B;">
+                  <td style="font-size: 13px; line-height: 20px; color: #6B6F76;">
                     ⏱ <strong>Expires in {settings.OTP_EXPIRE_MINUTES} minutes.</strong><br>
                     🛡️ <strong>Security reminder:</strong> Never share this code with anyone. REPSI team members will never ask for your verification code.
                   </td>
                 </tr>
               </table>
 
-              <p style="margin: 24px 0 0 0; font-size: 13px; line-height: 20px; color: #94A3B8;">
+              <p style="margin: 24px 0 0 0; font-size: 13px; line-height: 20px; color: #A6A8AC;">
                 If you did not initiate this request, you can safely disregard this email.
               </p>
             </td>
@@ -97,12 +97,12 @@ def send_registration_otp(email: str, otp: str) -> None:
 
           <!-- Footer -->
           <tr>
-            <td style="padding: 24px 40px; background-color: #F8FAFC; border-top: 1px solid #F1F5F9; text-align: center;">
-              <p style="margin: 0 0 6px 0; font-size: 12px; color: #94A3B8;">
+            <td style="padding: 24px 40px; background-color: #F7F7F5; border-top: 1px solid #E4E2DC; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #A6A8AC;">
                 © 2026 REPSI. All rights reserved. The Modern Gym &amp; Fitness Operating System.
               </p>
-              <p style="margin: 0; font-size: 12px; color: #94A3B8;">
-                Questions? Visit <a href="https://repsi.app" style="color: #16A34A; text-decoration: none; font-weight: 500;">repsi.app</a> or reply to this email.
+              <p style="margin: 0; font-size: 12px; color: #A6A8AC;">
+                Questions? Visit <a href="https://repsi.app" style="color: #B8431F; text-decoration: none; font-weight: 500;">repsi.app</a> or reply to this email.
               </p>
             </td>
           </tr>

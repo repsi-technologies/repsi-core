@@ -269,7 +269,7 @@ export default function MemberTrainerPage(props: { params: Promise<{ workspace: 
                       setSelectedTrainer(t);
                       setReviewModalOpen(true);
                     }}
-                    className="flex-1 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                    className="flex-1 text-xs gap-1.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold"
                   >
                     <Star className="h-3.5 w-3.5" /> Review Trainer
                   </Button>
@@ -347,7 +347,7 @@ export default function MemberTrainerPage(props: { params: Promise<{ workspace: 
                           onClick={() => handleToggleTag(tag)}
                           className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                             active
-                              ? "bg-emerald-600 text-white"
+                              ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                               : "bg-[var(--background)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
                           }`}
                         >
@@ -385,7 +385,7 @@ export default function MemberTrainerPage(props: { params: Promise<{ workspace: 
                     type="submit"
                     size="sm"
                     disabled={submittingReview}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                    className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold"
                   >
                     {submittingReview ? "Submitting..." : "Submit Review"}
                   </Button>
@@ -471,7 +471,7 @@ export default function MemberTrainerPage(props: { params: Promise<{ workspace: 
                     type="submit"
                     size="sm"
                     disabled={submittingReport}
-                    className="bg-rose-600 hover:bg-rose-500 text-white font-bold"
+                    className="bg-rose-600 hover:bg-rose-500 text-[var(--primary-foreground)] font-bold"
                   >
                     {submittingReport ? "Logging..." : "Submit Incident Report"}
                   </Button>

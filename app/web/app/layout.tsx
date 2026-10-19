@@ -8,18 +8,18 @@ import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: {
-    default: "REPSI — Fitness Management Platform",
-    template: "%s | REPSI",
+    default: "Repsi Fitness Management Platform",
+    template: "%s | Repsi",
   },
   description:
-    "REPSI is the modern operating system for gyms. Manage members, memberships, attendance, trainers, classes, payments, and more — all in one powerful platform.",
+    "Repsi is the modern operating system for gyms. Manage members, memberships, attendance, trainers, classes, payments, and more — all in one powerful platform.",
   keywords: ["gym management", "fitness software", "membership management", "gym software", "REPSI"],
   authors: [{ name: "REPSI" }],
   openGraph: {
-    title: "REPSI — Gym Management Platform",
+    title: "Repsi - Fitness Management Platform",
     description: "The modern operating system for gyms.",
     url: "https://repsi.app",
-    siteName: "REPSI",
+    siteName: "Repsi  ",
     type: "website",
   },
 };
@@ -32,6 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+        />
         {/*
           Inline script to prevent flash of incorrect theme.
           Runs before React hydration — sets the class immediately.

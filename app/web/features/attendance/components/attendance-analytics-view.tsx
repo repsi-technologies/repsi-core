@@ -139,7 +139,7 @@ export function AttendanceAnalyticsView({
                   </div>
                   <div className="h-2 w-full bg-[var(--background)] rounded-full overflow-hidden border border-[var(--border)]">
                     <div
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                      className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

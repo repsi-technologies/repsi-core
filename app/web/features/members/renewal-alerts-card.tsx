@@ -61,11 +61,11 @@ export function RenewalAlertsCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 sm:p-5 space-y-4 shadow-sm">
+    <div className="rounded-2xl border border-[var(--warning)]/30 bg-[var(--warning-soft)]/40 p-4 sm:p-5 space-y-4 shadow-sm">
       {/* Top Banner Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[var(--warning-soft)] text-[var(--warning-foreground)] flex items-center justify-center shrink-0">
             <BellRing className="w-5 h-5 animate-bounce" />
           </div>
           <div>
@@ -73,7 +73,7 @@ export function RenewalAlertsCard() {
               <h3 className="text-sm font-bold text-[var(--text)] tracking-tight">
                 Automated Renewal & Dunning Engine
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--warning-soft)] text-[var(--warning-foreground)] border border-[var(--warning)]/30">
                 {reminders.length} Due for Renewal
               </span>
             </div>
@@ -119,10 +119,10 @@ export function RenewalAlertsCard() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                       isOverdue 
-                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-400" 
+                        ? "bg-[var(--error-soft)] text-[var(--error-foreground)]"
                         : isToday 
-                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                        ? "bg-[var(--warning-soft)] text-[var(--warning-foreground)]"
+                        : "bg-[var(--warning-soft)] text-[var(--warning-foreground)]"
                     }`}>
                       {isOverdue ? <AlertTriangle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                     </div>
@@ -134,7 +134,7 @@ export function RenewalAlertsCard() {
                       </div>
                       <p className="text-[11px] text-[var(--text-muted)]">
                         <span className="font-semibold text-[var(--text)]">{r.plan_name}</span> · ₹{r.amount_due} · {" "}
-                        <span className={isOverdue ? "text-rose-500 font-bold" : isToday ? "text-amber-500 font-bold" : "text-[var(--text-muted)]"}>
+                        <span className={isOverdue ? "text-[var(--error-foreground)] font-bold" : "text-[var(--warning-foreground)] font-bold"}>
                           {isOverdue 
                             ? `Overdue (${Math.abs(r.days_remaining)}d ago)` 
                             : isToday 
@@ -164,7 +164,7 @@ export function RenewalAlertsCard() {
                       href={r.whatsapp_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs shadow-xs transition-colors cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>Send WhatsApp</span>

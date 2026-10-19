@@ -97,7 +97,7 @@ export default function TrainerWorkoutsPage(props: { params: Promise<{ workspace
           </p>
         </div>
 
-        <Button size="sm" onClick={() => setModalOpen(true)} disabled={!selectedClientId} className="gap-1.5 bg-[var(--primary)] text-white text-xs">
+        <Button size="sm" onClick={() => setModalOpen(true)} disabled={!selectedClientId} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs">
           <Plus className="h-3.5 w-3.5" />
           Create Workout Plan
         </Button>

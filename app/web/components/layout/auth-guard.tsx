@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { hasAuthSession, getAuthUser } from "@/lib/auth";
 
+import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -78,16 +80,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     setAuthorized(true);
   }, [pathname, router]);
 
-  // While checking or unauthorized, do not flash protected UI
+  // While checking authorization, render branded loading screen
   if (authorized !== true) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-[var(--primary)] border-t-transparent animate-spin" />
-          <span className="text-xs text-[var(--text-muted)] font-medium">Verifying workspace authorization...</span>
-        </div>
-      </div>
-    );
+    return <RepsiBrandLoader message="Verifying workspace authorization..." fullScreen={true} />;
   }
 
   return <>{children}</>;

@@ -40,9 +40,9 @@ export function SpecularButton({
 
   const variants = {
     primary:
-      "bg-gradient-to-r from-[#16A34A] to-[#22C55E] text-white shadow-lg shadow-[#16A34A]/25 hover:shadow-xl hover:shadow-[#16A34A]/35",
+      "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-white shadow-lg shadow-[var(--primary)]/25 hover:shadow-xl hover:shadow-[var(--primary)]/35",
     secondary:
-      "bg-[#0B120E] text-[#F5F7F5] border border-[#1a2f22] hover:border-[#22C55E]/40",
+      "bg-[#24272B] text-[#F7F7F5] border border-[#3A3F45] hover:border-[var(--primary)]/40",
   };
 
   const content = (

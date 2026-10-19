@@ -107,12 +107,12 @@ export function PhoneInput({
 
   // Base theme classes
   const themeClasses = forceLight
-    ? "bg-white text-[#111827] border-[#E2E8E5]"
-    : "bg-white dark:bg-zinc-900 text-[#111714] dark:text-white border-[#D5DDD7] dark:border-zinc-800";
+    ? "bg-white text-[#17191C] border-[#E4E2DC]"
+    : "bg-white dark:bg-zinc-900 text-[var(--text)] dark:text-white border-[#D5DDD7] dark:border-zinc-800";
 
   return (
     <div
-      className={`flex items-center rounded-lg border focus-within:ring-2 focus-within:ring-[#16A34A] focus-within:border-[#16A34A] transition-all overflow-hidden ${
+      className={`flex items-center rounded-lg border focus-within:ring-2 focus-within:ring-[var(--ring)] focus-within:border-[var(--ring)] transition-all overflow-hidden ${
         error
           ? "border-red-500 focus-within:ring-red-500 focus-within:border-red-500"
           : themeClasses
@@ -122,7 +122,7 @@ export function PhoneInput({
       <div
         className={`relative border-r flex items-center shrink-0 ${
           forceLight
-            ? "border-[#E2E8E5] bg-[#F8FAFC]"
+            ? "border-[#E4E2DC] bg-[#F7F7F5]"
             : "border-[#E2E8E4] dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-800/50"
         }`}
       >
@@ -130,7 +130,7 @@ export function PhoneInput({
           value={selectedCountryCode}
           onChange={(e) => handleCountrySelect(e.target.value)}
           className={`h-11 pl-3 pr-7 text-xs font-semibold bg-transparent border-none outline-none cursor-pointer appearance-none ${
-            forceLight ? "text-[#111827]" : "text-slate-800 dark:text-zinc-200"
+            forceLight ? "text-[#17191C]" : "text-slate-800 dark:text-zinc-200"
           }`}
           aria-label="Select country code"
         >
@@ -144,7 +144,7 @@ export function PhoneInput({
             </option>
           ))}
         </select>
-        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[#64748B]">
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-[var(--text-muted)]">
           ▼
         </span>
       </div>
@@ -159,7 +159,7 @@ export function PhoneInput({
         onChange={(e) => handleNumberChange(e.target.value)}
         onBlur={onBlur}
         className={`flex-1 h-11 px-3.5 text-sm placeholder:text-[#94A3B8] bg-transparent outline-none ${
-          forceLight ? "text-[#111827]" : "text-[#111714] dark:text-white"
+          forceLight ? "text-[#17191C]" : "text-[var(--text)] dark:text-white"
         }`}
       />
     </div>

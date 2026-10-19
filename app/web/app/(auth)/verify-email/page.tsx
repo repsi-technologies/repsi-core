@@ -63,7 +63,7 @@ export default function VerifyEmailPage() {
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center space-y-6 shadow-sm">
         {!isVerified ? (
           <>
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-[#16A34A] flex items-center justify-center mx-auto">
+            <div className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] border border-[var(--primary)]/20 text-[var(--primary-dark)] flex items-center justify-center mx-auto">
               <Mail className="w-7 h-7" />
             </div>
 
@@ -75,7 +75,7 @@ export default function VerifyEmailPage() {
             </div>
 
             {resent && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[#16A34A] text-xs font-medium flex items-center justify-center gap-2">
+              <div className="p-3 rounded-xl bg-[var(--success-soft)] border border-[var(--success)]/20 text-[var(--success-foreground)] text-xs font-medium flex items-center justify-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>A fresh verification link has been sent!</span>
               </div>
@@ -88,7 +88,7 @@ export default function VerifyEmailPage() {
                 type="button"
                 onClick={handleVerification}
                 disabled={verifying}
-                className="w-full py-3 rounded-xl bg-[#16A34A] text-white hover:bg-[#15803D] font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="w-full py-3 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
               >
                 <span>{verifying ? "Verifying..." : "Verify email"}</span>
               </button>
@@ -106,14 +106,14 @@ export default function VerifyEmailPage() {
 
             <div className="pt-4 border-t border-[var(--border)] text-xs text-[var(--text-muted)]">
               Wrong email address?{" "}
-              <Link href="/signup" className="text-[#16A34A] hover:underline font-medium">
+              <Link href="/signup" className="text-[var(--primary-dark)] hover:underline font-medium">
                 Change email
               </Link>
             </div>
           </>
         ) : (
           <div className="space-y-5 py-4 animate-in fade-in zoom-in duration-200">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#16A34A] flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-[var(--success-soft)] text-[var(--success-foreground)] flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <div className="space-y-1.5">
@@ -122,7 +122,7 @@ export default function VerifyEmailPage() {
             </div>
             <Link
               href="/onboarding/gym"
-              className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#16A34A] text-white font-bold text-sm hover:bg-[#15803D] transition-all shadow-md"
+              className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-bold text-sm hover:bg-[var(--primary-hover)] transition-all shadow-md"
             >
               <span>Continue to Gym Setup</span>
               <ArrowRight className="w-4 h-4" />

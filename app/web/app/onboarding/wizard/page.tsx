@@ -543,7 +543,7 @@ export default function OnboardingWizardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F7] text-[#111827] flex flex-col justify-between font-sans selection:bg-[#16A34A]/20 selection:text-[#16A34A]">
+    <div className="min-h-screen bg-[#F7F7F5] text-[#17191C] flex flex-col justify-between font-sans selection:bg-[var(--primary)]/20 selection:text-[var(--primary-dark)]">
       {/* Top Header - Subtle Repsi Logo */}
       <header className="p-6 sm:p-8 text-center">
         <Link href="/" className="inline-block transition-opacity hover:opacity-85">
@@ -563,13 +563,13 @@ export default function OnboardingWizardPage() {
         {/* Animated Step Progress Bar (Steps 2 through 6) */}
         {step >= 2 && step <= 6 && (
           <div className="w-full max-w-[440px] sm:max-w-[460px] mx-auto mb-6 px-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-[#64748B] mb-2">
-              <span className="text-[#111827]">Setup Progress · Step {step - 1} of 5</span>
-              <span className="text-[#16A34A]">{Math.round(((step - 1) / 5) * 100)}%</span>
+            <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-muted)] mb-2">
+              <span className="text-[#17191C]">Setup Progress · Step {step - 1} of 5</span>
+              <span className="text-[var(--primary-dark)]">{Math.round(((step - 1) / 5) * 100)}%</span>
             </div>
-            <div className="h-1.5 w-full bg-[#E2E8E5] rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-[#E4E2DC] rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-[#16A34A] to-[#22C55E] rounded-full"
+                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] rounded-full"
                 initial={false}
                 animate={{ width: `${((step - 1) / 5) * 100}%` }}
                 transition={{ duration: 0.35, ease: "easeInOut" }}
@@ -592,25 +592,25 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6"
           >
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-[#16A34A] shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
-                <ShinyText text="14-Day Free Trial · Growth Plan Unlocked" className="text-xs font-semibold text-[#15803D]" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-[var(--primary-dark)] shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
+                <ShinyText text="14-Day Free Trial · Growth Plan Unlocked" className="text-xs font-semibold text-[var(--primary-dark)]" />
               </div>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Create your account
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Start with 14 days of Growth features & up to 35 members. No credit card required.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
             >
               <form onSubmit={handleStep1Submit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Full name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -618,8 +618,8 @@ export default function OnboardingWizardPage() {
                     placeholder="Arjun Nair"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                      errors.name ? "border-rose-500" : "border-[#E2E8E5]"
+                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                      errors.name ? "border-rose-500" : "border-[#E4E2DC]"
                     }`}
                     autoFocus
                     required
@@ -629,7 +629,7 @@ export default function OnboardingWizardPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-sm font-medium text-[#111827]">
+                    <label className="block text-sm font-medium text-[#17191C]">
                       Work email <span className="text-red-500">*</span>
                     </label>
                     {checkingEmail && (
@@ -647,8 +647,8 @@ export default function OnboardingWizardPage() {
                       if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
                     }}
                     onBlur={handleEmailBlur}
-                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                      errors.email ? "border-rose-500" : "border-[#E2E8E5]"
+                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                      errors.email ? "border-rose-500" : "border-[#E4E2DC]"
                     }`}
                     required
                   />
@@ -657,7 +657,7 @@ export default function OnboardingWizardPage() {
                       <p>{errors.email}</p>
                       {errors.email.toLowerCase().includes("already") && (
                         <p className="pt-0.5">
-                          <Link href="/login" className="inline-flex items-center gap-1 font-semibold text-[#16A34A] hover:underline">
+                          <Link href="/login" className="inline-flex items-center gap-1 font-semibold text-[var(--primary-dark)] hover:underline">
                             Sign in to your existing account →
                           </Link>
                         </p>
@@ -667,7 +667,7 @@ export default function OnboardingWizardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -676,15 +676,15 @@ export default function OnboardingWizardPage() {
                       placeholder="Min. 8 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                        errors.password ? "border-rose-500" : "border-[#E2E8E5]"
+                      className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                        errors.password ? "border-rose-500" : "border-[#E4E2DC]"
                       }`}
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#111827] transition-colors cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -693,7 +693,7 @@ export default function OnboardingWizardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Confirm password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -705,15 +705,15 @@ export default function OnboardingWizardPage() {
                         setConfirmPassword(e.target.value);
                         if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
                       }}
-                      className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                        errors.confirmPassword ? "border-rose-500" : "border-[#E2E8E5]"
+                      className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                        errors.confirmPassword ? "border-rose-500" : "border-[#E4E2DC]"
                       }`}
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#111827] transition-colors cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
                     >
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -723,7 +723,7 @@ export default function OnboardingWizardPage() {
 
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer mt-2"
+                  className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer mt-2"
                 >
                   <span>Continue to setup</span>
                   <ArrowRight className="h-4 w-4" />
@@ -731,9 +731,9 @@ export default function OnboardingWizardPage() {
               </form>
             </SpotlightCard>
 
-            <p className="text-center text-sm text-[#64748B]">
+            <p className="text-center text-sm text-[var(--text-muted)]">
               Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-[#111827] hover:text-[#16A34A] transition-colors">
+              <Link href="/login" className="font-semibold text-[#17191C] hover:text-[var(--primary-dark)] transition-colors">
                 Sign in
               </Link>
             </p>
@@ -753,24 +753,24 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6"
           >
             <div className="text-center space-y-1.5">
-              <p className="text-xs font-semibold text-[#16A34A] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--primary-dark)] uppercase tracking-wider">
                 Step 1 of 5 · Owner & Gym Setup
               </p>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Tell us about your business
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Enter your real gym details to personalize your workspace.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
             >
               <form onSubmit={handleStep2Submit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Gym / Business name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -779,8 +779,8 @@ export default function OnboardingWizardPage() {
                     onChange={(e) => setGymName(e.target.value)}
                     placeholder="FitZone Fitness"
                     required
-                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                      errors.gymName ? "border-rose-500" : "border-[#E2E8E5]"
+                    className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                      errors.gymName ? "border-rose-500" : "border-[#E4E2DC]"
                     }`}
                   />
                   {errors.gymName && <p className="mt-1 text-xs text-rose-600 font-medium">{errors.gymName}</p>}
@@ -789,7 +789,7 @@ export default function OnboardingWizardPage() {
                 {/* Workspace Slug / URL with Live Availability Check */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-sm font-medium text-[#111827]">
+                    <label className="block text-sm font-medium text-[#17191C]">
                       Workspace URL / Slug <span className="text-red-500">*</span>
                     </label>
                     {checkingSlug ? (
@@ -807,10 +807,10 @@ export default function OnboardingWizardPage() {
                     ) : null}
                   </div>
 
-                  <div className={`flex items-center rounded-lg border bg-white overflow-hidden transition-colors focus-within:ring-2 focus-within:ring-[#16A34A] focus-within:border-[#16A34A] ${
-                    errors.slug || slugAvailable === false ? "border-rose-500" : "border-[#E2E8E5]"
+                  <div className={`flex items-center rounded-lg border bg-white overflow-hidden transition-colors focus-within:ring-2 focus-within:ring-[var(--ring)] focus-within:border-[var(--ring)] ${
+                    errors.slug || slugAvailable === false ? "border-rose-500" : "border-[#E4E2DC]"
                   }`}>
-                    <span className="pl-3 pr-1 text-xs font-semibold text-[#64748B] select-none bg-[#F8FAFC] py-3 border-r border-[#E2E8E5]">
+                    <span className="pl-3 pr-1 text-xs font-semibold text-[var(--text-muted)] select-none bg-[#F7F7F5] py-3 border-r border-[#E4E2DC]">
                       repsi.app/
                     </span>
                     <input
@@ -823,26 +823,26 @@ export default function OnboardingWizardPage() {
                       }}
                       placeholder="fitzone-fitness"
                       required
-                      className="flex-1 h-11 px-3 text-sm font-semibold text-[#111827] placeholder:text-[#94A3B8] bg-transparent outline-none lowercase"
+                      className="flex-1 h-11 px-3 text-sm font-semibold text-[#17191C] placeholder:text-[#94A3B8] bg-transparent outline-none lowercase"
                     />
                   </div>
                   {errors.slug || slugError ? (
                     <p className="mt-1 text-xs text-rose-600 font-medium">{errors.slug || slugError}</p>
                   ) : (
-                    <p className="mt-1 text-[11px] text-[#64748B]">
-                      Your custom web portal will be: <strong className="font-mono text-[#111827]">{effectiveSlug || "your-gym"}.repsi.app</strong>
+                    <p className="mt-1 text-[11px] text-[var(--text-muted)]">
+                      Your custom web portal will be: <strong className="font-mono text-[#17191C]">{effectiveSlug || "your-gym"}.repsi.app</strong>
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Business type
                   </label>
                   <select
                     value={businessType}
                     onChange={(e) => setBusinessType(e.target.value)}
-                    className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                    className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                   >
                     <option value="Gym & Fitness center">Gym & Fitness center</option>
                     <option value="Yoga Studio">Yoga Studio</option>
@@ -854,7 +854,7 @@ export default function OnboardingWizardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     Official Phone Number <span className="text-red-500">*</span>
                   </label>
                   <PhoneInput
@@ -870,7 +870,7 @@ export default function OnboardingWizardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                  <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                     City / Location
                   </label>
                   <input
@@ -878,7 +878,7 @@ export default function OnboardingWizardPage() {
                     value={gymCity}
                     onChange={(e) => setGymCity(e.target.value)}
                     placeholder="Coimbatore"
-                    className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                    className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                   />
                 </div>
 
@@ -886,14 +886,14 @@ export default function OnboardingWizardPage() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E2E8E5] bg-white hover:bg-zinc-50 text-[#64748B] text-sm font-semibold transition-all cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E4E2DC] bg-white hover:bg-zinc-50 text-[var(--text-muted)] text-sm font-semibold transition-all cursor-pointer"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     <span>Back</span>
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="h-4 w-4" />
@@ -917,29 +917,29 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6"
           >
             <div className="text-center space-y-1.5">
-              <p className="text-xs font-semibold text-[#16A34A] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--primary-dark)] uppercase tracking-wider">
                 Step 2 of 5 · Business Scale
               </p>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Configure regional settings
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Specify currency, timezone, and operational scope.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                   Number of locations
                 </label>
                 <select
                   value={locationsCount}
                   onChange={(e) => setLocationsCount(e.target.value)}
-                  className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                 >
                   <option value="1 location">1 location</option>
                   <option value="2–3 locations">2–3 locations</option>
@@ -948,13 +948,13 @@ export default function OnboardingWizardPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                   Approx. members
                 </label>
                 <select
                   value={approxMembers}
                   onChange={(e) => setApproxMembers(e.target.value)}
-                  className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                 >
                   <option value="Under 100 members">Under 100 members</option>
                   <option value="100–500 members">100–500 members</option>
@@ -964,13 +964,13 @@ export default function OnboardingWizardPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                   Currency
                 </label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                 >
                   <option value="INR (₹)">INR (₹)</option>
                   <option value="USD ($)">USD ($)</option>
@@ -981,13 +981,13 @@ export default function OnboardingWizardPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                <label className="block text-sm font-medium text-[#17191C] mb-1.5">
                   Timezone
                 </label>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="flex h-11 w-full rounded-lg border border-[#E2E8E5] bg-white px-3.5 text-sm text-[#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-[#E4E2DC] bg-white px-3.5 text-sm text-[#17191C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
                 >
                   <option value="Asia/Kolkata (GMT+5:30)">Asia/Kolkata (GMT+5:30)</option>
                   <option value="America/New_York (EST)">America/New_York (EST)</option>
@@ -1001,7 +1001,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E2E8E5] bg-white hover:bg-zinc-50 text-[#64748B] text-sm font-semibold transition-all cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E4E2DC] bg-white hover:bg-zinc-50 text-[var(--text-muted)] text-sm font-semibold transition-all cursor-pointer"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back</span>
@@ -1009,7 +1009,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(4)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer"
                 >
                   <span>Continue</span>
                   <ArrowRight className="h-4 w-4" />
@@ -1032,20 +1032,20 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[460px] mx-auto space-y-6"
           >
             <div className="text-center space-y-1.5">
-              <p className="text-xs font-semibold text-[#16A34A] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--primary-dark)] uppercase tracking-wider">
                 Step 3 of 5 · Membership Plans
               </p>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Add your memberships
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Enter membership fees for your gym. Edit or add more anytime.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
             >
               <div className="space-y-3">
                 {plans.map((plan) => (
@@ -1053,8 +1053,8 @@ export default function OnboardingWizardPage() {
                     key={plan.id}
                     className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${
                       plan.active
-                        ? "border-[#16A34A] bg-[#16A34A]/5 text-[#111827]"
-                        : "border-[#E2E8E5] bg-white text-[#64748B] opacity-75"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[#17191C]"
+                        : "border-[#E4E2DC] bg-white text-[var(--text-muted)] opacity-75"
                     }`}
                   >
                     <div
@@ -1063,30 +1063,30 @@ export default function OnboardingWizardPage() {
                     >
                       <div
                         className={`w-4 h-4 rounded flex items-center justify-center border text-white transition-colors ${
-                          plan.active ? "bg-[#16A34A] border-[#16A34A]" : "border-[#CBD5E1] bg-white"
+                          plan.active ? "bg-[var(--primary)] border-[var(--primary)]" : "border-[#E4E2DC] bg-white"
                         }`}
                       >
                         {plan.active && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-[#111827]">{plan.name}</p>
-                        <p className="text-xs text-[#64748B]">{plan.duration}</p>
+                        <p className="text-sm font-semibold text-[#17191C]">{plan.name}</p>
+                        <p className="text-xs text-[var(--text-muted)]">{plan.duration}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 bg-white border border-[#E2E8E5] rounded-lg px-2.5 py-1.5 focus-within:border-[#16A34A] focus-within:ring-2 focus-within:ring-[#16A34A]/20 transition-all shadow-2xs"
+                        className="flex items-center gap-1 bg-white border border-[#E4E2DC] rounded-lg px-2.5 py-1.5 focus-within:border-[var(--ring)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20 transition-all shadow-2xs"
                       >
-                        <span className="text-xs font-semibold text-[#64748B]">₹</span>
+                        <span className="text-xs font-semibold text-[var(--text-muted)]">₹</span>
                         <input
                           type="text"
                           inputMode="numeric"
                           value={plan.price}
                           onChange={(e) => updatePlanPrice(plan.id, e.target.value)}
                           placeholder="Price"
-                          className="w-20 text-sm font-bold text-[#111827] text-right focus:outline-none placeholder:text-[#94A3B8] placeholder:font-normal"
+                          className="w-20 text-sm font-bold text-[#17191C] text-right focus:outline-none placeholder:text-[#94A3B8] placeholder:font-normal"
                         />
                       </div>
                       {plans.length > 1 && (
@@ -1108,26 +1108,26 @@ export default function OnboardingWizardPage() {
               </div>
 
               {showAddCustomPlan ? (
-                <form onSubmit={handleAddCustomPlan} className="p-3.5 bg-[#F8FAFC] rounded-xl border border-[#E2E8E5] space-y-3">
-                  <p className="text-xs font-semibold text-[#111827]">New membership plan</p>
+                <form onSubmit={handleAddCustomPlan} className="p-3.5 bg-[#F7F7F5] rounded-xl border border-[#E4E2DC] space-y-3">
+                  <p className="text-xs font-semibold text-[#17191C]">New membership plan</p>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="e.g. 6 Months"
                       value={customPlanName}
                       onChange={(e) => setCustomPlanName(e.target.value)}
-                      className="h-9 px-2.5 rounded-lg border border-[#E2E8E5] bg-white text-xs text-[#111827] focus:border-[#16A34A] outline-none"
+                      className="h-9 px-2.5 rounded-lg border border-[#E4E2DC] bg-white text-xs text-[#17191C] focus:border-[var(--ring)] outline-none"
                       autoFocus
                     />
-                    <div className="flex items-center gap-1 bg-white border border-[#E2E8E5] rounded-lg px-2.5 h-9 focus-within:border-[#16A34A]">
-                      <span className="text-xs font-semibold text-[#64748B]">₹</span>
+                    <div className="flex items-center gap-1 bg-white border border-[#E4E2DC] rounded-lg px-2.5 h-9 focus-within:border-[var(--ring)]">
+                      <span className="text-xs font-semibold text-[var(--text-muted)]">₹</span>
                       <input
                         type="text"
                         inputMode="numeric"
                         placeholder="Price (e.g. 5999)"
                         value={customPlanPrice}
                         onChange={(e) => setCustomPlanPrice(e.target.value)}
-                        className="w-full text-xs font-semibold text-[#111827] outline-none placeholder:font-normal"
+                        className="w-full text-xs font-semibold text-[#17191C] outline-none placeholder:font-normal"
                       />
                     </div>
                   </div>
@@ -1136,19 +1136,19 @@ export default function OnboardingWizardPage() {
                     placeholder="Duration (e.g. 6 months, 24 sessions)"
                     value={customPlanDuration}
                     onChange={(e) => setCustomPlanDuration(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded-lg border border-[#E2E8E5] bg-white text-xs text-[#111827] focus:border-[#16A34A] outline-none"
+                    className="h-9 w-full px-2.5 rounded-lg border border-[#E4E2DC] bg-white text-xs text-[#17191C] focus:border-[var(--ring)] outline-none"
                   />
                   <div className="flex items-center gap-2 pt-1">
                     <button
                       type="submit"
-                      className="h-8 px-3 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-semibold cursor-pointer transition-colors"
+                      className="h-8 px-3 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer transition-colors"
                     >
                       Add Plan
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowAddCustomPlan(false)}
-                      className="h-8 px-2.5 text-xs text-[#64748B] hover:text-[#111827] cursor-pointer"
+                      className="h-8 px-2.5 text-xs text-[var(--text-muted)] hover:text-[#17191C] cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -1158,7 +1158,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddCustomPlan(true)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-[#16A34A] hover:bg-[#16A34A]/5 rounded-xl border border-dashed border-[#16A34A]/40 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-[var(--primary-dark)] hover:bg-[var(--primary)]/5 rounded-xl border border-dashed border-[var(--primary)]/40 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ Add custom membership</span>
@@ -1169,7 +1169,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E2E8E5] bg-white hover:bg-zinc-50 text-[#64748B] text-sm font-semibold transition-all cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E4E2DC] bg-white hover:bg-zinc-50 text-[var(--text-muted)] text-sm font-semibold transition-all cursor-pointer"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back</span>
@@ -1177,7 +1177,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(5)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer"
                 >
                   <span>Continue</span>
                   <ArrowRight className="h-4 w-4" />
@@ -1189,7 +1189,7 @@ export default function OnboardingWizardPage() {
               <button
                 type="button"
                 onClick={() => setStep(5)}
-                className="text-sm text-[#64748B] hover:text-[#111827] transition-colors cursor-pointer"
+                className="text-sm text-[var(--text-muted)] hover:text-[#17191C] transition-colors cursor-pointer"
               >
                 Skip for now
               </button>
@@ -1210,43 +1210,43 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6"
           >
             <div className="text-center space-y-1.5">
-              <p className="text-xs font-semibold text-[#16A34A] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--primary-dark)] uppercase tracking-wider">
                 Step 4 of 5 · Invite Team
               </p>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Build your team
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Add trainers or receptionists to manage classes & check-ins.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4"
             >
               {/* Owner card */}
-              <div className="flex items-center justify-between p-3.5 rounded-lg border border-[#E2E8E5] bg-[#F8FAFC]">
+              <div className="flex items-center justify-between p-3.5 rounded-lg border border-[#E4E2DC] bg-[#F7F7F5]">
                 <div>
-                  <p className="text-sm font-semibold text-[#111827]">
+                  <p className="text-sm font-semibold text-[#17191C]">
                     {fullName || "Gym Owner"}
                   </p>
-                  <p className="text-xs text-[#64748B]">{email || "owner@gym.com"}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{email || "owner@gym.com"}</p>
                 </div>
-                <span className="text-[11px] font-semibold text-[#16A34A] bg-[#16A34A]/10 border border-[#16A34A]/20 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-semibold text-[var(--primary-dark)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 px-2 py-0.5 rounded-full">
                   ✓ Owner
                 </span>
               </div>
 
               {/* Added team members */}
               {teamMembers.map((member, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3.5 rounded-lg border border-[#E2E8E5] bg-white">
+                <div key={idx} className="flex items-center justify-between p-3.5 rounded-lg border border-[#E4E2DC] bg-white">
                   <div>
-                    <p className="text-sm font-semibold text-[#111827]">{member.name}</p>
-                    <p className="text-xs text-[#64748B]">{member.contact}</p>
+                    <p className="text-sm font-semibold text-[#17191C]">{member.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{member.contact}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-medium text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-medium text-[var(--text-muted)] bg-[#EFEEEA] px-2 py-0.5 rounded">
                       {member.role}
                     </span>
                     <button
@@ -1260,21 +1260,21 @@ export default function OnboardingWizardPage() {
               ))}
 
               {showAddMember ? (
-                <form onSubmit={handleAddTeamMember} className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8E5] space-y-2.5">
-                  <p className="text-xs font-semibold text-[#111827]">New team member</p>
+                <form onSubmit={handleAddTeamMember} className="p-3 bg-[#F7F7F5] rounded-lg border border-[#E4E2DC] space-y-2.5">
+                  <p className="text-xs font-semibold text-[#17191C]">New team member</p>
                   <input
                     type="text"
                     placeholder="Full name"
                     value={newMemberName}
                     onChange={(e) => setNewMemberName(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded border border-[#E2E8E5] bg-white text-xs text-[#111827]"
+                    className="h-9 w-full px-2.5 rounded border border-[#E4E2DC] bg-white text-xs text-[#17191C]"
                     autoFocus
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <select
                       value={newMemberRole}
                       onChange={(e) => setNewMemberRole(e.target.value)}
-                      className="h-9 px-2 rounded border border-[#E2E8E5] bg-white text-xs text-[#111827]"
+                      className="h-9 px-2 rounded border border-[#E4E2DC] bg-white text-xs text-[#17191C]"
                     >
                       <option value="Trainer">Trainer</option>
                       <option value="Staff">Staff</option>
@@ -1285,20 +1285,20 @@ export default function OnboardingWizardPage() {
                       placeholder="Email or phone"
                       value={newMemberContact}
                       onChange={(e) => setNewMemberContact(e.target.value)}
-                      className="h-9 px-2.5 rounded border border-[#E2E8E5] bg-white text-xs text-[#111827]"
+                      className="h-9 px-2.5 rounded border border-[#E4E2DC] bg-white text-xs text-[#17191C]"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-1">
                     <button
                       type="submit"
-                      className="h-8 px-3 rounded bg-[#16A34A] text-white text-xs font-semibold cursor-pointer"
+                      className="h-8 px-3 rounded bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer"
                     >
                       Add Member
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowAddMember(false)}
-                      className="h-8 px-2.5 text-xs text-[#64748B] hover:text-[#111827] cursor-pointer"
+                      className="h-8 px-2.5 text-xs text-[var(--text-muted)] hover:text-[#17191C] cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -1308,7 +1308,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddMember(true)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-[#16A34A] hover:bg-[#16A34A]/5 rounded-lg border border-dashed border-[#16A34A]/40 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-[var(--primary-dark)] hover:bg-[var(--primary)]/5 rounded-lg border border-dashed border-[var(--primary)]/40 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ Add trainer or staff</span>
@@ -1319,7 +1319,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(4)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E2E8E5] bg-white hover:bg-zinc-50 text-[#64748B] text-sm font-semibold transition-all cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg border border-[#E4E2DC] bg-white hover:bg-zinc-50 text-[var(--text-muted)] text-sm font-semibold transition-all cursor-pointer"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back</span>
@@ -1327,7 +1327,7 @@ export default function OnboardingWizardPage() {
                 <button
                   type="button"
                   onClick={() => setStep(6)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer"
                 >
                   <span>Review & Verify</span>
                   <ArrowRight className="h-4 w-4" />
@@ -1339,7 +1339,7 @@ export default function OnboardingWizardPage() {
               <button
                 type="button"
                 onClick={() => setStep(6)}
-                className="text-sm text-[#64748B] hover:text-[#111827] transition-colors cursor-pointer"
+                className="text-sm text-[var(--text-muted)] hover:text-[#17191C] transition-colors cursor-pointer"
               >
                 Skip for now
               </button>
@@ -1360,29 +1360,29 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[420px] sm:max-w-[460px] mx-auto space-y-6"
           >
             <div className="text-center space-y-1.5">
-              <p className="text-xs font-semibold text-[#16A34A] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--primary-dark)] uppercase tracking-wider">
                 Step 5 of 5 · Final Verification
               </p>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Review & Verify Account
               </h1>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Confirm your owner details and enter the verification code.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.08)"
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-5"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-5"
             >
               {/* Owner Form Summary Card */}
-              <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8E5] space-y-3">
-                <div className="flex items-center justify-between border-b border-[#E2E8E5] pb-2.5">
-                  <span className="text-xs font-bold text-[#111827] uppercase tracking-wider">Owner Profile</span>
+              <div className="p-4 rounded-xl bg-[#F7F7F5] border border-[#E4E2DC] space-y-3">
+                <div className="flex items-center justify-between border-b border-[#E4E2DC] pb-2.5">
+                  <span className="text-xs font-bold text-[#17191C] uppercase tracking-wider">Owner Profile</span>
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="text-xs text-[#16A34A] font-semibold hover:underline"
+                    className="text-xs text-[var(--primary-dark)] font-semibold hover:underline"
                   >
                     Edit Form
                   </button>
@@ -1390,30 +1390,30 @@ export default function OnboardingWizardPage() {
                 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-[#64748B] block">Owner Name:</span>
-                    <span className="font-semibold text-[#111827]">{fullName || "Not provided"}</span>
+                    <span className="text-[var(--text-muted)] block">Owner Name:</span>
+                    <span className="font-semibold text-[#17191C]">{fullName || "Not provided"}</span>
                   </div>
                   <div>
-                    <span className="text-[#64748B] block">Work Email:</span>
-                    <span className="font-semibold text-[#111827]">{email || "Not provided"}</span>
+                    <span className="text-[var(--text-muted)] block">Work Email:</span>
+                    <span className="font-semibold text-[#17191C]">{email || "Not provided"}</span>
                   </div>
                   <div>
-                    <span className="text-[#64748B] block">Gym / Business:</span>
-                    <span className="font-semibold text-[#111827]">{gymName || "FitZone"}</span>
+                    <span className="text-[var(--text-muted)] block">Gym / Business:</span>
+                    <span className="font-semibold text-[#17191C]">{gymName || "FitZone"}</span>
                   </div>
                   <div>
-                    <span className="text-[#64748B] block">Contact Phone:</span>
-                    <span className="font-semibold text-[#111827]">{gymPhone || "Not provided"}</span>
+                    <span className="text-[var(--text-muted)] block">Contact Phone:</span>
+                    <span className="font-semibold text-[#17191C]">{gymPhone || "Not provided"}</span>
                   </div>
                   {gymCity && (
                     <div>
-                      <span className="text-[#64748B] block">City:</span>
-                      <span className="font-semibold text-[#111827]">{gymCity}</span>
+                      <span className="text-[var(--text-muted)] block">City:</span>
+                      <span className="font-semibold text-[#17191C]">{gymCity}</span>
                     </div>
                   )}
                   <div>
-                    <span className="text-[#64748B] block">Scale:</span>
-                    <span className="font-semibold text-[#111827]">{locationsCount}</span>
+                    <span className="text-[var(--text-muted)] block">Scale:</span>
+                    <span className="font-semibold text-[#17191C]">{locationsCount}</span>
                   </div>
                 </div>
               </div>
@@ -1431,7 +1431,7 @@ export default function OnboardingWizardPage() {
                         <div className="flex items-center gap-2 pt-1 border-t border-rose-200/60">
                           <Link
                             href="/login"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold text-xs hover:bg-rose-700 transition"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-[var(--primary-foreground)] font-semibold text-xs hover:bg-rose-700 transition"
                           >
                             Sign In to Existing Account
                           </Link>
@@ -1450,12 +1450,12 @@ export default function OnboardingWizardPage() {
                     </div>
                   )}
 
-                  <div className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs text-[#111827] flex items-start gap-2.5">
-                    <ShieldCheck className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
+                  <div className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs text-[#17191C] flex items-start gap-2.5">
+                    <ShieldCheck className="w-5 h-5 text-[var(--primary-dark)] shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold">Email Confirmation Required</p>
-                      <p className="text-[#64748B] mt-0.5">
-                        We will send a 6-digit OTP to <strong className="font-mono text-[#111827]">{email}</strong>.
+                      <p className="text-[var(--text-muted)] mt-0.5">
+                        We will send a 6-digit OTP to <strong className="font-mono text-[#17191C]">{email}</strong>.
                       </p>
                     </div>
                   </div>
@@ -1464,7 +1464,7 @@ export default function OnboardingWizardPage() {
                     type="button"
                     onClick={() => setShowConfirmModal(true)}
                     disabled={isSendingOtp}
-                    className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isSendingOtp ? (
                       <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1479,8 +1479,8 @@ export default function OnboardingWizardPage() {
               ) : (
                 <div className="space-y-5 pt-1">
                   <div className="text-center space-y-1">
-                    <p className="text-xs text-[#64748B]">Enter the 6-digit verification code sent to</p>
-                    <p className="text-xs font-semibold font-mono text-[#111827]">{maskEmail(email)}</p>
+                    <p className="text-xs text-[var(--text-muted)]">Enter the 6-digit verification code sent to</p>
+                    <p className="text-xs font-semibold font-mono text-[#17191C]">{maskEmail(email)}</p>
                   </div>
 
                   {otpError && (
@@ -1504,23 +1504,23 @@ export default function OnboardingWizardPage() {
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                         onPaste={handleOtpPaste}
-                        className="w-11 h-12 sm:w-12 sm:h-12 rounded-lg border border-[#E2E8E5] bg-white text-center text-lg font-bold text-[#111827] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-all shadow-2xs"
+                        className="w-11 h-12 sm:w-12 sm:h-12 rounded-lg border border-[#E4E2DC] bg-white text-center text-lg font-bold text-[#17191C] focus:outline-none focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20 transition-all shadow-2xs"
                         autoFocus={idx === 0}
                       />
                     ))}
                   </div>
 
-                  <div className="text-center text-xs text-[#64748B]">
+                  <div className="text-center text-xs text-[var(--text-muted)]">
                     {resendTimer > 0 ? (
                       <span>
-                        Resend code in <strong className="text-[#111827]">{resendTimer}s</strong>
+                        Resend code in <strong className="text-[#17191C]">{resendTimer}s</strong>
                       </span>
                     ) : (
                       <button
                         type="button"
                         onClick={handleResendOtp}
                         disabled={isSendingOtp}
-                        className="font-semibold text-[#16A34A] hover:underline cursor-pointer"
+                        className="font-semibold text-[var(--primary-dark)] hover:underline cursor-pointer"
                       >
                         Resend verification code
                       </button>
@@ -1531,7 +1531,7 @@ export default function OnboardingWizardPage() {
                     type="button"
                     onClick={() => triggerVerifyOtp()}
                     disabled={isVerifyingOtp}
-                    className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer"
                   >
                     {isVerifyingOtp ? (
                       <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1545,11 +1545,11 @@ export default function OnboardingWizardPage() {
                 </div>
               )}
 
-              <div className="flex items-center gap-3 mt-2 border-t border-[#E2E8E5] pt-3">
+              <div className="flex items-center gap-3 mt-2 border-t border-[#E4E2DC] pt-3">
                 <button
                   type="button"
                   onClick={() => setStep(5)}
-                  className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg border border-[#E2E8E5] bg-white hover:bg-zinc-50 text-[#64748B] text-xs font-semibold transition-all cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg border border-[#E4E2DC] bg-white hover:bg-zinc-50 text-[var(--text-muted)] text-xs font-semibold transition-all cursor-pointer"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   <span>Back to Team Setup</span>
@@ -1572,33 +1572,33 @@ export default function OnboardingWizardPage() {
             className="w-full max-w-[440px] sm:max-w-[540px] mx-auto space-y-5"
           >
             <div className="text-center space-y-1.5">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-[#16A34A]">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-[var(--primary-dark)]">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Email Verified Successfully
               </span>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
                 Choose your starting plan
               </h1>
-              <p className="text-xs sm:text-sm text-[#64748B]">
+              <p className="text-xs sm:text-sm text-[var(--text-muted)]">
                 Start with a 14-day Growth trial or select a subscription to proceed immediately.
               </p>
             </div>
 
             <SpotlightCard
               spotlightColor="rgba(22, 163, 74, 0.12)"
-              className="relative overflow-hidden bg-white rounded-2xl border border-[#E2E8E5] p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-5"
+              className="relative overflow-hidden bg-white rounded-2xl border border-[#E4E2DC] p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-5"
             >
-              <BorderBeam size={220} duration={7} colorFrom="#16A34A" colorTo="#34D399" />
+              <BorderBeam size={220} duration={7} colorFrom="#D9532F" colorTo="#F07858" />
 
               {/* Mode Selector Tabs: 14-Day Trial vs Paid Plans */}
-              <div className="grid grid-cols-2 gap-2 p-1 bg-[#F1F5F9] rounded-xl border border-[#E2E8E5]">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-[#EFEEEA] rounded-xl border border-[#E4E2DC]">
                 <button
                   type="button"
                   onClick={() => setChosenPlanType("trial")}
                   className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     chosenPlanType === "trial"
-                      ? "bg-white text-[#16A34A] shadow-xs"
-                      : "text-[#64748B] hover:text-[#111827]"
+                      ? "bg-white text-[var(--primary-dark)] shadow-xs"
+                      : "text-[var(--text-muted)] hover:text-[#17191C]"
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -1609,8 +1609,8 @@ export default function OnboardingWizardPage() {
                   onClick={() => setChosenPlanType("paid")}
                   className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     chosenPlanType === "paid"
-                      ? "bg-white text-[#16A34A] shadow-xs"
-                      : "text-[#64748B] hover:text-[#111827]"
+                      ? "bg-white text-[var(--primary-dark)] shadow-xs"
+                      : "text-[var(--text-muted)] hover:text-[#17191C]"
                   }`}
                 >
                   <span>Select Paid Plan</span>
@@ -1623,41 +1623,41 @@ export default function OnboardingWizardPage() {
                   <div className="p-4 bg-emerald-50/80 rounded-xl border border-emerald-200/90 text-left text-xs space-y-3">
                     <div className="flex items-center justify-between pb-2.5 border-b border-emerald-200/60">
                       <div>
-                        <span className="font-bold text-sm text-[#15803D] block">Growth Tier Access</span>
+                        <span className="font-bold text-sm text-[var(--primary-dark)] block">Growth Tier Access</span>
                         <span className="text-[11px] text-[#166534]">14 Calendar Days · No Credit Card Required</span>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded font-bold text-[10px] bg-emerald-600 text-white tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded font-bold text-[10px] bg-[var(--primary)] text-[var(--primary-foreground)] tracking-wider">
                         FREE TRIAL
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-[#334155]">
+                    <div className="grid grid-cols-2 gap-2 text-[11px] text-[#6B6F76]">
                       <div className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[var(--primary-dark)] shrink-0" />
                         <span>Up to <strong>35 Members</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[var(--primary-dark)] shrink-0" />
                         <span>Trainer Accounts</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[var(--primary-dark)] shrink-0" />
                         <span>Attendance Reports & QR</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[var(--primary-dark)] shrink-0" />
                         <span>Workout Schedules</span>
                       </div>
                     </div>
 
                     <div className="pt-2 border-t border-emerald-200/50 flex items-center justify-between text-[11px] text-emerald-800">
-                      <span>Workspace URL: <strong className="font-mono text-[#111827]">{effectiveSlug}.repsi.app</strong></span>
-                      <span className="text-[10px] font-semibold text-[#15803D]">Zero auto-charge</span>
+                      <span>Workspace URL: <strong className="font-mono text-[#17191C]">{effectiveSlug}.repsi.app</strong></span>
+                      <span className="text-[10px] font-semibold text-[var(--primary-dark)]">Zero auto-charge</span>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8E5] text-[11px] text-[#64748B] space-y-1">
-                    <p className="text-[#111827] font-semibold">✓ Zero Risk Commitment</p>
+                  <div className="p-3 bg-[#F7F7F5] rounded-lg border border-[#E4E2DC] text-[11px] text-[var(--text-muted)] space-y-1">
+                    <p className="text-[#17191C] font-semibold">✓ Zero Risk Commitment</p>
                     <p>At trial end, choose any plan. Your member, attendance, and workout data is 100% preserved.</p>
                   </div>
                 </div>
@@ -1668,15 +1668,15 @@ export default function OnboardingWizardPage() {
                 <div className="space-y-3.5">
                   {/* Monthly vs Annual Toggle */}
                   <div className="flex items-center justify-between px-1">
-                    <span className="text-xs font-semibold text-[#111827]">Billing cycle:</span>
-                    <div className="inline-flex p-0.5 rounded-lg bg-[#F1F5F9] border border-[#E2E8E5] text-xs">
+                    <span className="text-xs font-semibold text-[#17191C]">Billing cycle:</span>
+                    <div className="inline-flex p-0.5 rounded-lg bg-[#EFEEEA] border border-[#E4E2DC] text-xs">
                       <button
                         type="button"
                         onClick={() => setChosenBillingCycle("monthly")}
                         className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition cursor-pointer ${
                           chosenBillingCycle === "monthly"
-                            ? "bg-white text-[#111827] shadow-2xs"
-                            : "text-[#64748B]"
+                            ? "bg-white text-[#17191C] shadow-2xs"
+                            : "text-[var(--text-muted)]"
                         }`}
                       >
                         Monthly
@@ -1686,8 +1686,8 @@ export default function OnboardingWizardPage() {
                         onClick={() => setChosenBillingCycle("annual")}
                         className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition cursor-pointer flex items-center gap-1 ${
                           chosenBillingCycle === "annual"
-                            ? "bg-[#16A34A] text-white shadow-2xs"
-                            : "text-[#64748B]"
+                            ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-2xs"
+                            : "text-[var(--text-muted)]"
                         }`}
                       >
                         <span>Annual</span>
@@ -1762,30 +1762,30 @@ export default function OnboardingWizardPage() {
                           onClick={() => setSelectedPaidPlanCode(p.code)}
                           className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between text-left ${
                             isSelected
-                              ? "border-[#16A34A] bg-[#16A34A]/5 ring-2 ring-[#16A34A]/20"
-                              : "border-[#E2E8E5] bg-white hover:border-[#16A34A]/50"
+                              ? "border-[var(--primary)] bg-[var(--primary)]/5 ring-2 ring-[var(--ring)]/20"
+                              : "border-[#E4E2DC] bg-white hover:border-[var(--primary)]/50"
                           }`}
                         >
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-xs text-[#111827]">{p.name}</span>
-                              <span className="text-[10px] font-semibold text-[#16A34A] bg-[#16A34A]/10 px-1.5 py-0.2 rounded">
+                              <span className="font-bold text-xs text-[#17191C]">{p.name}</span>
+                              <span className="text-[10px] font-semibold text-[var(--primary-dark)] bg-[var(--primary)]/10 px-1.5 py-0.2 rounded">
                                 {p.members}
                               </span>
                               {p.badge && (
-                                <span className="text-[9px] font-bold text-white bg-[#111827] px-1.5 py-0.2 rounded">
+                                <span className="text-[9px] font-bold text-white bg-[#17191C] px-1.5 py-0.2 rounded">
                                   {p.badge}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-[#64748B]">{p.desc}</p>
+                            <p className="text-[11px] text-[var(--text-muted)]">{p.desc}</p>
                           </div>
 
                           <div className="text-right shrink-0 ml-3">
-                            <span className="font-bold text-xs text-[#111827] block">{price}</span>
+                            <span className="font-bold text-xs text-[#17191C] block">{price}</span>
                             <div className="flex items-center justify-end mt-1">
                               <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                isSelected ? "border-[#16A34A] bg-[#16A34A]" : "border-[#CBD5E1]"
+                                isSelected ? "border-[var(--primary)] bg-[var(--primary)]" : "border-[#E4E2DC]"
                               }`}>
                                 {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
                               </div>
@@ -1803,7 +1803,7 @@ export default function OnboardingWizardPage() {
                 type="button"
                 onClick={handleFinishLaunch}
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1839,30 +1839,30 @@ export default function OnboardingWizardPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-2xl border border-[#E2E8E5] p-6 max-w-md w-full shadow-2xl space-y-5"
+              className="bg-white rounded-2xl border border-[#E4E2DC] p-6 max-w-md w-full shadow-2xl space-y-5"
             >
-              <div className="flex items-center justify-between border-b border-[#E2E8E5] pb-3">
-                <div className="flex items-center gap-2 text-[#16A34A]">
+              <div className="flex items-center justify-between border-b border-[#E4E2DC] pb-3">
+                <div className="flex items-center gap-2 text-[var(--primary-dark)]">
                   <ShieldCheck className="w-5 h-5" />
-                  <h3 className="font-bold text-base text-[#111827]">Confirm Email Address</h3>
+                  <h3 className="font-bold text-base text-[#17191C]">Confirm Email Address</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowConfirmModal(false)}
-                  className="text-[#94A3B8] hover:text-[#111827] transition-colors p-1"
+                  className="text-[#94A3B8] hover:text-[#17191C] transition-colors p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-3 text-sm text-[#64748B]">
+              <div className="space-y-3 text-sm text-[var(--text-muted)]">
                 <p>
                   We will dispatch a 6-digit verification code to the following work email address:
                 </p>
-                <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8E5] font-mono text-[#111827] font-semibold text-center text-base">
+                <div className="p-3 bg-[#F7F7F5] rounded-lg border border-[#E4E2DC] font-mono text-[#17191C] font-semibold text-center text-base">
                   {email || "you@gym.com"}
                 </div>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-[var(--text-muted)]">
                   Please confirm this email is correct before requesting the verification code.
                 </p>
               </div>
@@ -1874,14 +1874,14 @@ export default function OnboardingWizardPage() {
                     setShowConfirmModal(false);
                     setStep(1);
                   }}
-                  className="flex-1 h-10 rounded-lg border border-[#E2E8E5] bg-white text-[#64748B] hover:text-[#111827] text-xs font-semibold transition-colors cursor-pointer"
+                  className="flex-1 h-10 rounded-lg border border-[#E4E2DC] bg-white text-[var(--text-muted)] hover:text-[#17191C] text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Edit Email
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmAndSendOtp}
-                  className="flex-1 h-10 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-semibold transition-colors cursor-pointer"
+                  className="flex-1 h-10 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Confirm & Send OTP
                 </button>
@@ -1895,11 +1895,11 @@ export default function OnboardingWizardPage() {
       <footer className="py-6 text-center text-xs text-[#94A3B8]">
         <p>
           © 2026 REPSI ·{" "}
-          <Link href="/about" className="hover:text-[#111827] transition-colors">
+          <Link href="/about" className="hover:text-[#17191C] transition-colors">
             Privacy
           </Link>{" "}
           ·{" "}
-          <Link href="/about" className="hover:text-[#111827] transition-colors">
+          <Link href="/about" className="hover:text-[#17191C] transition-colors">
             Terms
           </Link>
         </p>

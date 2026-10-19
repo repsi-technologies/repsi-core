@@ -56,14 +56,14 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
     const found = allJobs.find((j) => j.slug === slug);
     if (!found) {
       return (
-        <div className="min-h-screen bg-[#070D09] text-zinc-100 flex flex-col justify-between">
+        <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] flex flex-col justify-between">
           <MarketingNav />
           <div className="text-center py-40 px-4">
             <h1 className="text-3xl font-bold text-white mb-4">Position Not Found</h1>
             <p className="text-zinc-400 mb-6">This job posting may have been filled or unpublished.</p>
             <Link
               href="/careers"
-              className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-500"
+              className="px-5 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-sm font-semibold hover:bg-[var(--primary-hover)]"
             >
               ← Back to All Openings
             </Link>
@@ -135,25 +135,25 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
   };
 
   return (
-    <div className="min-h-screen bg-[#070D09] text-zinc-100 font-sans antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+    <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] font-sans antialiased flex flex-col selection:bg-[var(--primary)]/30 selection:text-[var(--primary-dark)]">
       <JsonLd data={jobSchema} />
       <MarketingNav />
 
       {/* Header & Meta */}
       <section className="pt-28 pb-10 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-[var(--primary)]/10 rounded-full blur-[140px] pointer-events-none -z-10" />
 
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <Link href="/" className="hover:text-emerald-400 transition-colors">Home</Link>
+            <Link href="/" className="hover:text-[var(--primary-dark)] transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-            <Link href="/careers" className="hover:text-emerald-400 transition-colors">Careers</Link>
+            <Link href="/careers" className="hover:text-[var(--primary-dark)] transition-colors">Careers</Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
             <span className="text-zinc-300 truncate">{currentJob.title}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase">
+            <span className="px-3 py-1 rounded-md bg-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold uppercase">
               {currentJob.department}
             </span>
             <span className="px-2.5 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-semibold">
@@ -167,18 +167,18 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
 
           <div className="flex items-center flex-wrap gap-5 pt-2 text-xs sm:text-sm text-zinc-400">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-emerald-400" />
+              <MapPin className="w-4 h-4 text-[var(--primary-dark)]" />
               {currentJob.location}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-emerald-400" />
+              <Clock className="w-4 h-4 text-[var(--primary-dark)]" />
               {currentJob.experience}
             </span>
             {currentJob.salaryRange && (
               <>
                 <span>•</span>
-                <span className="text-emerald-300 font-bold bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+                <span className="text-[var(--primary-dark)] font-bold bg-[var(--primary)]/10 px-2 py-0.5 rounded border border-[var(--primary)]/30">
                   {currentJob.salaryRange}
                 </span>
               </>
@@ -201,7 +201,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
             <ul className="space-y-2">
               {currentJob.responsibilities.map((r, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0 mt-1" />
                   <span className="text-zinc-300 text-sm sm:text-base">{r}</span>
                 </li>
               ))}
@@ -213,7 +213,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
             <ul className="space-y-2">
               {currentJob.requirements.map((req, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0 mt-1" />
                   <span className="text-zinc-300 text-sm sm:text-base">{req}</span>
                 </li>
               ))}
@@ -225,7 +225,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               {currentJob.benefits.map((b, i) => (
                 <div key={i} className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 flex items-center gap-2.5 text-xs text-zinc-200">
-                  <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <Sparkles className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                   <span>{b}</span>
                 </div>
               ))}
@@ -237,7 +237,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 sm:p-8 shadow-2xl relative" id="apply">
           <div className="space-y-2 mb-6 border-b border-zinc-800 pb-4">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Send className="w-5 h-5 text-emerald-400" />
+              <Send className="w-5 h-5 text-[var(--primary-dark)]" />
               <span>Apply for this Role</span>
             </h2>
             <p className="text-xs text-zinc-400">
@@ -246,8 +246,8 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
           </div>
 
           {submitted ? (
-            <div className="text-center py-10 space-y-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 p-6">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+            <div className="text-center py-10 space-y-3 bg-[var(--primary)]/10 rounded-xl border border-[var(--primary)]/30 p-6">
+              <div className="w-12 h-12 rounded-full bg-[var(--primary)]/20 text-[var(--primary-dark)] flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white">Application Received!</h3>
@@ -272,7 +272,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                     value={applicantName}
                     onChange={(e) => setApplicantName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -283,7 +283,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="jane@example.com"
-                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                 </div>
               </div>
@@ -297,7 +297,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -307,7 +307,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(e.target.value)}
                     placeholder="e.g. 4 years"
-                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                 </div>
               </div>
@@ -319,7 +319,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                   value={portfolioUrl}
                   onChange={(e) => setPortfolioUrl(e.target.value)}
                   placeholder="https://linkedin.com/in/..."
-                  className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                 />
               </div>
 
@@ -331,7 +331,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                     value={resumeFileName}
                     onChange={(e) => setResumeFileName(e.target.value)}
                     placeholder="Attach or enter resume link / file name"
-                    className="flex-1 h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="flex-1 h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                   <button
                     type="button"
@@ -351,7 +351,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                   value={coverLetter}
                   onChange={(e) => setCoverLetter(e.target.value)}
                   placeholder="Tell us briefly why you're interested in scaling Repsi..."
-                  className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                 />
               </div>
 
@@ -359,7 +359,7 @@ export default function CareerJobPage({ params }: { params: Promise<{ slug: stri
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <span>Submitting Application...</span>

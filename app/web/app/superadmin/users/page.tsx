@@ -248,7 +248,7 @@ export default function SuperAdminUsers() {
                 type="button"
                 onClick={handleDeleteUser}
                 disabled={deleting}
-                className="flex-1 h-9 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                className="flex-1 h-9 rounded-lg bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
               >
                 {deleting ? (
                   <>

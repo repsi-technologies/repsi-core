@@ -136,7 +136,7 @@ export default async function FeatureDetailPage({ params }: Props) {
                 <ul className="space-y-2.5 pt-2">
                   {section.bullets.map((bullet, bIdx) => (
                     <li key={bIdx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-[var(--primary-dark)] shrink-0 mt-0.5" />
                       <span className="text-sm font-medium text-foreground/90">{bullet}</span>
                     </li>
                   ))}

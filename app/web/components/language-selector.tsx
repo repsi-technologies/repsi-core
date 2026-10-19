@@ -35,7 +35,7 @@ export function LanguageSelector({
           className={`h-8 px-2.5 gap-1.5 text-xs font-semibold rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text)] transition-colors ${className}`}
           title="Change Application Language"
         >
-          <span className="flex items-center justify-center w-4 h-4 rounded bg-[#16A34A]/20 text-[#16A34A] text-[10px] font-bold">
+          <span className="flex items-center justify-center w-4 h-4 rounded bg-[var(--primary)]/20 text-[var(--primary-dark)] text-[10px] font-bold">
             {currentLanguageMeta.badge}
           </span>
           <Globe className="h-3.5 w-3.5 text-[var(--text-muted)]" />
@@ -60,7 +60,7 @@ export function LanguageSelector({
               }}
               className={`flex items-center justify-between px-2.5 py-2 text-xs rounded-lg cursor-pointer transition-colors ${
                 isSelected
-                  ? "bg-[#16A34A]/10 text-[#16A34A] font-bold"
+                  ? "bg-[var(--primary)]/10 text-[var(--primary-dark)] font-bold"
                   : "text-[var(--text)] hover:bg-[var(--surface-hover)]"
               }`}
             >
@@ -73,7 +73,7 @@ export function LanguageSelector({
                   <span className="text-[10px] text-[var(--text-muted)] font-normal">{lang.label}</span>
                 </div>
               </div>
-              {isSelected && <Check className="h-4 w-4 text-[#16A34A]" />}
+              {isSelected && <Check className="h-4 w-4 text-[var(--primary-dark)]" />}
             </DropdownMenuItem>
           );
         })}

@@ -80,11 +80,11 @@ export default function OnboardingGymPage() {
     <Card className="border-[var(--border)] bg-[var(--surface)] shadow-lg">
       <CardHeader className="pb-4 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[#16A34A] mb-1">
+          <div className="flex items-center gap-2 text-[var(--primary-dark)] mb-1">
             <Building2 className="h-5 w-5" />
             <span className="text-xs font-bold uppercase tracking-wider">Step 1 of 5</span>
           </div>
-          <CardTitle className="text-2xl font-black text-zinc-900 tracking-tight">Gym Profile & Website Address</CardTitle>
+          <CardTitle className="text-2xl font-black text-[#17191C] tracking-tight">Gym Profile & Website Address</CardTitle>
           <CardDescription className="text-zinc-500 text-sm">
             Set up your gym profile and claim your public website address on Repsi.
           </CardDescription>
@@ -97,7 +97,7 @@ export default function OnboardingGymPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="gymName" className="font-semibold text-zinc-900">Gym Name *</Label>
+              <Label htmlFor="gymName" className="font-semibold text-[#17191C]">Gym Name *</Label>
               <Input
                 id="gymName"
                 value={form.name}
@@ -109,9 +109,9 @@ export default function OnboardingGymPage() {
             </div>
 
             {/* Prominent Website Address Chooser */}
-            <div className="sm:col-span-2 p-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-2">
+            <div className="sm:col-span-2 p-3.5 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-900">Choose your Repsi website address</span>
+                <span className="text-xs font-bold text-[#17191C]">Choose your Repsi website address</span>
                 <span className="text-[11px] text-zinc-500">Public Gym URL</span>
               </div>
               
@@ -122,13 +122,13 @@ export default function OnboardingGymPage() {
                   value={customSlug || autoSlug}
                   onChange={(e) => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                   placeholder="your-gym-name"
-                  className="bg-transparent font-mono text-xs font-bold text-[#16A34A] w-full focus:outline-none"
+                  className="bg-transparent font-mono text-xs font-bold text-[var(--primary-dark)] w-full focus:outline-none"
                 />
                 {slugStatus === "checking" && (
                   <span className="text-[11px] text-zinc-400 shrink-0">Checking...</span>
                 )}
                 {slugStatus === "available" && (
-                  <span className="text-[11px] font-bold text-[#16A34A] shrink-0">✓ Available</span>
+                  <span className="text-[11px] font-bold text-[var(--primary-dark)] shrink-0">✓ Available</span>
                 )}
                 {slugStatus === "unavailable" && (
                   <span className="text-[11px] font-bold text-rose-500 shrink-0">✕ {slugMessage}</span>
@@ -141,7 +141,7 @@ export default function OnboardingGymPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="phone" className="font-semibold text-zinc-900">Official Contact Phone *</Label>
+              <Label htmlFor="phone" className="font-semibold text-[#17191C]">Official Contact Phone *</Label>
               <Input
                 id="phone"
                 value={form.phone}
@@ -153,7 +153,7 @@ export default function OnboardingGymPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="font-semibold text-zinc-900">Business Email *</Label>
+              <Label htmlFor="email" className="font-semibold text-[#17191C]">Business Email *</Label>
               <Input
                 id="email"
                 type="email"
@@ -166,7 +166,7 @@ export default function OnboardingGymPage() {
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="address" className="font-semibold text-zinc-900">Address</Label>
+              <Label htmlFor="address" className="font-semibold text-[#17191C]">Address</Label>
               <Input
                 id="address"
                 value={form.address}
@@ -177,7 +177,7 @@ export default function OnboardingGymPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="city" className="font-semibold text-zinc-900">City</Label>
+              <Label htmlFor="city" className="font-semibold text-[#17191C]">City</Label>
               <Input
                 id="city"
                 value={form.city}
@@ -188,7 +188,7 @@ export default function OnboardingGymPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="country" className="font-semibold text-zinc-900">Country</Label>
+              <Label htmlFor="country" className="font-semibold text-[#17191C]">Country</Label>
               <Input
                 id="country"
                 value={form.country}
@@ -202,7 +202,7 @@ export default function OnboardingGymPage() {
           {/* Optional Logo Upload */}
           <div className="pt-3 border-t border-zinc-100">
             <div className="flex items-center justify-between mb-2">
-              <Label className="font-semibold text-zinc-900 text-xs">Gym Logo</Label>
+              <Label className="font-semibold text-[#17191C] text-xs">Gym Logo</Label>
               <span className="text-[11px] text-zinc-400 font-medium">Optional</span>
             </div>
             <div className="p-4 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 flex items-center justify-between">
@@ -233,7 +233,7 @@ export default function OnboardingGymPage() {
             >
               <span>← Back</span>
             </Button>
-            <Button type="submit" className="gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold h-11 px-6 rounded-xl">
+            <Button type="submit" className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-11 px-6 rounded-xl">
               <span>Continue →</span>
             </Button>
           </div>

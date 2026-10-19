@@ -99,18 +99,18 @@ export default function SignupPage() {
   return (
     <div className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6">
       <div className="text-center space-y-1.5">
-        <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight">
+        <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
           Create your account
         </h1>
-        <p className="text-sm text-[#64748B]">
+        <p className="text-sm text-[var(--text-muted)]">
           Start your 14-day free trial. No credit card required.
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E2E8E5] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-[#111827] mb-1.5">
+            <label htmlFor="name" className="block text-sm font-medium text-[#17191C] mb-1.5">
               Full name <span className="text-red-500">*</span>
             </label>
             <input
@@ -122,8 +122,8 @@ export default function SignupPage() {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
               }}
-              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                errors.name ? "border-rose-500" : "border-[#E2E8E5]"
+              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                errors.name ? "border-rose-500" : "border-[#E4E2DC]"
               }`}
               autoFocus
               required
@@ -133,7 +133,7 @@ export default function SignupPage() {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-[#111827]">
+              <label htmlFor="email" className="block text-sm font-medium text-[#17191C]">
                 Work email <span className="text-red-500">*</span>
               </label>
               {checkingEmail && (
@@ -152,8 +152,8 @@ export default function SignupPage() {
                 if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
               }}
               onBlur={handleEmailBlur}
-              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                errors.email ? "border-rose-500" : "border-[#E2E8E5]"
+              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                errors.email ? "border-rose-500" : "border-[#E4E2DC]"
               }`}
               required
             />
@@ -161,7 +161,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-[#111827] mb-1.5">
+            <label htmlFor="password" className="block text-sm font-medium text-[#17191C] mb-1.5">
               Password <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -174,15 +174,15 @@ export default function SignupPage() {
                   setPassword(e.target.value);
                   if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
                 }}
-                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                  errors.password ? "border-rose-500" : "border-[#E2E8E5]"
+                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                  errors.password ? "border-rose-500" : "border-[#E4E2DC]"
                 }`}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#111827] transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
                 aria-label={showPwd ? "Hide password" : "Show password"}
               >
                 {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -192,7 +192,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#111827] mb-1.5">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#17191C] mb-1.5">
               Confirm password <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -205,15 +205,15 @@ export default function SignupPage() {
                   setConfirmPassword(e.target.value);
                   if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
                 }}
-                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#111827] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors ${
-                  errors.confirmPassword ? "border-rose-500" : "border-[#E2E8E5]"
+                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
+                  errors.confirmPassword ? "border-rose-500" : "border-[#E4E2DC]"
                 }`}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#111827] transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
                 aria-label={showConfirmPwd ? "Hide confirm password" : "Show confirm password"}
               >
                 {showConfirmPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -227,7 +227,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading || checkingEmail || checkingPhone}
-            className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs cursor-pointer mt-2 disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer mt-2 disabled:opacity-50"
           >
             {loading ? (
               <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -241,9 +241,9 @@ export default function SignupPage() {
         </form>
       </div>
 
-      <p className="text-center text-sm text-[#64748B]">
+      <p className="text-center text-sm text-[var(--text-muted)]">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-[#111827] hover:text-[#16A34A] transition-colors">
+        <Link href="/login" className="font-semibold text-[#17191C] hover:text-[var(--primary-dark)] transition-colors">
           Sign in
         </Link>
       </p>

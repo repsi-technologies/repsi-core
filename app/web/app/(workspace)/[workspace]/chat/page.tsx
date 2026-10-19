@@ -460,7 +460,7 @@ export default function MemberTrainerChatPage(props: { params: Promise<{ workspa
               onClick={() => setActivePersona("member")}
               className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition ${
                 activePersona === "member"
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                   : "text-[var(--text-secondary)] hover:text-[var(--text)]"
               }`}
             >
@@ -645,7 +645,7 @@ export default function MemberTrainerChatPage(props: { params: Promise<{ workspa
                   <div
                     className={`max-w-[80%] p-3.5 rounded-[16px] text-xs leading-relaxed shadow-sm ${
                       isMe
-                        ? "bg-emerald-600 text-white font-medium rounded-br-none"
+                        ? "bg-[var(--primary)] text-[var(--primary-foreground)] font-medium rounded-br-none"
                         : "bg-[var(--background)] border border-[var(--border)] text-[var(--text)] rounded-bl-none"
                     }`}
                   >
@@ -715,7 +715,7 @@ export default function MemberTrainerChatPage(props: { params: Promise<{ workspa
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-40 cursor-pointer shadow-sm"
+              className="h-10 px-4 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-40 cursor-pointer shadow-sm"
             >
               <span>Send</span>
               <Send className="h-3.5 w-3.5" />

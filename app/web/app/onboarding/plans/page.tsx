@@ -50,11 +50,11 @@ export default function OnboardingPlansPage() {
   return (
     <Card className="border-[var(--border)] bg-[var(--surface)] shadow-lg relative">
       <CardHeader className="pb-4 border-b border-zinc-100">
-        <div className="flex items-center gap-2 text-[#16A34A] mb-1">
+        <div className="flex items-center gap-2 text-[var(--primary-dark)] mb-1">
           <CreditCard className="h-5 w-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Step 3 of 5</span>
         </div>
-        <CardTitle className="text-2xl font-black text-zinc-900 tracking-tight">Membership Plans</CardTitle>
+        <CardTitle className="text-2xl font-black text-[#17191C] tracking-tight">Membership Plans</CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
           Set up initial membership tiers for your gym. You can also configure advanced access rules later.
         </CardDescription>
@@ -64,19 +64,19 @@ export default function OnboardingPlansPage() {
           {plans.map((p, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-xl border border-zinc-200 bg-white flex items-center justify-between gap-4 hover:border-emerald-500/40 transition-colors shadow-2xs"
+              className="p-4 rounded-xl border border-zinc-200 bg-white flex items-center justify-between gap-4 hover:border-[var(--primary)]/40 transition-colors shadow-2xs"
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-bold text-sm text-zinc-900">{p.name}</p>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#16A34A] border border-emerald-200">
+                  <p className="font-bold text-sm text-[#17191C]">{p.name}</p>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[var(--primary-dark)] border border-emerald-200">
                     {p.status}
                   </span>
                 </div>
                 <p className="text-xs text-zinc-500 mt-0.5">{p.duration}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-extrabold text-base text-zinc-900 font-mono">
+                <span className="font-extrabold text-base text-[#17191C] font-mono">
                   {formatCurrency(p.price)}
                 </span>
                 <button
@@ -97,15 +97,15 @@ export default function OnboardingPlansPage() {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="w-full p-3.5 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 hover:bg-emerald-50/50 hover:border-emerald-400 text-zinc-700 font-semibold text-xs flex items-center justify-center gap-2 transition-all group"
+            className="w-full p-3.5 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 hover:bg-[var(--primary-soft)] hover:border-[var(--primary)] text-zinc-700 font-semibold text-xs flex items-center justify-center gap-2 transition-all group"
           >
-            <Plus className="h-4 w-4 text-[#16A34A] group-hover:scale-110 transition-transform" />
+            <Plus className="h-4 w-4 text-[var(--primary-dark)] group-hover:scale-110 transition-transform" />
             <span>Add Membership Plan</span>
           </button>
         ) : (
           /* Expandable Form */
-          <form onSubmit={addPlan} className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-50/30 space-y-3 animate-in fade-in duration-200">
-            <h4 className="text-xs font-extrabold text-zinc-900 uppercase tracking-wider">Create Membership Plan</h4>
+          <form onSubmit={addPlan} className="p-4 rounded-xl border border-[var(--primary)]/30 bg-[var(--primary-soft)]/50 space-y-3 animate-in fade-in duration-200">
+            <h4 className="text-xs font-extrabold text-[#17191C] uppercase tracking-wider">Create Membership Plan</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label className="text-[11px] font-semibold text-zinc-700">Plan Name *</Label>
@@ -147,7 +147,7 @@ export default function OnboardingPlansPage() {
               <Button type="button" variant="ghost" size="sm" onClick={() => setShowAddModal(false)} className="h-8 text-xs text-zinc-500">
                 Cancel
               </Button>
-              <Button type="submit" size="sm" className="h-8 text-xs bg-[#16A34A] text-white font-bold px-4">
+              <Button type="submit" size="sm" className="h-8 text-xs bg-[var(--primary)] text-[var(--primary-foreground)] font-bold px-4">
                 Add Plan
               </Button>
             </div>
@@ -169,7 +169,7 @@ export default function OnboardingPlansPage() {
             >
               Skip for now
             </button>
-            <Button type="button" onClick={handleSubmit} className="gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold h-11 px-6 rounded-xl">
+            <Button type="button" onClick={handleSubmit} className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-11 px-6 rounded-xl">
               <span>Continue →</span>
             </Button>
           </div>

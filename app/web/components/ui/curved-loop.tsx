@@ -35,17 +35,17 @@ export function CurvedLoop() {
 
           <defs>
             <linearGradient id="greenCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#16A34A" stopOpacity="0.1" />
-              <stop offset="25%" stopColor="#16A34A" stopOpacity="0.8" />
-              <stop offset="50%" stopColor="#22C55E" stopOpacity="1" />
-              <stop offset="75%" stopColor="#16A34A" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#16A34A" stopOpacity="0.1" />
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.1" />
+              <stop offset="25%" stopColor="var(--primary)" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="var(--primary-hover)" stopOpacity="1" />
+              <stop offset="75%" stopColor="var(--primary)" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.1" />
             </linearGradient>
 
             <linearGradient id="greenGlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#16A34A" stopOpacity="0" />
-              <stop offset="50%" stopColor="#22C55E" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#16A34A" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0" />
+              <stop offset="50%" stopColor="var(--primary-hover)" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>

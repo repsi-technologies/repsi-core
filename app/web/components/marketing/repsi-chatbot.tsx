@@ -39,8 +39,23 @@ const SUGGESTED_QUESTIONS = [
 export function RepsiChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasDismissedBubble, setHasDismissedBubble] = useState(false);
+  const [showPricingBubble, setShowPricingBubble] = useState(false);
   const [screen, setScreen] = useState<ChatScreen>("menu");
   const [mascotMood, setMascotMood] = useState<"welcome" | "support" | "onboarding" | "website" | "success" | "fitness">("welcome");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const pricingEl = document.getElementById("pricing");
+      if (pricingEl) {
+        const rect = pricingEl.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.75 && rect.bottom > 100) {
+          setShowPricingBubble(true);
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Demo Booking State
   const [gymName, setGymName] = useState("");
@@ -177,10 +192,10 @@ export function RepsiChatbot() {
           FLOATING TRIGGER BUTTON (Bottom Right)
       ───────────────────────────────────────────────────────────────────────────── */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
-        {/* Unread Teaser Pill */}
-        {!isOpen && !hasDismissedBubble && (
-          <div className="mb-3 px-3.5 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl text-xs font-semibold text-slate-800 dark:text-zinc-100 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-[240px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+        {/* Unread Teaser Pill (Only appears when scrolling to pricing section) */}
+        {!isOpen && !hasDismissedBubble && showPricingBubble && (
+          <div className="mb-3 px-3.5 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl text-xs font-semibold text-slate-800 dark:text-[#F7F7F5] flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-[240px]">
+            <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-ping" />
             <span className="truncate">Need help choosing a plan?</span>
             <button
               onClick={(e) => {
@@ -196,7 +211,7 @@ export function RepsiChatbot() {
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 group focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
+          className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] shadow-lg shadow-black/30 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 group focus:outline-none focus:ring-4 focus:ring-[var(--ring)]/30"
           aria-label="Toggle Repsi AI Assistant"
         >
           {isOpen ? (
@@ -213,7 +228,7 @@ export function RepsiChatbot() {
           )}
 
           {/* Active Status Badge */}
-          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-zinc-900" />
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[var(--success)] border-2 border-white dark:border-zinc-900" />
         </button>
       </div>
 
@@ -236,9 +251,9 @@ export function RepsiChatbot() {
               )}
 
               {/* Mascot Avatar Header Pill */}
-              <div className="relative w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <div className="relative w-8 h-8 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center shrink-0">
                 <Image src={getMascotSrc()} alt="Mascot" width={26} height={26} className="object-contain" />
-                <span className="w-2 h-2 rounded-full bg-emerald-500 absolute bottom-0 right-0 border border-white dark:border-zinc-900" />
+                <span className="w-2 h-2 rounded-full bg-[var(--success)] absolute bottom-0 right-0 border border-white dark:border-zinc-900" />
               </div>
 
               <div className="min-w-0">
@@ -246,7 +261,7 @@ export function RepsiChatbot() {
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white tracking-tight truncate">
                     Repsi AI Guide
                   </h3>
-                  <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-[10px] px-1.5 py-0.2 rounded border border-emerald-500/20 uppercase tracking-wider">
+                  <span className="bg-[var(--primary)]/10 text-[var(--primary-dark)] dark:text-[var(--primary-dark)] font-extrabold text-[10px] px-1.5 py-0.2 rounded border border-[var(--primary)]/20 uppercase tracking-wider">
                     AI
                   </span>
                 </div>
@@ -272,7 +287,7 @@ export function RepsiChatbot() {
             {screen === "menu" && (
               <div className="space-y-4">
                 {/* Welcome Card */}
-                <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-1">
+                <div className="p-3.5 rounded-2xl bg-[var(--primary)]/5 border border-[var(--primary)]/20 space-y-1">
                   <p className="font-bold text-slate-900 dark:text-white text-xs">
                     Hi! I’m your Repsi AI Guide.
                   </p>
@@ -285,7 +300,7 @@ export function RepsiChatbot() {
                 <div className="space-y-2">
                   <button
                     onClick={() => openScreen("features", "fitness")}
-                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-emerald-500/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
+                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-[var(--primary)]/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
                   >
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
@@ -295,12 +310,12 @@ export function RepsiChatbot() {
                         Members • Attendance • Trainers • CRM
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--primary-dark)] transition-transform group-hover:translate-x-0.5" />
                   </button>
 
                   <button
                     onClick={() => openScreen("pricing", "onboarding")}
-                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-emerald-500/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
+                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-[var(--primary)]/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
                   >
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
@@ -310,12 +325,12 @@ export function RepsiChatbot() {
                         Plans from ₹416/month
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--primary-dark)] transition-transform group-hover:translate-x-0.5" />
                   </button>
 
                   <button
                     onClick={() => openScreen("website", "website")}
-                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-emerald-500/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
+                    className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 hover:border-[var(--primary)]/40 hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-left transition flex items-center justify-between group shadow-2xs"
                   >
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
@@ -325,23 +340,23 @@ export function RepsiChatbot() {
                         Create your gym website
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--primary-dark)] transition-transform group-hover:translate-x-0.5" />
                   </button>
 
                   <button
                     onClick={() => openScreen("qa", "support")}
-                    className="w-full p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-left transition flex items-center justify-between group shadow-2xs"
+                    className="w-full p-3 rounded-2xl border border-[var(--primary)]/30 bg-[var(--primary)]/5 hover:bg-[var(--primary-hover)]/10 text-left transition flex items-center justify-between group shadow-2xs"
                   >
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                        <Sparkles className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
                         <span>Ask Repsi AI</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
                         Get instant answers
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-500 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 text-[var(--primary-dark)] transition-transform group-hover:translate-x-0.5" />
                   </button>
                 </div>
 
@@ -360,7 +375,7 @@ export function RepsiChatbot() {
                   <div className="space-y-2 mt-3">
                     <button
                       onClick={() => openScreen("demo_booking", "onboarding")}
-                      className="w-full p-3 rounded-2xl border border-emerald-500/40 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-left transition flex items-center justify-between shadow-md group"
+                      className="w-full p-3 rounded-2xl border border-[var(--primary)]/40 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-left transition flex items-center justify-between shadow-md group"
                     >
                       <div className="flex items-center gap-2.5">
                         <Video className="w-4 h-4" />
@@ -379,13 +394,13 @@ export function RepsiChatbot() {
                       className="w-full p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/80 hover:bg-slate-100 dark:hover:bg-zinc-800 text-left transition flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-2.5">
-                        <MessageSquare className="w-4 h-4 text-emerald-500" />
+                        <MessageSquare className="w-4 h-4 text-[var(--primary-dark)]" />
                         <div>
                           <div className="font-bold text-slate-900 dark:text-white text-xs">Talk to the Repsi Team</div>
                           <p className="text-[10px] text-slate-500 dark:text-zinc-400">WhatsApp support & sales</p>
                         </div>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--primary-dark)] transition-transform group-hover:translate-x-0.5" />
                     </a>
                   </div>
                 </div>
@@ -403,8 +418,8 @@ export function RepsiChatbot() {
                       <div
                         className={`p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed ${
                           m.sender === "user"
-                            ? "bg-emerald-600 text-white font-medium rounded-br-none"
-                            : "bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-zinc-100 rounded-bl-none shadow-2xs whitespace-pre-line"
+                            ? "bg-[var(--primary)] text-[var(--primary-foreground)] font-medium rounded-br-none"
+                            : "bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-[#F7F7F5] rounded-bl-none shadow-2xs whitespace-pre-line"
                         }`}
                       >
                         {m.text}
@@ -416,14 +431,14 @@ export function RepsiChatbot() {
                             <Link
                               href={m.action.href}
                               onClick={() => setIsOpen(false)}
-                              className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+                              className="text-[11px] font-bold text-[var(--primary-dark)] dark:text-[var(--primary-dark)] hover:underline inline-flex items-center gap-1"
                             >
                               {m.action.label}
                             </Link>
                           ) : m.action.screen ? (
                             <button
                               onClick={() => openScreen(m.action!.screen!)}
-                              className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+                              className="text-[11px] font-bold text-[var(--primary-dark)] dark:text-[var(--primary-dark)] hover:underline inline-flex items-center gap-1"
                             >
                               {m.action.label}
                             </button>
@@ -445,7 +460,7 @@ export function RepsiChatbot() {
                       <button
                         key={q}
                         onClick={() => processUserQuery(q)}
-                        className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 hover:border-emerald-500 text-[11px] font-semibold text-slate-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                        className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 hover:border-[var(--primary)] text-[11px] font-semibold text-slate-700 dark:text-zinc-300 hover:text-[var(--primary-dark)] dark:hover:text-[var(--primary-dark)] transition"
                       >
                         {q}
                       </button>
@@ -460,12 +475,12 @@ export function RepsiChatbot() {
                     placeholder="Ask anything about Repsi..."
                     value={userQuestion}
                     onChange={(e) => setUserQuestion(e.target.value)}
-                    className="flex-1 h-9 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="flex-1 h-9 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--primary)]"
                   />
                   <button
                     type="submit"
                     disabled={!userQuestion.trim()}
-                    className="h-9 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition disabled:opacity-40"
+                    className="h-9 px-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs transition disabled:opacity-40"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
@@ -487,20 +502,20 @@ export function RepsiChatbot() {
                   <div className="p-3 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60">
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-slate-900 dark:text-white text-xs">STARTER</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">₹416 / mo</span>
+                      <span className="font-bold text-[var(--primary-dark)] dark:text-[var(--primary-dark)]">₹416 / mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
                       Up to 100 members • Attendance & Member Management (Billed ₹4,990/yr)
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/5 relative">
-                    <span className="absolute -top-2 right-3 text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+                  <div className="p-3 rounded-xl border-2 border-[var(--primary)] bg-[var(--primary)]/5 relative">
+                    <span className="absolute -top-2 right-3 text-[9px] font-bold bg-[var(--primary)] text-[var(--primary-foreground)] px-2 py-0.5 rounded-full">
                       ★ MOST POPULAR
                     </span>
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-slate-900 dark:text-white text-xs">GROWTH</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">₹833 / mo</span>
+                      <span className="font-bold text-[var(--primary-dark)] dark:text-[var(--primary-dark)]">₹833 / mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
                       Up to 500 members • CRM Leads • Gym Website (Billed ₹9,990/yr)
@@ -510,7 +525,7 @@ export function RepsiChatbot() {
                   <div className="p-3 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60">
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-slate-900 dark:text-white text-xs">PRO</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">₹1,499 / mo</span>
+                      <span className="font-bold text-[var(--primary-dark)] dark:text-[var(--primary-dark)]">₹1,499 / mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
                       Up to 1,500 members • Custom Domain • Multi-branch (Billed ₹17,990/yr)
@@ -522,7 +537,7 @@ export function RepsiChatbot() {
                   <Link
                     href="/pricing"
                     onClick={() => setIsOpen(false)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                    className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs flex items-center justify-center gap-1.5 transition"
                   >
                     <span>View Full Pricing Comparison</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -539,11 +554,11 @@ export function RepsiChatbot() {
                 <div className="space-y-1">
                   <h4 className="font-bold text-sm text-slate-900 dark:text-white">Repsi Gym Website Builder</h4>
                   <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                    Get a clean public gym address: <strong className="font-mono text-emerald-600 dark:text-emerald-400">repsi.app/{gymName || "fitzone"}</strong>
+                    Get a clean public gym address: <strong className="font-mono text-[var(--primary-dark)] dark:text-[var(--primary-dark)]">repsi.app/{gymName || "fitzone"}</strong>
                   </p>
                 </div>
 
-                <div className="space-y-2 border-l-2 border-emerald-500 pl-3">
+                <div className="space-y-2 border-l-2 border-[var(--primary)] pl-3">
                   <p className="text-xs text-slate-700 dark:text-zinc-300 font-semibold">✓ Custom gym branding & hero banner</p>
                   <p className="text-xs text-slate-700 dark:text-zinc-300 font-semibold">✓ Live synced membership plans & prices</p>
                   <p className="text-xs text-slate-700 dark:text-zinc-300 font-semibold">✓ Trainer profiles & certified qualifications</p>
@@ -554,7 +569,7 @@ export function RepsiChatbot() {
                   <Link
                     href="/signup"
                     onClick={() => setIsOpen(false)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                    className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs flex items-center justify-center gap-1.5 transition"
                   >
                     <span>Build Your Gym Website Free</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -620,7 +635,7 @@ export function RepsiChatbot() {
                     placeholder="e.g. Rahul Sharma"
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
-                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--primary)]"
                   />
                 </div>
 
@@ -632,7 +647,7 @@ export function RepsiChatbot() {
                     placeholder="+91 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--primary)]"
                   />
                 </div>
 
@@ -643,7 +658,7 @@ export function RepsiChatbot() {
                     placeholder="e.g. FitZone Studio"
                     value={gymName}
                     onChange={(e) => setGymName(e.target.value)}
-                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full h-8 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--primary)]"
                   />
                 </div>
 
@@ -678,7 +693,7 @@ export function RepsiChatbot() {
                 <button
                   type="submit"
                   disabled={submittingDemo}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition disabled:opacity-50 mt-1"
+                  className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs flex items-center justify-center gap-1.5 transition disabled:opacity-50 mt-1"
                 >
                   <span>{submittingDemo ? "Confirming..." : "Confirm Demo Call"}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -691,7 +706,7 @@ export function RepsiChatbot() {
             ───────────────────────────────────────────────────────────────────────── */}
             {screen === "booking_success" && (
               <div className="py-6 text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto animate-bounce" />
+                <CheckCircle2 className="w-12 h-12 text-[var(--success)] mx-auto animate-bounce" />
                 <h4 className="font-bold text-base text-slate-900 dark:text-white">Demo Call Confirmed!</h4>
                 <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-xs mx-auto">
                   Our product specialist will reach out to <strong>{phone}</strong> on <strong>{preferredDate} at {preferredTime}</strong> for your 1-on-1 walkthrough.
@@ -713,7 +728,7 @@ export function RepsiChatbot() {
               href="https://wa.me/918667783321"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
+              className="text-[var(--primary-dark)] dark:text-[var(--primary-dark)] hover:underline font-bold"
             >
               WhatsApp →
             </a>

@@ -64,7 +64,7 @@ export default function RunningTrackerPage(props: { params: Promise<{ workspace:
             {!runningActive ? (
               <button
                 onClick={() => setRunningActive(true)}
-                className="inline-flex items-center gap-2 h-10 px-5 rounded-[10px] bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center gap-2 h-10 px-5 rounded-[10px] bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition-all shadow-md cursor-pointer"
               >
                 <Play className="h-4 w-4 fill-current" />
                 <span>Start Outdoor Run</span>
@@ -84,7 +84,7 @@ export default function RunningTrackerPage(props: { params: Promise<{ workspace:
                     setSeconds(0);
                     setDistance(0);
                   }}
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-rose-600 hover:bg-rose-500 text-[var(--primary-foreground)] text-xs font-bold transition-all cursor-pointer"
                 >
                   <Square className="h-4 w-4" />
                   <span>End Run</span>

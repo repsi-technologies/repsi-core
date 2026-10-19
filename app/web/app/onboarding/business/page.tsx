@@ -39,11 +39,11 @@ export default function OnboardingBusinessPage() {
   return (
     <Card className="border-[var(--border)] bg-[var(--surface)] shadow-lg">
       <CardHeader className="pb-4 border-b border-zinc-100">
-        <div className="flex items-center gap-2 text-[#16A34A] mb-1">
+        <div className="flex items-center gap-2 text-[var(--primary-dark)] mb-1">
           <Briefcase className="h-5 w-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Step 2 of 5</span>
         </div>
-        <CardTitle className="text-2xl font-black text-zinc-900 tracking-tight">Business Setup</CardTitle>
+        <CardTitle className="text-2xl font-black text-[#17191C] tracking-tight">Business Setup</CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
           Configure your gym&apos;s operating hours, size, location and business settings.
         </CardDescription>
@@ -52,7 +52,7 @@ export default function OnboardingBusinessPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="gymType" className="font-semibold text-zinc-900">Gym Type</Label>
+              <Label htmlFor="gymType" className="font-semibold text-[#17191C]">Gym Type</Label>
               <select
                 id="gymType"
                 className="w-full h-10 px-3 rounded-lg border border-zinc-200 bg-zinc-50 text-sm font-medium text-zinc-800"
@@ -68,7 +68,7 @@ export default function OnboardingBusinessPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="locations" className="font-semibold text-zinc-900">Number of Locations</Label>
+              <Label htmlFor="locations" className="font-semibold text-[#17191C]">Number of Locations</Label>
               <select
                 id="locations"
                 className="w-full h-10 px-3 rounded-lg border border-zinc-200 bg-zinc-50 text-sm font-medium text-zinc-800"
@@ -82,7 +82,7 @@ export default function OnboardingBusinessPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="members" className="font-semibold text-zinc-900">Current Members</Label>
+              <Label htmlFor="members" className="font-semibold text-[#17191C]">Current Members</Label>
               <select
                 id="members"
                 className="w-full h-10 px-3 rounded-lg border border-zinc-200 bg-zinc-50 text-sm font-medium text-zinc-800"
@@ -97,7 +97,7 @@ export default function OnboardingBusinessPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="hours" className="font-semibold text-zinc-900">Operating Hours</Label>
+              <Label htmlFor="hours" className="font-semibold text-[#17191C]">Operating Hours</Label>
               <Input
                 id="hours"
                 value={form.openingHours}
@@ -108,7 +108,7 @@ export default function OnboardingBusinessPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="timezone" className="font-semibold text-zinc-900">Timezone</Label>
+              <Label htmlFor="timezone" className="font-semibold text-[#17191C]">Timezone</Label>
               <Input
                 id="timezone"
                 value={form.timezone}
@@ -118,7 +118,7 @@ export default function OnboardingBusinessPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="currency" className="font-semibold text-zinc-900">Currency</Label>
+              <Label htmlFor="currency" className="font-semibold text-[#17191C]">Currency</Label>
               <Input
                 id="currency"
                 value={form.currency}
@@ -135,7 +135,7 @@ export default function OnboardingBusinessPage() {
                 <span>Back</span>
               </Button>
             </Link>
-            <Button type="submit" className="gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold h-11 px-6 rounded-xl">
+            <Button type="submit" className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-11 px-6 rounded-xl">
               <span>Continue →</span>
             </Button>
           </div>

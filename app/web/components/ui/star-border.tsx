@@ -13,7 +13,7 @@ interface StarBorderProps {
 export function StarBorder({
   children,
   className = "",
-  color = "#22C55E",
+  color = "var(--primary)",
   speed = 6,
   innerBg = "bg-white",
 }: StarBorderProps) {

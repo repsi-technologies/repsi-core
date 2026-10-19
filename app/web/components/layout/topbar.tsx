@@ -55,7 +55,7 @@ function ThemeToggle() {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
-      {isDark ? <Moon className="h-4 w-4 text-emerald-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
+      {isDark ? <Moon className="h-4 w-4 text-[var(--primary)]" /> : <Sun className="h-4 w-4 text-[var(--primary)]" />}
     </Button>
   );
 }
@@ -248,7 +248,7 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
             </Button>
             {/* Unread indicator */}
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[8px] h-2 px-0.5 rounded-full bg-[var(--primary)] text-[9px] font-bold text-white flex items-center justify-center animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 min-w-[8px] h-2 px-0.5 rounded-full bg-[var(--primary)] text-[9px] font-bold text-[var(--primary-foreground)] flex items-center justify-center animate-pulse" />
             )}
           </div>
         </Link>

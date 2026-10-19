@@ -185,7 +185,7 @@ export default function FeaturesPage() {
                   <ul className="space-y-3 pt-2">
                     {feat.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-1" />
+                        <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] flex-shrink-0 mt-1" />
                         <span className="text-sm text-[var(--text)]">{bullet}</span>
                       </li>
                     ))}
@@ -202,7 +202,7 @@ export default function FeaturesPage() {
                   </div>
                   <div className="w-full pt-6 border-t border-[var(--border)] flex items-center justify-between text-xs text-[var(--text-muted)]">
                     <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
                       SOC2 Compliant
                     </span>
                     <span className="flex items-center gap-1.5">

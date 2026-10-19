@@ -77,7 +77,7 @@ export const TEMPLATE_OPTIONS: TemplateOption[] = [
     name: "Modern Fitness",
     category: "Commercial Gym",
     tagline: "Dark • High-Energy • Bold Typography",
-    accent: "#16A34A",
+    accent: "#D9532F",
     theme: "dark",
     description: "Sleek dark layout designed for high-energy commercial gyms and strength hubs.",
     previewBg: "from-zinc-950 to-emerald-950"
@@ -136,9 +136,9 @@ export const TEMPLATE_OPTIONS: TemplateOption[] = [
 
 // ─── Brand Color Palettes ──────────────────────────────────────────────────────
 export const COLOR_PALETTES = [
-  { name: "Emerald SaaS", primary: "#16A34A", secondary: "#111827", bg: "#090D14", text: "#F8FAFC" },
+  { name: "Emerald SaaS", primary: "#16A34A", secondary: "#17191C", bg: "#090D14", text: "#F7F7F5" },
   { name: "Midnight Gold", primary: "#EAB308", secondary: "#1C1917", bg: "#0C0A09", text: "#FAFAF9" },
-  { name: "Cobalt Tech", primary: "#2563EB", secondary: "#0F172A", bg: "#020617", text: "#F8FAFC" },
+  { name: "Cobalt Tech", primary: "#2563EB", secondary: "#0F172A", bg: "#020617", text: "#F7F7F5" },
   { name: "Crimson Power", primary: "#DC2626", secondary: "#18181B", bg: "#09090B", text: "#FAFAFA" },
   { name: "Pure Light", primary: "#0EA5E9", secondary: "#F1F5F9", bg: "#FFFFFF", text: "#0F172A" },
   { name: "Rose Wellness", primary: "#EC4899", secondary: "#FFF1F2", bg: "#FFFFFF", text: "#18181B" }
@@ -335,13 +335,13 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
             subdomain: workspace,
             title: "Apex Fitness Studio",
             tagline: "Transform your body. Elevate your life.",
-            primary_color: "#16A34A",
-            secondary_color: "#111827",
+            primary_color: "#D9532F",
+            secondary_color: "#17191C",
             template_id: "modern-fitness",
             theme_mode: "dark",
             logo_url: "",
             favicon_url: "",
-            font_family: "Outfit",
+            font_family: "Inter",
             button_style: "rounded-xl",
             card_style: "border",
             is_published: true,
@@ -672,7 +672,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[var(--primary)] hover:opacity-90 text-white font-bold rounded-xl text-xs gap-1.5 shadow-md"
+            className="bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-bold rounded-xl text-xs gap-1.5 shadow-md"
           >
             {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
             <span>Save & Publish</span>
@@ -825,7 +825,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                   <div className="flex items-center gap-2">
                     <div
                       className="h-8 w-8 rounded-lg flex items-center justify-center font-black text-white"
-                      style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                      style={{ backgroundColor: site?.primary_color || "#D9532F" }}
                     >
                       <Dumbbell className="h-4 w-4" />
                     </div>
@@ -843,7 +843,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
 
               <button
                 className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
-                style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                style={{ backgroundColor: site?.primary_color || "#D9532F" }}
               >
                 Join Gym
               </button>
@@ -871,7 +871,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                             setActiveSectionId(sec.id);
                             setInspectorTab("content");
                           }}
-                          className="px-2 py-1 bg-[var(--primary)] hover:opacity-90 rounded-lg text-[10px] text-white font-bold"
+                          className="px-2 py-1 bg-[var(--primary)] hover:opacity-90 rounded-lg text-[10px] text-[var(--primary-foreground)] font-bold"
                         >
                           Edit Content
                         </button>
@@ -904,7 +904,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                         <div className="relative z-10 max-w-3xl space-y-4">
                           <span
                             className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-white shadow-sm"
-                            style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                            style={{ backgroundColor: site?.primary_color || "#D9532F" }}
                           >
                             Welcome to {site?.title || "Apex Fitness"}
                           </span>
@@ -917,7 +917,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                           <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
                             <button
                               className="px-6 py-3 rounded-xl font-bold text-white text-xs sm:text-sm shadow-lg transition-transform hover:scale-105"
-                              style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                              style={{ backgroundColor: site?.primary_color || "#D9532F" }}
                             >
                               {sec.content?.primaryBtnText || "Book Free Trial"}
                             </button>
@@ -993,7 +993,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                               </div>
                               <button
                                 className="w-full py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
-                                style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                                style={{ backgroundColor: site?.primary_color || "#D9532F" }}
                               >
                                 Select Plan
                               </button>
@@ -1099,7 +1099,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                           <Input placeholder="Phone Number" className="bg-black/40 border-white/10 text-xs" readOnly />
                           <button
                             className="w-full py-2.5 rounded-xl font-bold text-white text-xs shadow-md"
-                            style={{ backgroundColor: site?.primary_color || "#16A34A" }}
+                            style={{ backgroundColor: site?.primary_color || "#D9532F" }}
                           >
                             Submit Inquiry
                           </button>
@@ -1304,7 +1304,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
                         <button
                           onClick={() => openMediaPicker(activeSectionId, "bgImage")}
-                          className="px-3 py-1.5 bg-[var(--primary)] rounded-lg text-white font-bold text-[11px] hover:opacity-90"
+                          className="px-3 py-1.5 bg-[var(--primary)] rounded-lg text-[var(--primary-foreground)] font-bold text-[11px] hover:opacity-90"
                         >
                           Replace Image
                         </button>
@@ -1493,7 +1493,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                           size="sm"
                           onClick={handleSaveSlug}
                           disabled={slugStatus !== "available" || savingSlug}
-                          className="bg-[var(--primary)] hover:opacity-90 text-white font-bold text-xs"
+                          className="bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-bold text-xs"
                         >
                           Save Address
                         </Button>
@@ -1582,7 +1582,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                 </Button>
                 <Button
                   onClick={() => handleApplyTemplate(pendingTemplateId)}
-                  className="bg-[var(--primary)] hover:opacity-90 text-white font-bold"
+                  className="bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-bold"
                 >
                   Apply Template
                 </Button>
@@ -1618,7 +1618,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                 >
                   <img src={item.url} alt={item.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <span className="px-3 py-1 bg-[var(--primary)] text-white font-bold text-xs rounded-lg">
+                    <span className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] font-bold text-xs rounded-lg">
                       Select Image
                     </span>
                   </div>

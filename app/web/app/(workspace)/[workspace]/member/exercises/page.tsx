@@ -61,7 +61,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 4,
     defaultReps: 8,
     defaultRestSec: 90,
-    animBg: "from-emerald-950/80 to-zinc-900",
+    animBg: "from-zinc-800 to-zinc-950",
     trainerNote: "Focus on driving your feet firm into the ground and keeping your back neutral."
   },
   {
@@ -82,7 +82,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 3,
     defaultReps: 10,
     defaultRestSec: 75,
-    animBg: "from-teal-950/80 to-zinc-900",
+    animBg: "from-zinc-800 to-zinc-950",
     trainerNote: "Keep your elbows tucked at a 45-degree angle to protect your rotator cuffs."
   },
   {
@@ -104,7 +104,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 4,
     defaultReps: 6,
     defaultRestSec: 120,
-    animBg: "from-blue-950/80 to-zinc-900",
+    animBg: "from-zinc-800 to-zinc-950",
     trainerNote: "Add 5kg to your top set this week if depth feels comfortable."
   },
   {
@@ -125,7 +125,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 3,
     defaultReps: 12,
     defaultRestSec: 60,
-    animBg: "from-indigo-950/80 to-zinc-900"
+    animBg: "from-zinc-800 to-zinc-950"
   },
   {
     id: "ex-005",
@@ -145,7 +145,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 3,
     defaultReps: 10,
     defaultRestSec: 75,
-    animBg: "from-purple-950/80 to-zinc-900",
+    animBg: "from-zinc-800 to-zinc-950",
     trainerNote: "Avoid arching your lower back away from the bench pad."
   },
   {
@@ -166,7 +166,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 3,
     defaultReps: 12,
     defaultRestSec: 60,
-    animBg: "from-amber-950/80 to-zinc-900"
+    animBg: "from-zinc-800 to-zinc-950"
   },
   {
     id: "ex-007",
@@ -186,7 +186,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 3,
     defaultReps: 15,
     defaultRestSec: 45,
-    animBg: "from-rose-950/80 to-zinc-900"
+    animBg: "from-zinc-800 to-zinc-950"
   },
   {
     id: "ex-008",
@@ -206,7 +206,7 @@ const EXERCISE_DATABASE: ExerciseDef[] = [
     defaultSets: 4,
     defaultReps: 10,
     defaultRestSec: 75,
-    animBg: "from-slate-900 to-emerald-950",
+    animBg: "from-zinc-800 to-zinc-950",
     trainerNote: "Drive with elbows, not your biceps, to maximize lat engagement."
   }
 ];
@@ -328,7 +328,7 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
         {workoutBasket.length > 0 && (
           <button
             onClick={() => setShowBuilderModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-xs shadow-md transition-transform active:scale-95 animate-bounce"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-bold text-xs shadow-md transition-transform active:scale-95 animate-bounce"
           >
             <Plus className="h-4 w-4" />
             <span>Workout Builder ({workoutBasket.length} selected)</span>
@@ -366,7 +366,7 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? "bg-[var(--primary)] text-white shadow-sm font-bold"
+                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm font-bold"
                   : "bg-[var(--background)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-elevated)]"
               }`}
             >
@@ -517,8 +517,8 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
                   onClick={(e) => handleAddToWorkout(ex, e)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
                     inBasket
-                      ? "bg-emerald-600 text-white"
-                      : "bg-[var(--background)] hover:bg-[var(--primary)] hover:text-white text-[var(--text)] border border-[var(--border)]"
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                      : "bg-[var(--background)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] text-[var(--text)] border border-[var(--border)]"
                   }`}
                 >
                   {inBasket ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
@@ -543,7 +543,7 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
               setSelectedDifficulty("All Levels");
               setActiveTab("all");
             }}
-            className="px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-xs font-bold"
+            className="px-4 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-bold"
           >
             Reset Filters
           </button>
@@ -653,7 +653,7 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
                     handleAddToWorkout(selectedExercise);
                     setSelectedExercise(null);
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-[var(--primary)] text-white hover:opacity-90 font-bold text-xs shadow-md flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 font-bold text-xs shadow-md flex items-center justify-center gap-1.5"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Add to Workout</span>
@@ -740,7 +740,7 @@ export default function ExerciseLibraryPage(props: { params: Promise<{ workspace
                   <button
                     onClick={handleCreateWorkout}
                     disabled={workoutBasket.length === 0}
-                    className="px-4 py-2 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-xs shadow-md disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] font-bold text-xs shadow-md disabled:opacity-50"
                   >
                     Save & Create Workout
                   </button>

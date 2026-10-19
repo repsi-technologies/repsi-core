@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/models/fitness_models.dart';
 import '../../data/member_repository.dart';
 
@@ -89,18 +90,18 @@ class GymMachinesView extends ConsumerWidget {
 
     switch (status) {
       case MachineStatus.available:
-        bg = Colors.green.withValues(alpha: 0.15);
-        text = Colors.green;
+        bg = AppColors.success.withValues(alpha: 0.15);
+        text = AppColors.success;
         label = 'AVAILABLE';
         break;
       case MachineStatus.inUse:
-        bg = Colors.orange.withValues(alpha: 0.15);
-        text = Colors.orange;
+        bg = AppColors.info.withValues(alpha: 0.15);
+        text = AppColors.info;
         label = 'IN USE';
         break;
       case MachineStatus.maintenance:
-        bg = Colors.red.withValues(alpha: 0.15);
-        text = Colors.red;
+        bg = AppColors.error.withValues(alpha: 0.15);
+        text = AppColors.error;
         label = 'MAINTENANCE';
         break;
       case MachineStatus.unavailable:

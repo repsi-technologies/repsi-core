@@ -579,7 +579,7 @@ export default function WorkspaceSettingsPage() {
                 <div className="pt-2 flex justify-end">
                   <Button
                     variant="destructive"
-                    className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs gap-2"
+                    className="bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-semibold text-xs gap-2"
                     onClick={() => {
                       setConfirmGymName("");
                       setDeregisterReason("");
@@ -708,7 +708,7 @@ export default function WorkspaceSettingsPage() {
                     type="submit"
                     variant="destructive"
                     disabled={deregisterLoading || !confirmGymName.trim()}
-                    className="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold gap-1.5"
+                    className="flex-1 bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] text-xs font-semibold gap-1.5"
                   >
                     {deregisterLoading ? (
                       <>

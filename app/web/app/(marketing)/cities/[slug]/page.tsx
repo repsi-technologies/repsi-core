@@ -122,7 +122,7 @@ export default async function CityDetailPage({ params }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {cityInfo.popularFeatures.map((feature, idx) => (
               <div key={idx} className="p-5 rounded-2xl bg-card border border-border flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-[var(--primary-dark)] shrink-0" />
                 <span className="text-base font-semibold text-foreground">{feature}</span>
               </div>
             ))}

@@ -24,7 +24,7 @@ class AppSpacing {
   static const double radiusSm = 10.0;
   static const double radiusDefault = 14.0;
   static const double radiusInput = 14.0;
-  static const double radiusButton = 14.0;
+  static const double radiusButton = 12.0;
   static const double radiusCard = 16.0;
   static const double radiusLg = 18.0;
   static const double radiusSheet = 20.0;

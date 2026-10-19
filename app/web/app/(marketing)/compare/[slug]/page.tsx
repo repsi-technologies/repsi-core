@@ -147,7 +147,7 @@ export default async function ComparisonDetailPage({ params }: Props) {
                     <td className="p-4 sm:p-5 text-center">
                       {typeof item.repsiHas === "boolean" ? (
                         item.repsiHas ? (
-                          <Check className="w-5 h-5 text-emerald-500 mx-auto" />
+                          <Check className="w-5 h-5 text-[var(--primary-dark)] mx-auto" />
                         ) : (
                           <X className="w-5 h-5 text-rose-500 mx-auto" />
                         )
@@ -158,7 +158,7 @@ export default async function ComparisonDetailPage({ params }: Props) {
                     <td className="p-4 sm:p-5 text-center">
                       {typeof item.competitorHas === "boolean" ? (
                         item.competitorHas ? (
-                          <Check className="w-5 h-5 text-emerald-500 mx-auto" />
+                          <Check className="w-5 h-5 text-[var(--primary-dark)] mx-auto" />
                         ) : (
                           <X className="w-5 h-5 text-rose-500 mx-auto" />
                         )

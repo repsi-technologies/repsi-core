@@ -242,7 +242,7 @@ class _QrAttendanceViewState extends State<QrAttendanceView> with SingleTickerPr
                         IconButton(
                           icon: Icon(
                             _isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                            color: _isFlashOn ? Colors.amber : AppColors.textSecondary,
+                            color: _isFlashOn ? AppColors.primary : AppColors.textSecondary,
                             size: 20,
                           ),
                           onPressed: () => setState(() => _isFlashOn = !_isFlashOn),
@@ -271,7 +271,7 @@ class _QrAttendanceViewState extends State<QrAttendanceView> with SingleTickerPr
                       color: const Color(0xFF101714),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: _isFlashOn ? Colors.amber.withValues(alpha: 0.8) : AppColors.primary.withValues(alpha: 0.4),
+                        color: _isFlashOn ? AppColors.primary.withValues(alpha: 0.8) : AppColors.primary.withValues(alpha: 0.4),
                         width: 2,
                       ),
                       boxShadow: [
@@ -294,7 +294,7 @@ class _QrAttendanceViewState extends State<QrAttendanceView> with SingleTickerPr
                                 borderRadius: BorderRadius.circular(18),
                                 gradient: RadialGradient(
                                   colors: [
-                                    _isFlashOn ? Colors.amber : AppColors.primary,
+                                    AppColors.primary,
                                     Colors.transparent,
                                   ],
                                   radius: 1.1,

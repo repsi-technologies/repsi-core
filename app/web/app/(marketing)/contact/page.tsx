@@ -118,7 +118,7 @@ export default function ContactPage() {
             <div className="md:col-span-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
               {submitted ? (
                 <div className="py-12 text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 text-[var(--primary-dark)] flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h3 className="text-2xl font-bold">Thank you for reaching out!</h3>

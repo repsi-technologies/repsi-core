@@ -22,14 +22,14 @@ class _WebsiteBuilderMobileViewState extends ConsumerState<WebsiteBuilderMobileV
   final String _siteTitle = 'Repsi Fitness Hub';
   String _selectedTemplate = 'modern-fitness';
   String _themeMode = 'dark';
-  Color _selectedPrimaryColor = const Color(0xFF16A34A);
+  Color _selectedPrimaryColor = AppColors.primary;
 
   final List<Map<String, dynamic>> _templates = [
     {
       'id': 'modern-fitness',
       'name': 'Modern Fitness',
       'tagline': 'Dark • High-Energy • Bold',
-      'accent': const Color(0xFF16A34A),
+      'accent': AppColors.primary,
       'theme': 'dark',
     },
     {
@@ -70,7 +70,7 @@ class _WebsiteBuilderMobileViewState extends ConsumerState<WebsiteBuilderMobileV
   ];
 
   final List<Color> _brandColors = const [
-    Color(0xFF16A34A), // Emerald
+    AppColors.primary,
     Color(0xFFEAB308), // Midnight Gold
     Color(0xFF2563EB), // Cobalt
     Color(0xFFDC2626), // Crimson

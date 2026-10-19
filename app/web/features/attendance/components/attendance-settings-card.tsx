@@ -210,7 +210,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             onClick={handleSave}
             disabled={saving}
             size="sm"
-            className="text-xs gap-1.5 h-9 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+            className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-sm"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? "Saving..." : "Save Settings"}</span>
@@ -258,7 +258,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                   onClick={() => setMaxMinutes(preset.val)}
                   className={`py-2 px-1 text-center rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                     maxMinutes === preset.val
-                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)] border-emerald-600 shadow-sm"
                       : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)] hover:border-emerald-500/40"
                   }`}
                 >
@@ -411,7 +411,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             <Button
               onClick={() => setShowRegisterDeviceModal(true)}
               size="sm"
-              className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+              className="gap-1.5 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Register Biometric Device</span>
@@ -641,7 +641,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                   type="submit"
                   size="sm"
                   disabled={registeringDevice}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold"
                 >
                   {registeringDevice ? (
                     <>

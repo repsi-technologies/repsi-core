@@ -44,7 +44,7 @@ export default function IndiaGymSoftwarePage() {
       <main className="flex-1 pt-24 pb-16">
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary-dark)] dark:text-[var(--primary-dark)] text-xs font-semibold uppercase tracking-wider mb-6">
             🇮🇳 Built Specifically for India
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground tracking-tight max-w-4xl mx-auto leading-[1.1]">
@@ -67,7 +67,7 @@ export default function IndiaGymSoftwarePage() {
         {/* Feature Grid */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 text-[var(--primary-dark)] flex items-center justify-center">
               <CreditCard className="w-5 h-5" />
             </div>
             <h2 className="text-xl font-bold text-foreground">UPI & Cashfree Integration</h2>
@@ -77,7 +77,7 @@ export default function IndiaGymSoftwarePage() {
           </div>
 
           <div className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 text-[var(--primary-dark)] flex items-center justify-center">
               <MessageSquare className="w-5 h-5" />
             </div>
             <h2 className="text-xl font-bold text-foreground">Automated WhatsApp Billing</h2>
@@ -87,7 +87,7 @@ export default function IndiaGymSoftwarePage() {
           </div>
 
           <div className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 text-[var(--primary-dark)] flex items-center justify-center">
               <QrCode className="w-5 h-5" />
             </div>
             <h2 className="text-xl font-bold text-foreground">Contactless QR Attendance</h2>

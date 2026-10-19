@@ -126,23 +126,23 @@ export default function PartnersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070D09] text-zinc-100 font-sans antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+    <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] font-sans antialiased flex flex-col selection:bg-[var(--primary)]/30 selection:text-[var(--primary-dark)]">
       <MarketingNav />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-white/5">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[var(--primary)]/10 rounded-full blur-[140px] pointer-events-none -z-10" />
 
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-semibold uppercase tracking-wider">
               <Award className="w-3.5 h-3.5" />
               <span>Official Repsi Partner Program</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
               Partner with Repsi. <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--primary-hover)] to-[var(--primary-dark)]">
                 Earn 20% Recurring Commission
               </span>
             </h1>
@@ -154,7 +154,7 @@ export default function PartnersPage() {
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <button
                 onClick={() => setOpenModal(true)}
-                className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-sm shadow-xl shadow-[var(--primary)]/20 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>Apply as a Partner</span>
                 <ArrowRight className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function PartnersPage() {
                 className="px-6 py-3 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm transition-all flex items-center gap-2"
               >
                 <span>Partner Portal Demo</span>
-                <ChevronRight className="w-4 h-4 text-emerald-400" />
+                <ChevronRight className="w-4 h-4 text-[var(--primary-dark)]" />
               </Link>
             </div>
           </FadeIn>
@@ -194,13 +194,13 @@ export default function PartnersPage() {
               className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 relative overflow-hidden space-y-2 flex flex-col justify-between"
             >
               <div>
-                <span className="text-2xl font-black text-emerald-500/40 font-mono block mb-1">
+                <span className="text-2xl font-black text-[var(--primary-dark)]/40 font-mono block mb-1">
                   {item.step}
                 </span>
                 <h3 className="text-sm font-bold text-white">{item.title}</h3>
                 <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{item.desc}</p>
               </div>
-              <div className="w-full h-1 rounded-full bg-emerald-500/20 mt-3" />
+              <div className="w-full h-1 rounded-full bg-[var(--primary)]/20 mt-3" />
             </div>
           ))}
         </div>
@@ -209,7 +209,7 @@ export default function PartnersPage() {
       {/* Commission Structure Cards */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full space-y-10 border-t border-zinc-800/80">
         <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+          <span className="text-xs font-bold text-[var(--primary-dark)] uppercase tracking-wider">
             Revenue Share Structure
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
@@ -226,29 +226,29 @@ export default function PartnersPage() {
               <h3 className="text-base font-bold text-white">Starter Plan</h3>
               <span className="px-2.5 py-0.5 rounded bg-zinc-800 text-xs text-zinc-300">₹4,999/yr</span>
             </div>
-            <div className="text-3xl font-black text-emerald-400 font-mono">20%</div>
+            <div className="text-3xl font-black text-[var(--primary-dark)] font-mono">20%</div>
             <p className="text-xs text-zinc-400">
               Ideal for single studio setups, personal training studios, and boutique fitness centers.
             </p>
             <div className="pt-3 border-t border-zinc-800 text-xs text-zinc-300 font-medium">
-              You earn: <span className="text-emerald-400 font-bold">₹999.80 / gym</span>
+              You earn: <span className="text-[var(--primary-dark)] font-bold">₹999.80 / gym</span>
             </div>
           </div>
 
-          <div className="p-7 rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-b from-emerald-950/40 to-zinc-900/90 space-y-4 relative shadow-xl">
-            <div className="absolute -top-3 right-6 px-2.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-extrabold uppercase">
+          <div className="p-7 rounded-2xl border-2 border-[var(--primary)]/50 bg-gradient-to-b from-[var(--primary)]/10 to-zinc-900/90 space-y-4 relative shadow-xl">
+            <div className="absolute -top-3 right-6 px-2.5 py-0.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-[10px] font-extrabold uppercase">
               Most Popular
             </div>
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white">Pro Plan</h3>
-              <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold">₹9,999/yr</span>
+              <span className="px-2.5 py-0.5 rounded bg-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold">₹9,999/yr</span>
             </div>
-            <div className="text-3xl font-black text-emerald-400 font-mono">20%</div>
+            <div className="text-3xl font-black text-[var(--primary-dark)] font-mono">20%</div>
             <p className="text-xs text-zinc-300">
               Full QR attendance, WhatsApp automated billing, trainer scheduling, and member portal.
             </p>
-            <div className="pt-3 border-t border-emerald-500/30 text-xs text-zinc-200 font-medium">
-              You earn: <span className="text-emerald-400 font-bold">₹1,999.80 / gym</span>
+            <div className="pt-3 border-t border-[var(--primary)]/30 text-xs text-zinc-200 font-medium">
+              You earn: <span className="text-[var(--primary-dark)] font-bold">₹1,999.80 / gym</span>
             </div>
           </div>
 
@@ -257,12 +257,12 @@ export default function PartnersPage() {
               <h3 className="text-base font-bold text-white">Business Plan</h3>
               <span className="px-2.5 py-0.5 rounded bg-zinc-800 text-xs text-zinc-300">₹19,999/yr</span>
             </div>
-            <div className="text-3xl font-black text-emerald-400 font-mono">20% – 25%</div>
+            <div className="text-3xl font-black text-[var(--primary-dark)] font-mono">20% – 25%</div>
             <p className="text-xs text-zinc-400">
               Multi-branch commercial gyms and high-volume health clubs with unlimited members.
             </p>
             <div className="pt-3 border-t border-zinc-800 text-xs text-zinc-300 font-medium">
-              You earn: <span className="text-emerald-400 font-bold">₹3,999.80+ / gym</span>
+              You earn: <span className="text-[var(--primary-dark)] font-bold">₹3,999.80+ / gym</span>
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function PartnersPage() {
                 key={i}
                 className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900/80 transition-all space-y-3"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center text-[var(--primary-dark)]">
                   <Icon className="w-5 h-5" />
                 </div>
                 <h3 className="text-base font-bold text-white">{cat.title}</h3>
@@ -300,16 +300,16 @@ export default function PartnersPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
         <div className="p-8 sm:p-10 rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4">
-            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wide">
+            <span className="px-3 py-1 rounded-full bg-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold uppercase tracking-wide">
               Zero Lost Referrals
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
               Dual Attribution: Both a Link & a Custom Promo Code
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-              We provide you with a unique referral URL (<code className="text-emerald-400 bg-zinc-950 px-1.5 py-0.5 rounded">repsi.app/?ref=YOURCODE</code>) with 30-day cookie persistence. If a client switches devices or visits later, your custom promo code ensures you still get 100% of the commission upon checkout.
+              We provide you with a unique referral URL (<code className="text-[var(--primary-dark)] bg-zinc-950 px-1.5 py-0.5 rounded">repsi.app/?ref=YOURCODE</code>) with 30-day cookie persistence. If a client switches devices or visits later, your custom promo code ensures you still get 100% of the commission upon checkout.
             </p>
-            <div className="flex items-center gap-3 pt-2 text-xs text-emerald-400 font-semibold">
+            <div className="flex items-center gap-3 pt-2 text-xs text-[var(--primary-dark)] font-semibold">
               <ShieldCheck className="w-4 h-4" />
               <span>Immutable first-touch attribution locks to your account.</span>
             </div>
@@ -318,11 +318,11 @@ export default function PartnersPage() {
           <div className="lg:col-span-5 bg-zinc-950/80 border border-zinc-800 rounded-2xl p-6 font-mono text-xs space-y-4 shadow-xl">
             <div className="text-zinc-500 text-[11px] pb-2 border-b border-zinc-800 flex items-center justify-between">
               <span>ATTRIBUTION ENGINE</span>
-              <span className="text-emerald-400">ACTIVE</span>
+              <span className="text-[var(--primary-dark)]">ACTIVE</span>
             </div>
             <div className="space-y-1">
               <span className="text-zinc-500 text-[10px]">REFERRAL LINK</span>
-              <div className="p-2.5 rounded-lg bg-zinc-900 text-emerald-300 text-xs truncate">
+              <div className="p-2.5 rounded-lg bg-zinc-900 text-[var(--primary-dark)] text-xs truncate">
                 https://repsi.app/?ref=FITNESS50
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function PartnersPage() {
           {FAQS.map((faq, i) => (
             <div key={i} className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-2">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                <HelpCircle className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                 <span>{faq.q}</span>
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed pl-6">{faq.a}</p>
@@ -358,7 +358,7 @@ export default function PartnersPage() {
 
       {/* CTA Final */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full text-center space-y-6">
-        <div className="p-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/60 via-zinc-900 to-zinc-950 space-y-4">
+        <div className="p-10 rounded-3xl border border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary)]/10 via-zinc-900 to-zinc-950 space-y-4">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
             Ready to become a Repsi Partner?
           </h2>
@@ -368,7 +368,7 @@ export default function PartnersPage() {
           <div className="pt-2 flex justify-center gap-4">
             <button
               onClick={() => setOpenModal(true)}
-              className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-sm shadow-xl shadow-[var(--primary)]/20 transition-all flex items-center gap-2 cursor-pointer"
             >
               <span>Apply Now</span>
               <ArrowRight className="w-4 h-4" />
@@ -396,7 +396,7 @@ export default function PartnersPage() {
 
             {submitted ? (
               <div className="text-center py-6 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[var(--primary)]/20 text-[var(--primary-dark)] flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h4 className="text-lg font-bold text-white">Application Received!</h4>
@@ -406,7 +406,7 @@ export default function PartnersPage() {
                 <div className="pt-3">
                   <Link
                     href="/partners/portal"
-                    className="inline-block px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+                    className="inline-block px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold"
                   >
                     Preview Partner Portal Dashboard →
                   </Link>
@@ -423,7 +423,7 @@ export default function PartnersPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Vikram Malhotra"
-                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                     />
                   </div>
                   <div className="space-y-1">
@@ -433,7 +433,7 @@ export default function PartnersPage() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="ABC Fitness Consulting"
-                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                     />
                   </div>
                 </div>
@@ -447,7 +447,7 @@ export default function PartnersPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="vikram@example.com"
-                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                     />
                   </div>
                   <div className="space-y-1">
@@ -458,7 +458,7 @@ export default function PartnersPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+91 98450 12345"
-                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                     />
                   </div>
                 </div>
@@ -468,7 +468,7 @@ export default function PartnersPage() {
                   <select
                     value={partnerType}
                     onChange={(e) => setPartnerType(e.target.value as any)}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   >
                     <option value="Gym Consultant">Gym Consultant</option>
                     <option value="Fitness Equipment Dealer">Fitness Equipment Dealer</option>
@@ -487,7 +487,7 @@ export default function PartnersPage() {
                     value={preferredCode}
                     onChange={(e) => setPreferredCode(e.target.value.toUpperCase())}
                     placeholder="e.g. ABC50 or FITPRO"
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-[#F7F7F5] placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                   />
                   <p className="text-[10px] text-zinc-500">Your referral link will be: repsi.app/?ref={preferredCode || "CODE"}</p>
                 </div>
@@ -496,7 +496,7 @@ export default function PartnersPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-10 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full h-10 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {loading ? "Submitting Application..." : "Submit Partner Application"}
                   </button>

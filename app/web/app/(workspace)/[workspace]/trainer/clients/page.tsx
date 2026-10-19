@@ -85,7 +85,7 @@ export default function TrainerClientsPage(props: { params: Promise<{ workspace:
               onClick={() => setFilterTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 filterTab === tab
-                  ? "bg-[var(--primary)] text-white shadow-sm"
+                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm"
                   : "bg-[var(--surface)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--border)]"
               }`}
             >

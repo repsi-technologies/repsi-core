@@ -79,7 +79,7 @@ export function DemoLogos() {
           {marqueeBrands.map((brand, idx) => (
             <div
               key={`${brand.name}-${idx}`}
-              className="flex items-center gap-2.5 text-zinc-400 hover:text-zinc-900 transition-colors shrink-0 cursor-pointer"
+              className="flex items-center gap-2.5 text-zinc-400 hover:text-[#17191C] transition-colors shrink-0 cursor-pointer"
             >
               {brand.symbol}
               <span className="text-sm font-extrabold tracking-wider font-mono">

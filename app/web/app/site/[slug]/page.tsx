@@ -98,7 +98,7 @@ export default function PublicGymWebsitePage(props: { params: Promise<{ slug: st
   const templateName = website.template_id || "Modern Fitness";
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-rose-500 selection:text-[var(--primary-foreground)]">
       {/* Navigation */}
       <header className="sticky top-0 z-40 bg-[#09090b]/80 backdrop-blur-md border-b border-zinc-800/80">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">

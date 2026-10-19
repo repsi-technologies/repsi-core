@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../data/member_repository.dart';
 
 class MembershipPaymentsView extends ConsumerWidget {
@@ -65,8 +66,8 @@ class MembershipPaymentsView extends ConsumerWidget {
                     ),
                     child: ListTile(
                       leading: const CircleAvatar(
-                        backgroundColor: Colors.greenAccent,
-                        child: Icon(Icons.receipt_long, color: Colors.black),
+                        backgroundColor: AppColors.successSoft,
+                        child: Icon(Icons.receipt_long, color: AppColors.success),
                       ),
                       title: Text(pay.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       subtitle: Text(
@@ -88,7 +89,7 @@ class MembershipPaymentsView extends ConsumerWidget {
                           Text(
                             pay.status,
                             style: const TextStyle(
-                              color: Colors.green,
+                              color: AppColors.success,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),

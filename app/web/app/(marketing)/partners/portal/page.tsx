@@ -74,11 +74,11 @@ export default function PartnerPortalPage() {
   const getStatusBadge = (status: ReferralRecord["status"]) => {
     switch (status) {
       case "paid":
-        return <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold">Paid</span>;
+        return <span className="px-2.5 py-0.5 rounded-full bg-[var(--primary)]/20 text-[var(--primary-dark)] text-[11px] font-bold">Paid</span>;
       case "payable":
         return <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[11px] font-bold">Payable</span>;
       case "confirmed":
-        return <span className="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[11px] font-bold">Confirmed</span>;
+        return <span className="px-2.5 py-0.5 rounded-full bg-[var(--success-soft)] text-[var(--success-foreground)] text-[11px] font-bold">Confirmed</span>;
       case "pending":
         return <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold">Pending (Hold)</span>;
       case "cancelled":
@@ -88,7 +88,7 @@ export default function PartnerPortalPage() {
 
   if (!currentPartner) {
     return (
-      <div className="min-h-screen bg-[#070D09] text-zinc-100 flex flex-col justify-between">
+      <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] flex flex-col justify-between">
         <MarketingNav />
         <div className="text-center py-40">
           <p className="text-zinc-400">Loading Partner Dashboard...</p>
@@ -99,7 +99,7 @@ export default function PartnerPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070D09] text-zinc-100 font-sans antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+    <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] font-sans antialiased flex flex-col selection:bg-[var(--primary)]/30 selection:text-[var(--primary-dark)]">
       <MarketingNav />
 
       {/* Top Bar Header */}
@@ -107,14 +107,14 @@ export default function PartnerPortalPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase">
+              <span className="px-2.5 py-0.5 rounded bg-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold uppercase">
                 {currentPartner.tier}
               </span>
               <span className="text-xs text-zinc-400">Partner ID: {currentPartner.id}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2">
               <span>Partner Dashboard:</span>
-              <span className="text-emerald-400">{currentPartner.company}</span>
+              <span className="text-[var(--primary-dark)]">{currentPartner.company}</span>
             </h1>
             <p className="text-xs text-zinc-400">
               Logged in as <span className="text-zinc-200 font-medium">{currentPartner.name}</span> ({currentPartner.email})
@@ -127,7 +127,7 @@ export default function PartnerPortalPage() {
             <select
               value={selectedPartnerId}
               onChange={(e) => setSelectedPartnerId(e.target.value)}
-              className="bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
             >
               {partners.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -142,18 +142,18 @@ export default function PartnerPortalPage() {
       {/* Main Dashboard Grid */}
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1">
         {/* Referral Link & Code Action Card */}
-        <section className="p-6 sm:p-7 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl space-y-4">
+        <section className="p-6 sm:p-7 rounded-2xl border border-[var(--primary)]/30 bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <Sparkles className="w-4 h-4 text-[var(--primary-dark)]" />
                 <span>Your Unique Referral Attribution Assets</span>
               </h2>
               <p className="text-xs text-zinc-400">
                 Share either your URL or custom coupon code with gym owners. Commissions are locked on first purchase.
               </p>
             </div>
-            <div className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">
+            <div className="text-xs font-bold text-[var(--primary-dark)] bg-[var(--primary)]/15 px-3 py-1 rounded-full border border-[var(--primary)]/30">
               Commission Rate: {currentPartner.commissionRate}%
             </div>
           </div>
@@ -163,13 +163,13 @@ export default function PartnerPortalPage() {
             <div className="md:col-span-8 bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-0.5 truncate">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Referral Link</span>
-                <div className="text-xs sm:text-sm font-mono text-emerald-300 truncate">
+                <div className="text-xs sm:text-sm font-mono text-[var(--primary-dark)] truncate">
                   {currentPartner.referralUrl}
                 </div>
               </div>
               <button
                 onClick={handleCopyLink}
-                className="shrink-0 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20"
+                className="shrink-0 px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[var(--primary)]/20"
               >
                 {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedLink ? "Copied Link!" : "Copy Link"}</span>
@@ -188,7 +188,7 @@ export default function PartnerPortalPage() {
                 onClick={handleCopyCode}
                 className="px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer border border-zinc-700"
               >
-                {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedCode ? <Check className="w-3.5 h-3.5 text-[var(--primary-dark)]" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedCode ? "Copied!" : "Copy Code"}</span>
               </button>
             </div>
@@ -205,7 +205,7 @@ export default function PartnerPortalPage() {
             </div>
             <div className="text-[11px] text-zinc-400 flex items-center gap-1">
               <span>Conversion Rate:</span>
-              <span className="text-emerald-400 font-bold">
+              <span className="text-[var(--primary-dark)] font-bold">
                 {currentPartner.clicks > 0
                   ? ((currentPartner.signups / currentPartner.clicks) * 100).toFixed(1) + "%"
                   : "0%"}
@@ -232,12 +232,12 @@ export default function PartnerPortalPage() {
             <div className="text-[11px] text-amber-300/70">In 14-day clearance hold</div>
           </div>
 
-          <div className="p-5 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 space-y-2">
-            <span className="text-xs font-medium text-emerald-300">Paid Commissions</span>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+          <div className="p-5 rounded-2xl border border-[var(--primary)]/30 bg-[var(--primary)]/5 space-y-2">
+            <span className="text-xs font-medium text-[var(--primary-dark)]">Paid Commissions</span>
+            <div className="text-2xl sm:text-3xl font-black text-[var(--primary-dark)] font-mono">
               ₹{currentPartner.paidCommission.toLocaleString()}
             </div>
-            <div className="text-[11px] text-emerald-300/70">
+            <div className="text-[11px] text-[var(--primary-dark)]/70">
               Payout Method: {currentPartner.payoutUpiOrBank || "UPI (Primary)"}
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function PartnerPortalPage() {
           <div className="p-5 border-b border-zinc-800 flex items-center justify-between flex-wrap gap-2">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Users className="w-4 h-4 text-emerald-400" />
+                <Users className="w-4 h-4 text-[var(--primary-dark)]" />
                 <span>Recent Gym Referrals & Commission Ledger</span>
               </h3>
               <p className="text-xs text-zinc-400">
@@ -294,7 +294,7 @@ export default function PartnerPortalPage() {
                       <td className="p-3.5 font-mono text-zinc-300">
                         ₹{ref.planAmount.toLocaleString()}
                       </td>
-                      <td className="p-3.5 font-mono font-bold text-emerald-400">
+                      <td className="p-3.5 font-mono font-bold text-[var(--primary-dark)]">
                         ₹{ref.commissionAmount.toFixed(2)}
                       </td>
                       <td className="p-3.5 text-zinc-400 font-mono text-[11px]">
@@ -315,7 +315,7 @@ export default function PartnerPortalPage() {
         <section className="space-y-4">
           <div className="border-b border-zinc-800 pb-2">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Share2 className="w-4 h-4 text-emerald-400" />
+              <Share2 className="w-4 h-4 text-[var(--primary-dark)]" />
               <span>Partner Marketing Kit & Ready-to-Use Scripts</span>
             </h3>
             <p className="text-xs text-zinc-400">
@@ -327,7 +327,7 @@ export default function PartnerPortalPage() {
             {/* Script 1: WhatsApp Intro */}
             <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-400">WhatsApp Script (For Gym Owners)</span>
+                <span className="text-xs font-bold text-[var(--primary-dark)]">WhatsApp Script (For Gym Owners)</span>
                 <button
                   onClick={() =>
                     handleCopyTemplateText(
@@ -337,7 +337,7 @@ export default function PartnerPortalPage() {
                   }
                   className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-semibold text-zinc-300 flex items-center gap-1 cursor-pointer"
                 >
-                  {copiedTemplate === "script1" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  {copiedTemplate === "script1" ? <Check className="w-3 h-3 text-[var(--primary-dark)]" /> : <Copy className="w-3 h-3" />}
                   <span>{copiedTemplate === "script1" ? "Copied!" : "Copy Script"}</span>
                 </button>
               </div>
@@ -349,7 +349,7 @@ export default function PartnerPortalPage() {
             {/* Script 2: Pitch for Multi-branch / New Gym setups */}
             <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-teal-400">Gym Setup & Equipment Dealers Pitch</span>
+                <span className="text-xs font-bold text-[var(--primary-dark)]">Gym Setup & Equipment Dealers Pitch</span>
                 <button
                   onClick={() =>
                     handleCopyTemplateText(
@@ -359,7 +359,7 @@ export default function PartnerPortalPage() {
                   }
                   className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-semibold text-zinc-300 flex items-center gap-1 cursor-pointer"
                 >
-                  {copiedTemplate === "script2" ? <Check className="w-3 h-3 text-teal-400" /> : <Copy className="w-3 h-3" />}
+                  {copiedTemplate === "script2" ? <Check className="w-3 h-3 text-[var(--success)]" /> : <Copy className="w-3 h-3" />}
                   <span>{copiedTemplate === "script2" ? "Copied!" : "Copy Script"}</span>
                 </button>
               </div>

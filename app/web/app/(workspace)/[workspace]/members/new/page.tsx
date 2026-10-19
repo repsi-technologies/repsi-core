@@ -90,7 +90,7 @@ export default function NewMemberPage() {
               {error.toLowerCase().includes("token") || error.toLowerCase().includes("auth") || error.toLowerCase().includes("expired") ? (
                 <Link
                   href="/login"
-                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium whitespace-nowrap transition"
+                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-[var(--primary-foreground)] text-xs font-medium whitespace-nowrap transition"
                 >
                   Sign in again
                 </Link>

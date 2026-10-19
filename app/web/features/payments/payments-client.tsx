@@ -182,7 +182,7 @@ export function PaymentsClient() {
             Real-time Cashfree UPI gateway settlements, GST invoices, and membership renewals.
           </p>
         </div>
-        <Button size="sm" onClick={() => { setPaymentError(""); setModalOpen(true); }} className="bg-[#16A34A] hover:bg-[#15803D] text-white font-bold">
+        <Button size="sm" onClick={() => { setPaymentError(""); setModalOpen(true); }} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold">
           <Plus className="h-4 w-4 mr-1" />
           Record / Collect Payment
         </Button>
@@ -210,10 +210,10 @@ export function PaymentsClient() {
               : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
         >
-          <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[var(--info-foreground)]" />
           <span>Manual Receipt Verification Queue</span>
           {pendingCount > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-black">
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[var(--info)] text-[var(--text-inverse)]">
               {pendingCount}
             </span>
           )}
@@ -231,7 +231,7 @@ export function PaymentsClient() {
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">
             ₹{totalCollected.toLocaleString("en-IN")}
           </p>
-          <span className="text-[11px] text-emerald-500 font-medium">+14.2% vs last month</span>
+          <span className="text-[11px] text-[var(--success-foreground)] font-medium">+14.2% vs last month</span>
         </div>
 
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
@@ -243,13 +243,13 @@ export function PaymentsClient() {
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
           <span className="text-xs text-[var(--text-muted)]">Pending Dues</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">₹34,000</p>
-          <span className="text-[11px] text-amber-500 font-medium">12 overdue members</span>
+          <span className="text-[11px] text-[var(--error)] font-medium">12 overdue members</span>
         </div>
 
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
           <span className="text-xs text-[var(--text-muted)]">Invoices Generated</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">{payments.length + 248}</p>
-          <span className="text-[11px] text-emerald-500 font-medium">100% Tax Compliant</span>
+          <span className="text-[11px] text-[var(--success-foreground)] font-medium">100% Tax Compliant</span>
         </div>
       </div>
 
@@ -275,7 +275,7 @@ export function PaymentsClient() {
               <select
                 value={selectedMemberId}
                 onChange={(e) => setSelectedMemberId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm text-[var(--text)] focus:outline-none focus:border-[#16A34A]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm text-[var(--text)] focus:outline-none focus:border-[var(--ring)]"
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -292,7 +292,7 @@ export function PaymentsClient() {
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm font-semibold focus:outline-none focus:border-[#16A34A]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm font-semibold focus:outline-none focus:border-[var(--ring)]"
                 />
               </div>
 
@@ -301,7 +301,7 @@ export function PaymentsClient() {
                 <select
                   value={method}
                   onChange={(e) => setMethod(e.target.value as any)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm font-semibold text-[#16A34A] focus:outline-none focus:border-[#16A34A]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm font-semibold text-[var(--primary-dark)] focus:outline-none focus:border-[var(--ring)]"
                 >
                   <option value="cashfree">Cashfree PG (UPI / Cards / Netbanking)</option>
                   <option value="upi">Direct UPI Transfer</option>
@@ -316,7 +316,7 @@ export function PaymentsClient() {
               <select
                 value={plan}
                 onChange={(e) => setPlan(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#16A34A]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--ring)]"
               >
                 <option value="Monthly Membership">Monthly Membership (₹1,000)</option>
                 <option value="Quarterly Plan">Quarterly Plan (₹2,700)</option>
@@ -326,8 +326,8 @@ export function PaymentsClient() {
             </div>
 
             {method === "cashfree" && (
-              <div className="p-3 rounded-xl border border-[#16A34A]/20 bg-[#16A34A]/5 text-xs text-[var(--text-muted)] flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#16A34A] shrink-0" />
+              <div className="p-3 rounded-xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 text-xs text-[var(--text-muted)] flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                 <span>Processes via Cashfree PG with instant UPI auto-reconciliation.</span>
               </div>
             )}
@@ -336,7 +336,7 @@ export function PaymentsClient() {
               <Button type="button" variant="outline" size="sm" onClick={() => setModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={isProcessing} className="bg-[#16A34A] hover:bg-[#15803D] text-white font-bold cursor-pointer">
+              <Button type="submit" size="sm" disabled={isProcessing} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold cursor-pointer">
                 {isProcessing ? (
                   <span className="flex items-center gap-2">
                     <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -384,19 +384,19 @@ export function PaymentsClient() {
               {filteredPayments.map((p) => (
                 <tr key={p.id} className="hover:bg-[var(--surface-hover)]/50 transition-colors">
                   <td className="p-3.5 font-bold text-[var(--text)]">{p.memberName}</td>
-                  <td className="p-3.5 font-mono font-bold text-[#16A34A]">
+                  <td className="p-3.5 font-mono font-bold text-[var(--primary-dark)]">
                     ₹{p.amount.toLocaleString("en-IN")}
                   </td>
                   <td className="p-3.5 capitalize">
                     <span className="inline-flex items-center gap-1 text-[var(--text-secondary)]">
-                      {(p.method as any) === "upi" || (p.method as any) === "cashfree" ? <Smartphone className="w-3 h-3 text-emerald-500" /> : <CreditCard className="w-3 h-3 text-blue-500" />}
+                      {(p.method as any) === "upi" || (p.method as any) === "cashfree" ? <Smartphone className="w-3 h-3 text-[var(--primary-dark)]" /> : <CreditCard className="w-3 h-3 text-[var(--info-foreground)]" />}
                       {p.method.toUpperCase()}
                     </span>
                   </td>
                   <td className="p-3.5 text-[var(--text-secondary)]">{p.plan}</td>
                   <td className="p-3.5 text-[var(--text-muted)]">{p.date}</td>
                   <td className="p-3.5">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20">
                       <CheckCircle2 className="w-3 h-3" />
                       Paid
                     </span>

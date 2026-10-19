@@ -142,17 +142,17 @@ export function ProductDemoDock() {
   const current = tabs.find((t) => t.id === activeTab) || tabs[0];
 
   return (
-    <section className="relative bg-[#050B07] py-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden border-t border-b border-[#1a2f22]">
+    <section className="relative bg-[#17191C] py-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden border-t border-b border-[#3A3F45]">
       {/* Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[#16A34A]/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[var(--primary)]/10 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#22C55E] bg-[#16A34A]/15 px-3.5 py-1.5 rounded-full border border-[#22C55E]/30 mb-4">
+          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[var(--primary-dark)] bg-[var(--primary)]/15 px-3.5 py-1.5 rounded-full border border-[var(--primary)]/30 mb-4">
             Interactive Product Demo
           </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#F5F7F5]">
-            Your business, <span className="text-[#22C55E]">at a glance.</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#F7F7F5]">
+            Your business, <span className="text-[var(--primary-dark)]">at a glance.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#9CA3AF]">
             Use the interactive dock below to navigate through Repsi's core modules.
@@ -160,8 +160,8 @@ export function ProductDemoDock() {
         </div>
 
         {/* Dashboard Preview Window */}
-        <div className="bg-[#0B120E] border border-[#1a2f22] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[#1a2f22] pb-4">
+        <div className="bg-[#24272B] border border-[#3A3F45] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-[#3A3F45] pb-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -173,8 +173,8 @@ export function ProductDemoDock() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs font-bold text-[#22C55E] bg-[#16A34A]/15 px-2.5 py-0.5 rounded-full border border-[#22C55E]/30">
+              <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
+              <span className="text-xs font-bold text-[var(--primary-dark)] bg-[var(--primary)]/15 px-2.5 py-0.5 rounded-full border border-[var(--primary)]/30">
                 Live Environment
               </span>
             </div>
@@ -196,30 +196,30 @@ export function ProductDemoDock() {
                 {current.content.metrics.map((m, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#050B07] border border-[#1a2f22] p-4 rounded-xl"
+                    className="bg-[#17191C] border border-[#3A3F45] p-4 rounded-xl"
                   >
                     <div className="text-xs text-[#9CA3AF] font-medium">{m.label}</div>
                     <div className="text-2xl font-black text-white mt-1">{m.val}</div>
-                    <div className="text-xs font-semibold text-[#22C55E] mt-1">{m.sub}</div>
+                    <div className="text-xs font-semibold text-[var(--primary-dark)] mt-1">{m.sub}</div>
                   </div>
                 ))}
               </div>
 
               {/* Recent list */}
-              <div className="bg-[#050B07] border border-[#1a2f22] rounded-2xl p-4 space-y-2.5">
+              <div className="bg-[#17191C] border border-[#3A3F45] rounded-2xl p-4 space-y-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] mb-3">
                   Live Activity Feed
                 </div>
                 {current.content.recentItems.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between bg-[#0B120E] border border-[#1a2f22] p-3 rounded-xl"
+                    className="flex items-center justify-between bg-[#24272B] border border-[#3A3F45] p-3 rounded-xl"
                   >
                     <div>
-                      <div className="text-sm font-bold text-[#F5F7F5]">{item.name}</div>
+                      <div className="text-sm font-bold text-[#F7F7F5]">{item.name}</div>
                       <div className="text-xs text-[#9CA3AF]">{item.info}</div>
                     </div>
-                    <span className="text-xs font-mono font-bold text-[#22C55E] bg-[#16A34A]/15 px-2.5 py-1 rounded-md border border-[#22C55E]/20">
+                    <span className="text-xs font-mono font-bold text-[var(--primary-dark)] bg-[var(--primary)]/15 px-2.5 py-1 rounded-md border border-[var(--primary)]/20">
                       {item.tag}
                     </span>
                   </div>
@@ -231,7 +231,7 @@ export function ProductDemoDock() {
 
         {/* Floating MacOS Style Dock */}
         <div className="mt-8 flex justify-center">
-          <div className="bg-[#0B120E]/90 backdrop-blur-2xl border border-[#1a2f22] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 sm:gap-3">
+          <div className="bg-[#24272B]/90 backdrop-blur-2xl border border-[#3A3F45] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 sm:gap-3">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -241,8 +241,8 @@ export function ProductDemoDock() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`relative flex flex-col items-center gap-1 p-2.5 sm:px-4 sm:py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? "bg-[#16A34A] text-white shadow-lg shadow-[#16A34A]/30 scale-105"
-                      : "text-[#9CA3AF] hover:text-white hover:bg-[#1a2f22]/60"
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg shadow-[var(--primary)]/30 scale-105"
+                      : "text-[#9CA3AF] hover:text-white hover:bg-[#3A3F45]/60"
                   }`}
                 >
                   <Icon className="w-5 h-5" />

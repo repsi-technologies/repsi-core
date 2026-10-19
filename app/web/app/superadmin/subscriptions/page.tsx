@@ -666,7 +666,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 <Button
                                   size="sm"
                                   onClick={() => openStatusToggle(gym, "active")}
-                                  className="h-7 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  className="h-7 text-[10px] bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]"
                                   title="Reactivate subscription"
                                 >
                                   <Unlock className="w-3 h-3" />
@@ -676,7 +676,7 @@ export default function SuperAdminSubscriptionsPage() {
                                   size="sm"
                                   variant="destructive"
                                   onClick={() => openStatusToggle(gym, "suspended")}
-                                  className="h-7 text-[10px] bg-rose-600 hover:bg-rose-700 text-white"
+                                  className="h-7 text-[10px] bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)]"
                                   title="Suspend subscription"
                                 >
                                   <Lock className="w-3 h-3" />
@@ -919,7 +919,7 @@ export default function SuperAdminSubscriptionsPage() {
                 <Button type="button" variant="outline" onClick={() => setModalType(null)} className="text-xs">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={actionLoading} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                <Button type="submit" disabled={actionLoading} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs">
                   {actionLoading ? "Applying..." : "Assign Plan"}
                 </Button>
               </div>
@@ -1113,7 +1113,7 @@ export default function SuperAdminSubscriptionsPage() {
                   type="submit"
                   disabled={actionLoading}
                   className={`${
-                    statusAction === "suspended" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"
+                    statusAction === "suspended" ? "bg-rose-600 hover:bg-rose-700" : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
                   } text-white text-xs`}
                 >
                   {actionLoading ? "Updating..." : `Confirm ${statusAction.toUpperCase()}`}
@@ -1260,7 +1260,7 @@ export default function SuperAdminSubscriptionsPage() {
                 <Button type="button" variant="outline" onClick={() => setModalType(null)} className="text-xs">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={actionLoading} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                <Button type="submit" disabled={actionLoading} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs">
                   {actionLoading ? "Saving..." : "Save Plan Changes"}
                 </Button>
               </div>

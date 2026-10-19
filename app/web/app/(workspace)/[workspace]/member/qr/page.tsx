@@ -144,7 +144,7 @@ export default function MemberQRCheckinPage(props: { params: Promise<{ workspace
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Digital Pass Card */}
         <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-[var(--surface)] to-[var(--surface)] p-6 space-y-5 shadow-sm text-center">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white uppercase tracking-wider shadow-sm">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--primary)] text-[var(--primary-foreground)] uppercase tracking-wider shadow-sm">
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Active Member Pass</span>
           </div>

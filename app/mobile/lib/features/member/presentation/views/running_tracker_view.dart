@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../app/theme/app_colors.dart';
 
 class RunningTrackerView extends StatefulWidget {
   const RunningTrackerView({super.key});
@@ -64,9 +65,7 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [theme.primaryColor, Colors.blue.shade900],
-              ),
+              color: AppColors.darkBackground,
             ),
             child: Column(
               children: [
@@ -106,8 +105,8 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _isRunning ? Colors.amber : Colors.green,
-                    foregroundColor: Colors.black,
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -163,8 +162,8 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                 const SizedBox(height: 10),
                 ListTile(
                   leading: const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    child: Icon(Icons.directions_run, color: Colors.white),
+                    backgroundColor: AppColors.primarySoft,
+                    child: Icon(Icons.directions_run, color: AppColors.primaryDark),
                   ),
                   title: const Text(
                     '5.42 km · Morning Run',
@@ -175,8 +174,8 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                 ),
                 ListTile(
                   leading: const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    child: Icon(Icons.directions_run, color: Colors.white),
+                    backgroundColor: AppColors.primarySoft,
+                    child: Icon(Icons.directions_run, color: AppColors.primaryDark),
                   ),
                   title: const Text(
                     '3.10 km · Interval Jog',

@@ -10,7 +10,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#F7F9F8] text-[#111714] flex flex-col justify-between selection:bg-[#16A34A]/20 selection:text-[#16A34A]">
+    <div className="min-h-screen bg-[#F7F9F8] text-[var(--text)] flex flex-col justify-between selection:bg-[var(--primary)]/20 selection:text-[var(--primary-dark)]">
       {/* Top Header - Small REPSI logo only */}
       <header className="p-6 sm:p-8">
         <Link href="/" className="inline-block transition-opacity hover:opacity-80">
@@ -34,11 +34,11 @@ export default function AuthLayout({
       <footer className="py-6 text-center text-xs text-[#8A9690]">
         <p>
           © 2026 REPSI ·{" "}
-          <Link href="/about" className="hover:text-[#111714] transition-colors">
+          <Link href="/about" className="hover:text-[var(--text)] transition-colors">
             Privacy
           </Link>{" "}
           ·{" "}
-          <Link href="/about" className="hover:text-[#111714] transition-colors">
+          <Link href="/about" className="hover:text-[var(--text)] transition-colors">
             Terms
           </Link>
         </p>

@@ -98,8 +98,8 @@ export function ImageTrail({ children }: { children: React.ReactNode }) {
             style={{ left: item.x, top: item.y }}
           >
             {/* Light Theme Card Styling */}
-            <div className="bg-white/95 backdrop-blur-md border border-[#E5EAE6] p-2 rounded-2xl shadow-2xl shadow-black/25 flex flex-col gap-1.5 w-44 sm:w-52">
-              <div className="relative w-full h-24 sm:h-28 rounded-xl overflow-hidden border border-[#E5EAE6]">
+            <div className="bg-white/95 backdrop-blur-md border border-[var(--border)] p-2 rounded-2xl shadow-2xl shadow-black/25 flex flex-col gap-1.5 w-44 sm:w-52">
+              <div className="relative w-full h-24 sm:h-28 rounded-xl overflow-hidden border border-[var(--border)]">
                 <Image
                   src={item.img}
                   alt={item.title}
@@ -107,13 +107,13 @@ export function ImageTrail({ children }: { children: React.ReactNode }) {
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-[#16A34A] bg-white/90 px-2 py-0.5 rounded-md border border-[#16A34A]/20 backdrop-blur-md shadow-2xs">
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-[var(--primary-dark)] bg-white/90 px-2 py-0.5 rounded-md border border-[var(--primary)]/20 backdrop-blur-md shadow-2xs">
                   ● Repsi Partner
                 </span>
               </div>
               <div className="px-1">
-                <div className="text-xs font-extrabold text-[#111714] truncate">{item.title}</div>
-                <div className="text-[10px] text-[#66706A] font-semibold truncate">{item.sub}</div>
+                <div className="text-xs font-extrabold text-[var(--text)] truncate">{item.title}</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-semibold truncate">{item.sub}</div>
               </div>
             </div>
           </motion.div>

@@ -199,7 +199,7 @@ export default function TrainerClientDetailPage(props: {
               Message
             </Button>
           </Link>
-          <Button size="sm" onClick={() => setWorkoutModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)] text-xs">
+          <Button size="sm" onClick={() => setWorkoutModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)] text-xs">
             <Dumbbell className="h-3.5 w-3.5" />
             + Assign Workout
           </Button>
@@ -297,7 +297,7 @@ export default function TrainerClientDetailPage(props: {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-[var(--text)]">Client Workout Routines</h2>
-            <Button size="sm" onClick={() => setWorkoutModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-white text-xs">
+            <Button size="sm" onClick={() => setWorkoutModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs">
               <Plus className="h-3.5 w-3.5" />
               Create Workout
             </Button>
@@ -415,7 +415,7 @@ export default function TrainerClientDetailPage(props: {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-[var(--text)]">Personal Training Sessions</h2>
-            <Button size="sm" onClick={() => setSessionModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-white text-xs">
+            <Button size="sm" onClick={() => setSessionModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs">
               <Plus className="h-3.5 w-3.5" />
               Schedule Session
             </Button>

@@ -55,8 +55,8 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           disabled={checkedIn}
           className={`inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl text-xs font-bold transition-all shadow-sm ${
             checkedIn
-              ? "bg-emerald-600 text-white cursor-default"
-              : "bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]"
+              ? "bg-[var(--primary)] text-[var(--primary-foreground)] cursor-default"
+              : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
           }`}
         >
           {checkedIn ? (
@@ -185,7 +185,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     d.active
-                      ? "bg-[var(--primary)] text-white shadow-sm"
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm"
                       : "bg-[var(--background-secondary)] text-[var(--text-muted)] border border-[var(--border)]"
                   }`}
                 >
@@ -309,7 +309,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           <div className="flex items-center gap-2 pt-2">
             <Link
               href={`/${workspace}/chat`}
-              className="flex-1 py-2 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)] text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              className="flex-1 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)] text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
             >
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Message Trainer</span>
@@ -392,7 +392,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
 
           <Link
             href={`/${workspace}/member/running`}
-            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Play className="h-3.5 w-3.5 fill-white" />
             <span>Start Run</span>

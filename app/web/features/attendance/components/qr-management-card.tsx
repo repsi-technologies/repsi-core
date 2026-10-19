@@ -104,7 +104,7 @@ export function QrManagementCard({
             size="sm"
             className="text-xs gap-1.5 h-9"
           >
-            <Power className={`w-3.5 h-3.5 ${isActive ? "text-amber-500" : "text-emerald-500"}`} />
+            <Power className={`w-3.5 h-3.5 ${isActive ? "text-[var(--success)]" : "text-[var(--info)]"}`} />
             <span>{isActive ? "Deactivate QR" : "Activate QR"}</span>
           </Button>
 
@@ -113,7 +113,7 @@ export function QrManagementCard({
             disabled={rotating}
             variant="outline"
             size="sm"
-            className="text-xs gap-1.5 h-9 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+            className="text-xs gap-1.5 h-9 border-emerald-500/30 text-emerald-600 hover:bg-[var(--primary-hover)]/10"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${rotating ? "animate-spin" : ""}`} />
             <span>Regenerate QR</span>
@@ -122,7 +122,7 @@ export function QrManagementCard({
           <Button
             onClick={() => setPrintModalOpen(true)}
             size="sm"
-            className="text-xs gap-1.5 h-9 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+            className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-sm"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print QR Poster</span>

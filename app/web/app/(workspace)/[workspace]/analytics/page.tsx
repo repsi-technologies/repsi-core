@@ -20,7 +20,7 @@ export default function WorkspaceAnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <p className="text-xs text-[var(--text-muted)]">Member Retention (90-day)</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">84.2%</p>
+          <p className="text-2xl font-bold text-[var(--text)] mt-1">84.2%</p>
           <p className="text-[11px] text-[var(--text-secondary)] mt-1">Top decile in boutique fitness</p>
         </div>
         <div className="p-5 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
@@ -31,7 +31,7 @@ export default function WorkspaceAnalyticsPage() {
         <div className="p-5 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <p className="text-xs text-[var(--text-muted)]">Monthly Churn Rate</p>
           <p className="text-2xl font-bold text-rose-400 mt-1">2.8%</p>
-          <p className="text-[11px] text-emerald-400 mt-1">↓ 0.6% vs industry average (4%)</p>
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">↓ 0.6% vs industry average (4%)</p>
         </div>
         <div className="p-5 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <p className="text-xs text-[var(--text-muted)]">Capacity Utilization</p>
@@ -71,7 +71,7 @@ export default function WorkspaceAnalyticsPage() {
           <CardContent className="space-y-2 text-xs">
             {[
               { slot: "06:00 AM – 08:00 AM", load: "88% Load", color: "bg-amber-500" },
-              { slot: "08:00 AM – 10:00 AM", load: "55% Load", color: "bg-emerald-500" },
+              { slot: "08:00 AM – 10:00 AM", load: "55% Load", color: "bg-[var(--primary)]" },
               { slot: "12:00 PM – 04:00 PM", load: "25% Load", color: "bg-zinc-600" },
               { slot: "05:30 PM – 08:30 PM", load: "94% Load", color: "bg-rose-500" },
               { slot: "08:30 PM – 10:00 PM", load: "45% Load", color: "bg-blue-500" },

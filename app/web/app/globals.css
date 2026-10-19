@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -9,62 +9,68 @@
 
 /* ─────────────────────────────────────────────────────────────────── */
 /* REPSI Design Tokens — Light Theme (default)                        */
-/* Green + Deep Charcoal + Soft Mint                                   */
+/* Orange + Warm Charcoal                                             */
 /* ─────────────────────────────────────────────────────────────────── */
 :root {
-  /* Font */
-  --font-sans: "Outfit", sans-serif;
+  /* Font — Unified IBM Plex Sans across website & dashboard */
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Backgrounds */
-  --background: #F7FAF8;
+  --background: #F7F7F5;
+  --background-secondary: #EFEEEA;
   --surface: #FFFFFF;
-  --surface-secondary: #ECFDF3;
+  --surface-secondary: #EFEEEA;
   --surface-elevated: #FFFFFF;
+  --surface-soft: #EFEEEA;
+  --surface-hover: #EFEEEA;
+  --raised: #EFEEEA;
   --sidebar: #FFFFFF;
-  --sidebar-border: #E5E7EB;
+  --sidebar-border: #E4E2DC;
 
-  /* Primary (Repsi Green) */
-  --primary: #16A34A;
-  --primary-hover: #15803D;
-  --primary-dark: #15803D;
-  --primary-soft: #ECFDF3;
+  /* Primary */
+  --primary: #D9532F;
+  --primary-hover: #BF4423;
+  --primary-dark: #B8431F;
+  --link: #B8431F;
+  --primary-soft: #FCEAE4;
   --primary-foreground: #FFFFFF;
 
   /* Text Hierarchy */
-  --text: #172033;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
-  --text-disabled: #94A3B8;
+  --text: #17191C;
+  --text-secondary: #6B6F76;
+  --text-muted: #6B6F76;
+  --text-disabled: #A6A8AC;
   --text-inverse: #FFFFFF;
 
   /* Borders & Dividers */
-  --border: #E5E7EB;
-  --border-strong: #D1D5DB;
-  --divider: #E5E7EB;
+  --border: #E4E2DC;
+  --border-strong: #C9C7C1;
+  --divider: #E4E2DC;
 
   /* Semantic */
-  --success: #16A34A;
-  --success-soft: #DCFCE7;
-  --success-foreground: #15803D;
-  --warning: #D97706;
-  --warning-soft: #FEF3C7;
-  --warning-foreground: #B45309;
-  --error: #DC2626;
-  --error-soft: #FEE2E2;
-  --error-foreground: #B91C1C;
-  --info: #2563EB;
-  --info-soft: #EFF6FF;
-  --info-foreground: #2563EB;
+  --success: #047857;
+  --success-soft: #D1FAE5;
+  --success-foreground: #047857;
+  --warning: #A16207;
+  --warning-soft: #FEF9C3;
+  --warning-foreground: #A16207;
+  --error: #BE123C;
+  --error-soft: #FFE4E6;
+  --error-foreground: #BE123C;
+  --info: #475569;
+  --info-soft: #F1F5F9;
+  --info-foreground: #475569;
 
   /* Interactive */
-  --ring: #16A34A;
-  --ring-offset: #F7FAF8;
+  --ring: #D9532F;
+  --ring-offset: #F7F7F5;
 
   /* Sidebar nav active state */
-  --nav-active-bg: #E8F5EE;
-  --nav-active-text: #15803D;
-  --nav-active-indicator: #16A34A;
-  --nav-hover-bg: #F3F7F5;
+  --nav-active-bg: #FCEAE4;
+  --nav-active-text: #B8431F;
+  --nav-active-indicator: #D9532F;
+  --nav-hover-bg: #EFEEEA;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
@@ -82,58 +88,64 @@
 
 /* ─────────────────────────────────────────────────────────────────── */
 /* REPSI Design Tokens — Dark Theme                                   */
-/* Deep Green-Black Background (#08110D)                              */
+/* Deep Charcoal Background                                           */
 /* ─────────────────────────────────────────────────────────────────── */
 .dark {
   /* Backgrounds */
-  --background: #08110d;
-  --surface: #101b16;
-  --surface-elevated: #16241e;
-  --surface-soft: #1b2c24;
-  --sidebar: #08110d;
-  --sidebar-border: #263831;
+  --background: #17191C;
+  --background-secondary: #24272B;
+  --surface: #24272B;
+  --surface-secondary: #2E3237;
+  --surface-elevated: #2E3237;
+  --surface-soft: #2E3237;
+  --surface-hover: #2E3237;
+  --raised: #2E3237;
+  --sidebar: #24272B;
+  --sidebar-border: #3A3F45;
 
   /* Primary */
-  --primary: #25d979;
-  --primary-hover: #18b968;
-  --primary-dark: #18b968;
-  --primary-soft: #1b2c24;
-  --primary-foreground: #08110d;
+  --primary: #F07858;
+  --primary-hover: #F58F73;
+  --primary-dark: #F58F73;
+  --link: #F58F73;
+  --primary-soft: rgb(240 120 88 / 0.15);
+  --primary-foreground: #17191C;
 
   /* Text */
-  --text: #f4f8f6;
-  --text-secondary: #aab8b1;
-  --text-muted: #718079;
-  --text-inverse: #101918;
+  --text: #F7F7F5;
+  --text-secondary: #A6A8AC;
+  --text-muted: #A6A8AC;
+  --text-disabled: #70747A;
+  --text-inverse: #17191C;
 
   /* Borders & Dividers */
-  --border: #263831;
-  --border-strong: #334840;
-  --divider: #1e2d26;
+  --border: #3A3F45;
+  --border-strong: #4B5158;
+  --divider: #3A3F45;
 
   /* Semantic */
-  --success: #25d979;
-  --success-soft: #16241e;
-  --success-foreground: #25d979;
-  --warning: #fbbf24;
-  --warning-soft: #241d08;
-  --warning-foreground: #fbbf24;
-  --error: #ff6b70;
-  --error-soft: #2b1113;
-  --error-foreground: #ff6b70;
-  --info: #60a5fa;
-  --info-soft: #0d1e33;
-  --info-foreground: #60a5fa;
+  --success: #34D399;
+  --success-soft: rgb(52 211 153 / 0.15);
+  --success-foreground: #34D399;
+  --warning: #FACC15;
+  --warning-soft: rgb(250 204 21 / 0.15);
+  --warning-foreground: #FACC15;
+  --error: #F43F5E;
+  --error-soft: rgb(244 63 94 / 0.15);
+  --error-foreground: #F43F5E;
+  --info: #94A3B8;
+  --info-soft: rgb(148 163 184 / 0.15);
+  --info-foreground: #94A3B8;
 
   /* Interactive */
-  --ring: #25d979;
-  --ring-offset: #08110d;
+  --ring: #F07858;
+  --ring-offset: #17191C;
 
   /* Sidebar nav active state */
-  --nav-active-bg: #16241e;
-  --nav-active-text: #25d979;
-  --nav-active-indicator: #25d979;
-  --nav-hover-bg: #101b16;
+  --nav-active-bg: #49302A;
+  --nav-active-text: #F58F73;
+  --nav-active-indicator: #F07858;
+  --nav-hover-bg: #2E3237;
 
   /* Shadows — use borders for elevation in dark mode */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
@@ -146,24 +158,47 @@
 .light,
 html.dark .light,
 html.dark .light * {
-  --background: #f7faf8;
+  --background: #F7F7F5;
+  --background-secondary: #EFEEEA;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-
+  --surface-secondary: #EFEEEA;
+  --surface-soft: #EFEEEA;
+  --surface-hover: #EFEEEA;
+  --raised: #EFEEEA;
   --sidebar: #ffffff;
-  --sidebar-border: #e2e8df;
-
-  --text: #172033;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --sidebar-border: #E4E2DC;
+  --primary: #D9532F;
+  --primary-hover: #BF4423;
+  --primary-dark: #B8431F;
+  --link: #B8431F;
+  --primary-soft: #FCEAE4;
+  --primary-foreground: #FFFFFF;
+  --text: #17191C;
+  --text-secondary: #6B6F76;
+  --text-muted: #6B6F76;
   --text-inverse: #ffffff;
-
-  --border: #e2e8df;
-  --border-strong: #cbd5c5;
-
-  --nav-active-bg: #f0fbe2;
-  --nav-active-text: #365314;
-  --nav-hover-bg: #f1f5ee;
+  --border: #E4E2DC;
+  --border-strong: #C9C7C1;
+  --divider: #E4E2DC;
+  --success: #047857;
+  --success-soft: #D1FAE5;
+  --success-foreground: #047857;
+  --warning: #A16207;
+  --warning-soft: #FEF9C3;
+  --warning-foreground: #A16207;
+  --error: #BE123C;
+  --error-soft: #FFE4E6;
+  --error-foreground: #BE123C;
+  --info: #475569;
+  --info-soft: #F1F5F9;
+  --info-foreground: #475569;
+  --ring: #D9532F;
+  --ring-offset: #F7F7F5;
+  --nav-active-bg: #FCEAE4;
+  --nav-active-text: #B8431F;
+  --nav-active-indicator: #D9532F;
+  --nav-hover-bg: #EFEEEA;
   color-scheme: light;
 }
 
@@ -182,20 +217,81 @@ html.dark .light * {
   animation-play-state: paused;
 }
 
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+@keyframes cinematicZoom {
+  0% {
+    transform: scale(1.04);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1.04);
+  }
+}
+
+.animate-cinematic-zoom {
+  animation: cinematicZoom 11s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes scrollCueSlide {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(180%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(180%);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-cue {
+  animation: scrollCueSlide 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cinematic-zoom {
+    animation: none;
+    transform: scale(1);
+  }
+  .animate-scroll-cue {
+    animation: none;
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────── */
 /* Tailwind v4 Theme Mapping                                          */
 /* ─────────────────────────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
   --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
   --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-soft: var(--surface-soft);
   --color-sidebar: var(--sidebar);
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-dark: var(--primary-dark);
+  --color-link: var(--link);
   --color-primary-soft: var(--primary-soft);
   --color-primary-foreground: var(--primary-foreground);
+  --color-raised: var(--raised);
 
   --color-text: var(--text);
   --color-text-secondary: var(--text-secondary);
@@ -206,10 +302,138 @@ html.dark .light * {
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
   --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-error-foreground: var(--error-foreground);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-foreground: var(--info-foreground);
+  --color-nav-active-bg: var(--nav-active-bg);
+  --color-nav-active-text: var(--nav-active-text);
 
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  /* Keep existing neutral Tailwind utilities aligned with REPSI surfaces. */
+  --color-zinc-50: #F7F7F5;
+  --color-zinc-100: #EFEEEA;
+  --color-zinc-200: #E4E2DC;
+  --color-zinc-300: #C9C7C1;
+  --color-zinc-400: #A6A8AC;
+  --color-zinc-500: #6B6F76;
+  --color-zinc-600: #6B6F76;
+  --color-zinc-700: #3A3F45;
+  --color-zinc-800: #2E3237;
+  --color-zinc-900: #24272B;
+  --color-zinc-950: #17191C;
+  --color-gray-50: #F7F7F5;
+  --color-gray-100: #EFEEEA;
+  --color-gray-200: #E4E2DC;
+  --color-gray-300: #C9C7C1;
+  --color-gray-400: #A6A8AC;
+  --color-gray-500: #6B6F76;
+  --color-gray-600: #6B6F76;
+  --color-gray-700: #3A3F45;
+  --color-gray-800: #2E3237;
+  --color-gray-900: #24272B;
+  --color-gray-950: #17191C;
+  --color-slate-50: #F7F7F5;
+  --color-slate-100: #EFEEEA;
+  --color-slate-200: #E4E2DC;
+  --color-slate-300: #C9C7C1;
+  --color-slate-400: #A6A8AC;
+  --color-slate-500: #6B6F76;
+  --color-slate-600: #6B6F76;
+  --color-slate-700: #3A3F45;
+  --color-slate-800: #2E3237;
+  --color-slate-900: #24272B;
+  --color-slate-950: #17191C;
+  --color-neutral-50: #F7F7F5;
+  --color-neutral-100: #EFEEEA;
+  --color-neutral-200: #E4E2DC;
+  --color-neutral-300: #C9C7C1;
+  --color-neutral-400: #A6A8AC;
+  --color-neutral-500: #6B6F76;
+  --color-neutral-600: #6B6F76;
+  --color-neutral-700: #3A3F45;
+  --color-neutral-800: #2E3237;
+  --color-neutral-900: #24272B;
+  --color-neutral-950: #17191C;
+  --color-stone-50: #F7F7F5;
+  --color-stone-100: #EFEEEA;
+  --color-stone-200: #E4E2DC;
+  --color-stone-300: #C9C7C1;
+  --color-stone-400: #A6A8AC;
+  --color-stone-500: #6B6F76;
+  --color-stone-600: #6B6F76;
+  --color-stone-700: #3A3F45;
+  --color-stone-800: #2E3237;
+  --color-stone-900: #24272B;
+  --color-stone-950: #17191C;
+
+  /* Legacy status utilities now follow the theme's semantic status palette. */
+  --color-emerald-50: var(--success-soft);
+  --color-emerald-100: var(--success-soft);
+  --color-emerald-200: var(--success-soft);
+  --color-emerald-300: var(--success);
+  --color-emerald-400: var(--success);
+  --color-emerald-500: var(--success);
+  --color-emerald-600: var(--success-foreground);
+  --color-emerald-700: var(--success-foreground);
+  --color-emerald-800: var(--success-foreground);
+  --color-emerald-900: var(--success-foreground);
+  --color-emerald-950: var(--success-foreground);
+
+  --color-amber-50: var(--warning-soft);
+  --color-amber-100: var(--warning-soft);
+  --color-amber-200: var(--warning-soft);
+  --color-amber-300: var(--warning);
+  --color-amber-400: var(--warning);
+  --color-amber-500: var(--warning);
+  --color-amber-600: var(--warning-foreground);
+  --color-amber-700: var(--warning-foreground);
+  --color-amber-800: var(--warning-foreground);
+  --color-amber-900: var(--warning-foreground);
+  --color-amber-950: var(--warning-foreground);
+
+  --color-rose-50: var(--error-soft);
+  --color-rose-100: var(--error-soft);
+  --color-rose-200: var(--error-soft);
+  --color-rose-300: var(--error);
+  --color-rose-400: var(--error);
+  --color-rose-500: var(--error);
+  --color-rose-600: var(--error-foreground);
+  --color-rose-700: var(--error-foreground);
+  --color-rose-800: var(--error-foreground);
+  --color-rose-900: var(--error-foreground);
+  --color-rose-950: var(--error-foreground);
+  --color-red-50: var(--error-soft);
+  --color-red-100: var(--error-soft);
+  --color-red-200: var(--error-soft);
+  --color-red-300: var(--error);
+  --color-red-400: var(--error);
+  --color-red-500: var(--error);
+  --color-red-600: var(--error-foreground);
+  --color-red-700: var(--error-foreground);
+  --color-red-800: var(--error-foreground);
+  --color-red-900: var(--error-foreground);
+  --color-red-950: var(--error-foreground);
+
+  --color-orange-50: var(--primary-soft);
+  --color-orange-100: var(--primary-soft);
+  --color-orange-200: var(--primary-soft);
+  --color-orange-300: var(--primary);
+  --color-orange-400: var(--primary);
+  --color-orange-500: var(--primary);
+  --color-orange-600: var(--primary-hover);
+  --color-orange-700: var(--primary-hover);
+  --color-orange-800: var(--primary-dark);
+  --color-orange-900: var(--primary-dark);
+  --color-orange-950: var(--primary-dark);
+
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --radius-sm: var(--radius-sm);
   --radius-DEFAULT: var(--radius);
@@ -219,7 +443,7 @@ html.dark .light * {
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
-/* Base Styles                                                        */
+/* Base Styles — Unified IBM Plex Sans Typography                     */
 /* ─────────────────────────────────────────────────────────────────── */
 *,
 *::before,
@@ -235,11 +459,38 @@ html {
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.6;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings: IBM Plex Sans 600–700 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+/* Buttons and Navigation: IBM Plex Sans 500–600 */
+button,
+[role="button"] {
+  font-family: var(--font-sans);
+}
+
+/* Dashboard tables and numbers: IBM Plex Sans 400–500 with tabular numbers */
+table,
+th,
+td {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
@@ -293,6 +544,15 @@ body {
 }
 .animate-border-beam {
   animation: border-beam var(--duration, 8s) infinite linear;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  animation: shimmer 1.8s infinite;
 }
 
 /* ─────────────────────────────────────────────────────────────────── */

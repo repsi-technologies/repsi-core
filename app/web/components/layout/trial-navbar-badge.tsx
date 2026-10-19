@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, Sparkles, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { Clock, Sparkles, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from "lucide-react";
 import { repsiApi } from "@/lib/api";
 
 interface TrialStatus {
@@ -61,10 +61,10 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
     return (
       <Link
         href={`/${workspace}/settings?tab=billing`}
-        className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/15 transition-all"
+        className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/25 hover:bg-[var(--success-soft)] transition-all"
         title="Subscription active - View billing"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5" />
         <span>{trial.plan_name || "Pro"} Active</span>
       </Link>
     );
@@ -78,7 +78,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
     return (
       <Link
         href={`/${workspace}/settings?tab=billing`}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 transition-all animate-pulse"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--error-soft)] text-[var(--error-foreground)] border border-[var(--error)]/30 hover:bg-[var(--error-soft)] transition-all"
         title="Trial expired - Choose a plan to continue"
       >
         <AlertCircle className="w-3.5 h-3.5" />
@@ -92,23 +92,16 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
       href={`/${workspace}/settings?tab=billing`}
       className={`group shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium border transition-all shadow-xs ${
         isUrgent
-          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
-          : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/15"
+          ? "bg-[var(--warning-soft)] text-[var(--warning-foreground)] border-[var(--warning)]/30 hover:bg-[var(--warning-soft)]"
+          : "bg-[var(--success-soft)] text-[var(--success-foreground)] border-[var(--success)]/25 hover:bg-[var(--success-soft)]"
       }`}
       title="14-Day Free Trial - Click to view plans & upgrade"
     >
-      <span className="relative flex h-2 w-2 shrink-0">
-        <span
-          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-            isUrgent ? "bg-amber-400" : "bg-emerald-400"
-          }`}
-        />
-        <span
-          className={`relative inline-flex rounded-full h-2 w-2 ${
-            isUrgent ? "bg-amber-500" : "bg-emerald-500"
-          }`}
-        />
-      </span>
+      {isUrgent ? (
+        <Clock aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+      ) : (
+        <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+      )}
 
       <span className="font-semibold whitespace-nowrap">
         <span className="sm:hidden">{daysLeft}d trial</span>
@@ -117,7 +110,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
         </span>
       </span>
 
-      <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-600 dark:bg-emerald-500 text-white group-hover:scale-105 transition-transform shrink-0 whitespace-nowrap">
+      <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] group-hover:scale-105 transition-transform shrink-0 whitespace-nowrap">
         Upgrade <ArrowRight className="w-2.5 h-2.5" />
       </span>
     </Link>

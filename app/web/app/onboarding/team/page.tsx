@@ -38,11 +38,11 @@ export default function OnboardingTeamPage() {
   return (
     <Card className="border-[var(--border)] bg-[var(--surface)] shadow-lg">
       <CardHeader className="pb-4 border-b border-zinc-100">
-        <div className="flex items-center gap-2 text-[#16A34A] mb-1">
+        <div className="flex items-center gap-2 text-[var(--primary-dark)] mb-1">
           <Users className="h-5 w-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Step 4 of 5 (Optional)</span>
         </div>
-        <CardTitle className="text-2xl font-black text-zinc-900 tracking-tight">Invite Team</CardTitle>
+        <CardTitle className="text-2xl font-black text-[#17191C] tracking-tight">Invite Team</CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
           Add trainers, reception staff, or managers to help run your facility.
         </CardDescription>
@@ -55,11 +55,11 @@ export default function OnboardingTeamPage() {
               className="p-3.5 rounded-xl border border-zinc-200 bg-white flex items-center justify-between shadow-2xs"
             >
               <div>
-                <p className="font-bold text-sm text-zinc-900">{m.name}</p>
+                <p className="font-bold text-sm text-[#17191C]">{m.name}</p>
                 <p className="text-xs text-zinc-500">{m.email}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-50 text-[#16A34A] border border-emerald-200">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20">
                   {m.role}
                 </span>
                 <button
@@ -76,7 +76,7 @@ export default function OnboardingTeamPage() {
 
         {/* Add Teammate */}
         <div className="p-4 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 space-y-3">
-          <p className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Invite Teammate</p>
+          <p className="text-xs font-bold text-[#17191C] uppercase tracking-wider">Invite Teammate</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Input
               placeholder="Name (e.g. Maya Rao)"
@@ -102,7 +102,7 @@ export default function OnboardingTeamPage() {
                 <option value="MANAGER">Gym Manager</option>
                 <option value="ADMIN">Gym Admin</option>
               </select>
-              <Button type="button" size="sm" onClick={addMember} className="h-9 bg-[#16A34A] text-white">
+              <Button type="button" size="sm" onClick={addMember} className="h-9 bg-[var(--primary)] text-[var(--primary-foreground)]">
                 <Plus className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -124,7 +124,7 @@ export default function OnboardingTeamPage() {
             >
               Skip for now
             </button>
-            <Button onClick={handleFinish} className="gap-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold h-11 px-6 rounded-xl">
+            <Button onClick={handleFinish} className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-11 px-6 rounded-xl">
               <span>Continue to Launch →</span>
             </Button>
           </div>

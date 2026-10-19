@@ -268,7 +268,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
             <div className="flex items-center gap-3">
               <Button
                 onClick={handleManualCheckOut}
-                className="h-11 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs gap-2 shadow-sm"
+                className="h-11 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-[var(--primary-foreground)] font-bold text-xs gap-2 shadow-sm"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Check Out Now</span>
@@ -297,7 +297,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
                 requestCameraAccess();
               }}
               size="lg"
-              className="h-13 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm gap-2.5 shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.02]"
+              className="h-13 px-8 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-extrabold text-sm gap-2.5 shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.02]"
             >
               <Scan className="w-5 h-5" />
               <span>Scan QR / Check In</span>
@@ -476,7 +476,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
                 <Button
                   onClick={handlePerformScan}
                   disabled={cameraScanning}
-                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-2"
+                  className="w-full h-11 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-2"
                 >
                   <Scan className="w-4 h-4" />
                   <span>{cameraScanning ? "Verifying with Gym Gate..." : "Simulate Scan QR Code"}</span>

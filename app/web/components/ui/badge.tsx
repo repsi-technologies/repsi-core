@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { AlertCircle, Ban, Check, Clock3, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
@@ -19,7 +20,7 @@ const badgeVariants = cva(
         cancelled:
           "bg-[var(--surface-elevated)] text-[var(--text-muted)] border border-[var(--border)]",
         lime:
-          "bg-[var(--primary-soft)] text-[var(--primary-dark)] border border-[var(--primary)]/20 dark:text-[var(--primary-hover)]",
+          "bg-[var(--primary-soft)] text-[var(--primary-dark)] border border-[var(--primary)]/20",
         outline:
           "bg-transparent text-[var(--text-secondary)] border border-[var(--border)]",
       },
@@ -34,9 +35,25 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, children, ...props }: BadgeProps) {
+  const StatusIcon =
+    variant === "active"
+      ? Check
+      : variant === "expiring"
+        ? Clock3
+        : variant === "expired"
+          ? AlertCircle
+          : variant === "frozen"
+            ? Info
+            : variant === "cancelled"
+              ? Ban
+              : null;
+
   return (
-    <span className={cn(badgeVariants({ variant }), className)} {...props} />
+    <span className={cn(badgeVariants({ variant }), className)} {...props}>
+      {StatusIcon && <StatusIcon aria-hidden="true" className="size-3 shrink-0" />}
+      {children}
+    </span>
   );
 }
 

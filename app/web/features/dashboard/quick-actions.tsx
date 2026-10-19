@@ -60,7 +60,7 @@ export function QuickActions({ workspace = "default" }: QuickActionsProps) {
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-xs">
       <div className="flex items-center justify-between mb-3.5 sm:mb-4">
         <h2 className="text-sm sm:text-base font-bold text-[var(--text)] tracking-tight">Quick Actions</h2>
-        <span className="text-[10px] sm:text-[11px] font-semibold text-[#16A34A] bg-[#16A34A]/10 px-2 sm:px-2.5 py-0.5 rounded-full">
+        <span className="text-[10px] sm:text-[11px] font-semibold text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2 sm:px-2.5 py-0.5 rounded-full">
           Shortcuts
         </span>
       </div>
@@ -74,15 +74,15 @@ export function QuickActions({ workspace = "default" }: QuickActionsProps) {
               href={action.href}
               className={`flex items-center gap-2.5 sm:gap-3 rounded-xl p-2.5 sm:p-3 text-left transition-all duration-150 border cursor-pointer ${
                 action.primary
-                  ? "bg-[#16A34A]/10 border-[#16A34A]/40 hover:bg-[#16A34A]/20 hover:border-[#16A34A]"
-                  : "bg-[var(--background)] border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[#16A34A]/30"
+                  ? "bg-[var(--primary)]/10 border-[var(--primary)]/40 hover:bg-[var(--primary)]/20 hover:border-[var(--primary)]"
+                  : "bg-[var(--background)] border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[var(--primary)]/30"
               }`}
             >
               <div
                 className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
                   action.primary
-                    ? "bg-[#16A34A] text-white"
-                    : "bg-[var(--surface)] border border-[var(--border)] text-[#16A34A]"
+                    ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                    : "bg-[var(--surface)] border border-[var(--border)] text-[var(--primary-dark)]"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -91,7 +91,7 @@ export function QuickActions({ workspace = "default" }: QuickActionsProps) {
                 <div
                   className={`text-xs font-bold truncate ${
                     action.primary
-                      ? "text-[#16A34A]"
+                      ? "text-[var(--primary-dark)]"
                       : "text-[var(--text)]"
                   }`}
                 >

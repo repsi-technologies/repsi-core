@@ -122,7 +122,7 @@ export function PaymentVerificationQueue() {
     <div className="space-y-6">
       {/* Top Notification Banner */}
       {actionSuccess && (
-        <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-[var(--success)]/30 bg-[var(--success-soft)] text-[var(--success-foreground)] text-sm flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>{actionSuccess}</span>
@@ -136,20 +136,20 @@ export function PaymentVerificationQueue() {
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs text-[var(--text-muted)] font-medium">Pending Review</span>
-            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="flex h-2 w-2 rounded-full bg-[var(--info)] animate-pulse" />
           </div>
           <p className="text-2xl font-bold text-[var(--text)] mt-2">{pendingCount}</p>
-          <span className="text-[11px] text-amber-500 font-medium">Awaiting Owner / Trainer verification</span>
+          <span className="text-[11px] text-[var(--info-foreground)] font-medium">Awaiting Owner / Trainer verification</span>
         </div>
 
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs">
           <span className="text-xs text-[var(--text-muted)] font-medium">Status Separation</span>
           <p className="text-xs font-semibold text-[var(--text)] mt-2">Submitted → Approved → Activated</p>
-          <span className="text-[11px] text-emerald-500 font-medium">Strict zero-trust manual verification</span>
+          <span className="text-[11px] text-[var(--text-muted)] font-medium">Strict zero-trust manual verification</span>
         </div>
 
-        <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 shadow-xs">
-          <div className="flex items-center gap-2 text-amber-500 text-xs font-semibold">
+        <div className="p-4 rounded-xl border border-[var(--info)]/20 bg-[var(--info-soft)] shadow-xs">
+          <div className="flex items-center gap-2 text-[var(--info-foreground)] text-xs font-semibold">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>Audit Notice</span>
           </div>
@@ -179,7 +179,7 @@ export function PaymentVerificationQueue() {
             >
               {tab.label}
               {tab.id === "pending_review" && pendingCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-black font-bold">
+            <span className="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-[var(--info)] text-[var(--text-inverse)] font-bold">
                   {pendingCount}
                 </span>
               )}
@@ -275,13 +275,13 @@ export function PaymentVerificationQueue() {
 
                     <td className="p-3.5">
                       {sub.status === "pending_review" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20">
                           <Clock className="w-3 h-3" />
                           Pending Review
                         </span>
                       )}
                       {sub.status === "approved" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20">
                           <CheckCircle2 className="w-3 h-3" />
                           Approved
                         </span>
@@ -317,7 +317,7 @@ export function PaymentVerificationQueue() {
                                 setSelectedSub(sub);
                                 setApproveConfirmOpen(true);
                               }}
-                              className="h-7 px-2.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-1"
+                              className="h-10 px-3 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold gap-1"
                             >
                               <Check className="w-3 h-3" />
                               Approve
@@ -495,7 +495,7 @@ export function PaymentVerificationQueue() {
                 size="sm"
                 onClick={handleApprove}
                 disabled={actionLoading}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
               >
                 {actionLoading ? (
                   <>
@@ -559,7 +559,7 @@ export function PaymentVerificationQueue() {
                 type="submit"
                 size="sm"
                 disabled={actionLoading || !rejectionReason.trim()}
-                className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1.5"
+                className="bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
               >
                 {actionLoading ? (
                   <>

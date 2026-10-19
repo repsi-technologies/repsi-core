@@ -43,8 +43,8 @@ export function ThemeToggle({
         onClick={() => setTheme(isDark ? "light" : "dark")}
         className={`relative inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden group ${
           isDark
-            ? "border-emerald-500/30 bg-[#0c1611]/90 text-emerald-400 hover:border-emerald-500/60 shadow-[0_0_16px_rgba(37,217,121,0.18)]"
-            : "border-slate-200/80 bg-white text-amber-500 hover:bg-slate-50 shadow-xs"
+            ? "border-[var(--primary)]/30 bg-[var(--surface)]/90 text-[var(--primary-dark)] hover:border-[var(--primary)]/60 shadow-[0_0_16px_rgba(240,120,88,0.18)]"
+            : "border-[var(--border)] bg-[var(--surface)] text-[var(--primary)] hover:bg-[var(--surface-secondary)] shadow-xs"
         } ${className}`}
         aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
         title={isDark ? "Switch to light theme" : "Switch to dark theme"}
@@ -57,9 +57,9 @@ export function ThemeToggle({
           transition={{ duration: 0.2 }}
         >
           {isDark ? (
-            <Moon className="h-4 w-4 fill-emerald-400/20 text-emerald-400" />
+            <Moon className="h-4 w-4 fill-[var(--primary)]/20 text-[var(--primary-dark)]" />
           ) : (
-            <Sun className="h-4 w-4 fill-amber-400/20 text-amber-500" />
+            <Sun className="h-4 w-4 fill-[var(--primary)]/20 text-[var(--primary)]" />
           )}
         </motion.div>
       </button>
@@ -74,10 +74,10 @@ export function ThemeToggle({
       className={`relative inline-flex h-9 p-0.5 rounded-full border transition-all duration-300 select-none items-center ${
         isHome
           ? isDark
-            ? "border-emerald-500/25 bg-[#08120c]/85 shadow-[0_0_20px_rgba(37,217,121,0.12)] backdrop-blur-md"
+            ? "border-[var(--primary)]/25 bg-[var(--background)]/85 shadow-[0_0_20px_rgba(240,120,88,0.12)] backdrop-blur-md"
             : "border-white/20 bg-black/25 shadow-inner backdrop-blur-md"
           : isDark
-          ? "border-[#22332a] bg-[#0c1611]/90 backdrop-blur-md shadow-xs"
+          ? "border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-md shadow-xs"
           : "border-slate-200 bg-slate-100/80 backdrop-blur-md shadow-inner"
       } ${className}`}
     >
@@ -85,7 +85,7 @@ export function ThemeToggle({
       <motion.div
         className={`absolute top-0.5 bottom-0.5 w-[31px] rounded-full transition-colors ${
           isDark
-            ? "bg-gradient-to-r from-emerald-500 to-[#25d979] shadow-[0_0_12px_rgba(37,217,121,0.45)]"
+            ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] shadow-[0_0_12px_rgba(240,120,88,0.45)]"
             : "bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
         }`}
         animate={{
@@ -106,7 +106,7 @@ export function ThemeToggle({
         onClick={() => setTheme("light")}
         className={`relative z-10 flex h-8 w-[31px] items-center justify-center rounded-full transition-colors cursor-pointer ${
           !isDark
-            ? "text-amber-500"
+            ? "text-[var(--primary)]"
             : isHome
             ? "text-zinc-400 hover:text-white"
             : "text-zinc-400 hover:text-zinc-200"
@@ -125,7 +125,7 @@ export function ThemeToggle({
         onClick={() => setTheme("dark")}
         className={`relative z-10 flex h-8 w-[31px] items-center justify-center rounded-full transition-colors cursor-pointer ${
           isDark
-            ? "text-[#08110d]"
+            ? "text-[var(--primary-foreground)]"
             : isHome
             ? "text-zinc-400 hover:text-white"
             : "text-zinc-400 hover:text-zinc-700"

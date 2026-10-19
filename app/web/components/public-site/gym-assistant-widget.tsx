@@ -58,7 +58,7 @@ export function GymAssistantWidget({
     website?.assistant_whatsapp ||
     website?.phone ||
     "918667783321";
-  const primaryColor = website?.primary_color || "#16A34A";
+  const primaryColor = website?.primary_color || "#D9532F";
 
   const [isOpen, setIsOpen] = useState(false);
   const [hasDismissedBubble, setHasDismissedBubble] = useState(false);
@@ -275,7 +275,7 @@ export function GymAssistantWidget({
             <X className="w-3.5 h-3.5" />
           </button>
           <div className="flex items-start gap-2.5">
-            <MessageCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <MessageCircle className="w-5 h-5 text-[var(--primary)]" />
             <div>
               <p className="text-xs font-bold text-white leading-tight">
                 Hi! Need gym info?
@@ -297,7 +297,7 @@ export function GymAssistantWidget({
             setIsOpen(true);
             setHasDismissedBubble(true);
           }}
-          className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-zinc-950 border-2 border-emerald-500/50 shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+          className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-zinc-950 border-2 border-[var(--primary)]/50 shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
           style={{ borderColor: primaryColor }}
           aria-label="Open Gym Assistant"
         >
@@ -334,7 +334,7 @@ export function GymAssistantWidget({
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5 leading-none">
                   {assistantName}
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-[var(--primary)]/20 font-medium">
                     Live
                   </span>
                 </h3>
@@ -386,7 +386,7 @@ export function GymAssistantWidget({
                     className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-zinc-800 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         🏋️
                       </span>
                       <div>
@@ -396,30 +396,30 @@ export function GymAssistantWidget({
                         <div className="text-[11px] text-zinc-400">Plans, rates, and inclusions</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-emerald-400 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] transition" />
                   </button>
 
                   <button
                     onClick={() => handleStartBooking("free_trial")}
-                    className="flex items-center justify-between p-3 rounded-xl bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-500/30 text-left transition group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-[var(--primary)]/30 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-bold text-base">
                         🎟️
                       </span>
                       <div>
-                        <div className="font-semibold text-emerald-300 group-hover:text-emerald-200 flex items-center gap-1.5">
+                        <div className="font-semibold text-white group-hover:text-[var(--primary)] flex items-center gap-1.5">
                           Book Free Trial
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] font-bold uppercase">
                             Free
                           </span>
                         </div>
-                        <div className="text-[11px] text-emerald-400/80">
+                        <div className="text-[11px] text-zinc-400">
                           Try our gym pass with 0 commitment
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition" />
                   </button>
 
                   <button
@@ -427,7 +427,7 @@ export function GymAssistantWidget({
                     className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-zinc-800 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         📅
                       </span>
                       <div>
@@ -437,7 +437,7 @@ export function GymAssistantWidget({
                         <div className="text-[11px] text-zinc-400">Tour gym & meet trainers</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-blue-400 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] transition" />
                   </button>
 
                   <button
@@ -445,7 +445,7 @@ export function GymAssistantWidget({
                     className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-zinc-800 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         👨‍🏫
                       </span>
                       <div>
@@ -455,7 +455,7 @@ export function GymAssistantWidget({
                         <div className="text-[11px] text-zinc-400">Personal coaching & bios</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-purple-400 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] transition" />
                   </button>
 
                   <button
@@ -463,7 +463,7 @@ export function GymAssistantWidget({
                     className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-zinc-800 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         📍
                       </span>
                       <div>
@@ -473,7 +473,7 @@ export function GymAssistantWidget({
                         <div className="text-[11px] text-zinc-400">Address, schedule & phone</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-amber-400 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] transition" />
                   </button>
 
                   <button
@@ -481,7 +481,7 @@ export function GymAssistantWidget({
                     className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-zinc-800 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         💬
                       </span>
                       <div>
@@ -491,7 +491,7 @@ export function GymAssistantWidget({
                         <div className="text-[11px] text-zinc-400">Instant answers or chat with team</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-cyan-400 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] transition" />
                   </button>
 
                   {/* WhatsApp Quick Action */}
@@ -499,20 +499,20 @@ export function GymAssistantWidget({
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 text-left transition group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-[var(--primary)]/30 text-left transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-base">
+                      <span className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-base">
                         💚
                       </span>
                       <div>
-                        <div className="font-semibold text-emerald-300">
+                        <div className="font-semibold text-white">
                           Chat on WhatsApp
                         </div>
                         <div className="text-[11px] text-zinc-400">Direct message our desk</div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition" />
+                    <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition" />
                   </a>
                 </div>
               </div>
@@ -527,7 +527,7 @@ export function GymAssistantWidget({
                   </h4>
                   <button
                     onClick={() => handleStartBooking("free_trial")}
-                    className="text-[11px] text-emerald-400 hover:underline font-semibold"
+                    className="text-[11px] text-[var(--primary)] hover:underline font-semibold"
                   >
                     Book Trial First →
                   </button>
@@ -548,7 +548,7 @@ export function GymAssistantWidget({
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-emerald-400 text-sm">
+                            <div className="font-bold text-white text-sm">
                               ₹{p.price?.toLocaleString()}
                             </div>
                             <span className="text-[9px] text-zinc-500">All access</span>
@@ -574,7 +574,7 @@ export function GymAssistantWidget({
                     <p className="text-zinc-400">Membership details are available at the gym reception.</p>
                     <button
                       onClick={() => handleStartBooking("free_trial")}
-                      className="mt-3 px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold text-xs"
+                      className="mt-3 px-3 py-1.5 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-xs"
                     >
                       Book a Free Trial Session
                     </button>
@@ -586,7 +586,7 @@ export function GymAssistantWidget({
             {/* SCREEN: BOOKING FLOW (TRIAL OR VISIT) */}
             {(screen === "trial_booking" || screen === "visit_booking") && (
               <form onSubmit={handleSubmitBooking} className="space-y-3.5">
-                <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20">
+                <div className="p-3 rounded-xl bg-zinc-900 border border-[var(--primary)]/20">
                   <h4 className="font-bold text-white text-xs flex items-center gap-1.5">
                     {bookingType === "free_trial" ? "🎟️ Book a Free Trial Workout" : "📅 Book a Gym Visit"}
                   </h4>
@@ -609,7 +609,7 @@ export function GymAssistantWidget({
                         }}
                         className={`py-1.5 px-2 rounded-lg border text-center font-medium transition ${
                           bookingDate === d
-                            ? "bg-emerald-600 border-emerald-500 text-white font-bold"
+                            ? "bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)] font-bold"
                             : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800"
                         }`}
                       >
@@ -625,7 +625,7 @@ export function GymAssistantWidget({
                         setCustomDate(e.target.value);
                         setBookingDate("Custom");
                       }}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs focus:outline-none focus:border-[var(--primary)]"
                       placeholder="Or choose specific date"
                     />
                   </div>
@@ -642,7 +642,7 @@ export function GymAssistantWidget({
                         onClick={() => setBookingTime(t)}
                         className={`py-1 px-1 rounded-lg border text-[11px] text-center font-medium transition ${
                           bookingTime === t
-                            ? "bg-emerald-600 border-emerald-500 text-white font-bold"
+                            ? "bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)] font-bold"
                             : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800"
                         }`}
                       >
@@ -662,7 +662,7 @@ export function GymAssistantWidget({
                       placeholder="e.g. Rahul Sharma"
                       value={userName}
                       onChange={(e) => setUserName(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                     />
                   </div>
 
@@ -674,7 +674,7 @@ export function GymAssistantWidget({
                       placeholder="e.g. 98765 43210"
                       value={userPhone}
                       onChange={(e) => setUserPhone(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                     />
                   </div>
 
@@ -683,7 +683,7 @@ export function GymAssistantWidget({
                     <select
                       value={userGoal}
                       onChange={(e) => setUserGoal(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-200 text-xs mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                     >
                       <option value="">Select your fitness goal...</option>
                       <option value="Fat Loss & Cardio">Weight Loss & Cardio</option>
@@ -697,7 +697,7 @@ export function GymAssistantWidget({
                 <button
                   type="submit"
                   disabled={submittingBooking}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 transition disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs flex items-center justify-center gap-2 shadow-xl transition disabled:opacity-50"
                 >
                   {submittingBooking ? (
                     <span>Confirming Pass...</span>
@@ -713,7 +713,7 @@ export function GymAssistantWidget({
 
             {/* SCREEN: BOOKING SUCCESS */}
             {screen === "booking_success" && (
-              <div className="p-4 rounded-2xl bg-zinc-900/90 border border-emerald-500/30 text-center space-y-3 py-6">
+              <div className="p-4 rounded-2xl bg-zinc-900/90 border border-[var(--primary)]/30 text-center space-y-3 py-6">
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl">
                   ✓
                 </div>
@@ -729,7 +729,7 @@ export function GymAssistantWidget({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Date:</span>
-                    <span className="font-semibold text-emerald-400">{bookingConfirmedDetails?.date}</span>
+                    <span className="font-semibold text-white">{bookingConfirmedDetails?.date}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Time:</span>
@@ -746,7 +746,7 @@ export function GymAssistantWidget({
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-center text-xs"
+                    className="flex-1 py-2 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold text-center text-xs"
                   >
                     Open in WhatsApp
                   </a>
@@ -779,7 +779,7 @@ export function GymAssistantWidget({
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-white text-xs">{t.name}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-medium">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium">
                             {t.specialty || "Fitness Coach"}
                           </span>
                         </div>
@@ -789,7 +789,7 @@ export function GymAssistantWidget({
                             setUserGoal(`Personal training inquiry for coach ${t.name}`);
                             handleStartBooking("free_trial");
                           }}
-                          className="text-[11px] text-emerald-400 hover:underline font-semibold block pt-1"
+                          className="text-[11px] text-[var(--primary)] hover:underline font-semibold block pt-1"
                         >
                           Book Free Session with {t.name} →
                         </button>
@@ -829,7 +829,7 @@ export function GymAssistantWidget({
                   {website?.phone && (
                     <div>
                       <span className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Front Desk Phone</span>
-                      <p className="text-emerald-400 text-xs font-semibold mt-0.5">
+                      <p className="text-zinc-200 text-xs font-semibold mt-0.5">
                         {website.phone}
                       </p>
                     </div>
@@ -841,7 +841,7 @@ export function GymAssistantWidget({
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-center text-xs flex items-center justify-center gap-1.5"
+                    className="py-2 px-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold text-center text-xs flex items-center justify-center gap-1.5"
                   >
                     <span>WhatsApp</span>
                   </a>
@@ -869,7 +869,7 @@ export function GymAssistantWidget({
                       <div
                         className={`p-2.5 rounded-2xl max-w-[85%] text-xs ${
                           m.sender === "user"
-                            ? "bg-emerald-600 text-white rounded-br-none"
+                            ? "bg-[var(--primary)] text-[var(--primary-foreground)] rounded-br-none"
                             : "bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-bl-none"
                         }`}
                       >
@@ -880,7 +880,7 @@ export function GymAssistantWidget({
                               if (m.action?.screen === "trial_booking") handleStartBooking("free_trial");
                               else if (m.action?.screen) setScreen(m.action.screen);
                             }}
-                            className="mt-2 block w-full py-1 px-2.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-semibold text-[11px] text-center border border-emerald-500/30 hover:bg-emerald-500/30 transition"
+                            className="mt-2 block w-full py-1 px-2.5 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-[11px] text-center border border-[var(--primary)]/30 hover:bg-[var(--primary-hover)] transition"
                           >
                             {m.action.label} →
                           </button>
@@ -896,11 +896,11 @@ export function GymAssistantWidget({
                     placeholder="Ask about price, timings, trainers..."
                     value={userQuestion}
                     onChange={(e) => setUserQuestion(e.target.value)}
-                    className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[var(--primary)]"
                   />
                   <button
                     type="submit"
-                    className="p-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition"
+                    className="p-2 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] transition"
                     title="Send question"
                   >
                     <Send className="w-3.5 h-3.5" />
@@ -920,7 +920,7 @@ export function GymAssistantWidget({
                 </div>
 
                 {chatLeadSuccess ? (
-                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-center space-y-2">
+                  <div className="p-4 rounded-xl bg-[var(--success)]/10 border border-[var(--primary)]/30 text-center space-y-2">
                     <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
                     <p className="font-bold text-white text-xs">Message Sent to Gym Team!</p>
                     <p className="text-[11px] text-zinc-300">
@@ -943,7 +943,7 @@ export function GymAssistantWidget({
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
                         placeholder="e.g. Rahul"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                       />
                     </div>
 
@@ -955,7 +955,7 @@ export function GymAssistantWidget({
                         value={userPhone}
                         onChange={(e) => setUserPhone(e.target.value)}
                         placeholder="e.g. 9876543210"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                       />
                     </div>
 
@@ -966,14 +966,14 @@ export function GymAssistantWidget({
                         value={userQuestion}
                         onChange={(e) => setUserQuestion(e.target.value)}
                         placeholder="e.g. Can I get a discount for a yearly membership?"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white mt-0.5 focus:outline-none focus:border-[var(--primary)]"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={submittingChatLead}
-                      className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition disabled:opacity-50"
+                      className="w-full py-2 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold text-xs transition disabled:opacity-50"
                     >
                       {submittingChatLead ? "Sending..." : "Submit Inquiry to Gym"}
                     </button>
@@ -988,7 +988,7 @@ export function GymAssistantWidget({
                       href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full py-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/40 text-emerald-300 text-center font-semibold text-xs transition"
+                      className="block w-full py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-[var(--primary)]/40 text-[var(--primary)] text-center font-semibold text-xs transition"
                     >
                       Continue on WhatsApp →
                     </a>

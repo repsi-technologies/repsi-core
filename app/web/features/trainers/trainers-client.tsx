@@ -117,7 +117,7 @@ export function TrainersClient() {
           <Button
             size="sm"
             onClick={() => setInviteDialogOpen(true)}
-            className="gap-1.5 bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]"
+            className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
           >
             <Mail className="h-3.5 w-3.5" />
             Invite Trainer
@@ -173,7 +173,7 @@ export function TrainersClient() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12 border border-[var(--border)]">
-                      <AvatarFallback className="font-bold bg-emerald-500/10 text-emerald-600">
+                      <AvatarFallback className="font-bold bg-[var(--primary-soft)] text-[var(--primary-dark)]">
                         {t.name.split(" ").map((n: string) => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
@@ -182,8 +182,8 @@ export function TrainersClient() {
                       <p className="text-xs text-[var(--primary-dark)] dark:text-[var(--primary-hover)] font-medium">
                         {t.specialization || "General Fitness"}
                       </p>
-                      <div className="flex items-center gap-1 text-[11px] text-amber-500 font-bold mt-0.5">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <div className="flex items-center gap-1 text-[11px] text-[var(--primary-dark)] font-bold mt-0.5">
+                        <Star className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                         <span>{t.rating || "4.9"}</span>
                         <span className="text-[10px] font-normal text-[var(--text-muted)]">(14 member reviews)</span>
                       </div>
@@ -192,9 +192,9 @@ export function TrainersClient() {
                   </div>
 
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    t.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
-                    t.status === "SUSPENDED" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
-                    "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20"
+                    t.status === "ACTIVE" ? "bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20" :
+                    t.status === "SUSPENDED" ? "bg-[var(--error-soft)] text-[var(--error-foreground)] border border-[var(--error)]/20" :
+                    "bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20"
                   }`}>
                     {t.status}
                   </span>
@@ -222,7 +222,7 @@ export function TrainersClient() {
                   }}
                   className="text-xs h-8 gap-1"
                 >
-                  <UserPlus className="h-3.5 w-3.5 text-emerald-500" />
+                  <UserPlus className="h-3.5 w-3.5 text-[var(--primary)]" />
                   Assign Client
                 </Button>
 
@@ -304,7 +304,7 @@ export function TrainersClient() {
                 <Button type="button" variant="outline" onClick={() => setAssignModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={assigning || !selectedClientId} className="bg-emerald-600 text-white hover:bg-emerald-700">
+                <Button type="submit" disabled={assigning || !selectedClientId} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]">
                   {assigning ? "Assigning..." : "Confirm Assignment"}
                 </Button>
               </div>

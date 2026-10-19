@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { constructMetadata, getOrganizationSchema, getSoftwareAppSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
-import { RepsiChatbot } from "@/components/marketing/repsi-chatbot";
+import { WhatsAppCta } from "@/components/marketing/whatsapp-cta";
 import { ReferralTracker } from "@/components/marketing/referral-tracker";
+import { PageImageLoadingScreen } from "@/components/ui/page-image-loading-screen";
 
 export const metadata: Metadata = constructMetadata({
   title: "Fitness Management Software for Gyms, Studios & Fitness Businesses | Repsi",
@@ -32,11 +33,12 @@ export default function MarketingLayout({
 
   return (
     <div className="min-h-screen font-sans antialiased">
+      <PageImageLoadingScreen />
       <ReferralTracker />
       <JsonLd data={orgSchema} />
       <JsonLd data={appSchema} />
       {children}
-      <RepsiChatbot />
+      <WhatsAppCta />
     </div>
   );
 }

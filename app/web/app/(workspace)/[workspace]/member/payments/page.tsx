@@ -157,7 +157,7 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
                 setSelectedInvoice(currentInvoice);
                 setPaymentDialogOpen(true);
               }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
             >
               Resubmit Corrected Payment Proof →
             </Button>
@@ -172,7 +172,7 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
                 setSelectedInvoice(currentInvoice);
                 setPaymentDialogOpen(true);
               }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
             >
               <CreditCard className="w-4 h-4" />
               Pay Membership Fee & Submit Receipt

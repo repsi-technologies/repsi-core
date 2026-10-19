@@ -58,15 +58,15 @@ function StatIcon({ name }: { name?: StatCardProps["iconName"] }) {
 function getIconBadgeClass(name?: StatCardProps["iconName"]) {
   switch (name) {
     case "users":
-      return "bg-[#ECFDF3] text-[#15803D] border-[#DCFCE7] dark:bg-emerald-500/10 dark:text-[#25d979] dark:border-emerald-500/20 dark:shadow-[0_0_14px_rgba(37,217,121,0.12)]";
+      return "bg-[var(--primary-soft)] text-[var(--primary-dark)] border-[var(--primary)]/20 dark:shadow-[0_0_14px_rgba(240,120,88,0.12)]";
     case "trending-up":
-      return "bg-[#EFF6FF] text-[#2563EB] border-[#DBEAFE] dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 dark:shadow-[0_0_14px_rgba(96,165,250,0.12)]";
+      return "bg-[var(--primary-soft)] text-[var(--primary-dark)] border-[var(--primary)]/20 dark:shadow-[0_0_14px_rgba(240,120,88,0.12)]";
     case "calendar-check":
-      return "bg-[#F3E8FF] text-[#7C3AED] border-[#E9D5FF] dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20 dark:shadow-[0_0_14px_rgba(192,132,252,0.12)]";
+      return "bg-[var(--info-soft)] text-[var(--info-foreground)] border-[var(--info)]/20";
     case "alert-triangle":
-      return "bg-[#FEF3C7] text-[#D97706] border-[#FDE68A] dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 dark:shadow-[0_0_14px_rgba(251,191,36,0.12)]";
+      return "bg-[var(--error-soft)] text-[var(--error-foreground)] border-[var(--error)]/20";
     default:
-      return "bg-slate-100 text-[#64748B] border-[#E5E7EB] dark:bg-white/[0.06] dark:text-[#aab8b1] dark:border-white/10";
+      return "bg-slate-100 text-[var(--text-muted)] border-[var(--border)] dark:bg-white/[0.06] dark:text-[var(--text-secondary)] dark:border-white/10";
   }
 }
 
@@ -86,10 +86,10 @@ export function StatCard({
   const absChange = Math.abs(change);
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#22332a] bg-white dark:bg-[#101b16] dark:bg-gradient-to-b dark:from-[#12221a] dark:to-[#0e1713] p-4 sm:p-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)] hover:shadow-md dark:hover:border-[#25d979]/40 transition-all duration-200 group">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] dark:bg-gradient-to-b dark:from-[var(--surface)] dark:to-[var(--background)] p-4 sm:p-6 shadow-[0_1px_3px_rgba(23,25,28,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)] hover:shadow-md dark:hover:border-[var(--primary)]/40 transition-all duration-200 group">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-[#889b90]">{label}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] dark:text-[var(--text-muted)]">{label}</span>
         {iconName && (
           <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-105", getIconBadgeClass(iconName))}>
             <StatIcon name={iconName} />
@@ -99,27 +99,27 @@ export function StatCard({
 
       {/* Value */}
       <div className="mb-2">
-        <span className="text-3xl font-extrabold text-[#172033] dark:text-[#f4f8f6] tracking-tight tabular-nums">
+        <span className="text-3xl font-extrabold text-[var(--text)] dark:text-[var(--text)] tracking-tight tabular-nums">
           {formattedValue}
         </span>
       </div>
 
       {/* Trend */}
-      <div className="flex items-center gap-2 pt-2 border-t border-[#F1F5F9] dark:border-[#1e2f26] mt-3">
+      <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)] mt-3">
         {isNeutral ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200/80 dark:bg-white/[0.05] dark:text-[#889b90] dark:border-white/[0.08]">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-[#718079]" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--surface-secondary)] text-[var(--text-muted)] border border-[var(--border)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-muted)]" />
             0%
           </span>
         ) : isPositive ? (
-          <span className="inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D] border border-[#B7E4C7] dark:bg-emerald-500/15 dark:text-[#25d979] dark:border-emerald-500/30">
+          <span className="inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--primary-soft)] text-[var(--primary-dark)] border border-[var(--primary)]/20">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
               <path d="M7 17 17 7" /><path d="M7 7h10v10" />
             </svg>
             +{absChange}%
           </span>
         ) : (
-          <span className="inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA] dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30">
+          <span className="inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--error-soft)] text-[var(--error-foreground)] border border-[var(--error)]/25">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
               <path d="m7 7 10 10" /><path d="M17 7v10H7" />
             </svg>
@@ -127,7 +127,7 @@ export function StatCard({
           </span>
         )}
         {sublabel && (
-          <span className="text-xs font-medium text-[#64748B] dark:text-[#889b90] truncate">{sublabel}</span>
+          <span className="text-xs font-medium text-[var(--text-muted)] dark:text-[var(--text-muted)] truncate">{sublabel}</span>
         )}
       </div>
     </div>

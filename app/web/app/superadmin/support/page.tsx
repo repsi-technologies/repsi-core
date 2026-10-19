@@ -135,7 +135,7 @@ export default function SuperAdminSupportPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleResolve(t.id)}
-                      className="text-xs bg-zinc-900 border-zinc-700 hover:bg-emerald-600 hover:text-white"
+                      className="text-xs bg-zinc-900 border-zinc-700 hover:bg-[var(--primary-hover)] hover:text-white"
                     >
                       Mark Resolved
                     </Button>

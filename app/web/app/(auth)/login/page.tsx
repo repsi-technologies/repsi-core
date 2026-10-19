@@ -237,10 +237,10 @@ export default function LoginPage() {
     <div className="w-full max-w-[380px]">
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-[28px] sm:text-[30px] font-bold text-[#111714] tracking-tight">
+        <h1 className="text-[28px] sm:text-[30px] font-bold text-[var(--text)] tracking-tight">
           Welcome back
         </h1>
-        <p className="text-[15px] text-[#66706A] mt-1.5">
+        <p className="text-[15px] text-[var(--text-muted)] mt-1.5">
           Sign in to your REPSI workspace
         </p>
       </div>
@@ -252,7 +252,7 @@ export default function LoginPage() {
           type="button"
           onClick={() => handleGoogleLogin()}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2.5 h-10 px-4 rounded-lg border border-[#D5DDD7] bg-white text-sm font-medium text-[#111714] hover:bg-zinc-50 hover:border-[#C0CCC3] active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer shadow-2xs"
+          className="w-full flex items-center justify-center gap-2.5 h-10 px-4 rounded-lg border border-[#D5DDD7] bg-white text-sm font-medium text-[var(--text)] hover:bg-zinc-50 hover:border-[#C0CCC3] active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer shadow-2xs"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -287,7 +287,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-[#111714] mb-1.5">
+            <label htmlFor="email" className="block text-sm font-medium text-[var(--text)] mb-1.5">
               Email address
             </label>
             <input
@@ -297,19 +297,19 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 text-sm text-[#111714] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+              className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 text-sm text-[var(--text)] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
             />
           </div>
 
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-[#111714]">
+              <label htmlFor="password" className="text-sm font-medium text-[var(--text)]">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-[#66706A] hover:text-[#16A34A] transition-colors"
+                className="text-xs text-[var(--text-muted)] hover:text-[var(--primary-dark)] transition-colors"
               >
                 Forgot password?
               </Link>
@@ -322,12 +322,12 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 pr-10 text-sm text-[#111714] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:border-[#16A34A] transition-colors"
+                className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 pr-10 text-sm text-[var(--text)] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A9690] hover:text-[#111714] transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A9690] hover:text-[var(--text)] transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -342,9 +342,9 @@ export default function LoginPage() {
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 rounded border-[#D5DDD7] text-[#16A34A] focus:ring-[#16A34A] accent-[#16A34A]"
+              className="h-4 w-4 rounded border-[var(--border)] text-[var(--primary-dark)] focus:ring-[var(--ring)] accent-[var(--primary)]"
             />
-            <label htmlFor="remember" className="text-sm text-[#66706A] cursor-pointer selection:bg-none">
+            <label htmlFor="remember" className="text-sm text-[var(--text-muted)] cursor-pointer selection:bg-none">
               Remember me
             </label>
           </div>
@@ -353,7 +353,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white text-sm font-semibold transition-all shadow-xs active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-1"
+            className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-1"
           >
             {loading ? (
               <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -368,11 +368,11 @@ export default function LoginPage() {
       </div>
 
       {/* Sign up link */}
-      <p className="text-center text-sm text-[#66706A] mt-6">
+      <p className="text-center text-sm text-[var(--text-muted)] mt-6">
         Don&apos;t have an account?{" "}
         <Link
           href="/signup"
-          className="font-semibold text-[#111714] hover:text-[#16A34A] transition-colors"
+          className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)] transition-colors"
         >
           Create one
         </Link>

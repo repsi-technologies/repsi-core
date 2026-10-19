@@ -39,7 +39,7 @@ export function GlareHover({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`relative rounded-2xl border transition-all duration-300 ${
-        isHovered ? "border-[#16A34A] shadow-md shadow-[#16A34A]/10" : ""
+        isHovered ? "border-[var(--primary)] shadow-md shadow-[var(--primary)]/10" : ""
       } ${className}`}
       style={{
         borderColor: isHovered ? undefined : borderColor,

@@ -110,7 +110,7 @@ export function PricingSection() {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#16A34A]/10 border border-[#16A34A]/20 text-[#16A34A] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary-dark)] text-xs font-bold uppercase tracking-wider">
             Simple & Transparent Pricing
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-[var(--text)] tracking-tight leading-tight">
@@ -142,7 +142,7 @@ export function PricingSection() {
                 onClick={() => setPeriod("annual")}
                 className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
                   period === "annual"
-                    ? "bg-[#16A34A] text-white shadow-md shadow-[#16A34A]/25"
+                    ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md shadow-[var(--primary)]/25"
                     : "text-[var(--text-muted)] hover:text-[var(--text)]"
                 }`}
               >
@@ -159,7 +159,7 @@ export function PricingSection() {
                 type="button"
                 onClick={() => setCurrency("INR")}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currency === "INR" ? "bg-[#16A34A] text-white" : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  currency === "INR" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"
                 }`}
               >
                 ₹ INR
@@ -168,7 +168,7 @@ export function PricingSection() {
                 type="button"
                 onClick={() => setCurrency("USD")}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currency === "USD" ? "bg-[#16A34A] text-white" : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  currency === "USD" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"
                 }`}
               >
                 $ USD
@@ -182,11 +182,11 @@ export function PricingSection() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-0.5 text-center sm:text-left">
               <span className="text-xs font-bold text-[var(--text)] flex items-center justify-center sm:justify-start gap-1.5">
-                <Dumbbell className="w-3.5 h-3.5 text-[#16A34A]" />
+                <Dumbbell className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
                 How many active members in your gym?
               </span>
               <p className="text-[11px] text-[var(--text-muted)]">
-                Based on <strong className="text-[var(--text)]">{memberCalcCount} members</strong>, the <strong className="text-[#16A34A]">{recommendedTier} Plan</strong> fits your gym.
+                Based on <strong className="text-[var(--text)]">{memberCalcCount} members</strong>, the <strong className="text-[var(--primary-dark)]">{recommendedTier} Plan</strong> fits your gym.
               </p>
             </div>
 
@@ -223,7 +223,7 @@ export function PricingSection() {
                 key={tier.id}
                 className={`relative flex flex-col justify-between rounded-2xl p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-1 h-full ${
                   isRec
-                    ? "bg-[var(--surface)] border-2 border-[#16A34A] shadow-lg ring-4 ring-[#16A34A]/10 bg-gradient-to-b from-[#16A34A]/5 via-transparent to-transparent z-10"
+                    ? "bg-[var(--surface)] border-2 border-[var(--primary)] shadow-lg ring-4 ring-[var(--ring)]/10 bg-gradient-to-b from-[var(--primary)]/5 via-transparent to-transparent z-10"
                     : "bg-[var(--surface)] border border-[var(--border)] opacity-95 hover:opacity-100"
                 }`}
               >
@@ -231,7 +231,7 @@ export function PricingSection() {
                   {/* Reserved Badge Slot */}
                   <div className="h-7 mb-2 flex items-center justify-center">
                     {tier.badge ? (
-                      <span className="px-3 py-0.5 rounded-full bg-[#16A34A] text-white text-[10px] font-black tracking-wide uppercase shadow-2xs">
+                      <span className="px-3 py-0.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-[10px] font-black tracking-wide uppercase shadow-2xs">
                         {tier.badge}
                       </span>
                     ) : (
@@ -243,7 +243,7 @@ export function PricingSection() {
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-black text-[var(--text)] tracking-tight">{tier.name}</h3>
                       {recommendedTier.toLowerCase() === tier.id && (
-                        <span className="text-[10px] font-bold text-[#16A34A] bg-[#16A34A]/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2 py-0.5 rounded-full">
                           Fits Your Gym
                         </span>
                       )}
@@ -266,7 +266,7 @@ export function PricingSection() {
                       <p className="text-[11px] font-semibold text-[var(--text-muted)] min-h-[16px]">
                         {pricingInfo.billedText}
                       </p>
-                      <p className="text-[11px] font-bold text-[#16A34A] min-h-[16px]">
+                      <p className="text-[11px] font-bold text-[var(--primary-dark)] min-h-[16px]">
                         {period === "annual" && pricingInfo.savings ? pricingInfo.savings : ""}
                       </p>
                     </div>
@@ -292,7 +292,7 @@ export function PricingSection() {
                   <div className="space-y-2.5 mb-6 text-xs text-[var(--text-secondary)]">
                     {tier.keyFeatures.map((feat, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-[var(--primary-dark)] shrink-0 mt-0.5" />
                         <span className={i === 0 ? "font-bold text-[var(--text)]" : ""}>{feat}</span>
                       </div>
                     ))}
@@ -304,7 +304,7 @@ export function PricingSection() {
                     href={`/pricing?selected=${tier.id}&period=${period}&currency=${currency}`}
                     className={`w-full h-11 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-xs ${
                       isRec
-                        ? "bg-[#16A34A] hover:bg-[#15803D] text-white shadow-md shadow-[#16A34A]/20"
+                        ? "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] shadow-md shadow-[var(--primary)]/20"
                         : "bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border)] text-[var(--text)]"
                     }`}
                   >
@@ -327,7 +327,7 @@ export function PricingSection() {
           </div>
           <Link
             href="/pricing"
-            className="px-6 py-3 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition shrink-0 flex items-center gap-2 shadow-xs"
+            className="px-6 py-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition shrink-0 flex items-center gap-2 shadow-xs"
           >
             <span>View All 6 Plans & Feature Matrix</span>
             <ArrowRight className="w-4 h-4" />

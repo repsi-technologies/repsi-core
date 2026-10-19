@@ -65,7 +65,7 @@ export default function MemberMembershipPage(props: { params: Promise<{ workspac
             disabled={requestedRenewal}
             className={`inline-flex items-center justify-center gap-2 h-9 px-4 rounded-[8px] text-xs font-semibold transition-all ${
               requestedRenewal
-                ? "bg-emerald-600 text-white"
+                ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                 : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
             }`}
           >

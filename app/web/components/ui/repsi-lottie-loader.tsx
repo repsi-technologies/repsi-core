@@ -64,7 +64,7 @@ export function RepsiLottieLoader({
       {/* Fallback spinner while SVG Lottie compiles */}
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
+          <div className="w-12 h-12 rounded-full border-2 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin" />
         </div>
       )}
       <div ref={containerRef} className="w-full h-full flex items-center justify-center" />

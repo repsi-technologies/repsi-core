@@ -680,7 +680,7 @@ export function GlobalSearch() {
                             <ArrowRight
                               className={cn(
                                 "h-4 w-4 text-[var(--text-muted)] transition-transform ml-3 flex-shrink-0",
-                                isSelected && "translate-x-1 text-emerald-600 dark:text-emerald-400"
+                                isSelected && "translate-x-1 text-[var(--primary-dark)] dark:text-[var(--primary-hover)]"
                               )}
                             />
                           </div>

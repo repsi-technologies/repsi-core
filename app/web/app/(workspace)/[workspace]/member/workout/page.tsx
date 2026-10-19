@@ -155,7 +155,7 @@ export default function MemberWorkoutSessionPage(props: { params: Promise<{ work
             {!sessionActive ? (
               <button
                 onClick={() => setSessionActive(true)}
-                className="inline-flex items-center gap-2 h-10 px-5 rounded-[10px] bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center gap-2 h-10 px-5 rounded-[10px] bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition-all shadow-md cursor-pointer"
               >
                 <Play className="h-4 w-4 fill-current" />
                 <span>Start Workout</span>
@@ -174,7 +174,7 @@ export default function MemberWorkoutSessionPage(props: { params: Promise<{ work
                     setSessionActive(false);
                     setElapsedSeconds(0);
                   }}
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-rose-600 hover:bg-rose-500 text-[var(--primary-foreground)] text-xs font-bold transition-all cursor-pointer"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   <span>Finish Workout</span>
@@ -307,7 +307,7 @@ export default function MemberWorkoutSessionPage(props: { params: Promise<{ work
                     <button
                       onClick={() => toggleSetComplete(exIdx, setIdx)}
                       className={`w-7 h-7 rounded-full inline-flex items-center justify-center transition-all cursor-pointer ${
-                        s.completed ? "bg-emerald-600 text-white" : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] hover:border-[var(--primary)]"
+                        s.completed ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] hover:border-[var(--primary)]"
                       }`}
                     >
                       <CheckCircle2 className="h-4 w-4" />

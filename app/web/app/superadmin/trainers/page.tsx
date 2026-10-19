@@ -212,7 +212,7 @@ export default function SuperAdminTrainersPage() {
                         className={`p-1.5 rounded-lg transition-colors ${
                           t.status.toUpperCase() === "ACTIVE"
                             ? "text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
-                            : "text-emerald-400 hover:bg-emerald-500/10"
+                            : "text-emerald-400 hover:bg-[var(--primary-hover)]/10"
                         }`}
                       >
                         {t.status.toUpperCase() === "ACTIVE" ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}

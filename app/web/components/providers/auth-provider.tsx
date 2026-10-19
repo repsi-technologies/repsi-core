@@ -25,9 +25,15 @@ const PUBLIC_PREFIXES = [
   "/guides",
   "/help",
   "/docs",
+  "/download",
   "/downloads",
   "/careers",
   "/partners",
+  "/privacy",
+  "/terms",
+  "/compare",
+  "/cities",
+  "/gym-management-software-india",
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -38,14 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!pathname) return;
 
+    const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+
     const isPublic = PUBLIC_PREFIXES.some((prefix) => {
-      if (prefix === "/") return pathname === "/";
-      return pathname === prefix || pathname.startsWith(`${prefix}/`);
+      if (prefix === "/") return normalizedPath === "/";
+      return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
     });
 
     const hasToken = document.cookie.split("; ").some((row) => row.startsWith("repsi_session="));
 
-    if (pathname === "/dashboard") {
+    if (normalizedPath === "/dashboard") {
       if (!hasToken) {
         router.replace("/login");
       } else {
@@ -61,12 +69,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, router]);
 
-  const isPublic = pathname
-    ? PUBLIC_PREFIXES.some((prefix) => {
-        if (prefix === "/") return pathname === "/";
-        return pathname === prefix || pathname.startsWith(`${prefix}/`);
-      })
-    : true;
+  const normalizedPath = pathname ? (pathname.replace(/\/+$/, "") || "/") : "/";
+  const isPublic = PUBLIC_PREFIXES.some((prefix) => {
+    if (prefix === "/") return normalizedPath === "/";
+    return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
+  });
 
   // Show nothing while verifying auth on protected routes to prevent flash of content
   if (!isPublic && authorized === null) {

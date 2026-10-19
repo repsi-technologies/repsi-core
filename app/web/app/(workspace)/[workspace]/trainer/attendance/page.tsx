@@ -220,7 +220,7 @@ export default function TrainerAttendancePage(props: { params: Promise<{ workspa
               type="button"
               className={`w-full flex items-center justify-center gap-2 h-11 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-60 ${
                 activeSession
-                  ? "bg-red-600 hover:bg-red-700 text-white"
+                  ? "bg-red-600 hover:bg-red-700 text-[var(--primary-foreground)]"
                   : "bg-indigo-600 hover:bg-indigo-700 text-white"
               }`}
             >

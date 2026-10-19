@@ -11,7 +11,7 @@ interface ClickSparkProps {
 
 export function ClickSpark({
   children,
-  sparkColor = "#22C55E",
+  sparkColor = "var(--primary)",
   sparkCount = 8,
   sparkSize = 10,
 }: ClickSparkProps) {

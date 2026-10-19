@@ -200,7 +200,7 @@ export function PaymentSettingsTab() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-[var(--text-muted)] space-y-3">
-        <Loader2 className="h-6 w-6 animate-spin text-[#16A34A]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--primary-dark)]" />
         <span className="text-sm">Loading payments and collection settings...</span>
       </div>
     );
@@ -213,7 +213,7 @@ export function PaymentSettingsTab() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-[#16A34A]" />
+              <CreditCard className="h-5 w-5 text-[var(--primary-dark)]" />
               <h2 className="text-lg font-bold text-[var(--text)] tracking-tight">
                 {t("settings.payTitle", "Payments & Collections Configuration")}
               </h2>
@@ -228,7 +228,7 @@ export function PaymentSettingsTab() {
           <Button
             type="submit"
             disabled={saving}
-            className="bg-[#16A34A] hover:bg-[#15803D] text-white font-bold h-9 text-xs px-4 rounded-xl gap-1.5 cursor-pointer shadow-sm"
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-9 text-xs px-4 rounded-xl gap-1.5 cursor-pointer shadow-sm"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span>{saving ? "Saving..." : t("common.save", "Save Changes")}</span>
@@ -243,7 +243,7 @@ export function PaymentSettingsTab() {
         )}
 
         {saveSuccess && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs flex items-center gap-2">
+          <div className="mt-4 p-3 rounded-xl bg-[var(--success-soft)] border border-[var(--success)]/30 text-[var(--success-foreground)] text-xs flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
             <span>{t("settings.savedSuccess", "Payment settings saved successfully!")}</span>
           </div>
@@ -255,7 +255,7 @@ export function PaymentSettingsTab() {
         <CardHeader className="pb-3 border-b border-[var(--border)] bg-[var(--surface-hover)]/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-[#16A34A]/10 text-[#16A34A]">
+              <div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary-dark)]">
                 <Smartphone className="h-4 w-4" />
               </div>
               <div>
@@ -272,9 +272,9 @@ export function PaymentSettingsTab() {
                 type="checkbox"
                 checked={upiEnabled}
                 onChange={(e) => setUpiEnabled(e.target.checked)}
-                className="w-4 h-4 rounded text-[#16A34A] focus:ring-[#16A34A]"
+                className="w-4 h-4 rounded text-[var(--primary-dark)] focus:ring-[var(--ring)]"
               />
-              <span className={`text-xs font-semibold ${upiEnabled ? "text-[#16A34A]" : "text-[var(--text-muted)]"}`}>
+              <span className={`text-xs font-semibold ${upiEnabled ? "text-[var(--success-foreground)]" : "text-[var(--text-muted)]"}`}>
                 {upiEnabled ? "Enabled" : "Disabled"}
               </span>
             </label>
@@ -436,7 +436,7 @@ export function PaymentSettingsTab() {
         <CardHeader className="pb-3 border-b border-[var(--border)] bg-[var(--surface-hover)]/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+              <div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary-dark)]">
                 <Smartphone className="h-4 w-4" />
               </div>
               <div>
@@ -453,9 +453,9 @@ export function PaymentSettingsTab() {
                 type="checkbox"
                 checked={phoneEnabled}
                 onChange={(e) => setPhoneEnabled(e.target.checked)}
-                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+                className="w-4 h-4 rounded accent-[var(--primary)] focus:ring-[var(--primary)]"
               />
-              <span className={`text-xs font-semibold ${phoneEnabled ? "text-amber-600" : "text-[var(--text-muted)]"}`}>
+              <span className={`text-xs font-semibold ${phoneEnabled ? "text-[var(--success-foreground)]" : "text-[var(--text-muted)]"}`}>
                 {phoneEnabled ? "Enabled" : "Disabled"}
               </span>
             </label>
@@ -610,7 +610,7 @@ export function PaymentSettingsTab() {
 
       {/* Security Note */}
       <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 text-[var(--text-muted)] text-xs flex items-center gap-3">
-        <ShieldCheck className="h-5 w-5 text-[#16A34A] flex-shrink-0" />
+        <ShieldCheck className="h-5 w-5 text-[var(--primary-dark)] flex-shrink-0" />
         <p>
           <strong className="text-[var(--text)] font-semibold">Security & Tenant Privacy:</strong> REPSI never collects banking passwords, UPI PINs, OTPs, or authentication secrets. Your payment details are strictly tenant-isolated and only displayed to authorized active members of your facility.
         </p>

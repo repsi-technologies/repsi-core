@@ -15,6 +15,7 @@ import { GettingStartedDialog } from "@/components/layout/getting-started-dialog
 import { TrialCountdownCard } from "@/features/dashboard/trial-countdown-card";
 import { repsiApi } from "@/lib/api";
 import { getAuthUser } from "@/lib/auth";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { slugToGymName } from "@/lib/workspace";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
@@ -164,30 +165,30 @@ export function DashboardClient({ workspace }: { workspace: string }) {
       {/* ─────────────────────────────────────────────────────────────────────────────
           IMMEDIATE DASHBOARD SHELL HEADER (Renders instantly without blocking)
       ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E5E7EB] dark:border-[#22332a] pb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[11px] font-bold tracking-wide uppercase px-2.5 py-0.5 rounded-md bg-[#ECFDF3] dark:bg-emerald-500/10 text-[#15803D] dark:text-[#25d979] border border-[#B7E4C7] dark:border-emerald-500/25 inline-flex items-center gap-1.5 shadow-xs">
-              <span className={`w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#25d979] ${revalidating ? "animate-ping" : "animate-pulse"}`} />
+            <span className="text-[11px] font-bold tracking-wide uppercase px-2.5 py-0.5 rounded-md bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20 inline-flex items-center gap-1.5 shadow-xs">
+              <span className={`w-1.5 h-1.5 rounded-full bg-[var(--success)] ${revalidating ? "animate-ping" : "animate-pulse"}`} />
               {gymDisplayName} • Live Workspace
             </span>
             {revalidating && (
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+              <span className="text-[10px] text-[var(--success-foreground)] font-medium flex items-center gap-1">
                 <RefreshCw className="w-3 h-3 animate-spin" /> Live sync
               </span>
             )}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172033] dark:text-[#f4f8f6] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] tracking-tight">
             {greeting}, {ownerDisplayName}
           </h1>
-          <p className="text-xs sm:text-sm font-medium text-[#64748B] dark:text-[#889b90] mt-1">
+          <p className="text-xs sm:text-sm font-medium text-[var(--text-muted)] mt-1">
             {isSetupMode ? "Let's finish setting up your gym." : "Today's overview — " + today}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link href={`/${workspace}/members/new`}>
-            <Button size="sm" className="flex-shrink-0 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
+            <Button size="sm" className="flex-shrink-0 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
               <Plus className="h-4 w-4 mr-1.5 stroke-[2.5]" />
               Add Member
             </Button>
@@ -200,25 +201,25 @@ export function DashboardClient({ workspace }: { workspace: string }) {
 
       {/* Adaptive Setup Checklist Banner (when in setup phase) */}
       {isSetupMode ? (
-        <div className="rounded-2xl border-2 border-[#16A34A]/30 bg-gradient-to-r from-[#F0FDF4] via-white to-[#F0FDF4] dark:from-[#081b10] dark:via-[#05110a] dark:to-[#081b10] p-4 sm:p-7 shadow-md">
+        <div className="rounded-2xl border-2 border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary-soft)] via-[var(--surface)] to-[var(--primary-soft)] dark:from-[var(--background)] dark:via-[var(--surface)] dark:to-[var(--background)] p-4 sm:p-7 shadow-md">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 text-left w-full md:w-auto">
               <RepsiMascot pose="onboarding" size="md" animate={false} />
               <div className="space-y-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#16A34A] bg-[#16A34A]/10 px-2.5 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2.5 py-0.5 rounded">
                   SETUP PROGRESS: {setupPercent}%
                 </span>
-                <h3 className="text-xl font-black text-[#111714] dark:text-white tracking-tight">
+                <h3 className="text-xl font-black text-[var(--text)] tracking-tight">
                   Welcome to Repsi! Let's get your gym ready.
                 </h3>
-                <p className="text-xs sm:text-sm text-[#4A5D52] dark:text-[#A1B3A9] max-w-xl">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl">
                   {completedStepsCount} of {checklistSteps.length} steps completed. Add your membership packages, staff coaches, and members to launch.
                 </p>
 
                 {/* Progress Bar */}
-                <div className="w-full max-w-md h-2.5 rounded-full bg-[#E2EBE5] dark:bg-[#1b2b21] overflow-hidden mt-3">
+                <div className="w-full max-w-md h-2.5 rounded-full bg-[var(--surface-secondary)] overflow-hidden mt-3">
                   <div
-                    className="h-full bg-[#16A34A] rounded-full transition-all duration-500"
+                    className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
                     style={{ width: `${setupPercent}%` }}
                   />
                 </div>
@@ -228,14 +229,14 @@ export function DashboardClient({ workspace }: { workspace: string }) {
             <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto shrink-0">
               <Button
                 onClick={() => setShowGettingStartedModal(true)}
-                className="bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs h-10 px-5 rounded-xl shadow-sm"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs h-10 px-5 rounded-xl shadow-sm"
               >
                 <span>Continue setup →</span>
               </Button>
               <button
                 type="button"
                 onClick={() => setDismissChecklist(true)}
-                className="text-xs text-[#64748B] hover:text-[#111714] dark:hover:text-white font-semibold py-1 transition-colors"
+                className="text-xs text-[var(--text-muted)] hover:text-[var(--text)] dark:hover:text-white font-semibold py-1 transition-colors"
               >
                 I'll do this later
               </button>
@@ -243,19 +244,19 @@ export function DashboardClient({ workspace }: { workspace: string }) {
           </div>
 
           {/* Checklist steps summary row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-5 mt-5 border-t border-[#16A34A]/20 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-5 mt-5 border-t border-[var(--primary)]/20 text-xs">
             {checklistSteps.map((step, idx) => (
               <Link
                 key={idx}
                 href={step.href}
                 className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
                   step.completed
-                    ? "bg-white/80 dark:bg-[#122419] border-[#16A34A]/30 text-[#16A34A]"
-                    : "bg-white/40 dark:bg-[#0c1811] border-[#E5EAE6] dark:border-[#1c2e23] text-[#64748B] hover:border-[#16A34A]/40"
+                    ? "bg-[var(--surface)] dark:bg-[var(--raised)] border-[var(--primary)]/30 text-[var(--primary-dark)]"
+                    : "bg-[var(--surface-secondary)]/50 dark:bg-[var(--surface)] border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)]/40"
                 }`}
               >
                 {step.completed ? (
-                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                 ) : (
                   <Circle className="w-4 h-4 text-[#94A3B8] shrink-0" />
                 )}
@@ -271,70 +272,64 @@ export function DashboardClient({ workspace }: { workspace: string }) {
           PROGRESSIVE METRIC CARDS (Skeletons during initial load, instant cached render)
       ───────────────────────────────────────────────────────────────────────────── */}
       {loading && !metrics ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-5 rounded-2xl border border-slate-200 dark:border-[#22332a] bg-white dark:bg-[#101b16] animate-pulse space-y-3">
-              <div className="h-3.5 w-24 bg-slate-200 dark:bg-white/[0.08] rounded-md" />
-              <div className="h-8 w-32 bg-slate-200 dark:bg-white/[0.08] rounded-lg" />
-              <div className="h-3 w-20 bg-slate-200 dark:bg-white/[0.08] rounded-md" />
-            </div>
-          ))}
-        </div>
+        <DashboardSkeleton showShellHeader={false} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard
-            label="Active Members"
-            sublabel={metrics?.active_members ? "Total enrolled" : "No members yet"}
-            value={metrics ? metrics.active_members : 0}
-            change={metrics ? metrics.revenue_growth_pct : 0}
-            changeType="increase"
-            iconName="users"
-          />
-          <StatCard
-            label="Monthly Revenue"
-            sublabel={metrics?.monthly_revenue ? "Current month" : "No payment data yet"}
-            value={metrics ? metrics.monthly_revenue : 0}
-            change={0}
-            changeType="increase"
-            isCurrency
-            iconName="trending-up"
-          />
-          <StatCard
-            label="Today's Attendance"
-            sublabel={metrics?.today_attendance ? "Check-ins today" : "Attendance will appear after check-in"}
-            value={metrics ? metrics.today_attendance : 0}
-            change={0}
-            changeType="increase"
-            iconName="calendar-check"
-          />
-          <StatCard
-            label="Expiring Soon"
-            sublabel={metrics?.expiring_memberships ? "Within 7 days" : "No expiring plans"}
-            value={metrics ? metrics.expiring_memberships : 0}
-            change={0}
-            changeType="decrease"
-            iconName="alert-triangle"
-          />
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <StatCard
+              label="Active Members"
+              sublabel={metrics?.active_members ? "Total enrolled" : "No members yet"}
+              value={metrics ? metrics.active_members : 0}
+              change={metrics ? metrics.revenue_growth_pct : 0}
+              changeType="increase"
+              iconName="users"
+            />
+            <StatCard
+              label="Monthly Revenue"
+              sublabel={metrics?.monthly_revenue ? "Current month" : "No payment data yet"}
+              value={metrics ? metrics.monthly_revenue : 0}
+              change={0}
+              changeType="increase"
+              isCurrency
+              iconName="trending-up"
+            />
+            <StatCard
+              label="Today's Attendance"
+              sublabel={metrics?.today_attendance ? "Check-ins today" : "Attendance will appear after check-in"}
+              value={metrics ? metrics.today_attendance : 0}
+              change={0}
+              changeType="increase"
+              iconName="calendar-check"
+            />
+            <StatCard
+              label="Expiring Soon"
+              sublabel={metrics?.expiring_memberships ? "Within 7 days" : "No expiring plans"}
+              value={metrics ? metrics.expiring_memberships : 0}
+              change={0}
+              changeType="decrease"
+              iconName="alert-triangle"
+            />
+          </div>
+
+          {/* Quick Actions (Positioned directly below stats) */}
+          <QuickActions workspace={workspace} />
+
+          {/* Progressive Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+            <div className="lg:col-span-4">
+              <RevenueChart data={metrics?.revenue_chart} />
+            </div>
+            <div className="lg:col-span-3">
+              <AttendanceChart data={metrics?.attendance_chart} />
+            </div>
+          </div>
+
+          {/* Activity Row */}
+          <div className="grid grid-cols-1 gap-6">
+            <RecentActivity />
+          </div>
+        </>
       )}
-
-      {/* Quick Actions (Positioned directly below stats) */}
-      <QuickActions workspace={workspace} />
-
-      {/* Progressive Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-        <div className="lg:col-span-4">
-          <RevenueChart data={metrics?.revenue_chart} />
-        </div>
-        <div className="lg:col-span-3">
-          <AttendanceChart data={metrics?.attendance_chart} />
-        </div>
-      </div>
-
-      {/* Activity Row */}
-      <div className="grid grid-cols-1 gap-6">
-        <RecentActivity />
-      </div>
 
       {/* Permanent Getting Started Dialog */}
       <GettingStartedDialog

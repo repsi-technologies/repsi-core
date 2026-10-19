@@ -357,7 +357,7 @@ export default function SuperAdminGymsPage() {
                           className={`p-1.5 rounded-lg transition-colors ${
                             g.is_active
                               ? "text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
-                              : "text-emerald-400 hover:bg-emerald-500/10"
+                              : "text-emerald-400 hover:bg-[var(--primary-hover)]/10"
                           }`}
                         >
                           {g.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -496,7 +496,7 @@ export default function SuperAdminGymsPage() {
                   type="submit"
                   size="sm"
                   disabled={actionLoading}
-                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold gap-2"
+                  className="bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-bold gap-2"
                 >
                   {actionLoading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                   Execute Permanent Deletion

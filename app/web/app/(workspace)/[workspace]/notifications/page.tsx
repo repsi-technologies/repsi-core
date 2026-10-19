@@ -89,7 +89,7 @@ export default function WorkspaceNotificationsPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Notification Center</h1>
             {unreadCount > 0 && (
-              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white">
+              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
                 {unreadCount} unread
               </span>
             )}

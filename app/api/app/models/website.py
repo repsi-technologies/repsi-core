@@ -24,9 +24,9 @@ class Website(Base, TimestampMixin, TenantMixin):
     # Branding & Content
     title = Column(String(255), nullable=False)
     tagline = Column(String(255), nullable=True)
-    primary_color = Column(String(20), default="#16A34A", nullable=False)
-    secondary_color = Column(String(20), default="#15803D", nullable=False)
-    accent_color = Column(String(20), default="#22C55E", nullable=False)
+    primary_color = Column(String(20), default="#D9532F", nullable=False)
+    secondary_color = Column(String(20), default="#BF4423", nullable=False)
+    accent_color = Column(String(20), default="#F07858", nullable=False)
 
     logo_url = Column(String(512), nullable=True)
     hero_image_url = Column(String(512), nullable=True)

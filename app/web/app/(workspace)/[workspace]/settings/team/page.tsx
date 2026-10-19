@@ -112,7 +112,7 @@ export default function TeamSettingsPage(props?: { params?: Promise<{ workspace:
 
         <Button
           onClick={() => setInviteModalOpen(true)}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs gap-1.5"
+          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
         >
           <Plus className="w-4 h-4" /> Invite Team Member
         </Button>
@@ -267,7 +267,7 @@ export default function TeamSettingsPage(props?: { params?: Promise<{ workspace:
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold"
                 >
                   Send Invitation
                 </Button>

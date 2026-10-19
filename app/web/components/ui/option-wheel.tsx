@@ -120,16 +120,16 @@ export function OptionWheel() {
   const activeOption = options.find((o) => o.id === selectedId) || options[0];
 
   return (
-    <section className="relative bg-[#FFFFFF] py-24 px-4 sm:px-6 lg:px-8 border-b border-[#E5EAE6] text-[#111714]">
+    <section className="relative bg-[#FFFFFF] py-24 px-4 sm:px-6 lg:px-8 border-b border-[var(--border)] text-[var(--text)]">
       <div className="mx-auto max-w-7xl">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#16A34A] bg-[#F1F5F2] px-3.5 py-1.5 rounded-full border border-[#E5EAE6] mb-4">
+          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[var(--primary-dark)] bg-[var(--surface-hover)] px-3.5 py-1.5 rounded-full border border-[var(--border)] mb-4">
             Adaptive Platform
           </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111714]">
-            Repsi adapts to the <span className="text-[#16A34A]">way you work.</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--text)]">
+            Repsi adapts to the <span className="text-[var(--primary-dark)]">way you work.</span>
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#66706A]">
+          <p className="mt-4 text-base sm:text-lg text-[var(--text-muted)]">
             Select a role or business type below to explore customized features and workflows.
           </p>
         </div>
@@ -145,11 +145,11 @@ export function OptionWheel() {
                 onClick={() => setSelectedId(opt.id)}
                 className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? "bg-[#16A34A] text-white shadow-lg shadow-[#16A34A]/25 scale-105"
-                    : "bg-[#F1F5F2] text-[#111714] hover:bg-[#E5EAE6] border border-[#E5EAE6]"
+                    ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg shadow-[var(--primary)]/25 scale-105"
+                    : "bg-[var(--surface-hover)] text-[var(--text)] hover:bg-[#E5EAE6] border border-[var(--border)]"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#16A34A]"}`} />
+                <Icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-[var(--primary-dark)]"}`} />
                 <span>{opt.name}</span>
               </button>
             );
@@ -157,7 +157,7 @@ export function OptionWheel() {
         </div>
 
         {/* Dynamic Display Panel */}
-        <div className="bg-[#F7F9F7] border border-[#E5EAE6] rounded-3xl p-6 sm:p-10 shadow-sm relative overflow-hidden">
+        <div className="bg-[#F7F7F5] border border-[var(--border)] rounded-3xl p-6 sm:p-10 shadow-sm relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeOption.id}
@@ -169,36 +169,36 @@ export function OptionWheel() {
             >
               {/* Left Details */}
               <div className="lg:col-span-6 space-y-6">
-                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#16A34A] bg-[#16A34A]/10 px-3 py-1 rounded-full border border-[#16A34A]/20">
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[var(--primary)]/10 px-3 py-1 rounded-full border border-[var(--primary)]/20">
                   <activeOption.icon className="w-3.5 h-3.5" />
                   <span>{activeOption.name} Mode</span>
                 </div>
 
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-[#111714] leading-tight">
+                <h3 className="text-2xl sm:text-4xl font-extrabold text-[var(--text)] leading-tight">
                   {activeOption.headline}
                 </h3>
 
-                <p className="text-base text-[#66706A] leading-relaxed">
+                <p className="text-base text-[var(--text-muted)] leading-relaxed">
                   {activeOption.subtext}
                 </p>
 
                 <div className="space-y-3 pt-2">
                   {activeOption.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-[#16A34A]/15 flex items-center justify-center text-[#16A34A]">
+                      <div className="w-5 h-5 rounded-full bg-[var(--primary)]/15 flex items-center justify-center text-[var(--primary-dark)]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-sm font-semibold text-[#111714]">{feat}</span>
+                      <span className="text-sm font-semibold text-[var(--text)]">{feat}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-4 flex items-center gap-6 border-t border-[#E5EAE6]">
+                <div className="pt-4 flex items-center gap-6 border-t border-[var(--border)]">
                   <div>
-                    <div className="text-xs text-[#66706A] font-medium">{activeOption.metricLabel}</div>
-                    <div className="text-2xl font-black text-[#16A34A]">{activeOption.metricValue}</div>
+                    <div className="text-xs text-[var(--text-muted)] font-medium">{activeOption.metricLabel}</div>
+                    <div className="text-2xl font-black text-[var(--primary-dark)]">{activeOption.metricValue}</div>
                   </div>
-                  <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#111714] text-white text-xs font-bold hover:bg-[#16A34A] transition-colors ml-auto">
+                  <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#17191C] text-[var(--primary-foreground)] text-xs font-bold hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-colors ml-auto">
                     <span>Explore {activeOption.name} Features</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -206,44 +206,44 @@ export function OptionWheel() {
               </div>
 
               {/* Right Visual Card */}
-              <div className="lg:col-span-6 bg-white border border-[#E5EAE6] rounded-2xl p-6 shadow-md space-y-5">
-                <div className="flex items-center justify-between border-b border-[#E5EAE6] pb-4">
+              <div className="lg:col-span-6 bg-white border border-[var(--border)] rounded-2xl p-6 shadow-md space-y-5">
+                <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#16A34A]/10 flex items-center justify-center text-[#16A34A]">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary-dark)]">
                       <activeOption.icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-base font-bold text-[#111714]">
+                      <h4 className="text-base font-bold text-[var(--text)]">
                         {activeOption.previewCardTitle}
                       </h4>
-                      <p className="text-xs text-[#66706A]">{activeOption.previewCardDetail}</p>
+                      <p className="text-xs text-[var(--text-muted)]">{activeOption.previewCardDetail}</p>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-[#16A34A] bg-[#16A34A]/10 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs font-bold text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2.5 py-1 rounded-lg">
                     Active Profile
                   </span>
                 </div>
 
                 {/* Mock Data Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#F7F9F7] p-4 rounded-xl border border-[#E5EAE6]">
-                    <span className="text-[11px] font-semibold text-[#66706A]">System Status</span>
-                    <div className="text-sm font-bold text-[#111714] mt-1">100% Operational</div>
+                  <div className="bg-[#F7F7F5] p-4 rounded-xl border border-[var(--border)]">
+                    <span className="text-[11px] font-semibold text-[var(--text-muted)]">System Status</span>
+                    <div className="text-sm font-bold text-[var(--text)] mt-1">100% Operational</div>
                   </div>
-                  <div className="bg-[#F7F9F7] p-4 rounded-xl border border-[#E5EAE6]">
-                    <span className="text-[11px] font-semibold text-[#66706A]">Auto Payment Sync</span>
-                    <div className="text-sm font-bold text-[#16A34A] mt-1">Cashfree Gateway</div>
+                  <div className="bg-[#F7F7F5] p-4 rounded-xl border border-[var(--border)]">
+                    <span className="text-[11px] font-semibold text-[var(--text-muted)]">Auto Payment Sync</span>
+                    <div className="text-sm font-bold text-[var(--primary-dark)] mt-1">Cashfree Gateway</div>
                   </div>
                 </div>
 
-                <div className="bg-[#F1F5F2] p-4 rounded-xl border border-[#E5EAE6] flex items-center justify-between">
+                <div className="bg-[var(--surface-hover)] p-4 rounded-xl border border-[var(--border)] flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CalendarCheck className="w-4 h-4 text-[#16A34A]" />
-                    <span className="text-xs font-semibold text-[#111714]">
+                    <CalendarCheck className="w-4 h-4 text-[var(--primary-dark)]" />
+                    <span className="text-xs font-semibold text-[var(--text)]">
                       Configured for {activeOption.name} workflows
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-[#16A34A]">Ready</span>
+                  <span className="text-xs font-bold text-[var(--primary-dark)]">Ready</span>
                 </div>
               </div>
             </motion.div>

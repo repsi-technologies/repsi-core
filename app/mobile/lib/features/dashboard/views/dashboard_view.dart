@@ -847,7 +847,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
+                  color: AppColors.successSoft,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -857,7 +857,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       width: 6,
                       height: 6,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF16A34A),
+                        color: AppColors.success,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -865,7 +865,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                     const Text(
                       '14-DAY FREE TRIAL',
                       style: TextStyle(
-                        color: Color(0xFF15803D),
+                        color: AppColors.successDark,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                         letterSpacing: 0.5,
@@ -877,7 +877,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
               const Text(
                 'Growth Tier · 35 Cap',
                 style: TextStyle(
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
                   fontSize: 11,
                 ),
@@ -888,7 +888,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           const Text(
             '10 days remaining in your free trial',
             style: TextStyle(
-              color: Color(0xFF0F172A),
+              color: AppColors.text,
               fontWeight: FontWeight.w800,
               fontSize: 15,
               letterSpacing: -0.2,
@@ -898,7 +898,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           const Text(
             'Explore full attendance, trainer coaching, and membership packages before trial concludes.',
             style: TextStyle(
-              color: Color(0xFF475569),
+              color: AppColors.textSecondary,
               fontSize: 12,
               height: 1.35,
             ),
@@ -910,8 +910,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             child: const LinearProgressIndicator(
               value: 0.28,
               minHeight: 6,
-              backgroundColor: Color(0xFFDCFCE7),
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF16A34A)),
+              backgroundColor: AppColors.primarySoft,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
           const SizedBox(height: 12),
@@ -920,12 +920,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.shield_outlined, size: 14, color: Color(0xFF16A34A)),
+                  Icon(Icons.shield_outlined, size: 14, color: AppColors.textMuted),
                   SizedBox(width: 4),
                   Text(
                     'No card required',
                     style: TextStyle(
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondary,
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
@@ -937,14 +937,14 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Manage plan upgrade in Settings → Billing or on repsi.app'),
-                      backgroundColor: Color(0xFF16A34A),
+                      backgroundColor: AppColors.primary,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   minimumSize: Size.zero,

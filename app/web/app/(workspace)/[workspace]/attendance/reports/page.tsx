@@ -34,7 +34,7 @@ export default function AttendanceReportsPage() {
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <p className="text-xs text-[var(--text-muted)]">Average Daily Footfall</p>
           <p className="text-2xl font-bold text-[var(--text)] mt-1">186 Visits</p>
-          <span className="text-xs text-emerald-500 font-medium">↑ 14% vs last week</span>
+          <span className="text-xs text-[var(--text-muted)] font-medium">↑ 14% vs last week</span>
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <p className="text-xs text-[var(--text-muted)]">Peak Hour</p>

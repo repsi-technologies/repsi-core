@@ -221,7 +221,7 @@ function GymSelector({ collapsed, workspace }: { collapsed: boolean; workspace: 
     return (
       <div className="mx-3 my-2.5">
         <button className="w-full flex items-center justify-center h-9 rounded-xl hover:bg-[var(--nav-hover-bg)] transition-colors">
-          <Building2 className="h-4 w-4 text-[#16A34A]" />
+          <Building2 className="h-4 w-4 text-[var(--primary-dark)]" />
         </button>
       </div>
     );
@@ -229,15 +229,15 @@ function GymSelector({ collapsed, workspace }: { collapsed: boolean; workspace: 
 
   return (
     <div className="mx-3 my-3">
-      <div className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#101b16] border border-[#E5E7EB] dark:border-[#263831] shadow-2xs hover:border-[#16A34A]/40 transition-all">
-        <div className="w-7 h-7 rounded-lg bg-[#ECFDF3] dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center flex-shrink-0">
-          <Building2 className="h-4 w-4 text-[#16A34A]" />
+      <div className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-2xs hover:border-[var(--primary)]/40 transition-all">
+        <div className="w-7 h-7 rounded-lg bg-[var(--primary-soft)] border border-[var(--primary)]/20 flex items-center justify-center flex-shrink-0">
+          <Building2 className="h-4 w-4 text-[var(--primary-dark)]" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-xs font-bold text-[#172033] dark:text-white truncate leading-tight">
+          <div className="text-xs font-bold text-[var(--text)] truncate leading-tight">
             {gymName}
           </div>
-          <div className="text-[11px] font-medium text-[#15803D] dark:text-emerald-400 truncate leading-tight mt-0.5">
+          <div className="text-[11px] font-medium text-[var(--primary-dark)] truncate leading-tight mt-0.5">
             repsi.app/{displaySlug}
           </div>
         </div>
@@ -267,21 +267,21 @@ function NavLink({
       className={cn(
         "relative flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-all duration-150",
         isActive
-          ? "bg-[#E8F5EE] dark:bg-emerald-950/60 text-[#15803D] dark:text-emerald-400 font-bold shadow-2xs"
-          : "text-[#64748B] dark:text-[#94a3b8] hover:bg-[#F3F7F5] dark:hover:bg-[#16241e] hover:text-[#172033] dark:hover:text-white font-medium",
+          ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)] font-bold shadow-2xs"
+          : "text-[var(--text-muted)] hover:bg-[var(--nav-hover-bg)] hover:text-[var(--text)] font-medium",
         collapsed && "justify-center px-0"
       )}
     >
       {/* Active indicator bar */}
       {isActive && !collapsed && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-[#16A34A]" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-[var(--primary)]" />
       )}
       <Icon
         className={cn(
           "flex-shrink-0 h-4 w-4",
           isActive
-            ? "text-[#15803D] dark:text-emerald-400"
-            : "text-[#64748B] dark:text-zinc-400"
+            ? "text-[var(--nav-active-text)]"
+            : "text-[var(--text-muted)]"
         )}
       />
       {!collapsed && <span>{item.label}</span>}

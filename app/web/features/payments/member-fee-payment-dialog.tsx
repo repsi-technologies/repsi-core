@@ -136,28 +136,28 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-      <div className="bg-zinc-950 rounded-2xl border border-zinc-800 p-6 max-w-xl w-full shadow-2xl space-y-5 text-zinc-100 max-h-[92vh] overflow-y-auto">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-6 max-w-xl w-full shadow-2xl space-y-5 text-[var(--text)] max-h-[92vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
           <div className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-emerald-500" />
+            <CreditCard className="w-5 h-5 text-[var(--primary)]" />
             <div>
               <h3 className="font-bold text-sm">Pay Membership Fee</h3>
-              <p className="text-[11px] text-zinc-400">Invoice #{invoice.id} • {invoice.plan_name || "Gym Membership"}</p>
+              <p className="text-[11px] text-[var(--text-secondary)]">Invoice #{invoice.id} • {invoice.plan_name || "Gym Membership"}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-[var(--text-secondary)] hover:text-[var(--text)] p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Amount Due Banner */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 to-zinc-900 border border-emerald-500/30 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-[var(--primary-soft)] dark:bg-[var(--primary)]/10 border border-[var(--primary)]/25 flex items-center justify-between">
           <div>
-            <span className="text-[11px] text-zinc-400 font-medium">Outstanding Balance</span>
-            <p className="text-2xl font-bold text-emerald-400 mt-0.5">₹{amountDue.toLocaleString("en-IN")}</p>
+            <span className="text-[11px] text-[var(--text-secondary)] font-medium">Outstanding Balance</span>
+            <p className="text-2xl font-bold text-[var(--primary-dark)] mt-0.5">₹{amountDue.toLocaleString("en-IN")}</p>
           </div>
-          <div className="text-right text-[11px] text-zinc-400">
+          <div className="text-right text-[11px] text-[var(--text-secondary)]">
             <span>Direct to Gym Account</span>
             <p className="text-emerald-500 font-semibold">Zero Gateway Charges</p>
           </div>
@@ -168,8 +168,8 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
           <div className="space-y-4">
             {loadingInstructions ? (
               <div className="p-8 text-center space-y-2">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-emerald-500" />
-                <p className="text-xs text-zinc-400">Loading gym payment details...</p>
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-[var(--primary)]" />
+                <p className="text-xs text-[var(--text-secondary)]">Loading gym payment details...</p>
               </div>
             ) : instructionsError ? (
               <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
@@ -179,17 +179,17 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
               <>
                 {/* Reference Tag Highlight */}
                 {instructions.narration_reference && (
-                  <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between text-xs">
+                  <div className="p-3.5 rounded-xl border border-[var(--info)]/25 bg-[var(--info-soft)] flex items-center justify-between text-xs">
                     <div>
-                      <span className="text-amber-400 font-semibold">Transfer Reference Code:</span>
-                      <p className="font-mono font-bold text-white text-sm mt-0.5">{instructions.narration_reference}</p>
-                      <p className="text-[10px] text-zinc-400 mt-0.5">Mention this code in your UPI remark or transfer note for faster verification.</p>
+                      <span className="text-[var(--info-foreground)] font-semibold">Transfer Reference Code:</span>
+                      <p className="font-mono font-bold text-[var(--text)] text-sm mt-0.5">{instructions.narration_reference}</p>
+                      <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Mention this code in your UPI remark or transfer note for faster verification.</p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => copyToClipboard(instructions.narration_reference!, "ref")}
-                      className="h-8 px-2.5 bg-zinc-900 border-zinc-700 text-amber-400 hover:text-white text-xs gap-1"
+                      className="h-8 px-2.5 bg-[var(--surface-secondary)] border-[var(--border)] text-[var(--info-foreground)] hover:text-[var(--text)] text-xs gap-1"
                     >
                       {copiedKey === "ref" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                       {copiedKey === "ref" ? "Copied" : "Copy"}
@@ -201,26 +201,26 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 <div className="space-y-3">
                   {/* UPI Section */}
                   {instructions.upi_id && (
-                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2 text-xs">
+                    <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-2 text-xs">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 font-semibold text-white">
-                          <Smartphone className="w-4 h-4 text-emerald-500" />
+                        <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
+                          <Smartphone className="w-4 h-4 text-[var(--primary)]" />
                           <span>UPI Transfer (GPay / PhonePe / Paytm / BHIM)</span>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(instructions.upi_id!, "upi")}
-                          className="h-7 px-2 bg-zinc-800 border-zinc-700 text-xs gap-1"
+                          className="h-7 px-2 bg-[var(--surface-hover)] border-[var(--border)] text-xs gap-1"
                         >
                           {copiedKey === "upi" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           {copiedKey === "upi" ? "Copied" : "Copy UPI ID"}
                         </Button>
                       </div>
-                      <div className="p-2.5 rounded bg-zinc-950 font-mono text-emerald-400 font-bold flex items-center justify-between">
+                      <div className="p-2.5 rounded bg-[var(--background-secondary)] font-mono text-[var(--primary-dark)] font-bold flex items-center justify-between">
                         <span>{instructions.upi_id}</span>
                         {instructions.account_name && (
-                          <span className="text-zinc-400 font-sans text-[11px] font-normal">({instructions.account_name})</span>
+                          <span className="text-[var(--text-secondary)] font-sans text-[11px] font-normal">({instructions.account_name})</span>
                         )}
                       </div>
                     </div>
@@ -228,27 +228,27 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
 
                   {/* Merchant QR Section */}
                   {instructions.has_qr_code && (
-                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2 text-xs">
-                      <div className="flex items-center gap-2 font-semibold text-white">
+                    <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-2 text-xs">
+                      <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                         <QrCode className="w-4 h-4 text-blue-500" />
                         <span>Gym Merchant QR Code</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-zinc-950 flex flex-col items-center justify-center">
+                      <div className="p-3 rounded-lg bg-[var(--background-secondary)] flex flex-col items-center justify-center">
                         <img
                           src={repsiApi.getMerchantQrUrl()}
                           alt="Gym QR Code"
-                          className="max-h-48 max-w-full rounded-lg border border-zinc-800 shadow-md object-contain"
+                          className="max-h-48 max-w-full rounded-lg border border-[var(--border)] shadow-md object-contain"
                         />
-                        <span className="text-[10px] text-zinc-400 mt-2">Scan using any payment app (GPay, PhonePe, Paytm)</span>
+                        <span className="text-[10px] text-[var(--text-secondary)] mt-2">Scan using any payment app (GPay, PhonePe, Paytm)</span>
                       </div>
                     </div>
                   )}
 
                   {/* Phone Payment Section */}
                   {instructions.payment_phone && (
-                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2 text-xs">
+                    <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-2 text-xs">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 font-semibold text-white">
+                        <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                           <Smartphone className="w-4 h-4 text-indigo-400" />
                           <span>Payment Contact / Number</span>
                         </div>
@@ -256,54 +256,54 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(instructions.payment_phone!, "phone")}
-                          className="h-7 px-2 bg-zinc-800 border-zinc-700 text-xs gap-1"
+                          className="h-7 px-2 bg-[var(--surface-hover)] border-[var(--border)] text-xs gap-1"
                         >
                           {copiedKey === "phone" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           {copiedKey === "phone" ? "Copied" : "Copy Number"}
                         </Button>
                       </div>
-                      <p className="font-mono text-white text-sm font-semibold">{instructions.payment_phone}</p>
+                      <p className="font-mono text-[var(--text)] text-sm font-semibold">{instructions.payment_phone}</p>
                     </div>
                   )}
 
                   {/* Bank Transfer Section */}
                   {instructions.bank_details?.account_number && (
-                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3 text-xs">
-                      <div className="flex items-center gap-2 font-semibold text-white">
-                        <Building2 className="w-4 h-4 text-amber-400" />
+                    <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-3 text-xs">
+                      <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
+                        <Building2 className="w-4 h-4 text-[var(--info-foreground)]" />
                         <span>Direct Bank Transfer (NEFT / IMPS / RTGS)</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-[11px]">
-                        <div className="p-2 rounded bg-zinc-950">
-                          <span className="text-zinc-500">Account Holder</span>
-                          <p className="font-semibold text-white mt-0.5">{instructions.bank_details.account_holder_name}</p>
+                        <div className="p-2 rounded bg-[var(--background-secondary)]">
+                          <span className="text-[var(--text-muted)]">Account Holder</span>
+                          <p className="font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.account_holder_name}</p>
                         </div>
-                        <div className="p-2 rounded bg-zinc-950">
-                          <span className="text-zinc-500">Bank Name</span>
-                          <p className="font-semibold text-white mt-0.5">{instructions.bank_details.bank_name}</p>
+                        <div className="p-2 rounded bg-[var(--background-secondary)]">
+                          <span className="text-[var(--text-muted)]">Bank Name</span>
+                          <p className="font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.bank_name}</p>
                         </div>
-                        <div className="p-2 rounded bg-zinc-950 flex items-center justify-between">
+                        <div className="p-2 rounded bg-[var(--background-secondary)] flex items-center justify-between">
                           <div>
-                            <span className="text-zinc-500">Account Number</span>
-                            <p className="font-mono font-semibold text-white mt-0.5">{instructions.bank_details.account_number}</p>
+                            <span className="text-[var(--text-muted)]">Account Number</span>
+                            <p className="font-mono font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.account_number}</p>
                           </div>
                           <button
                             type="button"
                             onClick={() => copyToClipboard(instructions.bank_details!.account_number, "bank_acc")}
-                            className="text-zinc-400 hover:text-white p-1"
+                            className="text-[var(--text-secondary)] hover:text-[var(--text)] p-1"
                           >
                             {copiedKey === "bank_acc" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           </button>
                         </div>
-                        <div className="p-2 rounded bg-zinc-950 flex items-center justify-between">
+                        <div className="p-2 rounded bg-[var(--background-secondary)] flex items-center justify-between">
                           <div>
-                            <span className="text-zinc-500">IFSC Code</span>
-                            <p className="font-mono font-semibold text-white mt-0.5">{instructions.bank_details.ifsc_code}</p>
+                            <span className="text-[var(--text-muted)]">IFSC Code</span>
+                            <p className="font-mono font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.ifsc_code}</p>
                           </div>
                           <button
                             type="button"
                             onClick={() => copyToClipboard(instructions.bank_details!.ifsc_code, "ifsc")}
-                            className="text-zinc-400 hover:text-white p-1"
+                            className="text-[var(--text-secondary)] hover:text-[var(--text)] p-1"
                           >
                             {copiedKey === "ifsc" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           </button>
@@ -314,21 +314,21 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 </div>
 
                 {/* Important Notice */}
-                <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 flex items-start gap-2">
-                  <Info className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
+                <div className="p-3 rounded-lg bg-[var(--surface-secondary)]/60 border border-[var(--border)] text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
+                  <Info className="w-4 h-4 text-[var(--text-secondary)] shrink-0 mt-0.5" />
                   <span>
                     After completing the transfer in your payment app, take a screenshot of the successful payment page and click &quot;Submit Payment Proof&quot; below.
                   </span>
                 </div>
 
                 <div className="pt-2 flex items-center justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={onClose} className="bg-zinc-900 border-zinc-800 text-xs">
+                  <Button variant="outline" size="sm" onClick={onClose} className="bg-[var(--surface-secondary)] border-[var(--border)] text-xs">
                     Cancel
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => setStep("submit")}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs"
+                    className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs"
                   >
                     I Have Paid → Submit Receipt
                   </Button>
@@ -341,29 +341,29 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
         {/* STEP 2: RECEIPT SUBMISSION FORM */}
         {step === "submit" && (
           <form onSubmit={handleSubmitProof} className="space-y-4">
-            <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs flex items-center justify-between">
-              <span className="text-zinc-400">Paying for Invoice:</span>
-              <span className="font-mono font-bold text-white">{invoice.id}</span>
+            <div className="p-3 rounded-lg bg-[var(--surface-secondary)] border border-[var(--border)] text-xs flex items-center justify-between">
+              <span className="text-[var(--text-secondary)]">Paying for Invoice:</span>
+              <span className="font-mono font-bold text-[var(--text)]">{invoice.id}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Amount Paid (₹)</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">Amount Paid (₹)</label>
                 <input
                   type="number"
                   value={amountPaid}
                   onChange={(e) => setAmountPaid(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-white text-xs font-mono font-bold focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs font-mono font-bold focus:outline-none focus:border-[var(--primary)]"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Payment Method Used</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">Payment Method Used</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-white text-xs focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs focus:outline-none focus:border-[var(--primary)]"
                 >
                   <option value="upi">UPI Transfer</option>
                   <option value="qr">Scanned Gym QR Code</option>
@@ -374,22 +374,22 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">Transaction ID / UTR # (Optional)</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">Transaction ID / UTR # (Optional)</label>
               <input
                 type="text"
                 placeholder="e.g. 428910284920 or UPI Ref ID"
                 value={transactionRef}
                 onChange={(e) => setTransactionRef(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-white text-xs font-mono focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs font-mono focus:outline-none focus:border-[var(--primary)]"
               />
             </div>
 
             {/* File Upload Area */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">
                 Payment Receipt / Screenshot <span className="text-rose-400">*</span>
               </label>
-              <div className="p-4 rounded-xl border border-dashed border-zinc-700 bg-zinc-900/50 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer hover:border-emerald-500 transition-colors">
+              <div className="p-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-secondary)]/50 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer hover:border-[var(--primary)] transition-colors">
                 <input
                   type="file"
                   id="receiptUpload"
@@ -398,29 +398,29 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                   className="hidden"
                 />
                 <label htmlFor="receiptUpload" className="cursor-pointer space-y-1">
-                  <Upload className="w-6 h-6 mx-auto text-emerald-400" />
-                  <p className="text-xs font-semibold text-zinc-200">
+                  <Upload className="w-6 h-6 mx-auto text-[var(--primary)]" />
+                  <p className="text-xs font-semibold text-[var(--text)]">
                     {receiptFile ? receiptFile.name : "Click to select receipt screenshot"}
                   </p>
-                  <p className="text-[10px] text-zinc-500">PNG, JPG, WEBP, or PDF up to 10MB</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">PNG, JPG, WEBP, or PDF up to 10MB</p>
                 </label>
               </div>
 
               {receiptPreview && (
-                <div className="mt-2 p-2 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                <div className="mt-2 p-2 rounded-lg bg-[var(--surface-secondary)] border border-[var(--border)] flex items-center justify-center">
                   <img src={receiptPreview} alt="Screenshot Preview" className="max-h-40 rounded object-contain" />
                 </div>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">Note for Gym Staff (Optional)</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">Note for Gym Staff (Optional)</label>
               <input
                 type="text"
                 placeholder="e.g. Paid via Nitheesh's HDFC account"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs focus:outline-none focus:border-[var(--primary)]"
               />
             </div>
 
@@ -430,8 +430,8 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
               </div>
             )}
 
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-zinc-300 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-lg bg-[var(--info-soft)] border border-[var(--info)]/20 text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-[var(--info-foreground)] shrink-0 mt-0.5" />
               <span>
                 <strong>Verification Notice:</strong> Submitting a receipt records your proof for verification. Gym floor access is activated once an authorized owner or trainer verifies and approves the payment.
               </span>
@@ -444,7 +444,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 size="sm"
                 onClick={() => setStep("instructions")}
                 disabled={isSubmitting}
-                className="bg-zinc-900 border-zinc-800 text-xs text-zinc-300"
+                className="bg-[var(--surface-secondary)] border-[var(--border)] text-xs text-[var(--text-secondary)]"
               >
                 ← Back to Details
               </Button>
@@ -452,7 +452,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 type="submit"
                 size="sm"
                 disabled={isSubmitting || !receiptFile}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-1.5"
               >
                 {isSubmitting ? (
                   <>
@@ -478,37 +478,38 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             </div>
 
             <div>
-              <h4 className="text-base font-bold text-white">Payment Receipt Submitted!</h4>
-              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-                Your payment proof for invoice <span className="font-mono text-zinc-200">#{invoice.id}</span> has been securely recorded.
+              <h4 className="text-base font-bold text-[var(--text)]">Payment Receipt Submitted!</h4>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-sm mx-auto">
+                Your payment proof for invoice <span className="font-mono text-[var(--text)]">#{invoice.id}</span> has been securely recorded.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-left space-y-1.5 max-w-sm mx-auto">
+            <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] text-xs text-left space-y-1.5 max-w-sm mx-auto">
               <div className="flex justify-between">
-                <span className="text-zinc-500">Submitted Amount:</span>
-                <span className="font-bold text-emerald-400">₹{(createdSubmission.amount_paid ?? createdSubmission.amount ?? 0).toLocaleString("en-IN")}</span>
+                <span className="text-[var(--text-muted)]">Submitted Amount:</span>
+                <span className="font-bold text-[var(--text)]">₹{(createdSubmission.amount_paid ?? createdSubmission.amount ?? 0).toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Status:</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                <span className="text-[var(--text-muted)]">Status:</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20">
+                  <Clock className="w-3 h-3 inline mr-1" />
                   Pending Owner Verification
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Submission Time:</span>
-                <span className="text-zinc-300">{createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at ? new Date(createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at!).toLocaleTimeString() : "time unavailable"}</span>
+                <span className="text-[var(--text-muted)]">Submission Time:</span>
+                <span className="text-[var(--text-secondary)]">{createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at ? new Date(createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at!).toLocaleTimeString() : "time unavailable"}</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-zinc-500 max-w-sm mx-auto">
+            <p className="text-[11px] text-[var(--text-muted)] max-w-sm mx-auto">
               Your gym owner or authorized trainer has been notified to verify your transaction. Access will be activated automatically once approved.
             </p>
 
             <div className="pt-2">
               <Button
                 onClick={onClose}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs px-6"
+                className="bg-[var(--surface-hover)] hover:bg-zinc-700 text-[var(--text)] font-semibold text-xs px-6"
               >
                 Close & View Status
               </Button>

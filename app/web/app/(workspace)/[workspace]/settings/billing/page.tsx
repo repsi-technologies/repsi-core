@@ -409,7 +409,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
             className="p-5 rounded-3xl bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-transparent border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
           >
             <div className="flex items-start gap-3">
-              <div className="p-3 rounded-2xl bg-[#16A34A] text-white flex-shrink-0 mt-0.5 shadow-md shadow-emerald-500/20">
+              <div className="p-3 rounded-2xl bg-[var(--primary)] text-[var(--primary-foreground)] flex-shrink-0 mt-0.5 shadow-md shadow-emerald-500/20">
                 <Clock className="w-6 h-6 animate-pulse" />
               </div>
               <div className="space-y-1">
@@ -417,7 +417,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                   {activeSubscription.trial_days_left <= 1
                     ? "Trial ends tomorrow!"
                     : `${activeSubscription.trial_days_left} Days Remaining in Free Trial`}
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#16A34A] text-white">
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)]">
                     <ShinyText text="GROWTH ACCESS" shimmerColor="rgba(255,255,255,0.9)" />
                   </span>
                 </h3>
@@ -431,7 +431,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowPlanModal(true)}
-              className="px-5 py-2.5 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <span>Select Paid Plan</span>
               <ChevronRight className="w-4 h-4" />

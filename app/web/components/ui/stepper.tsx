@@ -20,14 +20,14 @@ export function Stepper({ steps, className = "", theme = "light" }: StepperProps
     offset: ["start 80%", "end 30%"],
   });
 
-  const lineColor = theme === "light" ? "bg-[#E5EAE6]" : "bg-[#1a2f22]";
+  const lineColor = theme === "light" ? "bg-[#E5EAE6]" : "bg-[#3A3F45]";
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Vertical progress line */}
       <div className={`absolute left-[23px] md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-[2px] ${lineColor}`}>
         <motion.div
-          className="w-full bg-gradient-to-b from-[#16A34A] to-[#22C55E] origin-top"
+          className="w-full bg-gradient-to-b from-[var(--primary)] to-[var(--primary-hover)] origin-top"
           style={{ scaleY: scrollYProgress, height: "100%" }}
         />
       </div>
@@ -74,9 +74,9 @@ function StepItem({
   const y = useTransform(scrollYProgress, [0, 1], [25, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
 
-  const dotBg = theme === "light" ? "bg-white" : "bg-[#050B07]";
-  const titleColor = theme === "light" ? "text-[#111714]" : "text-[#F5F7F5]";
-  const descColor = theme === "light" ? "text-[#66706A]" : "text-[#9CA3AF]";
+  const dotBg = theme === "light" ? "bg-white" : "bg-[#17191C]";
+  const titleColor = theme === "light" ? "text-[var(--text)]" : "text-[#F7F7F5]";
+  const descColor = theme === "light" ? "text-[var(--text-muted)]" : "text-[#9CA3AF]";
 
   return (
     <div ref={itemRef} className="relative">
@@ -89,9 +89,9 @@ function StepItem({
         <div className="absolute left-[14px] md:left-1/2 md:-translate-x-1/2 z-10">
           <motion.div
             style={{ scale }}
-            className={`w-[18px] h-[18px] rounded-full border-2 border-[#16A34A] ${dotBg} flex items-center justify-center shadow-sm`}
+            className={`w-[18px] h-[18px] rounded-full border-2 border-[var(--primary)] ${dotBg} flex items-center justify-center shadow-sm`}
           >
-            <div className="w-2 h-2 rounded-full bg-[#16A34A]" />
+            <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
           </motion.div>
         </div>
 
@@ -102,7 +102,7 @@ function StepItem({
             isLeft ? "md:pr-8 md:text-right" : "md:pl-8 md:text-left md:ml-auto"
           }`}
         >
-          <span className="text-xs font-mono font-bold text-[#16A34A] tracking-wider px-2 py-0.5 rounded bg-[#16A34A]/10 border border-[#16A34A]/20">
+          <span className="text-xs font-mono font-bold text-[var(--primary-dark)] tracking-wider px-2 py-0.5 rounded bg-[var(--primary)]/10 border border-[var(--primary)]/20">
             STEP {step.number}
           </span>
           <h3 className={`text-xl font-extrabold ${titleColor} mt-2`}>

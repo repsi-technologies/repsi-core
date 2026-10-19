@@ -170,7 +170,7 @@ export function MembersToolbar({
         )}
 
         {onInviteMember && (
-          <Button size="sm" onClick={onInviteMember} className="gap-1.5 bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]">
+          <Button size="sm" onClick={onInviteMember} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]">
             <Mail className="h-3.5 w-3.5" />
             Invite Member
           </Button>

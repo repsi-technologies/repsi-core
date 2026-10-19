@@ -134,17 +134,17 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: AppColors.primary,
+      primaryColor: AppColors.darkPrimary,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
+        primary: AppColors.darkPrimary,
+        onPrimary: AppColors.darkOnPrimary,
         primaryContainer: AppColors.darkSurfaceElevated,
-        onPrimaryContainer: AppColors.primary,
+        onPrimaryContainer: AppColors.darkPrimaryLight,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkText,
-        error: AppColors.error,
-        onError: Colors.white,
+        error: AppColors.darkError,
+        onError: AppColors.darkBackground,
         outline: AppColors.darkBorder,
       ),
       textTheme: textTheme,
@@ -190,11 +190,36 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.darkPrimary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
-          borderSide: const BorderSide(color: AppColors.error, width: 1),
+          borderSide: const BorderSide(color: AppColors.darkError, width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.darkPrimary,
+          foregroundColor: AppColors.darkOnPrimary,
+          minimumSize: const Size(double.infinity, AppSpacing.buttonHeight),
+          padding: AppSpacing.buttonPadding,
+          elevation: 0,
+          textStyle: AppTypography.button,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.darkText,
+          minimumSize: const Size(double.infinity, AppSpacing.buttonHeight),
+          padding: AppSpacing.buttonPadding,
+          side: const BorderSide(color: AppColors.darkBorder, width: 1),
+          textStyle: AppTypography.button,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
+          ),
         ),
       ),
       dividerTheme: const DividerThemeData(

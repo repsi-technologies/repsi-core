@@ -85,7 +85,7 @@ export default function TrainerSchedulePage(props: { params: Promise<{ workspace
             <button
               onClick={() => setViewMode("Day")}
               className={`px-3 py-1 rounded text-xs font-semibold ${
-                viewMode === "Day" ? "bg-[var(--primary)] text-white" : "text-[var(--text-muted)]"
+                viewMode === "Day" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--text-muted)]"
               }`}
             >
               Day View
@@ -93,14 +93,14 @@ export default function TrainerSchedulePage(props: { params: Promise<{ workspace
             <button
               onClick={() => setViewMode("Week")}
               className={`px-3 py-1 rounded text-xs font-semibold ${
-                viewMode === "Week" ? "bg-[var(--primary)] text-white" : "text-[var(--text-muted)]"
+                viewMode === "Week" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--text-muted)]"
               }`}
             >
               Week View
             </button>
           </div>
 
-          <Button size="sm" onClick={() => setModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-white text-xs">
+          <Button size="sm" onClick={() => setModalOpen(true)} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs">
             <Plus className="h-3.5 w-3.5" />
             + Schedule Session
           </Button>

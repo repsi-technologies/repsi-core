@@ -75,20 +75,20 @@ export default async function SolutionDetailPage({ params }: Props) {
       <JsonLd data={faqSchema} />
       <JsonLd data={breadcrumbSchema} />
 
-      <div className="min-h-screen bg-[#0E1511] text-zinc-100 flex flex-col selection:bg-emerald-500 selection:text-black">
+      <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] flex flex-col selection:bg-[var(--primary)] selection:text-black">
         <MarketingNav />
 
         <main className="flex-1">
           {/* Hero Section */}
           <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
             {/* Background Glow Elements */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none -z-10" />
-            <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none -z-10" />
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-[var(--primary)]/10 blur-[130px] rounded-full pointer-events-none -z-10" />
+            <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-[var(--primary)]/10 blur-[100px] rounded-full pointer-events-none -z-10" />
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               {/* Solution Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs sm:text-sm font-semibold mb-8 shadow-inner">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary-dark)] text-xs sm:text-sm font-semibold mb-8 shadow-inner">
+                <Sparkles className="w-4 h-4 text-[var(--primary-dark)]" />
                 <span>{solution.badge}</span>
               </div>
 
@@ -104,7 +104,7 @@ export default async function SolutionDetailPage({ params }: Props) {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-base transition-all duration-200 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-black font-bold text-base transition-all duration-200 shadow-lg shadow-[var(--primary)]/25 flex items-center justify-center gap-2 group"
                 >
                   <span>Start Free 14-Day Trial</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -120,19 +120,19 @@ export default async function SolutionDetailPage({ params }: Props) {
               {/* Highlights Micro-bar */}
               <div className="mt-14 pt-8 border-t border-zinc-800/80 grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                 <div className="flex items-center gap-2.5 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                   <span>Sub-second QR Check-ins</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                   <span>WhatsApp Automated Billing</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                   <span>UPI & Instant Settlement</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
                   <span>Zero Setup Fees</span>
                 </div>
               </div>
@@ -140,7 +140,7 @@ export default async function SolutionDetailPage({ params }: Props) {
           </section>
 
           {/* Key Benefits Grid */}
-          <section className="py-20 bg-[#121A15]/60 border-y border-zinc-800/60">
+          <section className="py-20 bg-[#24272B]/60 border-y border-zinc-800/60">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-16">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
@@ -155,9 +155,9 @@ export default async function SolutionDetailPage({ params }: Props) {
                 {solution.keyBenefits.map((benefit, idx) => (
                   <div
                     key={idx}
-                    className="p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-emerald-500/40 transition-all duration-200 group"
+                    className="p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-[var(--primary)]/40 transition-all duration-200 group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold mb-5 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center text-[var(--primary-dark)] font-bold mb-5 group-hover:scale-110 transition-transform">
                       {idx + 1}
                     </div>
                     <h3 className="text-xl font-bold text-white mb-3">
@@ -191,7 +191,7 @@ export default async function SolutionDetailPage({ params }: Props) {
                       key={idx}
                       className="flex items-center gap-3 p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80"
                     >
-                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-[var(--primary)]/20 text-[var(--primary-dark)] flex items-center justify-center shrink-0">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                       <span className="text-sm font-medium text-zinc-200">
@@ -206,10 +206,10 @@ export default async function SolutionDetailPage({ params }: Props) {
 
           {/* FAQ Section */}
           {solution.faq.length > 0 && (
-            <section className="py-20 bg-[#121A15]/40 border-t border-zinc-800/60">
+            <section className="py-20 bg-[#24272B]/40 border-t border-zinc-800/60">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-14">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary-dark)] text-xs font-semibold mb-4">
                     <HelpCircle className="w-3.5 h-3.5" />
                     <span>Frequently Asked Questions</span>
                   </div>
@@ -240,7 +240,7 @@ export default async function SolutionDetailPage({ params }: Props) {
           {/* Bottom CTA Banner */}
           <section className="py-20 relative overflow-hidden">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <div className="p-10 sm:p-16 rounded-3xl bg-gradient-to-r from-emerald-950/70 via-emerald-900/40 to-zinc-900 border border-emerald-500/30 relative">
+              <div className="p-10 sm:p-16 rounded-3xl bg-gradient-to-r from-[var(--primary)]/15 via-[var(--primary)]/5 to-zinc-900 border border-[var(--primary)]/30 relative">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6">
                   Ready to Transform Your Operations?
                 </h2>
@@ -249,7 +249,7 @@ export default async function SolutionDetailPage({ params }: Props) {
                 </p>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-base transition-all duration-200 shadow-xl shadow-emerald-500/30"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-black font-bold text-base transition-all duration-200 shadow-xl shadow-[var(--primary)]/30"
                 >
                   <span>Start Free Trial Today</span>
                   <ArrowRight className="w-4 h-4" />

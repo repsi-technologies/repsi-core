@@ -23,8 +23,8 @@ export function BorderBeam({
   duration = 8,
   anchor = 90,
   borderWidth = 1.5,
-  colorFrom = "#16A34A",
-  colorTo = "#38BDF8",
+  colorFrom = "var(--primary)",
+  colorTo = "var(--primary-hover)",
   delay = 0,
 }: BorderBeamProps) {
   return (
