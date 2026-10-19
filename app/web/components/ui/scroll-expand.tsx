@@ -81,10 +81,7 @@ export function ScrollExpand({
   const scrimRef = useRef<HTMLDivElement | null>(null);
   const hintRef = useRef<HTMLDivElement | null>(null);
 
-  const propsRef = useRef<Required<Pick<ScrollExpandProps, ConfigKey>>>(
-    {} as Required<Pick<ScrollExpandProps, ConfigKey>>
-  );
-  propsRef.current = {
+  const currentConfig: Required<Pick<ScrollExpandProps, ConfigKey>> = {
     startWidth,
     startHeight,
     startRadius,
@@ -97,6 +94,11 @@ export function ScrollExpand({
     useWindowScroll,
     enabled,
   };
+  const propsRef = useRef<Required<Pick<ScrollExpandProps, ConfigKey>>>(currentConfig);
+
+  useEffect(() => {
+    propsRef.current = currentConfig;
+  });
 
   const applyProgress = useCallback((p: number) => {
     const frame = frameRef.current;

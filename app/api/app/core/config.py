@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _CURRENT_DIR = Path(__file__).resolve().parent
@@ -91,6 +91,15 @@ class Settings(BaseSettings):
         elif isinstance(v, list):
             return [str(i).strip() for i in v]
         raise ValueError(v)
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        if self.ENVIRONMENT.lower() == "production":
+            if self.SECRET_KEY == "repsi-super-secret-key-change-in-production-min-32-chars-long":
+                raise ValueError("SECRET_KEY must be changed from the default value in production!")
+            if len(self.SECRET_KEY) < 32:
+                raise ValueError("SECRET_KEY must be at least 32 characters in production!")
+        return self
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILES,

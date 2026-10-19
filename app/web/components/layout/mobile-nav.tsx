@@ -129,7 +129,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)]">
           <Link href={`/${workspace}/dashboard`} className="flex items-center gap-2.5">
             <Image
-              src="/logos/logo_trans.png"
+              src="/logos/logo-dark.png"
               alt="REPSI"
               width={34}
               height={34}

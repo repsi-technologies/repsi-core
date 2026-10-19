@@ -55,7 +55,7 @@ export function FlexCarouselFeatures() {
             const rect = el.getBoundingClientRect();
             const inView = rect.top < window.innerHeight && rect.bottom > 0;
             if (inView) {
-              carouselRef.current?.scrollBy(deltaY * 0.7);
+              carouselRef.current?.scrollBy(deltaY * 0.18);
             }
           }
           ticking = false;

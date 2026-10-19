@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
 
 const PUBLIC_PREFIXES = [
   "/",
@@ -75,13 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
   });
 
-  // Show nothing while verifying auth on protected routes to prevent flash of content
+  // Show signature R loading screen while verifying auth on protected routes
   if (!isPublic && authorized === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="w-8 h-8 rounded-full border-2 border-[var(--primary)] border-t-transparent animate-spin" />
-      </div>
-    );
+    return <RepsiBrandLoader message="Loading REPSI..." fullScreen={true} />;
   }
 
   return <>{children}</>;

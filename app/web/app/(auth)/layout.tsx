@@ -15,11 +15,11 @@ export default function AuthLayout({
       <header className="p-6 sm:p-8">
         <Link href="/" className="inline-block transition-opacity hover:opacity-80">
           <Image
-            src="/logos/primary_logo.png"
+            src="/logos/logo-dark.png"
             alt="REPSI"
             width={120}
             height={40}
-            className="h-5 sm:h-6 w-auto object-contain"
+            className="h-6 sm:h-7 w-auto object-contain"
             priority
           />
         </Link>
@@ -33,12 +33,12 @@ export default function AuthLayout({
       {/* Footer - Tiny at bottom */}
       <footer className="py-6 text-center text-xs text-[#8A9690]">
         <p>
-          © 2026 REPSI ·{" "}
-          <Link href="/about" className="hover:text-[var(--text)] transition-colors">
+          © {new Date().getFullYear()} REPSI Technologies ·{" "}
+          <Link href="/privacy" className="hover:text-[var(--text)] transition-colors">
             Privacy
           </Link>{" "}
           ·{" "}
-          <Link href="/about" className="hover:text-[var(--text)] transition-colors">
+          <Link href="/terms" className="hover:text-[var(--text)] transition-colors">
             Terms
           </Link>
         </p>

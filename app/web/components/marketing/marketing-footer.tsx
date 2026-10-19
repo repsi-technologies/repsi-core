@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 import { HalftoneReveal } from "@/components/animations/halftone-reveal";
+import { Lanyard } from "@/components/ui/lanyard";
 
-// Scalable vector asset for Halftone Reveal of REPSI in brand orange
-const REPSI_ORANGE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="340" viewBox="0 0 1600 340"><rect width="100%" height="100%" fill="%23FAF9F6"/><text x="50%" y="76%" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="280" fill="%23F07858" text-anchor="middle" letter-spacing="-0.035em">REPSI</text></svg>`;
+// Scalable vector asset for Halftone Reveal of REPSI in brand orange with mechanical grommet at "I"
+const REPSI_ORANGE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="340" viewBox="0 0 1600 340"><rect width="100%" height="100%" fill="%23FAF9F6"/><text x="50%" y="76%" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="280" fill="%23F07858" text-anchor="middle" letter-spacing="-0.035em">REPSI</text><circle cx="1100" cy="54" r="14" fill="%23FAF9F6" stroke="%23F07858" stroke-width="6"/><circle cx="1100" cy="54" r="6" fill="%23FAF9F6"/></svg>`;
 
 export function MarketingFooter() {
   const currentYear = new Date().getFullYear();
@@ -228,15 +229,15 @@ export function MarketingFooter() {
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 02. OVERSIZED WORDMARK IN ORANGE WITH HALFTONE REVEAL         */}
+        {/* 02. OVERSIZED WORDMARK IN ORANGE WITH HALFTONE REVEAL & 3D LANYARD */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div
-          className="relative w-full h-[140px] sm:h-[180px] md:h-[230px] lg:h-[280px] xl:h-[320px] overflow-hidden select-none flex items-center justify-center my-4 sm:my-6 cursor-crosshair"
+          className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[440px] xl:h-[480px] overflow-hidden select-none flex items-center justify-center my-4 sm:my-6"
           aria-hidden="true"
         >
-          {/* Halftone Reveal Canvas Component from ReactBits (Clean Single-Layer Presentation) */}
+          {/* Halftone Reveal Canvas Component from ReactBits */}
           {hasWebGl ? (
-            <div className="w-full h-full">
+            <div className="w-full h-full relative flex items-center justify-center cursor-crosshair">
               <HalftoneReveal
                 src={REPSI_ORANGE_SVG}
                 mode="duotone"
@@ -259,13 +260,42 @@ export function MarketingFooter() {
               REPSI
             </span>
           )}
+
+          {/* Interactive 3D Lanyard Pass physically connected into the "I" on REPSI covering the whole width */}
+          {hasWebGl && (
+            <div
+              className="absolute inset-0 w-full h-full z-20 pointer-events-auto"
+              title="Interactive 3D REPSI VIP Badge: Drag, swing or click to flip!"
+            >
+              <Lanyard
+                frontImage="/images/lanyard-badge-front.svg"
+                backImage="/images/lanyard-badge-back.svg"
+                imageFit="contain"
+                cardColor="#101217"
+                finish="holographic"
+                orientation="portrait"
+                anchor={0.6875}
+                size={0.36}
+                strapColor="#F07858"
+                strapLength={0.34}
+                strapWidth={0.7}
+                metal="silver"
+                gravity={0.9}
+                damping={0.55}
+                elasticity={0.6}
+                breeze={0.4}
+                interactive={true}
+                className="w-full h-full cursor-grab active:cursor-grabbing"
+              />
+            </div>
+          )}
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
         {/* 03. THIN BOTTOM BAR (SUBTLE & RESTRAINED)                     */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="pt-5 border-t border-[#E7E4DE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#62666D]">
-          <p>© {currentYear} REPSI. All rights reserved.</p>
+          <p>© {currentYear} REPSI Technologies. All rights reserved.</p>
 
           <p className="font-mono font-semibold tracking-wider uppercase text-[10px] sm:text-[11px] text-[#858890]">
             BUILT FOR BETTER OPERATIONS.

@@ -938,8 +938,8 @@ export const FlexCarousel = forwardRef<FlexCarouselRef, FlexCarouselProps>(funct
       }
       if (!pointer.dragging) {
         const spinning = introState.running && introState.kind === "spin";
-        const stiffness = spinning ? 9 : mode === "wheel" ? 80 : 55;
-        const damping = 2 * Math.sqrt(stiffness);
+        const stiffness = spinning ? 9 : mode === "wheel" ? 38 : 34;
+        const damping = 2 * Math.sqrt(stiffness) * 1.05;
         const steps = Math.ceil(dt / (1 / 240));
         const h = dt / steps;
         for (let i = 0; i < steps; i++) {
@@ -1387,7 +1387,7 @@ export const FlexCarousel = forwardRef<FlexCarouselRef, FlexCarouselProps>(funct
       interactedAt = performance.now();
       if (closeFocus()) return;
       const delta = Math.max(-120, Math.min(120, (horizontal ? dx : dy) * unit));
-      let nextGoal = goal + delta * 1.25;
+      let nextGoal = goal + delta * 0.45;
       if (!s.circular) {
         nextGoal = Math.max(minPos, Math.min(maxPos, nextGoal));
       }

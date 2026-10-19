@@ -161,18 +161,25 @@ function RepsiLogo({ collapsed, workspace }: { collapsed: boolean; workspace: st
         /* Collapsed: app icon only */
         <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
           <Image
-            src="/logos/dark_logo_trans.png"
+            src="/logos/logo-dark.png"
             alt="REPSI"
             width={36}
             height={36}
-            className="object-contain"
+            className="object-contain dark:hidden"
+          />
+          <Image
+            src="/logos/white_logo.png"
+            alt="REPSI"
+            width={36}
+            height={36}
+            className="object-contain hidden dark:block"
           />
         </div>
       ) : (
         /* Expanded: horizontal logo */
         <div className="flex items-center h-10 w-full">
           <Image
-            src="/logos/primary_logo.png"
+            src="/logos/logo-dark.png"
             alt="REPSI"
             width={160}
             height={48}
@@ -180,7 +187,7 @@ function RepsiLogo({ collapsed, workspace }: { collapsed: boolean; workspace: st
             priority
           />
           <Image
-            src="/logos/dark_logo_trans.png"
+            src="/logos/white_logo.png"
             alt="REPSI"
             width={160}
             height={48}

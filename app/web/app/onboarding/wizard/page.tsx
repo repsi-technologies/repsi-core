@@ -548,7 +548,7 @@ export default function OnboardingWizardPage() {
       <header className="p-6 sm:p-8 text-center">
         <Link href="/" className="inline-block transition-opacity hover:opacity-85">
           <Image
-            src="/logos/primary_logo.png"
+            src="/logos/logo-dark.png"
             alt="REPSI"
             width={120}
             height={40}
@@ -1894,12 +1894,12 @@ export default function OnboardingWizardPage() {
       {/* Minimal Footer */}
       <footer className="py-6 text-center text-xs text-[#94A3B8]">
         <p>
-          © 2026 REPSI ·{" "}
-          <Link href="/about" className="hover:text-[#17191C] transition-colors">
+          © {new Date().getFullYear()} REPSI Technologies ·{" "}
+          <Link href="/privacy" className="hover:text-[#17191C] transition-colors">
             Privacy
           </Link>{" "}
           ·{" "}
-          <Link href="/about" className="hover:text-[#17191C] transition-colors">
+          <Link href="/terms" className="hover:text-[#17191C] transition-colors">
             Terms
           </Link>
         </p>

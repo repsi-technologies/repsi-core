@@ -20,47 +20,42 @@ const DEFAULT_CRITICAL_IMAGES = [
 
 export function PageImageLoadingScreen({
   criticalImages = DEFAULT_CRITICAL_IMAGES,
-  maxWaitMs = 2000,
+  maxWaitMs = 1800,
 }: PageImageLoadingScreenProps) {
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !sessionStorage.getItem("repsi_images_loaded");
-    }
-    return true;
-  });
-  const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(20);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem("repsi_images_loaded")) {
-      setIsLoading(false);
-      return;
-    }
-
     let mounted = true;
     let loadedCount = 0;
+    const startTime = Date.now();
+    const minDisplayMs = 600; // Guarantee the R animation has time to draw smoothly
     const total = criticalImages.length;
 
+    const completeLoading = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minDisplayMs - elapsed);
+      setProgress(100);
+
+      setTimeout(() => {
+        if (mounted) setIsLoading(false);
+      }, remaining);
+    };
+
     if (total === 0) {
-      setIsLoading(false);
+      completeLoading();
       return;
     }
 
     const checkComplete = () => {
       loadedCount++;
       if (!mounted) return;
-      const pct = Math.min(100, Math.round((loadedCount / total) * 100));
+      const pct = Math.min(95, Math.round(20 + (loadedCount / total) * 75));
       setProgress(pct);
 
       if (loadedCount >= total) {
-        // Mark session as loaded
-        try {
-          sessionStorage.setItem("repsi_images_loaded", "true");
-        } catch {}
-
-        setTimeout(() => {
-          if (mounted) setIsLoading(false);
-        }, 180);
+        completeLoading();
       }
     };
 
@@ -76,11 +71,10 @@ export function PageImageLoadingScreen({
       }
     });
 
-    // Safety timeout: ensure loading screen never traps the user on slow connections
+    // Safety timeout: ensure loading screen never traps the user
     const timer = setTimeout(() => {
       if (mounted) {
-        setProgress(100);
-        setIsLoading(false);
+        completeLoading();
       }
     }, maxWaitMs);
 
