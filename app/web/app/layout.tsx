@@ -18,6 +18,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://repsi.app"),
   title: {
     default: "Repsi",
     template: "%s | Repsi",
@@ -28,10 +29,28 @@ export const metadata: Metadata = {
   authors: [{ name: "REPSI" }],
   openGraph: {
     title: "Repsi",
-    description: "The modern operating system for gyms.",
+    description: "The modern operating system for gyms. Manage members, attendance, memberships and payments in one place.",
     url: "https://repsi.app",
     siteName: "Repsi",
+    locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "https://repsi.app/images/og-image.png",
+        secureUrl: "https://repsi.app/images/og-image.png",
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "REPSI - Gym Management Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Repsi",
+    description: "The modern operating system for gyms.",
+    images: ["https://repsi.app/images/og-image.png"],
+    creator: "@repsi_app",
   },
 };
 

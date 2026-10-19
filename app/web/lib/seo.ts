@@ -79,9 +79,11 @@ export function constructMetadata({
       images: [
         {
           url: image.startsWith("http") ? image : `${SITE_URL}${image}`,
+          secureUrl: image.startsWith("http") ? image : `${SITE_URL}${image}`,
           width: 1200,
           height: 630,
-          alt: title,
+          type: "image/png",
+          alt: `${title} | REPSI`,
         },
       ],
     },

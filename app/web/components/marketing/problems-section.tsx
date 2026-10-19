@@ -86,20 +86,20 @@ export function ProblemsSection() {
   return (
     <section
       id="problems"
-      className="relative w-full bg-[#FAF9F6] text-[#191919] pt-20 sm:pt-28 lg:pt-32 pb-20 sm:pb-28 border-b border-[#E7E4DE] overflow-hidden"
+      className="relative w-full bg-[#FAF9F6] text-[#191919] pt-12 sm:pt-24 lg:pt-32 pb-14 sm:pb-24 lg:pb-28 border-b border-[#E7E4DE] overflow-hidden"
     >
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ───────────────────────────────────────────────────────────── */}
         {/* 01. SECTION HEADER                                            */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-16">
 
           <motion.h2
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
+            className="font-heading font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.18] sm:leading-[1.14] mb-3 sm:mb-4"
           >
             Behind every great fitness business, <br className="hidden sm:inline" />
             <span className="text-[#E25822]">there’s a lot to manage.</span>
@@ -110,7 +110,7 @@ export function ProblemsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.16 }}
-            className="text-base sm:text-lg text-[#62666D] leading-relaxed max-w-2xl mx-auto font-normal"
+            className="text-sm sm:text-lg text-[#62666D] leading-relaxed max-w-2xl mx-auto font-normal px-1 sm:px-0"
           >
             Members, attendance, payments, renewals, staff and daily operations can
             quickly become overwhelming — especially when handled across different
