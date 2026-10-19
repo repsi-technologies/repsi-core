@@ -1,5 +1,5 @@
 import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
 
 export default function RootLoading() {
-  return <RepsiBrandLoader message="Loading REPSI..." fullScreen={true} />;
+  return <RepsiBrandLoader message="Preparing your workspace..." fullScreen={true} />;
 }

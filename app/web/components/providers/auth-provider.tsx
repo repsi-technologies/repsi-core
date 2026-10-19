@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Show signature R loading screen while verifying auth on protected routes
   if (!isPublic && authorized === null) {
-    return <RepsiBrandLoader message="Loading REPSI..." fullScreen={true} />;
+    return <RepsiBrandLoader message="Preparing your workspace..." fullScreen={true} />;
   }
 
   return <>{children}</>;
