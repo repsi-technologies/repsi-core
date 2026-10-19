@@ -35,7 +35,7 @@ export function MarketingFooter() {
           <div className="lg:col-span-5 space-y-4">
             <Link
               href="/"
-              className="inline-block group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F07858] rounded-md"
+              className="inline-block group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C76706] rounded-md"
             >
               <Image
                 src="/logos/logo-dark.png"
@@ -54,19 +54,19 @@ export function MarketingFooter() {
             {/* Verified Contact Details */}
             <div className="space-y-2 pt-1 text-xs text-[#62666D]">
               <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#F07858] shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-[#C76706] shrink-0" />
                 <a
                   href="mailto:contact@repsi.app"
-                  className="font-medium hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                  className="font-medium hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                 >
                   contact@repsi.app
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#F07858] shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-[#C76706] shrink-0" />
                 <a
                   href="tel:+918667783321"
-                  className="font-medium hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                  className="font-medium hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                 >
                   +91 86677 83321
                 </a>
@@ -80,7 +80,7 @@ export function MarketingFooter() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="REPSI on LinkedIn"
-                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#F07858] hover:border-[#FFD2C3] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F07858]"
+                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#C76706] hover:border-[#F5D2B0] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C76706]"
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
@@ -91,7 +91,7 @@ export function MarketingFooter() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="REPSI on Instagram"
-                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#F07858] hover:border-[#FFD2C3] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F07858]"
+                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#C76706] hover:border-[#F5D2B0] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C76706]"
               >
                 <svg
                   className="w-3.5 h-3.5 fill-none stroke-current stroke-2 stroke-linecap-round stroke-linejoin-round"
@@ -108,7 +108,7 @@ export function MarketingFooter() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="REPSI on WhatsApp"
-                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#F07858] hover:border-[#FFD2C3] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F07858]"
+                className="w-8 h-8 rounded-lg bg-white border border-[#E7E4DE] flex items-center justify-center text-[#62666D] hover:text-[#C76706] hover:border-[#F5D2B0] shadow-2xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C76706]"
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.15 4.201 4.293-1.126z" />
@@ -128,7 +128,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/features"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Features
                   </Link>
@@ -136,7 +136,7 @@ export function MarketingFooter() {
                 <li>
                   <a
                     href="#why-repsi"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Why REPSI?
                   </a>
@@ -144,7 +144,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/pricing"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Pricing
                   </Link>
@@ -152,7 +152,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/download"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Download
                   </Link>
@@ -169,7 +169,7 @@ export function MarketingFooter() {
                 <li>
                   <a
                     href="#pricing"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     FAQs
                   </a>
@@ -177,7 +177,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/contact"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Contact
                   </Link>
@@ -185,7 +185,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/help"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Help Center
                   </Link>
@@ -202,7 +202,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/privacy"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Privacy
                   </Link>
@@ -210,7 +210,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/terms"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Terms
                   </Link>
@@ -218,7 +218,7 @@ export function MarketingFooter() {
                 <li>
                   <Link
                     href="/terms#cancellation"
-                    className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+                    className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
                   >
                     Cancellation
                   </Link>
@@ -244,8 +244,8 @@ export function MarketingFooter() {
                 shape="dot"
                 cellSize={5}
                 dotScale={1.12}
-                inkColor="#F07858"
-                accentColor="#F07858"
+                inkColor="#C76706"
+                accentColor="#C76706"
                 paperColor="#FAF9F6"
                 revealRadius={190}
                 softness={0.45}
@@ -256,7 +256,7 @@ export function MarketingFooter() {
               />
             </div>
           ) : (
-            <span className="font-heading font-black text-[clamp(6.5rem,27vw,24rem)] leading-[0.72] tracking-[-0.04em] text-[#F07858] select-none text-center whitespace-nowrap pointer-events-none drop-shadow-xs">
+            <span className="font-heading font-black text-[clamp(6.5rem,27vw,24rem)] leading-[0.72] tracking-[-0.04em] text-[#C76706] select-none text-center whitespace-nowrap pointer-events-none drop-shadow-xs">
               REPSI
             </span>
           )}
@@ -276,7 +276,7 @@ export function MarketingFooter() {
                 orientation="portrait"
                 anchor={0.6875}
                 size={0.36}
-                strapColor="#F07858"
+                strapColor="#C76706"
                 strapLength={0.34}
                 strapWidth={0.7}
                 metal="silver"
@@ -304,13 +304,13 @@ export function MarketingFooter() {
           <div className="flex items-center gap-5">
             <Link
               href="/privacy"
-              className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+              className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="hover:text-[#F07858] transition-colors focus:outline-none focus-visible:underline"
+              className="hover:text-[#C76706] transition-colors focus:outline-none focus-visible:underline"
             >
               Terms
             </Link>

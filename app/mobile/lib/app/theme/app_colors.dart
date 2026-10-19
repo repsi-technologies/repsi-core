@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 /// REPSI design system color palette.
 class AppColors {
-  // Core Brand Colors
-  static const Color primary = Color(0xFFD9532F);
-  static const Color primaryDark = Color(0xFFB8431F);
+  // Core Brand Colors — Burnt Orange
+  static const Color primary = Color(0xFFC76706);
+  static const Color primaryDark = Color(0xFFAD5702);
   static const Color emerald = primary;
-  static const Color primarySoft = Color(0xFFFCEAE4);
-  static const Color primaryLight = Color(0xFFFCEAE4);
+  static const Color primarySoft = Color(0xFFFDF5ED);
+  static const Color primaryLight = Color(0xFFFDF5ED);
   static const Color paleMint = Color(0xFFEFEEEA);
-  static const Color primaryHover = Color(0xFFBF4423);
+  static const Color primaryHover = Color(0xFFAD5702);
 
   // Light Theme
   static const Color background = Color(0xFFF7F7F5);
@@ -47,9 +47,9 @@ class AppColors {
   static const Color darkSurface = Color(0xFF24272B);
   static const Color darkSurfaceElevated = Color(0xFF2E3237);
   static const Color darkSurfaceSoft = Color(0xFF2E3237);
-  static const Color darkPrimary = Color(0xFFF07858);
-  static const Color darkPrimaryDark = Color(0xFFF58F73);
-  static const Color darkPrimaryLight = Color(0xFFF58F73);
+  static const Color darkPrimary = Color(0xFFC76706);
+  static const Color darkPrimaryDark = Color(0xFFE67E19);
+  static const Color darkPrimaryLight = Color(0xFFE67E19);
   static const Color darkOnPrimary = Color(0xFF17191C);
   static const Color darkText = Color(0xFFF7F7F5);
   static const Color darkTextPrimary = Color(0xFFF7F7F5);

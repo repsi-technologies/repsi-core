@@ -77,7 +77,7 @@ export const TEMPLATE_OPTIONS: TemplateOption[] = [
     name: "Modern Fitness",
     category: "Commercial Gym",
     tagline: "Dark • High-Energy • Bold Typography",
-    accent: "#D9532F",
+    accent: "#C76706",
     theme: "dark",
     description: "Sleek dark layout designed for high-energy commercial gyms and strength hubs.",
     previewBg: "from-zinc-950 to-emerald-950"
@@ -335,7 +335,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
             subdomain: workspace,
             title: "Apex Fitness Studio",
             tagline: "Transform your body. Elevate your life.",
-            primary_color: "#D9532F",
+            primary_color: "#C76706",
             secondary_color: "#17191C",
             template_id: "modern-fitness",
             theme_mode: "dark",
@@ -825,7 +825,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                   <div className="flex items-center gap-2">
                     <div
                       className="h-8 w-8 rounded-lg flex items-center justify-center font-black text-white"
-                      style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                      style={{ backgroundColor: site?.primary_color || "#C76706" }}
                     >
                       <Dumbbell className="h-4 w-4" />
                     </div>
@@ -843,7 +843,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
 
               <button
                 className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
-                style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                style={{ backgroundColor: site?.primary_color || "#C76706" }}
               >
                 Join Gym
               </button>
@@ -904,7 +904,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                         <div className="relative z-10 max-w-3xl space-y-4">
                           <span
                             className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-white shadow-sm"
-                            style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                            style={{ backgroundColor: site?.primary_color || "#C76706" }}
                           >
                             Welcome to {site?.title || "Apex Fitness"}
                           </span>
@@ -917,7 +917,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                           <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
                             <button
                               className="px-6 py-3 rounded-xl font-bold text-white text-xs sm:text-sm shadow-lg transition-transform hover:scale-105"
-                              style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                              style={{ backgroundColor: site?.primary_color || "#C76706" }}
                             >
                               {sec.content?.primaryBtnText || "Book Free Trial"}
                             </button>
@@ -993,7 +993,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                               </div>
                               <button
                                 className="w-full py-2.5 rounded-xl font-bold text-xs text-white shadow-md"
-                                style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                                style={{ backgroundColor: site?.primary_color || "#C76706" }}
                               >
                                 Select Plan
                               </button>
@@ -1099,7 +1099,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                           <Input placeholder="Phone Number" className="bg-black/40 border-white/10 text-xs" readOnly />
                           <button
                             className="w-full py-2.5 rounded-xl font-bold text-white text-xs shadow-md"
-                            style={{ backgroundColor: site?.primary_color || "#D9532F" }}
+                            style={{ backgroundColor: site?.primary_color || "#C76706" }}
                           >
                             Submit Inquiry
                           </button>

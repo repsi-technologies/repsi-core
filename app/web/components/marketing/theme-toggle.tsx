@@ -43,7 +43,7 @@ export function ThemeToggle({
         onClick={() => setTheme(isDark ? "light" : "dark")}
         className={`relative inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden group ${
           isDark
-            ? "border-[var(--primary)]/30 bg-[var(--surface)]/90 text-[var(--primary-dark)] hover:border-[var(--primary)]/60 shadow-[0_0_16px_rgba(240,120,88,0.18)]"
+            ? "border-[var(--primary)]/30 bg-[var(--surface)]/90 text-[var(--primary-dark)] hover:border-[var(--primary)]/60 shadow-[0_0_16px_rgba(199, 103, 6,0.18)]"
             : "border-[var(--border)] bg-[var(--surface)] text-[var(--primary)] hover:bg-[var(--surface-secondary)] shadow-xs"
         } ${className}`}
         aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
@@ -74,7 +74,7 @@ export function ThemeToggle({
       className={`relative inline-flex h-9 p-0.5 rounded-full border transition-all duration-300 select-none items-center ${
         isHome
           ? isDark
-            ? "border-[var(--primary)]/25 bg-[var(--background)]/85 shadow-[0_0_20px_rgba(240,120,88,0.12)] backdrop-blur-md"
+            ? "border-[var(--primary)]/25 bg-[var(--background)]/85 shadow-[0_0_20px_rgba(199, 103, 6,0.12)] backdrop-blur-md"
             : "border-white/20 bg-black/25 shadow-inner backdrop-blur-md"
           : isDark
           ? "border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-md shadow-xs"
@@ -85,7 +85,7 @@ export function ThemeToggle({
       <motion.div
         className={`absolute top-0.5 bottom-0.5 w-[31px] rounded-full transition-colors ${
           isDark
-            ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] shadow-[0_0_12px_rgba(240,120,88,0.45)]"
+            ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] shadow-[0_0_12px_rgba(199, 103, 6,0.45)]"
             : "bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
         }`}
         animate={{

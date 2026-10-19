@@ -38,8 +38,8 @@ export function ScrollExpandStory() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10 sm:mb-14">
         {/* 1. Section Label */}
         <div className="mb-3.5">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#D9532F] bg-[#FCEAE4] border border-[#F9D5CA]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F07858] animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
             THE REALITY OF FITNESS OPERATIONS
           </span>
         </div>
@@ -47,7 +47,7 @@ export function ScrollExpandStory() {
         {/* 2. Heading */}
         <h2 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] text-[#17191C] tracking-tight leading-[1.12] mb-3.5">
           Behind every great fitness business, <br />
-          <span className="text-[#F07858]">there&apos;s a lot to manage.</span>
+          <span className="text-[#C76706]">there&apos;s a lot to manage.</span>
         </h2>
 
         {/* 3. Supporting Text */}
@@ -86,7 +86,7 @@ export function ScrollExpandStory() {
 
           {/* Clean Floating Badge at bottom */}
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-[#E4E2DC] shadow-lg flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-[#F07858] animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-[#C76706] animate-pulse" />
             <span className="text-xs font-bold text-[#17191C]">
               Peak Front-Desk Hours: 7:00 PM
             </span>
@@ -99,7 +99,7 @@ export function ScrollExpandStory() {
       {/* ───────────────────────────────────────────────────────────── */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#D9532F]">
+          <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#C76706]">
             ✦ Everyday Front Desk Friction
           </span>
           <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#17191C] mt-1">
@@ -180,7 +180,7 @@ export function ScrollExpandStory() {
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-mono font-bold tracking-wider text-[#D9532F] uppercase bg-[#FCEAE4] border border-[#F9D5CA] px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-mono font-bold tracking-wider text-[#C76706] uppercase bg-[#FDF5ED] border border-[#F5D2B0] px-2.5 py-1 rounded-full">
                   Problem 03
                 </span>
                 <span className="text-[11px] text-[#A6A8AC] font-medium">Retention</span>
@@ -195,8 +195,8 @@ export function ScrollExpandStory() {
               </p>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#FCEAE4]/70 border border-[#F9D5CA] flex items-center gap-2 text-xs text-[#A3432B] font-medium">
-              <BellRing className="w-4 h-4 text-[#F07858] shrink-0" />
+            <div className="p-3 rounded-xl bg-[#FDF5ED]/70 border border-[#F5D2B0] flex items-center gap-2 text-xs text-[#A3432B] font-medium">
+              <BellRing className="w-4 h-4 text-[#C76706] shrink-0" />
               <span>18 expired accounts active unbilled</span>
             </div>
           </motion.div>
@@ -206,7 +206,7 @@ export function ScrollExpandStory() {
         <div className="mt-10 text-center">
           <a
             href="#why-repsi"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#D9532F] hover:text-[#B8431F] transition-colors"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#C76706] hover:text-[#964701] transition-colors"
           >
             <span>See how REPSI turns chaos into clarity</span>
             <ArrowRight className="w-4 h-4" />

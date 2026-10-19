@@ -60,7 +60,7 @@ export function RepsiBrandLoader({
             {/* Signature Coral-Orange Diagonal Slash Leg */}
             <motion.path
               d="M 50 56 L 76 82"
-              stroke="#F07858"
+              stroke="#C76706"
               strokeWidth="11"
               strokeLinecap="round"
               initial={
@@ -81,7 +81,7 @@ export function RepsiBrandLoader({
               cx="50"
               cy="56"
               r="2.5"
-              fill="#F07858"
+              fill="#C76706"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.35, duration: 0.2 }}
@@ -103,7 +103,7 @@ export function RepsiBrandLoader({
           {/* Thin Coral-Orange Progress Line */}
           <div className="w-32 sm:w-36 h-[2.5px] bg-[#E7E4DE] rounded-full overflow-hidden relative">
             <motion.div
-              className="absolute top-0 bottom-0 bg-[#F07858] rounded-full"
+              className="absolute top-0 bottom-0 bg-[#C76706] rounded-full"
               initial={
                 shouldReduceMotion
                   ? { left: 0, right: 0 }

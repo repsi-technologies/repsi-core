@@ -6,7 +6,7 @@ import { ReferralTracker } from "@/components/marketing/referral-tracker";
 import { PageImageLoadingScreen } from "@/components/ui/page-image-loading-screen";
 
 export const metadata: Metadata = constructMetadata({
-  title: "Fitness Management Software for Gyms, Studios & Fitness Businesses | Repsi",
+  title: "Repsi",
   description:
     "Run your gym, studio, pool or yoga business with Repsi. Manage members, payments, attendance, CRM, trainers, workouts, finances and more from one platform.",
   keywords: [

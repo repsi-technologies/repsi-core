@@ -143,8 +143,8 @@ export function FeaturesBenefitsSection() {
             transition={{ duration: 0.4 }}
             className="mb-3.5"
           >
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#D9532F] bg-[#FCEAE4] border border-[#F9D5CA]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F07858] animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
               Features & Business Benefits
             </span>
           </motion.div>
@@ -157,7 +157,7 @@ export function FeaturesBenefitsSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#17191C] tracking-tight leading-[1.12] mb-4"
           >
             Everything your fitness business needs. <br />
-            <span className="text-[#F07858]">Nothing scattered.</span>
+            <span className="text-[#C76706]">Nothing scattered.</span>
           </motion.h2>
 
           <motion.p
@@ -185,15 +185,15 @@ export function FeaturesBenefitsSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.45, delay: index * 0.08 }}
-                className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-7 shadow-xs hover:shadow-md hover:border-[#F07858]/40 transition-all flex flex-col justify-between group"
+                className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-7 shadow-xs hover:shadow-md hover:border-[#C76706]/40 transition-all flex flex-col justify-between group"
               >
                 <div>
                   {/* Top Bar with Number & Icon */}
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-xs font-bold text-[#F07858] bg-[#FCEAE4] border border-[#F9D5CA] px-2.5 py-0.5 rounded-full">
+                    <span className="font-mono text-xs font-bold text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-2.5 py-0.5 rounded-full">
                       MODULE {mod.number}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-[#FAF8F5] group-hover:bg-[#FCEAE4] text-[#6B6F76] group-hover:text-[#F07858] border border-[#E4E2DC] group-hover:border-[#F9D5CA] flex items-center justify-center transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-[#FAF8F5] group-hover:bg-[#FDF5ED] text-[#6B6F76] group-hover:text-[#C76706] border border-[#E4E2DC] group-hover:border-[#F5D2B0] flex items-center justify-center transition-colors">
                       <Icon className="w-5 h-5" />
                     </div>
                   </div>
@@ -202,7 +202,7 @@ export function FeaturesBenefitsSection() {
                   <h3 className="font-heading font-bold text-lg text-[#17191C] leading-snug mb-1">
                     {mod.title}
                   </h3>
-                  <div className="text-xs font-semibold text-[#D9532F] mb-3">
+                  <div className="text-xs font-semibold text-[#C76706] mb-3">
                     {mod.tagline}
                   </div>
 
@@ -214,7 +214,7 @@ export function FeaturesBenefitsSection() {
                   {/* Problem Solved Callout Box */}
                   <div className="bg-[#FAF8F5] rounded-xl border border-[#E4E2DC] p-3 text-xs mb-5">
                     <div className="flex items-start gap-1.5 text-[#17191C]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F07858] shrink-0 mt-1.5" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] shrink-0 mt-1.5" />
                       <div>
                         <span className="font-bold text-[#A3432B]">Problem Solved: </span>
                         <span className="text-[#6B6F76] leading-relaxed">{mod.problemSolved}</span>
@@ -230,7 +230,7 @@ export function FeaturesBenefitsSection() {
                   </div>
                   {mod.highlights.map((highlight, hIdx) => (
                     <div key={hIdx} className="flex items-center gap-2 text-xs text-[#4A4E54]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#F07858] shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C76706] shrink-0" />
                       <span className="leading-tight">{highlight}</span>
                     </div>
                   ))}
@@ -253,7 +253,7 @@ export function FeaturesBenefitsSection() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/features"
-              className="group inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#F07858] hover:bg-[#E56A4A] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#F07858]/25 hover:shadow-lg active:scale-95"
+              className="group inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#C76706]/25 hover:shadow-lg active:scale-95"
             >
               <span>Explore All Features</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

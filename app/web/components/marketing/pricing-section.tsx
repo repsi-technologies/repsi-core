@@ -548,7 +548,7 @@ export function PricingSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             Affordable bundles or <br className="hidden sm:inline" />
-            <span className="text-[#F07858]">build your own plan.</span>
+            <span className="text-[#C76706]">build your own plan.</span>
           </motion.h2>
 
           <motion.p
@@ -570,7 +570,7 @@ export function PricingSection() {
                 onClick={() => setActiveTab("bundles")}
                 className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   activeTab === "bundles"
-                    ? "bg-[#F07858] text-white shadow-xs"
+                    ? "bg-[#C76706] text-white shadow-xs"
                     : "text-[#62666D] hover:text-[#191919]"
                 }`}
               >
@@ -581,7 +581,7 @@ export function PricingSection() {
                 onClick={() => setActiveTab("custom")}
                 className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeTab === "custom"
-                    ? "bg-[#F07858] text-white shadow-xs"
+                    ? "bg-[#C76706] text-white shadow-xs"
                     : "text-[#62666D] hover:text-[#191919]"
                 }`}
               >
@@ -613,7 +613,7 @@ export function PricingSection() {
                 aria-label="Toggle billing frequency"
               >
                 <motion.div
-                  className="w-5 h-5 bg-[#F07858] rounded-full shadow-sm"
+                  className="w-5 h-5 bg-[#C76706] rounded-full shadow-sm"
                   animate={{ x: billingCycle === "annual" ? 24 : 0 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
@@ -627,7 +627,7 @@ export function PricingSection() {
                 onClick={() => setBillingCycle("annual")}
               >
                 <span>Yearly</span>
-                <span className="text-[10px] font-bold text-[#F07858] bg-[#FFF0EA] border border-[#FFD2C3] px-2 py-0.5 rounded-full uppercase">
+                <span className="text-[10px] font-bold text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-2 py-0.5 rounded-full uppercase">
                   Save 20%
                 </span>
               </button>
@@ -652,7 +652,7 @@ export function PricingSection() {
                     key={bundle.id}
                     className={`rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 flex flex-col justify-between relative transition-all duration-200 ${
                       bundle.popular
-                        ? "bg-white text-[#191919] shadow-md border-2 border-[#F07858] ring-4 ring-[#F07858]/10"
+                        ? "bg-white text-[#191919] shadow-md border-2 border-[#C76706] ring-4 ring-[#C76706]/10"
                         : "bg-white text-[#191919] shadow-sm border border-[#E7E4DE] hover:shadow-md"
                     }`}
                   >
@@ -661,8 +661,8 @@ export function PricingSection() {
                       <div
                         className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-[10.5px] font-bold tracking-wider uppercase px-3.5 py-0.5 rounded-full shadow-sm whitespace-nowrap ${
                           bundle.popular
-                            ? "bg-[#F07858] text-white"
-                            : "bg-[#FFF0EA] text-[#F07858] border border-[#FFD2C3]"
+                            ? "bg-[#C76706] text-white"
+                            : "bg-[#FDF5ED] text-[#C76706] border border-[#F5D2B0]"
                         }`}
                       >
                         {bundle.badge}
@@ -711,7 +711,7 @@ export function PricingSection() {
                             key={fIdx}
                             className="flex items-start gap-2 text-[#191919]"
                           >
-                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#F07858]" />
+                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#C76706]" />
                             <span className="leading-snug">{feat}</span>
                           </div>
                         ))}
@@ -724,7 +724,7 @@ export function PricingSection() {
                         href={`/signup?plan=${bundle.id}&billing=${billingCycle}`}
                         className={`group w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-xs font-semibold transition-all duration-200 active:scale-[0.98] ${
                           bundle.popular
-                            ? "bg-[#F07858] hover:bg-[#E76543] text-white shadow-sm shadow-[#F07858]/30 hover:shadow-md"
+                            ? "bg-[#C76706] hover:bg-[#AD5702] text-white shadow-sm shadow-[#C76706]/30 hover:shadow-md"
                             : "bg-[#FAF9F6] hover:bg-[#F5F2ED] text-[#191919] border border-[#E7E4DE]"
                         }`}
                       >
@@ -735,7 +735,7 @@ export function PricingSection() {
                       <button
                         type="button"
                         onClick={() => loadBundleToBuilder(bundle)}
-                        className="w-full text-center text-[11px] font-semibold text-[#858890] hover:text-[#F07858] transition-colors py-1 cursor-pointer"
+                        className="w-full text-center text-[11px] font-semibold text-[#858890] hover:text-[#C76706] transition-colors py-1 cursor-pointer"
                       >
                         Customize this bundle →
                       </button>
@@ -748,7 +748,7 @@ export function PricingSection() {
             {/* Quick Transition Banner to Custom Builder */}
             <div className="rounded-2xl sm:rounded-3xl bg-white border border-[#E7E4DE] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
               <div className="space-y-1 text-center sm:text-left">
-                <div className="text-xs font-bold text-[#F07858] uppercase tracking-wider">
+                <div className="text-xs font-bold text-[#C76706] uppercase tracking-wider">
                   Prefer a custom setup?
                 </div>
                 <h4 className="font-heading font-extrabold text-lg sm:text-xl text-[#191919]">
@@ -782,7 +782,7 @@ export function PricingSection() {
                 <div className="bg-white rounded-3xl border border-[#E7E4DE] p-6 sm:p-7 shadow-xs">
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase text-[#F07858] bg-[#FFF0EA] border border-[#FFD2C3] px-2.5 py-0.5 rounded-full">
+                      <span className="text-[10px] font-mono font-bold uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-2.5 py-0.5 rounded-full">
                         Required Core Platform
                       </span>
                       <h3 className="font-heading font-extrabold text-xl text-[#191919] mt-2">
@@ -841,14 +841,14 @@ export function PricingSection() {
                           onClick={() => setSelectedMemberTierId(tier.id)}
                           className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative ${
                             isSelected
-                              ? "bg-[#FFF0EA] border-[#F07858] ring-2 ring-[#F07858]/20 shadow-xs"
+                              ? "bg-[#FDF5ED] border-[#C76706] ring-2 ring-[#C76706]/20 shadow-xs"
                               : "bg-[#FAF9F6] border-[#E7E4DE] hover:bg-white hover:border-[#D5D2CA]"
                           }`}
                         >
                           <div className="text-xs font-bold text-[#191919] leading-tight">
                             {tier.label}
                           </div>
-                          <div className="text-[11px] font-mono font-semibold text-[#F07858] mt-1">
+                          <div className="text-[11px] font-mono font-semibold text-[#C76706] mt-1">
                             {tier.price === 0 ? "Included" : `+₹${tier.price}/mo`}
                           </div>
                         </button>
@@ -875,7 +875,7 @@ export function PricingSection() {
                         onClick={() =>
                           setSelectedModuleIds(availableModules.map((m) => m.id))
                         }
-                        className="text-[11px] font-semibold text-[#F07858] hover:underline cursor-pointer"
+                        className="text-[11px] font-semibold text-[#C76706] hover:underline cursor-pointer"
                       >
                         Select All
                       </button>
@@ -946,14 +946,14 @@ export function PricingSection() {
                           onClick={() => toggleModule(mod.id)}
                           className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
                             isChecked
-                              ? "bg-white border-[#F07858] ring-1 ring-[#F07858]/30 shadow-xs"
+                              ? "bg-white border-[#C76706] ring-1 ring-[#C76706]/30 shadow-xs"
                               : "bg-[#FAF9F6] border-[#E7E4DE] hover:bg-white hover:border-[#D5D2CA]"
                           }`}
                         >
                           <div
                             className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
                               isChecked
-                                ? "bg-[#F07858] border-[#F07858] text-white"
+                                ? "bg-[#C76706] border-[#C76706] text-white"
                                 : "bg-white border-[#D5D2CA]"
                             }`}
                           >
@@ -965,7 +965,7 @@ export function PricingSection() {
                               <span className="text-xs font-bold text-[#191919] truncate">
                                 {mod.name}
                               </span>
-                              <span className="text-xs font-mono font-bold text-[#F07858] shrink-0">
+                              <span className="text-xs font-mono font-bold text-[#C76706] shrink-0">
                                 +₹{mod.price}
                               </span>
                             </div>
@@ -1018,7 +1018,7 @@ export function PricingSection() {
               {/* Right Column: Sticky Summary Receipt & Instant Checkout (4 cols on lg) */}
               <div className="lg:col-span-4 sticky top-24 space-y-4">
                 <div className="bg-white rounded-3xl border-2 border-[#191919] p-6 sm:p-7 shadow-lg relative overflow-hidden">
-                  <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#F07858] mb-1">
+                  <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#C76706] mb-1">
                     Your Custom Plan Total
                   </div>
 
@@ -1039,8 +1039,8 @@ export function PricingSection() {
 
                   {/* Smart Bundle Comparison Tip */}
                   {bundleSavingsTip && (
-                    <div className="my-4 p-3 rounded-2xl bg-[#FFF0EA] border border-[#FFD2C3] text-xs text-[#191919] space-y-2">
-                      <div className="flex items-center gap-1.5 font-bold text-[#F07858]">
+                    <div className="my-4 p-3 rounded-2xl bg-[#FDF5ED] border border-[#F5D2B0] text-xs text-[#191919] space-y-2">
+                      <div className="flex items-center gap-1.5 font-bold text-[#C76706]">
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Bundle Recommendation</span>
                       </div>
@@ -1051,7 +1051,7 @@ export function PricingSection() {
                       <button
                         type="button"
                         onClick={() => loadBundleToBuilder(bundleSavingsTip.bundle)}
-                        className="w-full text-center text-xs font-bold text-white bg-[#F07858] hover:bg-[#E76543] py-1.5 rounded-full shadow-2xs transition-all cursor-pointer"
+                        className="w-full text-center text-xs font-bold text-white bg-[#C76706] hover:bg-[#AD5702] py-1.5 rounded-full shadow-2xs transition-all cursor-pointer"
                       >
                         Switch to {bundleSavingsTip.bundleName}
                       </button>
@@ -1095,7 +1095,7 @@ export function PricingSection() {
                   <div className="pt-2 space-y-2">
                     <Link
                       href={`/signup?plan=custom&billing=${billingCycle}&members=${selectedTier.count}&modules=${selectedModuleIds.join(",")}`}
-                      className="group w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-[#F07858] hover:bg-[#E76543] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#F07858]/30 transition-all duration-200 active:scale-95"
+                      className="group w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#C76706]/30 transition-all duration-200 active:scale-95"
                     >
                       <span>Start 14-Day Free Trial</span>
                       <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -1127,7 +1127,7 @@ export function PricingSection() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto pt-6 border-t border-[#E7E4DE]">
           <div className="text-center mb-8">
-            <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#F07858]">
+            <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#C76706]">
               Frequently Asked Questions
             </span>
             <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#191919] mt-1">
@@ -1153,7 +1153,7 @@ export function PricingSection() {
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 text-[#858890] transition-transform duration-200 shrink-0 ${
-                        isOpen ? "rotate-180 text-[#F07858]" : ""
+                        isOpen ? "rotate-180 text-[#C76706]" : ""
                       }`}
                     />
                   </button>

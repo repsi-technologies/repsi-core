@@ -13,7 +13,7 @@ export default function TermsOfServicePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#6B6F76] hover:text-[#F07858] mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#6B6F76] hover:text-[#C76706] mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
@@ -21,8 +21,8 @@ export default function TermsOfServicePage() {
 
         <div className="bg-white rounded-3xl border border-[#E4E2DC] p-8 sm:p-12 shadow-xs space-y-8">
           <div className="border-b border-[#E4E2DC] pb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#D9532F] bg-[#FCEAE4] mb-3">
-              <FileText className="w-3.5 h-3.5 text-[#F07858]" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#C76706] bg-[#FDF5ED] mb-3">
+              <FileText className="w-3.5 h-3.5 text-[#C76706]" />
               Terms of Agreement
             </span>
             <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#17191C]">
@@ -67,7 +67,7 @@ export default function TermsOfServicePage() {
               </h2>
               <p>
                 We strive for 99.9% platform uptime for all cloud gate controllers and database sync. Official customer support is available via WhatsApp and email at{" "}
-                <a href="mailto:support@repsi.app" className="text-[#F07858] font-semibold underline">
+                <a href="mailto:support@repsi.app" className="text-[#C76706] font-semibold underline">
                   support@repsi.app
                 </a>.
               </p>

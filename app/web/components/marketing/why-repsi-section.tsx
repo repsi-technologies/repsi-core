@@ -61,9 +61,9 @@ export function WhyRepsiSection() {
       description:
         "Organize member profiles, contact details and membership information in one place.",
       icon: Users,
-      accentColor: "#F07858",
-      accentBg: "#FFF0EA",
-      accentBorder: "#FFD2C3",
+      accentColor: "#C76706",
+      accentBg: "#FDF5ED",
+      accentBorder: "#F5D2B0",
       highlights: ["Digital profiles", "Instant search", "Emergency contacts"],
     },
     {
@@ -158,8 +158,8 @@ export function WhyRepsiSection() {
             transition={{ duration: 0.4 }}
             className="mb-4"
           >
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#F07858] bg-[#FFF0EA] border border-[#FFD2C3]">
-              <Sparkles className="w-3.5 h-3.5 text-[#F07858]" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
+              <Sparkles className="w-3.5 h-3.5 text-[#C76706]" />
               ONE CONNECTED SYSTEM
             </span>
           </motion.div>
@@ -172,7 +172,7 @@ export function WhyRepsiSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             One connected system. <br className="hidden sm:inline" />
-            <span className="text-[#F07858]">Every feature your fitness business needs.</span>
+            <span className="text-[#C76706]">Every feature your fitness business needs.</span>
           </motion.h2>
 
           <motion.p
@@ -205,14 +205,14 @@ export function WhyRepsiSection() {
             className="bg-[#F5F2ED] border border-[#E7E4DE] shadow-sm relative overflow-hidden transition-shadow duration-300"
           >
             {/* Ambient Background Radial Glow behind the central logo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FFF0EA] via-[#FCEAE4]/40 to-transparent rounded-full blur-3xl pointer-events-none -z-0" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FDF5ED] via-[#FDF5ED]/40 to-transparent rounded-full blur-3xl pointer-events-none -z-0" />
 
             {/* STAGE 1 LOGO REVEAL (Compact Logo Pill visible at the start) */}
             <motion.div
               style={shouldReduceMotion ? { display: "none" } : { opacity: logoPillOpacity }}
               className="absolute inset-0 flex flex-col items-center justify-center p-6 pointer-events-none z-20"
             >
-              <div className="bg-white px-8 py-5 rounded-2xl border-2 border-[#FFD2C3] shadow-lg flex flex-col items-center gap-2">
+              <div className="bg-white px-8 py-5 rounded-2xl border-2 border-[#F5D2B0] shadow-lg flex flex-col items-center gap-2">
                 <Image
                   src="/logos/logo-text.png"
                   alt="REPSI"
@@ -223,7 +223,7 @@ export function WhyRepsiSection() {
                 />
                 <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[#858890] flex items-center gap-1 mt-1">
                   <span>Scroll to expand platform</span>
-                  <ChevronDown className="w-3 h-3 text-[#F07858] animate-bounce" />
+                  <ChevronDown className="w-3 h-3 text-[#C76706] animate-bounce" />
                 </span>
               </div>
             </motion.div>
@@ -253,8 +253,8 @@ export function WhyRepsiSection() {
                         onMouseLeave={() => setActiveFeature(null)}
                         className={`rounded-2xl sm:rounded-3xl bg-white border p-4 sm:p-5 transition-all duration-300 relative group cursor-pointer ${
                           isHovered
-                            ? "border-[#F07858] shadow-md -translate-y-0.5"
-                            : "border-[#E7E4DE] shadow-2xs hover:border-[#FFD2C3]"
+                            ? "border-[#C76706] shadow-md -translate-y-0.5"
+                            : "border-[#E7E4DE] shadow-2xs hover:border-[#F5D2B0]"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -311,14 +311,14 @@ export function WhyRepsiSection() {
                 {/* ───────────────────────────────────────────────────── */}
                 {/* CENTER: CENTRAL REPSI PLATFORM CARD                   */}
                 {/* ───────────────────────────────────────────────────── */}
-                <div className="lg:col-span-4 flex flex-col justify-between text-center p-6 sm:p-7 rounded-3xl bg-white border-2 border-[#FFD2C3] shadow-lg relative overflow-hidden group">
+                <div className="lg:col-span-4 flex flex-col justify-between text-center p-6 sm:p-7 rounded-3xl bg-white border-2 border-[#F5D2B0] shadow-lg relative overflow-hidden group">
                   {/* Gentle top amber scrim */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#FFF0EA]/45 via-transparent to-white pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#FDF5ED]/45 via-transparent to-white pointer-events-none" />
 
                   <div className="relative z-10 flex flex-col items-center">
                     {/* Top Hub Tag */}
-                    <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0EA] border border-[#FFD2C3] text-[10px] font-mono font-bold uppercase tracking-wider text-[#F07858]">
-                      <Sparkles className="w-3 h-3 text-[#F07858]" />
+                    <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF5ED] border border-[#F5D2B0] text-[10px] font-mono font-bold uppercase tracking-wider text-[#C76706]">
+                      <Sparkles className="w-3 h-3 text-[#C76706]" />
                       <span>THE CENTRAL WORKSPACE</span>
                     </div>
 
@@ -359,7 +359,7 @@ export function WhyRepsiSection() {
                         </div>
                         <div className="bg-white rounded-lg p-1.5 border border-[#E7E4DE]">
                           <div className="text-[9px] text-[#62666D]">Access</div>
-                          <div className="text-xs font-bold text-[#F07858]">Cloud Synced</div>
+                          <div className="text-xs font-bold text-[#C76706]">Cloud Synced</div>
                         </div>
                       </div>
                     </div>
@@ -369,7 +369,7 @@ export function WhyRepsiSection() {
                   <div className="relative z-10 pt-2">
                     <Link
                       href="/signup"
-                      className="w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#F07858] hover:bg-[#E76543] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#F07858]/30 hover:shadow-md transition-all active:scale-95 group"
+                      className="w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#C76706]/30 hover:shadow-md transition-all active:scale-95 group"
                     >
                       <span>Get Started with REPSI</span>
                       <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -392,8 +392,8 @@ export function WhyRepsiSection() {
                         onMouseLeave={() => setActiveFeature(null)}
                         className={`rounded-2xl sm:rounded-3xl bg-white border p-4 sm:p-5 transition-all duration-300 relative group cursor-pointer ${
                           isHovered
-                            ? "border-[#F07858] shadow-md -translate-y-0.5"
-                            : "border-[#E7E4DE] shadow-2xs hover:border-[#FFD2C3]"
+                            ? "border-[#C76706] shadow-md -translate-y-0.5"
+                            : "border-[#E7E4DE] shadow-2xs hover:border-[#F5D2B0]"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -473,7 +473,7 @@ export function WhyRepsiSection() {
             </Link>
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#F07858] hover:bg-[#E76543] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm shadow-[#F07858]/25 hover:shadow-md active:scale-95 group"
+              className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm shadow-[#C76706]/25 hover:shadow-md active:scale-95 group"
             >
               <span>Start for Free →</span>
             </Link>

@@ -18,7 +18,7 @@
     <!-- Orange Accent Gradient -->
     <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF9371"/>
-      <stop offset="100%" stop-color="#F07858"/>
+      <stop offset="100%" stop-color="#C76706"/>
     </linearGradient>
 
     <!-- Carbon Pattern -->
@@ -45,9 +45,9 @@
 
   <!-- Top Pill Badge -->
   <g transform="translate(195, 78)">
-    <rect width="210" height="32" rx="16" fill="#F07858" fill-opacity="0.18" stroke="#F07858" stroke-width="1.5"/>
-    <circle cx="22" cy="16" r="4.5" fill="#F07858"/>
-    <text x="36" y="21" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="12" fill="#F07858" letter-spacing="2">VIP ACCESS PASS</text>
+    <rect width="210" height="32" rx="16" fill="#C76706" fill-opacity="0.18" stroke="#C76706" stroke-width="1.5"/>
+    <circle cx="22" cy="16" r="4.5" fill="#C76706"/>
+    <text x="36" y="21" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="12" fill="#C76706" letter-spacing="2">VIP ACCESS PASS</text>
   </g>
 
   <!-- Holographic Security Bar -->
@@ -71,7 +71,7 @@
     <path d="M 385 70 C 388 85 400 96 422 96 C 442 96 454 86 454 72 C 454 44 388 50 388 24 C 388 8 402 0 422 0 C 445 0 458 12 460 28 L 432 28 C 430 18 424 14 416 14 C 408 14 402 18 402 24 C 402 46 468 40 468 68 C 468 86 452 104 420 104 C 392 104 374 88 372 70 Z" fill="#FFFFFF"/>
     
     <!-- I -->
-    <rect x="485" y="0" width="30" height="100" rx="4" fill="#F07858"/>
+    <rect x="485" y="0" width="30" height="100" rx="4" fill="#C76706"/>
   </g>
 
   <!-- Tagline -->
@@ -102,8 +102,8 @@
 
     <!-- Role Badge & Email -->
     <g transform="translate(0, 48)">
-      <rect x="0" y="0" width="56" height="24" rx="6" fill="#F07858" fill-opacity="0.22" stroke="#F07858" stroke-width="1.5"/>
-      <text x="28" y="16" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="12" fill="#F07858" text-anchor="middle" letter-spacing="1.5">CTO</text>
+      <rect x="0" y="0" width="56" height="24" rx="6" fill="#C76706" fill-opacity="0.22" stroke="#C76706" stroke-width="1.5"/>
+      <text x="28" y="16" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="12" fill="#C76706" text-anchor="middle" letter-spacing="1.5">CTO</text>
       <text x="68" y="16" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#E5E7EB" letter-spacing="0.5">nitheesh@repsi.app</text>
     </g>
 
@@ -113,7 +113,7 @@
       <text x="0" y="20" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#E5E7EB">Bengaluru HQ</text>
 
       <text x="240" y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="10" fill="#6B7280" letter-spacing="1.5">ORGANIZATION</text>
-      <text x="240" y="20" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#F07858">Repsi Technologies</text>
+      <text x="240" y="20" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#C76706">Repsi Technologies</text>
     </g>
   </g>
 

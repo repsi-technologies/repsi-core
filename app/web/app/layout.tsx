@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { LanguageProvider } from "@/lib/i18n";
+import { DynamicPageTitle } from "@/components/layout/dynamic-page-title";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -18,7 +19,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Repsi Fitness Management Platform",
+    default: "Repsi",
     template: "%s | Repsi",
   },
   description:
@@ -26,10 +27,10 @@ export const metadata: Metadata = {
   keywords: ["gym management", "fitness software", "membership management", "gym software", "REPSI"],
   authors: [{ name: "REPSI" }],
   openGraph: {
-    title: "Repsi - Fitness Management Platform",
+    title: "Repsi",
     description: "The modern operating system for gyms.",
     url: "https://repsi.app",
-    siteName: "Repsi  ",
+    siteName: "Repsi",
     type: "website",
   },
 };
@@ -82,6 +83,7 @@ export default function RootLayout({
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "placeholder"}>
             <AuthProvider>
               <LanguageProvider>
+                <DynamicPageTitle />
                 {children}
               </LanguageProvider>
             </AuthProvider>

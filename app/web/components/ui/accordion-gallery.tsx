@@ -56,9 +56,9 @@ export function AccordionGallery({
     >
       {items.map((item) => {
         const isActive = activeId === item.id;
-        const accentColor = item.accentColor || "#F07858";
-        const accentBg = item.accentBg || "#FFF0EA";
-        const accentBorder = item.accentBorder || "#FFD2C3";
+        const accentColor = item.accentColor || "#C76706";
+        const accentBg = item.accentBg || "#FDF5ED";
+        const accentBorder = item.accentBorder || "#F5D2B0";
 
         return (
           <div
@@ -66,8 +66,8 @@ export function AccordionGallery({
             onMouseEnter={() => setActiveId(item.id)}
             className={`rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden bg-white ${
               isActive
-                ? "border-[#F07858] shadow-md shadow-[#F07858]/10 ring-1 ring-[#F07858]/20"
-                : "border-[#E7E4DE] shadow-2xs hover:border-[#FFD2C3] hover:shadow-xs"
+                ? "border-[#C76706] shadow-md shadow-[#C76706]/10 ring-1 ring-[#C76706]/20"
+                : "border-[#E7E4DE] shadow-2xs hover:border-[#F5D2B0] hover:shadow-xs"
             }`}
           >
             {/* Header / Clickable & Hoverable Accordion Bar */}
@@ -79,7 +79,7 @@ export function AccordionGallery({
               aria-expanded={isActive}
               aria-controls={`accordion-panel-${item.id}`}
               id={`accordion-header-${item.id}`}
-              className="w-full text-left p-4 sm:p-5 lg:p-6 flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F07858] transition-colors"
+              className="w-full text-left p-4 sm:p-5 lg:p-6 flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C76706] transition-colors"
             >
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 {/* Number Badge */}
@@ -102,7 +102,7 @@ export function AccordionGallery({
                   </div>
                   <h3
                     className={`font-heading font-extrabold text-base sm:text-lg lg:text-xl tracking-tight transition-colors truncate sm:whitespace-normal ${
-                      isActive ? "text-[#191919]" : "text-[#191919]/90 group-hover:text-[#F07858]"
+                      isActive ? "text-[#191919]" : "text-[#191919]/90 group-hover:text-[#C76706]"
                     }`}
                   >
                     {item.title}
@@ -119,7 +119,7 @@ export function AccordionGallery({
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-300 ${
                     isActive
-                      ? "bg-[#FFF0EA] text-[#F07858] border-[#FFD2C3] rotate-180"
+                      ? "bg-[#FDF5ED] text-[#C76706] border-[#F5D2B0] rotate-180"
                       : "bg-[#FAF9F6] text-[#62666D] border-[#E7E4DE]"
                   }`}
                   aria-hidden="true"
@@ -157,7 +157,7 @@ export function AccordionGallery({
                         <div className="space-y-2.5">
                           {item.descriptionPoints.map((point, idx) => (
                             <div key={idx} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#F07858] shrink-0 mt-2" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] shrink-0 mt-2" />
                               <p className="text-sm sm:text-base text-[#62666D] leading-relaxed font-normal">
                                 {point}
                               </p>
@@ -167,7 +167,7 @@ export function AccordionGallery({
 
                         {/* Friction Callout Box */}
                         <div className="p-3.5 rounded-xl bg-[#FAF9F6] border border-[#E7E4DE] flex items-center gap-2.5 text-xs text-[#191919]">
-                          <AlertCircle className="w-4 h-4 text-[#F07858] shrink-0" />
+                          <AlertCircle className="w-4 h-4 text-[#C76706] shrink-0" />
                           <span className="font-medium">
                             Operational friction: {item.badgeText}
                           </span>

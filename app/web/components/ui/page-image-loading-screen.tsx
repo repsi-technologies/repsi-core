@@ -4,95 +4,78 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 interface PageImageLoadingScreenProps {
-  criticalImages?: string[];
-  maxWaitMs?: number;
+  maxDurationMs?: number;
 }
 
-const DEFAULT_CRITICAL_IMAGES = [
-  "/images/hero-test.jpg",
-  "/images/scattered-records.jpg",
-  "/images/manual-attendance.jpg",
-  "/images/payment-followup.jpg",
-  "/images/renewal-calendar.jpg",
-  "/images/gym-sunset-weights.jpg",
-  "/logos/logo-dark.png",
-];
-
 export function PageImageLoadingScreen({
-  criticalImages = DEFAULT_CRITICAL_IMAGES,
-  maxWaitMs = 1800,
+  maxDurationMs = 800,
 }: PageImageLoadingScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(20);
+  const [progress, setProgress] = useState(25);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    let mounted = true;
-    let loadedCount = 0;
-    const startTime = Date.now();
-    const minDisplayMs = 600; // Guarantee the R animation has time to draw smoothly
-    const total = criticalImages.length;
-
-    const completeLoading = () => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, minDisplayMs - elapsed);
-      setProgress(100);
-
-      setTimeout(() => {
-        if (mounted) setIsLoading(false);
-      }, remaining);
-    };
-
-    if (total === 0) {
-      completeLoading();
-      return;
+    // If user already saw the loader in this tab session, skip immediately
+    try {
+      if (sessionStorage.getItem("repsi_initial_loaded")) {
+        setIsLoading(false);
+        return;
+      }
+    } catch {
+      // sessionStorage not accessible (e.g. strict private mode)
     }
 
-    const checkComplete = () => {
-      loadedCount++;
-      if (!mounted) return;
-      const pct = Math.min(95, Math.round(20 + (loadedCount / total) * 75));
-      setProgress(pct);
+    let current = 25;
+    const intervalTime = 35; // smooth updates
+    const totalSteps = Math.max(1, Math.floor(maxDurationMs / intervalTime));
+    const stepIncrement = (100 - 25) / totalSteps;
 
-      if (loadedCount >= total) {
-        completeLoading();
-      }
-    };
+    const interval = setInterval(() => {
+      current += stepIncrement;
+      if (current >= 100) {
+        current = 100;
+        clearInterval(interval);
+        setProgress(100);
 
-    // Preload each critical image
-    criticalImages.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-      if (img.complete) {
-        checkComplete();
+        try {
+          sessionStorage.setItem("repsi_initial_loaded", "true");
+        } catch {}
+
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 180);
       } else {
-        img.onload = checkComplete;
-        img.onerror = checkComplete; // Don't block on 404/network hiccups
+        setProgress(Math.round(current));
       }
-    });
+    }, intervalTime);
 
-    // Safety timeout: ensure loading screen never traps the user
-    const timer = setTimeout(() => {
-      if (mounted) {
-        completeLoading();
-      }
-    }, maxWaitMs);
+    // Hard fallback: absolutely guarantee removal after maxDurationMs + 300ms
+    const fallbackTimer = setTimeout(() => {
+      clearInterval(interval);
+      setProgress(100);
+      setIsLoading(false);
+      try {
+        sessionStorage.setItem("repsi_initial_loaded", "true");
+      } catch {}
+    }, maxDurationMs + 300);
 
     return () => {
-      mounted = false;
-      clearTimeout(timer);
+      clearInterval(interval);
+      clearTimeout(fallbackTimer);
     };
-  }, [criticalImages, maxWaitMs]);
+  }, [maxDurationMs]);
+
+  if (!isLoading) return null;
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {isLoading && (
         <motion.div
           key="repsi-page-loader"
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
-            transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+            transition: { duration: 0.35, ease: "easeOut" },
           }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAF9F6] text-[#191919] select-none"
           role="status"
@@ -123,7 +106,7 @@ export function PageImageLoadingScreen({
                   animate={{ opacity: 1, pathLength: 1 }}
                   transition={{
                     duration: 0.55,
-                    delay: shouldReduceMotion ? 0 : 0.08,
+                    delay: shouldReduceMotion ? 0 : 0.05,
                     ease: [0.16, 1, 0.3, 1],
                   }}
                 />
@@ -131,7 +114,7 @@ export function PageImageLoadingScreen({
                 {/* Signature Coral-Orange Diagonal Slash Leg */}
                 <motion.path
                   d="M 50 56 L 76 82"
-                  stroke="#F07858"
+                  stroke="#C76706"
                   strokeWidth="11"
                   strokeLinecap="round"
                   initial={
@@ -152,10 +135,10 @@ export function PageImageLoadingScreen({
                   cx="50"
                   cy="56"
                   r="2.5"
-                  fill="#F07858"
+                  fill="#C76706"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.35, duration: 0.2 }}
+                  transition={{ delay: 0.3, duration: 0.2 }}
                 />
               </svg>
             </div>
@@ -169,18 +152,18 @@ export function PageImageLoadingScreen({
               {/* Progress Track */}
               <div className="w-40 sm:w-48 h-1.5 bg-[#E7E4DE] rounded-full overflow-hidden relative shadow-inner">
                 <motion.div
-                  className="absolute top-0 bottom-0 left-0 bg-[#F07858] rounded-full"
-                  initial={{ width: "0%" }}
+                  className="absolute top-0 bottom-0 left-0 bg-[#C76706] rounded-full"
+                  initial={{ width: "25%" }}
                   animate={{ width: `${Math.max(10, progress)}%` }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                 />
               </div>
 
               <div className="flex items-center justify-between w-40 sm:w-48 text-[11px] font-mono text-[#858890]">
                 <span>
-                  {progress < 100 ? "Loading workspace..." : "Ready"}
+                  {progress < 100 ? "Loading Repsi..." : "Ready"}
                 </span>
-                <span className="font-bold text-[#F07858]">{progress}%</span>
+                <span className="font-bold text-[#C76706]">{progress}%</span>
               </div>
             </div>
           </div>

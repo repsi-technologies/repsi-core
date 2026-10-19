@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Users,
@@ -36,6 +37,7 @@ export function FlexCarouselFeatures() {
   const carouselRef = useRef<FlexCarouselRef>(null);
   const carouselBoxRef = useRef<HTMLDivElement>(null);
   const isHoveredRef = useRef(false);
+  const touchStartX = useRef<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   // Scroll to move: when user scrolls the page, smoothly advance the carousel
@@ -77,9 +79,9 @@ export function FlexCarouselFeatures() {
       longDesc:
         "Keep all member records, medical notes, emergency contacts, and active plans organized in a central, searchable directory. No more spreadsheets or lost paper files.",
       icon: Users,
-      accentColor: "#F07858",
-      accentBg: "#FFF0EA",
-      accentBorder: "#FFD2C3",
+      accentColor: "#C76706",
+      accentBg: "#FDF5ED",
+      accentBorder: "#F5D2B0",
       highlights: [
         "Comprehensive digital member profiles",
         "Instant search by name, phone or member ID",
@@ -244,7 +246,7 @@ export function FlexCarouselFeatures() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             Everything your fitness business needs. <br className="hidden sm:inline" />
-            <span className="text-[#F07858]">All in one place.</span>
+            <span className="text-[#C76706]">All in one place.</span>
           </motion.h2>
 
           <motion.p
@@ -272,8 +274,124 @@ export function FlexCarouselFeatures() {
           }}
           className="group relative w-full rounded-[32px] sm:rounded-[36px] overflow-hidden border border-[#E7E4DE] bg-white shadow-xl shadow-black/[0.03]"
         >
-          {/* Upper Section: Flex Carousel with WebGL Liquid Distortion */}
-          <div className="relative w-full h-[440px] sm:h-[500px] lg:h-[540px] overflow-hidden">
+          {/* ───────────────────────────────────────────────────────────── */}
+          {/* 02A. MOBILE NORMAL CAROUSEL (TOUCH SWIPEABLE & LIGHTWEIGHT)  */}
+          {/* ───────────────────────────────────────────────────────────── */}
+          <div
+            className="md:hidden relative w-full bg-[#FAF9F6] p-4 flex flex-col gap-3 select-none"
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              if (touchStartX.current === null) return;
+              const touchEndX = e.changedTouches[0].clientX;
+              const diff = touchStartX.current - touchEndX;
+              if (Math.abs(diff) > 40) {
+                if (diff > 0) {
+                  // Swipe left -> next
+                  setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1));
+                } else {
+                  // Swipe right -> prev
+                  setActiveIndex((prev) => Math.max(0, prev - 1));
+                }
+              }
+              touchStartX.current = null;
+            }}
+          >
+            {/* Slide Image Card with Badge & Direct Arrow Controls */}
+            <div className="relative w-full h-[260px] xs:h-[290px] rounded-2xl overflow-hidden shadow-sm border border-[#E7E4DE]">
+              <Image
+                src={(carouselItems[activeIndex] || carouselItems[0]).src}
+                alt={(carouselItems[activeIndex] || carouselItems[0]).alt || ""}
+                fill
+                priority
+                className="object-cover object-center transition-all duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10 pointer-events-none" />
+
+              {/* Top Pill with Feature Number & Category */}
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 text-[10px] font-bold text-[#191919] shadow-xs">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: activeFeature.accentColor }}
+                />
+                <span>FEATURE {activeFeature.number} / 06</span>
+              </div>
+
+              {/* Bottom Card Title & Subtitle */}
+              <div className="absolute bottom-3 left-3.5 right-3.5 text-white space-y-0.5">
+                <h3 className="font-heading font-extrabold text-base xs:text-lg drop-shadow-sm">
+                  {(carouselItems[activeIndex] || carouselItems[0]).title}
+                </h3>
+                <p className="text-[11px] text-white/90 line-clamp-1 drop-shadow-sm font-normal">
+                  {(carouselItems[activeIndex] || carouselItems[0]).subtitle}
+                </p>
+              </div>
+
+              {/* Mobile Carousel Left/Right Floating Quick Nav */}
+              <button
+                type="button"
+                onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
+                disabled={activeIndex === 0}
+                aria-label="Previous slide"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#191919] flex items-center justify-center disabled:opacity-20 shadow-md transition-opacity cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1))}
+                disabled={activeIndex === featureDetails.length - 1}
+                aria-label="Next slide"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#191919] flex items-center justify-center disabled:opacity-20 shadow-md transition-opacity cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Pagination Dots & Navigation Controls */}
+            <div className="flex items-center justify-between px-1 pt-1">
+              {/* 6 Dots */}
+              <div className="flex items-center gap-1.5">
+                {featureDetails.map((f, i) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setActiveIndex(i)}
+                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                      i === activeIndex ? "w-6 bg-[#C76706]" : "w-2 bg-[#E7E4DE]"
+                    }`}
+                    aria-label={`Jump to feature ${i + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Prev / Next buttons */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
+                  disabled={activeIndex === 0}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-[#E7E4DE] bg-white text-[#191919] disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                >
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1))}
+                  disabled={activeIndex === featureDetails.length - 1}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#C76706] text-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ───────────────────────────────────────────────────────────── */}
+          {/* 02B. DESKTOP FLEX CAROUSEL WITH WEBGL LIQUID DISTORTION (md+) */}
+          {/* ───────────────────────────────────────────────────────────── */}
+          <div className="hidden md:block relative w-full h-[500px] lg:h-[540px] overflow-hidden">
             <FlexCarousel
               ref={carouselRef}
               items={carouselItems}
@@ -297,7 +415,7 @@ export function FlexCarouselFeatures() {
               onClick={() => carouselRef.current?.step(-1)}
               disabled={activeIndex === 0}
               aria-label="Previous feature"
-              className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#F07858] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
+              className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#C76706] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
                 activeIndex === 0
                   ? "opacity-20 cursor-not-allowed pointer-events-none"
                   : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -312,7 +430,7 @@ export function FlexCarouselFeatures() {
               onClick={() => carouselRef.current?.step(1)}
               disabled={activeIndex === featureDetails.length - 1}
               aria-label="Next feature"
-              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#F07858] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
+              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#C76706] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
                 activeIndex === featureDetails.length - 1
                   ? "opacity-20 cursor-not-allowed pointer-events-none"
                   : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -324,8 +442,8 @@ export function FlexCarouselFeatures() {
             {/* Interactive instruction cue */}
             <div className="absolute top-4 right-4 z-20 pointer-events-none hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E7E4DE] text-[11px] font-semibold text-[#62666D] shadow-xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F07858] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F07858]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C76706] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C76706]" />
               </span>
               <span>Scroll to move</span>
             </div>

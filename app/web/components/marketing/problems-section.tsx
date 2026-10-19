@@ -26,9 +26,9 @@ export function ProblemsSection() {
       imageSrc: "/images/scattered-records.jpg",
       imageAlt: "Member records, notebook, spreadsheet and phone scattered on a fitness reception desk",
       badgeText: "3+ disconnected apps just to check member status",
-      accentColor: "#F07858",
-      accentBg: "#FFF0EA",
-      accentBorder: "#FFD2C3",
+      accentColor: "#C76706",
+      accentBg: "#FDF5ED",
+      accentBorder: "#F5D2B0",
     },
     {
       id: "attendance",
@@ -102,7 +102,7 @@ export function ProblemsSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             Behind every great fitness business, <br className="hidden sm:inline" />
-            <span className="text-[#F07858]">there’s a lot to manage.</span>
+            <span className="text-[#C76706]">there’s a lot to manage.</span>
           </motion.h2>
 
           <motion.p

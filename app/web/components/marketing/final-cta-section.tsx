@@ -11,7 +11,7 @@ export function FinalCtaSection() {
   return (
     <section className="relative w-full bg-[#FAF9F6] text-white py-16 sm:py-20 lg:py-24 border-b border-[#E7E4DE] overflow-hidden font-sans">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
-        <div className="relative rounded-[28px] sm:rounded-[36px] bg-[#F07858] text-white p-8 sm:p-12 lg:p-16 shadow-xl shadow-[#F07858]/20 overflow-hidden">
+        <div className="relative rounded-[28px] sm:rounded-[36px] bg-[#C76706] text-white p-8 sm:p-12 lg:p-16 shadow-xl shadow-[#C76706]/20 overflow-hidden">
           {/* Subtle soft white ambient glow accents */}
           <div className="absolute -right-16 -top-16 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -left-16 -bottom-16 w-80 h-80 bg-black/10 rounded-full blur-3xl pointer-events-none" />
@@ -49,7 +49,7 @@ export function FinalCtaSection() {
             >
               <Link
                 href="/signup"
-                className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-white hover:bg-[#FAF9F6] text-[#F07858] text-xs sm:text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95"
+                className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-white hover:bg-[#FAF9F6] text-[#C76706] text-xs sm:text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95"
               >
                 <span>Get Started Free</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

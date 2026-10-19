@@ -86,7 +86,7 @@ export function PricingPreviewSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl text-[#191919] tracking-tight leading-[1.14] mb-3"
           >
             Affordable pricing starting at{" "}
-            <span className="text-[#F07858]">₹199/month.</span>
+            <span className="text-[#C76706]">₹199/month.</span>
           </motion.h2>
 
           <motion.p
@@ -120,7 +120,7 @@ export function PricingPreviewSection() {
               aria-label="Toggle billing frequency"
             >
               <motion.div
-                className="w-5 h-5 bg-[#F07858] rounded-full shadow-xs"
+                className="w-5 h-5 bg-[#C76706] rounded-full shadow-xs"
                 animate={{ x: billingCycle === "annual" ? 24 : 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
@@ -134,7 +134,7 @@ export function PricingPreviewSection() {
               onClick={() => setBillingCycle("annual")}
             >
               <span>Yearly</span>
-              <span className="text-[10px] font-bold text-[#F07858] bg-[#FFF0EA] border border-[#FFD2C3] px-2 py-0.5 rounded-full uppercase">
+              <span className="text-[10px] font-bold text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-2 py-0.5 rounded-full uppercase">
                 Save 20%
               </span>
             </button>
@@ -154,7 +154,7 @@ export function PricingPreviewSection() {
                 key={bundle.id}
                 className={`rounded-[28px] sm:rounded-[32px] p-7 sm:p-8 flex flex-col justify-between relative transition-all duration-200 ${
                   bundle.popular
-                    ? "bg-white text-[#191919] shadow-md border-2 border-[#F07858] ring-4 ring-[#F07858]/10"
+                    ? "bg-white text-[#191919] shadow-md border-2 border-[#C76706] ring-4 ring-[#C76706]/10"
                     : "bg-white text-[#191919] shadow-xs border border-[#E7E4DE] hover:shadow-md"
                 }`}
               >
@@ -162,8 +162,8 @@ export function PricingPreviewSection() {
                   <div
                     className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-[10.5px] font-bold tracking-wider uppercase px-3.5 py-0.5 rounded-full shadow-2xs whitespace-nowrap ${
                       bundle.popular
-                        ? "bg-[#F07858] text-white"
-                        : "bg-[#FFF0EA] text-[#F07858] border border-[#FFD2C3]"
+                        ? "bg-[#C76706] text-white"
+                        : "bg-[#FDF5ED] text-[#C76706] border border-[#F5D2B0]"
                     }`}
                   >
                     {bundle.badge}
@@ -206,7 +206,7 @@ export function PricingPreviewSection() {
                     </div>
                     {bundle.features.map((feat, fIdx) => (
                       <div key={fIdx} className="flex items-start gap-2 text-[#191919]">
-                        <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#F07858]" />
+                        <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#C76706]" />
                         <span className="leading-snug">{feat}</span>
                       </div>
                     ))}
@@ -218,7 +218,7 @@ export function PricingPreviewSection() {
                     href={`/signup?plan=${bundle.id}&billing=${billingCycle}`}
                     className={`group w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 ${
                       bundle.popular
-                        ? "bg-[#F07858] hover:bg-[#E76543] text-white shadow-sm shadow-[#F07858]/30"
+                        ? "bg-[#C76706] hover:bg-[#AD5702] text-white shadow-sm shadow-[#C76706]/30"
                         : "bg-[#FAF9F6] hover:bg-[#F5F2ED] text-[#191919] border border-[#E7E4DE]"
                     }`}
                   >
@@ -261,7 +261,7 @@ export function PricingPreviewSection() {
           <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
             <Link
               href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[#F07858] hover:bg-[#E76543] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#F07858]/30 transition-all active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#C76706]/30 transition-all active:scale-95"
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Explore Full Dynamic Pricing</span>

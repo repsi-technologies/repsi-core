@@ -1588,7 +1588,7 @@ export default function OnboardingWizardPage() {
               spotlightColor="rgba(22, 163, 74, 0.12)"
               className="relative overflow-hidden bg-white rounded-2xl border border-[#E4E2DC] p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-5"
             >
-              <BorderBeam size={220} duration={7} colorFrom="#D9532F" colorTo="#F07858" />
+              <BorderBeam size={220} duration={7} colorFrom="#C76706" colorTo="#C76706" />
 
               {/* Mode Selector Tabs: 14-Day Trial vs Paid Plans */}
               <div className="grid grid-cols-2 gap-2 p-1 bg-[#EFEEEA] rounded-xl border border-[#E4E2DC]">

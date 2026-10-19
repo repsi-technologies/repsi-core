@@ -37,10 +37,13 @@ export function constructMetadata({
   const combinedKeywords = Array.from(new Set([...defaultKeywords, ...keywords]));
 
   return {
-    title: {
-      default: title,
-      template: "%s | Repsi",
-    },
+    title:
+      title === "Repsi" || path === "/"
+        ? { absolute: "Repsi" }
+        : {
+            default: title,
+            template: "%s | Repsi",
+          },
     description,
     keywords: combinedKeywords,
     authors: [{ name: "Repsi", url: SITE_URL }],
