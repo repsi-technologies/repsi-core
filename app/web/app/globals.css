@@ -556,27 +556,13 @@ td {
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
-/* REPSI Brand Loader Animations (GPU-accelerated, zero-stuck)         */
+/* REPSI Brand Loader: Refined 5-Stage Sequence                       */
+/* cubic-bezier(0.22, 1, 0.36, 1) Easing & GPU Transforms             */
 /* ─────────────────────────────────────────────────────────────────── */
-@keyframes repsi-pulse-once {
+@keyframes repsi-stage1-body {
   0% {
     opacity: 0;
-    transform: scale(0.85);
-  }
-  40% {
-    opacity: 0.38;
-    transform: scale(1.35);
-  }
-  100% {
-    opacity: 0.12;
-    transform: scale(1.15);
-  }
-}
-
-@keyframes repsi-logo-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.94);
   }
   100% {
     opacity: 1;
@@ -584,19 +570,10 @@ td {
   }
 }
 
-@keyframes repsi-body-in {
+@keyframes repsi-stage2-slash {
   0% {
     opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes repsi-slash-in {
-  0% {
-    opacity: 0;
-    transform: translate(-8px, 8px);
+    transform: translate(-14px, 14px);
   }
   100% {
     opacity: 1;
@@ -604,13 +581,35 @@ td {
   }
 }
 
-@keyframes repsi-track-shimmer {
+@keyframes repsi-stage3-brand {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes repsi-stage4-indicator {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes repsi-indeterminate-sweep {
   0% {
     left: -40%;
     width: 40%;
   }
   50% {
-    width: 60%;
+    width: 55%;
   }
   100% {
     left: 100%;
@@ -618,24 +617,24 @@ td {
   }
 }
 
-.animate-repsi-pulse {
-  animation: repsi-pulse-once 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-repsi-body-reveal {
+  animation: repsi-stage1-body 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.animate-repsi-logo {
-  animation: repsi-logo-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-repsi-slash-reveal {
+  animation: repsi-stage2-slash 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
 
-.animate-repsi-body {
-  animation: repsi-body-in 0.45s ease-out forwards;
+.animate-repsi-brand-reveal {
+  animation: repsi-stage3-brand 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
 }
 
-.animate-repsi-slash {
-  animation: repsi-slash-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+.animate-repsi-indicator-reveal {
+  animation: repsi-stage4-indicator 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
 }
 
-.animate-repsi-track {
-  animation: repsi-track-shimmer 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.animate-repsi-sweep {
+  animation: repsi-indeterminate-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
