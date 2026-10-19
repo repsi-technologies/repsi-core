@@ -879,7 +879,7 @@ export const Lanyard = ({
   anchor = 'center',
   strapLength = 0.42,
   strapImage,
-  strapColor = '#C76706',
+  strapColor = '#E25822',
   strapWidth = 0.65,
   metal = 'silver',
   gravity = 1,

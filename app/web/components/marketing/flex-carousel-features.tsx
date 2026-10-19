@@ -79,9 +79,9 @@ export function FlexCarouselFeatures() {
       longDesc:
         "Keep all member records, medical notes, emergency contacts, and active plans organized in a central, searchable directory. No more spreadsheets or lost paper files.",
       icon: Users,
-      accentColor: "#C76706",
-      accentBg: "#FDF5ED",
-      accentBorder: "#F5D2B0",
+      accentColor: "#E25822",
+      accentBg: "#FDF1EB",
+      accentBorder: "#FACBB7",
       highlights: [
         "Comprehensive digital member profiles",
         "Instant search by name, phone or member ID",
@@ -246,7 +246,7 @@ export function FlexCarouselFeatures() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             Everything your fitness business needs. <br className="hidden sm:inline" />
-            <span className="text-[#C76706]">All in one place.</span>
+            <span className="text-[#E25822]">All in one place.</span>
           </motion.h2>
 
           <motion.p
@@ -359,7 +359,7 @@ export function FlexCarouselFeatures() {
                     type="button"
                     onClick={() => setActiveIndex(i)}
                     className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                      i === activeIndex ? "w-6 bg-[#C76706]" : "w-2 bg-[#E7E4DE]"
+                      i === activeIndex ? "w-6 bg-[#E25822]" : "w-2 bg-[#E7E4DE]"
                     }`}
                     aria-label={`Jump to feature ${i + 1}`}
                   />
@@ -380,7 +380,7 @@ export function FlexCarouselFeatures() {
                   type="button"
                   onClick={() => setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1))}
                   disabled={activeIndex === featureDetails.length - 1}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#C76706] text-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#E25822] text-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                 >
                   Next
                 </button>
@@ -415,7 +415,7 @@ export function FlexCarouselFeatures() {
               onClick={() => carouselRef.current?.step(-1)}
               disabled={activeIndex === 0}
               aria-label="Previous feature"
-              className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#C76706] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
+              className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#E25822] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
                 activeIndex === 0
                   ? "opacity-20 cursor-not-allowed pointer-events-none"
                   : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -430,7 +430,7 @@ export function FlexCarouselFeatures() {
               onClick={() => carouselRef.current?.step(1)}
               disabled={activeIndex === featureDetails.length - 1}
               aria-label="Next feature"
-              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#C76706] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
+              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#E25822] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
                 activeIndex === featureDetails.length - 1
                   ? "opacity-20 cursor-not-allowed pointer-events-none"
                   : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -442,8 +442,8 @@ export function FlexCarouselFeatures() {
             {/* Interactive instruction cue */}
             <div className="absolute top-4 right-4 z-20 pointer-events-none hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E7E4DE] text-[11px] font-semibold text-[#62666D] shadow-xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C76706] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C76706]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E25822] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E25822]" />
               </span>
               <span>Scroll to move</span>
             </div>

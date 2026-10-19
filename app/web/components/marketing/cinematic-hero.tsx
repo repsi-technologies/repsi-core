@@ -113,8 +113,8 @@ export function CinematicHero() {
             transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             className="mb-4 sm:mb-5"
           >
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold tracking-[0.16em] uppercase text-[#C76706] bg-[#C76706]/10 border border-[#C76706]/25 backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold tracking-[0.16em] uppercase text-[#E25822] bg-[#E25822]/10 border border-[#E25822]/25 backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
               Fitness Business Management Software
             </span>
           </motion.div>
@@ -136,7 +136,7 @@ export function CinematicHero() {
                 },
                 {
                   text: "we handle the rest.",
-                  className: "text-[#C76706]",
+                  className: "text-[#E25822]",
                   breakAfter: false,
                 },
               ]}
@@ -163,10 +163,10 @@ export function CinematicHero() {
             transition={{ duration: 0.55, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 mb-8 sm:mb-10"
           >
-            {/* Primary CTA: Solid Orange #C76706 with subtle arrow hover */}
+            {/* Primary CTA: Solid Orange #E25822 with subtle arrow hover */}
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl bg-[#C76706] hover:bg-[#F9872D] text-white text-sm font-semibold transition-all duration-200 shadow-[0_4px_24px_rgba(199, 103, 6,0.35)] hover:shadow-[0_8px_32px_rgba(199, 103, 6,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl bg-[#E25822] hover:bg-[#F9872D] text-white text-sm font-semibold transition-all duration-200 shadow-[0_4px_24px_rgba(226, 88, 34,0.35)] hover:shadow-[0_8px_32px_rgba(226, 88, 34,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
             >
               <span>Get Started Free</span>
               <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -216,7 +216,7 @@ export function CinematicHero() {
           Scroll to explore
         </span>
         <div className="w-12 h-[1.5px] bg-white/15 relative overflow-hidden rounded-full">
-          <div className="absolute top-0 bottom-0 left-0 w-5 bg-[#C76706] rounded-full animate-scroll-cue" />
+          <div className="absolute top-0 bottom-0 left-0 w-5 bg-[#E25822] rounded-full animate-scroll-cue" />
         </div>
       </motion.div>
     </section>

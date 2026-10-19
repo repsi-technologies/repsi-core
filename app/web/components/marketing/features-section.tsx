@@ -160,8 +160,8 @@ export function FeaturesSection() {
             transition={{ duration: 0.4 }}
             className="mb-4"
           >
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
               BUILT FOR YOUR DAILY OPERATIONS
             </span>
           </motion.div>
@@ -174,7 +174,7 @@ export function FeaturesSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] text-[#191919] tracking-tight leading-[1.14] mb-4"
           >
             Everything your fitness business needs. <br className="hidden sm:inline" />
-            <span className="text-[#C76706]">All in one place.</span>
+            <span className="text-[#E25822]">All in one place.</span>
           </motion.h2>
 
           <motion.p
@@ -202,7 +202,7 @@ export function FeaturesSection() {
                 onClick={() => setActiveTab(mod.id)}
                 className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 cursor-pointer ${
                   isActive
-                    ? "bg-[#C76706] text-white shadow-sm shadow-[#C76706]/30"
+                    ? "bg-[#E25822] text-white shadow-sm shadow-[#E25822]/30"
                     : "bg-white text-[#62666D] hover:text-[#191919] hover:bg-[#F5F2ED] border border-[#E7E4DE]"
                 }`}
               >
@@ -221,7 +221,7 @@ export function FeaturesSection() {
             {/* Left Column: Feature Details */}
             <div className="lg:col-span-5 space-y-6">
               <div>
-                <span className="font-mono text-xs font-bold text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-3 py-1 rounded-full uppercase">
+                <span className="font-mono text-xs font-bold text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7] px-3 py-1 rounded-full uppercase">
                   Module {currentModule.number}
                 </span>
                 <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#191919] mt-3.5 mb-2 leading-tight">
@@ -239,7 +239,7 @@ export function FeaturesSection() {
                 </div>
                 {currentModule.capabilities.map((cap, cIdx) => (
                   <div key={cIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#191919]">
-                    <CheckCircle2 className="w-4 h-4 text-[#C76706] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#E25822] shrink-0 mt-0.5" />
                     <span className="leading-snug">{cap}</span>
                   </div>
                 ))}
@@ -248,7 +248,7 @@ export function FeaturesSection() {
               {/* Disclaimer for Payment Module */}
               {currentModule.disclaimer && (
                 <div className="p-3.5 rounded-2xl bg-[#FAF9F6] border border-[#E7E4DE] flex items-start gap-2.5 text-xs text-[#62666D]">
-                  <Info className="w-4 h-4 text-[#C76706] shrink-0 mt-0.5" />
+                  <Info className="w-4 h-4 text-[#E25822] shrink-0 mt-0.5" />
                   <span className="leading-relaxed">{currentModule.disclaimer}</span>
                 </div>
               )}
@@ -269,7 +269,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-[#C76706]" />
+                        <Users className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Member Directory</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-[#62666D] bg-white border border-[#E7E4DE] px-2.5 py-0.5 rounded-full">
@@ -280,7 +280,7 @@ export function FeaturesSection() {
                     <div className="space-y-2.5">
                       <div className="bg-white p-3 rounded-xl border border-[#E7E4DE] flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-[#FDF5ED] text-[#C76706] font-bold text-xs flex items-center justify-center border border-[#F5D2B0]">
+                          <div className="w-9 h-9 rounded-full bg-[#FDF1EB] text-[#E25822] font-bold text-xs flex items-center justify-center border border-[#FACBB7]">
                             AS
                           </div>
                           <div>
@@ -338,7 +338,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <CalendarCheck className="w-4 h-4 text-[#C76706]" />
+                        <CalendarCheck className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Today&apos;s Check-in Log</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
@@ -401,7 +401,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4 text-[#C76706]" />
+                        <RefreshCw className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Renewal Status</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
@@ -455,7 +455,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-[#C76706]" />
+                        <CreditCard className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Payment Records</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-[#191919] bg-white border border-[#E7E4DE] px-2.5 py-0.5 rounded-full">
@@ -512,7 +512,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-[#C76706]" />
+                        <BarChart3 className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Operational Overview</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-[#62666D] bg-white border border-[#E7E4DE] px-2.5 py-0.5 rounded-full">
@@ -536,7 +536,7 @@ export function FeaturesSection() {
 
                     <div className="bg-white p-3 rounded-xl border border-[#E7E4DE] flex items-center justify-between shadow-2xs text-xs">
                       <span className="font-medium text-[#191919]">Monthly Member Retention</span>
-                      <span className="font-bold text-[#C76706]">92.4%</span>
+                      <span className="font-bold text-[#E25822]">92.4%</span>
                     </div>
                   </motion.div>
                 )}
@@ -553,7 +553,7 @@ export function FeaturesSection() {
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-[#E7E4DE]">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-[#C76706]" />
+                        <ShieldCheck className="w-4 h-4 text-[#E25822]" />
                         <span className="text-sm font-bold text-[#191919]">Team Roles & Access</span>
                       </div>
                       <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
@@ -602,7 +602,7 @@ export function FeaturesSection() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center h-11 px-7 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm shadow-[#C76706]/25 hover:shadow-md active:scale-95"
+              className="inline-flex items-center justify-center h-11 px-7 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm shadow-[#E25822]/25 hover:shadow-md active:scale-95"
             >
               <span>Get Started Free</span>
             </Link>

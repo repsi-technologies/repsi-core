@@ -69,8 +69,8 @@ export function ProductRevealSection() {
             transition={{ duration: 0.4 }}
             className="mb-3.5"
           >
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
               One Workspace. Total Control.
             </span>
           </motion.div>
@@ -83,7 +83,7 @@ export function ProductRevealSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#17191C] tracking-tight leading-[1.12] mb-4"
           >
             Everything your fitness business needs. <br />
-            <span className="text-[#C76706]">All in one place.</span>
+            <span className="text-[#E25822]">All in one place.</span>
           </motion.h2>
 
           <motion.p
@@ -111,7 +111,7 @@ export function ProductRevealSection() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`group relative text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-white border-[#E4E2DC] shadow-lg shadow-black/5 ring-2 ring-[#C76706]/30"
+                    ? "bg-white border-[#E4E2DC] shadow-lg shadow-black/5 ring-2 ring-[#E25822]/30"
                     : "bg-white/70 hover:bg-white border-[#E4E2DC]/80 hover:border-[#E4E2DC] shadow-2xs"
                 }`}
               >
@@ -119,7 +119,7 @@ export function ProductRevealSection() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTabIndicator"
-                    className="absolute top-0 left-4 right-4 h-1 bg-[#C76706] rounded-b-md"
+                    className="absolute top-0 left-4 right-4 h-1 bg-[#E25822] rounded-b-md"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -128,7 +128,7 @@ export function ProductRevealSection() {
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
                       isActive
-                        ? "bg-[#FDF5ED] text-[#C76706]"
+                        ? "bg-[#FDF1EB] text-[#E25822]"
                         : "bg-[#F7F7F5] text-[#6B6F76] group-hover:text-[#17191C]"
                     }`}
                   >
@@ -191,7 +191,7 @@ export function ProductRevealSection() {
                   onClick={() => setActiveTab(tabKey)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
                     activeTab === tabKey
-                      ? "bg-[#C76706] text-white shadow-xs"
+                      ? "bg-[#E25822] text-white shadow-xs"
                       : "text-[#6B6F76] hover:text-[#17191C]"
                   }`}
                 >
@@ -246,7 +246,7 @@ export function ProductRevealSection() {
                   {/* 4 Member Records */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                     {/* Member 1: Arjun */}
-                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#C76706]/30 transition-all flex items-center justify-between">
+                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#E25822]/30 transition-all flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
                           AK
@@ -265,7 +265,7 @@ export function ProductRevealSection() {
                     </div>
 
                     {/* Member 2: Priya */}
-                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#C76706]/30 transition-all flex items-center justify-between">
+                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#E25822]/30 transition-all flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs shrink-0 border border-rose-200">
                           PN
@@ -276,7 +276,7 @@ export function ProductRevealSection() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="inline-block text-[10px] font-bold text-[#C76706] bg-[#FDF5ED] px-2.5 py-0.5 rounded-full border border-[#F5D2B0]">
+                        <span className="inline-block text-[10px] font-bold text-[#E25822] bg-[#FDF1EB] px-2.5 py-0.5 rounded-full border border-[#FACBB7]">
                           Renews in 3 days
                         </span>
                         <div className="text-[10px] text-[#8C9097] mt-0.5">Auto-Debit Ready</div>
@@ -284,7 +284,7 @@ export function ProductRevealSection() {
                     </div>
 
                     {/* Member 3: Vikram */}
-                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#C76706]/30 transition-all flex items-center justify-between">
+                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#E25822]/30 transition-all flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-200">
                           VS
@@ -303,7 +303,7 @@ export function ProductRevealSection() {
                     </div>
 
                     {/* Member 4: Sneha */}
-                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#C76706]/30 transition-all flex items-center justify-between">
+                    <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3.5 hover:border-[#E25822]/30 transition-all flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs shrink-0 border border-teal-200">
                           SK
@@ -404,7 +404,7 @@ export function ProductRevealSection() {
 
                     <div className="bg-[#FAF8F5] border border-[#E4E2DC] rounded-xl p-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#FDF5ED] text-[#C76706] flex items-center justify-center font-mono font-bold text-xs border border-[#F5D2B0]">
+                        <div className="w-8 h-8 rounded-lg bg-[#FDF1EB] text-[#E25822] flex items-center justify-center font-mono font-bold text-xs border border-[#FACBB7]">
                           DK
                         </div>
                         <div>
@@ -413,7 +413,7 @@ export function ProductRevealSection() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-[#C76706] font-bold text-[11px]">
+                        <span className="font-mono text-[#E25822] font-bold text-[11px]">
                           Fee Collected ✓
                         </span>
                         <span className="text-[#8C9097] text-[10px]">11:15:42 AM</span>
@@ -457,7 +457,7 @@ export function ProductRevealSection() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-[#C76706] bg-[#FDF5ED] px-3 py-1 rounded-full border border-[#F5D2B0] font-bold">
+                      <span className="text-[11px] font-mono text-[#E25822] bg-[#FDF1EB] px-3 py-1 rounded-full border border-[#FACBB7] font-bold">
                         Today: ₹48,500 Recd
                       </span>
                     </div>
@@ -541,11 +541,11 @@ export function ProductRevealSection() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mt-12 sm:mt-16 bg-white rounded-3xl border border-[#E4E2DC] p-6 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl space-y-2">
-            <span className="text-[11px] font-bold tracking-widest uppercase text-[#C76706] font-mono">
+            <span className="text-[11px] font-bold tracking-widest uppercase text-[#E25822] font-mono">
               ✦ Seamless Desktop & Mobile Access
             </span>
             <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#17191C] tracking-tight">
-              Less admin. <span className="text-[#C76706]">More time to grow.</span>
+              Less admin. <span className="text-[#E25822]">More time to grow.</span>
             </h3>
             <p className="text-xs sm:text-sm text-[#6B6F76] leading-relaxed">
               Spend your hours coaching members and expanding your fitness brand, while REPSI automates front-desk check-ins, fee collections, and renewals.
@@ -555,7 +555,7 @@ export function ProductRevealSection() {
           <div className="flex flex-wrap items-center gap-3.5 shrink-0">
             <Link
               href="/features"
-              className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#C76706]/30 hover:shadow-lg active:scale-95"
+              className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#E25822]/30 hover:shadow-lg active:scale-95"
             >
               <span>Explore Features</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

@@ -29,11 +29,11 @@
   --sidebar-border: #E4E2DC;
 
   /* Primary */
-  --primary: #C76706;
-  --primary-hover: #AD5702;
-  --primary-dark: #964701;
-  --link: #964701;
-  --primary-soft: #FDF5ED;
+  --primary: #E25822;
+  --primary-hover: #C94715;
+  --primary-dark: #AC3A0E;
+  --link: #AC3A0E;
+  --primary-soft: #FDF1EB;
   --primary-foreground: #FFFFFF;
 
   /* Text Hierarchy */
@@ -63,13 +63,13 @@
   --info-foreground: #475569;
 
   /* Interactive */
-  --ring: #C76706;
+  --ring: #E25822;
   --ring-offset: #F7F7F5;
 
   /* Sidebar nav active state */
-  --nav-active-bg: #FDF5ED;
-  --nav-active-text: #964701;
-  --nav-active-indicator: #C76706;
+  --nav-active-bg: #FDF1EB;
+  --nav-active-text: #AC3A0E;
+  --nav-active-indicator: #E25822;
   --nav-hover-bg: #EFEEEA;
 
   /* Shadows */
@@ -104,11 +104,11 @@
   --sidebar-border: #3A3F45;
 
   /* Primary */
-  --primary: #C76706;
-  --primary-hover: #F9872D;
-  --primary-dark: #F9872D;
-  --link: #F9872D;
-  --primary-soft: rgb(199 103 6 / 0.15);
+  --primary: #E25822;
+  --primary-hover: #EB6D3A;
+  --primary-dark: #EB6D3A;
+  --link: #EB6D3A;
+  --primary-soft: rgb(226 88 34 / 0.15);
   --primary-foreground: #17191C;
 
   /* Text */
@@ -138,13 +138,13 @@
   --info-foreground: #94A3B8;
 
   /* Interactive */
-  --ring: #C76706;
+  --ring: #E25822;
   --ring-offset: #17191C;
 
   /* Sidebar nav active state */
   --nav-active-bg: #49302A;
   --nav-active-text: #F9872D;
-  --nav-active-indicator: #C76706;
+  --nav-active-indicator: #E25822;
   --nav-hover-bg: #2E3237;
 
   /* Shadows — use borders for elevation in dark mode */
@@ -168,11 +168,11 @@ html.dark .light * {
   --raised: #EFEEEA;
   --sidebar: #ffffff;
   --sidebar-border: #E4E2DC;
-  --primary: #C76706;
-  --primary-hover: #AD5702;
-  --primary-dark: #964701;
-  --link: #964701;
-  --primary-soft: #FDF5ED;
+  --primary: #E25822;
+  --primary-hover: #C94715;
+  --primary-dark: #AC3A0E;
+  --link: #AC3A0E;
+  --primary-soft: #FDF1EB;
   --primary-foreground: #FFFFFF;
   --text: #17191C;
   --text-secondary: #6B6F76;
@@ -193,11 +193,11 @@ html.dark .light * {
   --info: #475569;
   --info-soft: #F1F5F9;
   --info-foreground: #475569;
-  --ring: #C76706;
+  --ring: #E25822;
   --ring-offset: #F7F7F5;
-  --nav-active-bg: #FDF5ED;
-  --nav-active-text: #964701;
-  --nav-active-indicator: #C76706;
+  --nav-active-bg: #FDF1EB;
+  --nav-active-text: #AC3A0E;
+  --nav-active-indicator: #E25822;
   --nav-hover-bg: #EFEEEA;
   color-scheme: light;
 }

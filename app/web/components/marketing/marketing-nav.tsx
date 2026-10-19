@@ -96,23 +96,30 @@ export function MarketingNav() {
 
   const logoSrc = "/logos/logo-dark.png";
   const defaultLinkClass =
-    "text-[#191919] hover:text-[#C76706] transition-colors drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]";
+    "text-[#191919] hover:text-[#E25822] transition-colors drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]";
   const dropdownBg = "bg-white/98 backdrop-blur-xl border-[#E7E4DE] shadow-xl";
   const dropdownItemText = "text-[#62666D] hover:text-[#191919] hover:bg-[#F5F2ED]";
 
-  // Navbar background style
-  const navBgClass = scrolled
-    ? "bg-white/95 backdrop-blur-md border-b border-[#E7E4DE] shadow-xs"
-    : isHome
-    ? "bg-white/80 backdrop-blur-md sm:bg-transparent sm:backdrop-blur-none border-b border-[#E7E4DE]/60 sm:border-transparent"
-    : "bg-[#FAF9F6]/95 backdrop-blur-md border-b border-[#E7E4DE]";
+  // Navbar background style:
+  // Mobile (<md): fixed top bar with backdrop blur and border when scrolled
+  // Desktop (md+): transparent on homepage hero, clean solid on subpages, never sticky
+  const navBgClass = isHome
+    ? scrolled
+      ? "bg-white/95 backdrop-blur-md border-b border-[#E7E4DE] shadow-xs md:bg-transparent md:backdrop-blur-none md:border-transparent md:shadow-none"
+      : "bg-white/80 backdrop-blur-md border-b border-[#E7E4DE]/60 md:bg-transparent md:backdrop-blur-none md:border-transparent md:shadow-none"
+    : "bg-[#FAF9F6]/95 backdrop-blur-md border-b border-[#E7E4DE] md:bg-[#FAF9F6] md:backdrop-blur-none md:shadow-none";
+
+  // Position:
+  // Mobile (<md): fixed top-0 (pinned to viewport as requested)
+  // Desktop (md+): not sticky, scrolls naturally away with page (absolute on home, relative on subpages)
+  const headerPositionClass = isHome
+    ? "fixed md:absolute top-0 left-0 right-0 z-40 w-full"
+    : "sticky md:relative top-0 left-0 right-0 z-40 w-full";
 
   return (
     <>
       <header
-        className={`${
-          isHome ? "fixed" : "sticky"
-        } top-0 left-0 right-0 z-40 w-full transition-all duration-200 ${navBgClass}`}
+        className={`${headerPositionClass} transition-colors duration-200 ${navBgClass}`}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 flex h-[64px] sm:h-[76px] items-center justify-between">
           {/* Logo */}
@@ -172,8 +179,8 @@ export function MarketingNav() {
               href="/login"
               className={`text-sm font-semibold py-2 transition-colors ${
                 isHome
-                  ? "text-[#191919] hover:text-[#C76706] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
-                  : "text-[#191919] hover:text-[#C76706]"
+                  ? "text-[#191919] hover:text-[#E25822] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
+                  : "text-[#191919] hover:text-[#E25822]"
               }`}
             >
               Sign In
@@ -181,7 +188,7 @@ export function MarketingNav() {
 
             <Link
               href="/signup"
-              className="group inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm shadow-[#C76706]/25 hover:shadow-md active:scale-95"
+              className="group inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm shadow-[#E25822]/25 hover:shadow-md active:scale-95"
             >
               <span>Start for Free →</span>
             </Link>
@@ -244,7 +251,7 @@ export function MarketingNav() {
                       <Link
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
-                        className="block text-sm font-bold text-[#191919] hover:text-[#C76706] py-1 transition-colors"
+                        className="block text-sm font-bold text-[#191919] hover:text-[#E25822] py-1 transition-colors"
                       >
                         {item.title}
                       </Link>
@@ -259,7 +266,7 @@ export function MarketingNav() {
                               key={link.label}
                               href={link.href}
                               onClick={() => setMobileOpen(false)}
-                              className="block py-1 text-xs font-medium text-[#62666D] hover:text-[#C76706] transition-colors truncate"
+                              className="block py-1 text-xs font-medium text-[#62666D] hover:text-[#E25822] transition-colors truncate"
                             >
                               {link.label}
                             </Link>
@@ -283,7 +290,7 @@ export function MarketingNav() {
                 <Link
                   href="/signup"
                   onClick={() => setMobileOpen(false)}
-                  className="w-full min-h-[40px] flex items-center justify-center py-2 text-xs font-bold bg-[#C76706] hover:bg-[#AD5702] text-white rounded-full shadow-sm shadow-[#C76706]/30 transition-all active:scale-95"
+                  className="w-full min-h-[40px] flex items-center justify-center py-2 text-xs font-bold bg-[#E25822] hover:bg-[#C94715] text-white rounded-full shadow-sm shadow-[#E25822]/30 transition-all active:scale-95"
                 >
                   Start for Free →
                 </Link>

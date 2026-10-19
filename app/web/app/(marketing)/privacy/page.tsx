@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#6B6F76] hover:text-[#C76706] mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#6B6F76] hover:text-[#E25822] mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
@@ -21,8 +21,8 @@ export default function PrivacyPolicyPage() {
 
         <div className="bg-white rounded-3xl border border-[#E4E2DC] p-8 sm:p-12 shadow-xs space-y-8">
           <div className="border-b border-[#E4E2DC] pb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#C76706] bg-[#FDF5ED] mb-3">
-              <Shield className="w-3.5 h-3.5 text-[#C76706]" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#E25822] bg-[#FDF1EB] mb-3">
+              <Shield className="w-3.5 h-3.5 text-[#E25822]" />
               Data Security & Privacy
             </span>
             <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#17191C]">
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <p>
                 If you have questions about our data practices or wish to request data deletion, please contact our data officer at{" "}
-                <a href="mailto:support@repsi.app" className="text-[#C76706] font-semibold underline">
+                <a href="mailto:support@repsi.app" className="text-[#E25822] font-semibold underline">
                   support@repsi.app
                 </a>.
               </p>

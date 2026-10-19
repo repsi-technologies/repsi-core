@@ -184,7 +184,7 @@ export default function FullPricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#C76706] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#E25822] selection:text-white flex flex-col">
       <MarketingNav />
 
       <main className="flex-1">
@@ -192,7 +192,7 @@ export default function FullPricingPage() {
         <section className="pt-28 pb-8 px-4 sm:px-6 lg:px-8 text-center max-w-4xl mx-auto">
           <h1 className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#191919] tracking-tight leading-[1.12] mb-4">
             Pay only for what <br className="hidden sm:inline" />
-            <span className="text-[#C76706]">your fitness business uses.</span>
+            <span className="text-[#E25822]">your fitness business uses.</span>
           </h1>
 
           <p className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed">
@@ -201,19 +201,19 @@ export default function FullPricingPage() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-5 text-xs font-semibold text-[#62666D]">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               14-Day Free Trial
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               No Credit Card Required
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               Data Safely Preserved on Downgrade
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               Cancel or Switch Anytime
             </span>
           </div>
@@ -240,13 +240,13 @@ export default function FullPricingPage() {
                   key={bIdx}
                   className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 ${
                     bill.recommended
-                      ? "bg-[#FAF9F6] border-2 border-[#C76706] ring-4 ring-[#C76706]/10 shadow-md"
+                      ? "bg-[#FAF9F6] border-2 border-[#E25822] ring-4 ring-[#E25822]/10 shadow-md"
                       : "bg-[#FAF9F6] border border-[#E7E4DE] shadow-xs hover:shadow-md"
                   }`}
                 >
                   <div>
                     {bill.recommended && (
-                      <div className="text-[10px] font-mono font-bold text-white bg-[#C76706] px-3 py-0.5 rounded-full uppercase tracking-wider inline-block mb-3">
+                      <div className="text-[10px] font-mono font-bold text-white bg-[#E25822] px-3 py-0.5 rounded-full uppercase tracking-wider inline-block mb-3">
                         Most Popular Starter
                       </div>
                     )}
@@ -384,7 +384,7 @@ export default function FullPricingPage() {
                             <td className="py-3.5 px-5 font-bold text-[#191919]">
                               {item.module}
                             </td>
-                            <td className="py-3.5 px-5 font-mono font-bold text-[#C76706] whitespace-nowrap">
+                            <td className="py-3.5 px-5 font-mono font-bold text-[#E25822] whitespace-nowrap">
                               {item.price}
                             </td>
                             <td className="py-3.5 px-5 text-[#62666D]">
@@ -426,7 +426,7 @@ export default function FullPricingPage() {
                     <span className="text-[10px] font-mono uppercase text-[#858890]">
                       Monthly
                     </span>
-                    <span className="font-mono font-extrabold text-sm text-[#C76706]">
+                    <span className="font-mono font-extrabold text-sm text-[#E25822]">
                       {t.price}
                     </span>
                   </div>
@@ -454,7 +454,7 @@ export default function FullPricingPage() {
 
               <div className="space-y-1.5 p-4 rounded-2xl bg-white border border-[#E7E4DE]">
                 <div className="font-bold text-[#191919] text-sm flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-[#C76706]" />
+                  <Zap className="w-4 h-4 text-[#E25822]" />
                   <span>2. Bundle vs. Build Your Own</span>
                 </div>
                 <p>
@@ -477,7 +477,7 @@ export default function FullPricingPage() {
 
         {/* 06. MASCOT ADVISOR BANNER */}
         <section className="mx-auto max-w-4xl px-4 pb-20">
-          <div className="bg-gradient-to-r from-[#FDF5ED] via-white to-[#FAF9F6] border border-[#F5D2B0] rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-xs">
+          <div className="bg-gradient-to-r from-[#FDF1EB] via-white to-[#FAF9F6] border border-[#FACBB7] rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-xs">
             <RepsiMascot pose="help" size="sm" />
             <div className="space-y-1 text-center sm:text-left flex-1">
               <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#191919]">
@@ -491,7 +491,7 @@ export default function FullPricingPage() {
               href="https://wa.me/918667783321?text=Hi%20Repsi%20team,%20I'd%20like%20guidance%20on%20choosing%20the%20right%20modular%20pricing%20for%20my%20gym"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs font-semibold transition-all shrink-0 shadow-sm shadow-[#C76706]/30 flex items-center gap-2"
+              className="px-5 py-2.5 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs font-semibold transition-all shrink-0 shadow-sm shadow-[#E25822]/30 flex items-center gap-2"
             >
               <span>Chat with an Advisor</span>
               <ArrowRight className="w-3.5 h-3.5" />

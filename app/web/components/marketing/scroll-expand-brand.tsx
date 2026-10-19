@@ -86,11 +86,11 @@ export function ScrollExpandBrand() {
           {/* Subtle warm ambient radial glows (fades in as container expands) */}
           <motion.div
             style={shouldReduceMotion ? { opacity: 0.8 } : { opacity: ambientGlowOpacity }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[360px] bg-gradient-to-r from-[#FDF5ED] via-[#FFF5F1] to-[#FDF5ED] rounded-full blur-3xl pointer-events-none -z-10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[360px] bg-gradient-to-r from-[#FDF1EB] via-[#FFF5F1] to-[#FDF1EB] rounded-full blur-3xl pointer-events-none -z-10"
           />
           <motion.div
             style={shouldReduceMotion ? { opacity: 0.6 } : { opacity: ambientGlowOpacity }}
-            className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[450px] h-[200px] bg-[#C76706]/10 rounded-full blur-3xl pointer-events-none -z-10"
+            className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[450px] h-[200px] bg-[#E25822]/10 rounded-full blur-3xl pointer-events-none -z-10"
           />
 
           {/* Centered Official REPSI Logo */}
@@ -121,7 +121,7 @@ export function ScrollExpandBrand() {
               <p className="text-xs sm:text-sm md:text-base font-semibold tracking-wider uppercase text-[#62666D]">
                 The Operating System for Modern Fitness Businesses
               </p>
-              <div className="mt-2.5 mx-auto w-12 h-0.5 rounded-full bg-[#C76706]" />
+              <div className="mt-2.5 mx-auto w-12 h-0.5 rounded-full bg-[#E25822]" />
             </motion.div>
           </div>
         </motion.div>

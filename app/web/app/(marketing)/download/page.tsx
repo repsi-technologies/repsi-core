@@ -179,7 +179,7 @@ export default function DownloadPage() {
       platform: "Chrome, Edge, Safari, Firefox",
       version: "Cloud v2.4 (Always Updated)",
       badge: "Zero Install",
-      icon: <Globe className="w-8 h-8 text-[#C76706]" />,
+      icon: <Globe className="w-8 h-8 text-[#E25822]" />,
       description: "Access your entire gym management workspace instantly from any browser. No downloads, installations, or manual updates required.",
       highlights: [
         "100% cloud-hosted with automatic encrypted backups",
@@ -211,7 +211,7 @@ export default function DownloadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#C76706] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#E25822] selection:text-white flex flex-col">
       <MarketingNav />
 
       <main className="flex-1 pt-12 sm:pt-16 pb-20">
@@ -226,7 +226,7 @@ export default function DownloadPage() {
             className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#191919] tracking-tight leading-[1.12]"
           >
             Download REPSI on <br className="hidden sm:inline" />
-            <span className="text-[#C76706]">every device.</span>
+            <span className="text-[#E25822]">every device.</span>
           </motion.h1>
 
           <motion.p
@@ -241,15 +241,15 @@ export default function DownloadPage() {
           {/* Key Value Badges */}
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-2 text-xs sm:text-sm text-[#62666D] font-medium">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               Real-time Cloud Sync
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               Offline Reception Mode
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#C76706]" />
+              <CheckCircle2 className="w-4 h-4 text-[#E25822]" />
               14-Day Free Trial Included
             </span>
           </div>
@@ -271,7 +271,7 @@ export default function DownloadPage() {
                   onClick={() => setSelectedCategory(tab.id)}
                   className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                     selectedCategory === tab.id
-                      ? "bg-[#C76706] text-white shadow-xs"
+                      ? "bg-[#E25822] text-white shadow-xs"
                       : "text-[#62666D] hover:text-[#191919]"
                   }`}
                 >
@@ -290,7 +290,7 @@ export default function DownloadPage() {
             {filteredPlatforms.map((p) => (
               <div
                 key={p.id}
-                className="rounded-[28px] sm:rounded-[32px] bg-white border border-[#E7E4DE] p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#F5D2B0] transition-all duration-200"
+                className="rounded-[28px] sm:rounded-[32px] bg-white border border-[#E7E4DE] p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#FACBB7] transition-all duration-200"
               >
                 <div>
                   {/* Card Header: Icon & Badge */}
@@ -298,7 +298,7 @@ export default function DownloadPage() {
                     <div className="w-14 h-14 rounded-2xl bg-[#FAF9F6] border border-[#E7E4DE] flex items-center justify-center shadow-2xs">
                       {p.icon}
                     </div>
-                    <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-[#FDF5ED] text-[#C76706] border border-[#F5D2B0]">
+                    <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-[#FDF1EB] text-[#E25822] border border-[#FACBB7]">
                       {p.badge}
                     </span>
                   </div>
@@ -325,7 +325,7 @@ export default function DownloadPage() {
                     </div>
                     {p.highlights.map((h, hIdx) => (
                       <div key={hIdx} className="flex items-start gap-2 text-xs sm:text-[13px] text-[#191919]">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#C76706] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#E25822] shrink-0 mt-0.5" />
                         <span className="leading-snug">{h}</span>
                       </div>
                     ))}
@@ -337,7 +337,7 @@ export default function DownloadPage() {
                   {p.primaryAction.type === "web" ? (
                     <Link
                       href={p.primaryAction.href}
-                      className="group w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#C76706]/30 transition-all duration-200 active:scale-95"
+                      className="group w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#E25822]/30 transition-all duration-200 active:scale-95"
                     >
                       <span>{p.primaryAction.label}</span>
                       <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -346,7 +346,7 @@ export default function DownloadPage() {
                     <button
                       type="button"
                       onClick={(e) => handleDownloadClick(e, p.name)}
-                      className="group w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#C76706]/30 transition-all duration-200 active:scale-95 cursor-pointer"
+                      className="group w-full inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#E25822]/30 transition-all duration-200 active:scale-95 cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
                       <span>{p.primaryAction.label}</span>
@@ -391,7 +391,7 @@ export default function DownloadPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
               <div className="space-y-2 text-center sm:text-left">
-                <div className="w-10 h-10 rounded-xl bg-[#FDF5ED] border border-[#F5D2B0] flex items-center justify-center text-[#C76706] mx-auto sm:mx-0">
+                <div className="w-10 h-10 rounded-xl bg-[#FDF1EB] border border-[#FACBB7] flex items-center justify-center text-[#E25822] mx-auto sm:mx-0">
                   <WifiOff className="w-5 h-5" />
                 </div>
                 <h4 className="font-heading font-bold text-base text-[#191919]">
@@ -403,7 +403,7 @@ export default function DownloadPage() {
               </div>
 
               <div className="space-y-2 text-center sm:text-left">
-                <div className="w-10 h-10 rounded-xl bg-[#FDF5ED] border border-[#F5D2B0] flex items-center justify-center text-[#C76706] mx-auto sm:mx-0">
+                <div className="w-10 h-10 rounded-xl bg-[#FDF1EB] border border-[#FACBB7] flex items-center justify-center text-[#E25822] mx-auto sm:mx-0">
                   <RefreshCw className="w-5 h-5" />
                 </div>
                 <h4 className="font-heading font-bold text-base text-[#191919]">
@@ -415,7 +415,7 @@ export default function DownloadPage() {
               </div>
 
               <div className="space-y-2 text-center sm:text-left">
-                <div className="w-10 h-10 rounded-xl bg-[#FDF5ED] border border-[#F5D2B0] flex items-center justify-center text-[#C76706] mx-auto sm:mx-0">
+                <div className="w-10 h-10 rounded-xl bg-[#FDF1EB] border border-[#FACBB7] flex items-center justify-center text-[#E25822] mx-auto sm:mx-0">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h4 className="font-heading font-bold text-base text-[#191919]">
@@ -479,7 +479,7 @@ export default function DownloadPage() {
         {downloadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
             <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#E7E4DE] space-y-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#FDF5ED] border border-[#F5D2B0] text-[#C76706] flex items-center justify-center mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] flex items-center justify-center mx-auto">
                 <Download className="w-6 h-6 animate-bounce" />
               </div>
 
@@ -496,7 +496,7 @@ export default function DownloadPage() {
                 <Link
                   href="/signup"
                   onClick={() => setDownloadModal(null)}
-                  className="w-full h-11 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold flex items-center justify-center transition-all shadow-sm"
+                  className="w-full h-11 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold flex items-center justify-center transition-all shadow-sm"
                 >
                   Create Free Account
                 </Link>

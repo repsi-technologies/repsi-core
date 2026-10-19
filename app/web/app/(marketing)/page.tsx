@@ -11,7 +11,7 @@ import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function MarketingLandingPage() {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#C76706] selection:text-white">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#191919] font-sans antialiased selection:bg-[#E25822] selection:text-white">
       {/* 00. GLOBAL MARKETING NAVIGATION */}
       <MarketingNav />
 

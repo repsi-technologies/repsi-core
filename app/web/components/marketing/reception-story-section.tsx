@@ -104,19 +104,19 @@ export function ReceptionStorySection() {
       className="relative bg-[#17191C] pt-20 sm:pt-28 pb-24 sm:pb-32 px-5 sm:px-8 lg:px-12 text-white overflow-hidden border-t border-white/5"
     >
       {/* Background Ambience */}
-      <div className="absolute top-0 right-1/4 w-[600px] h-[400px] bg-[#C76706]/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-0 right-1/4 w-[600px] h-[400px] bg-[#E25822]/8 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 left-10 w-[450px] h-[350px] bg-white/[0.02] rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section Header: The Reception Journey */}
         <div className="max-w-3xl mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-[0.16em] uppercase text-[#C76706] bg-[#C76706]/10 border border-[#C76706]/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C76706]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-[0.16em] uppercase text-[#E25822] bg-[#E25822]/10 border border-[#E25822]/20 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822]" />
             From the entrance to reception
           </div>
           <h2 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-[#F7F7F5] leading-tight">
             Where fitness businesses <br className="hidden sm:inline" />
-            <span className="text-[#C76706]">lose time and revenue.</span>
+            <span className="text-[#E25822]">lose time and revenue.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#A6A8AC] leading-relaxed">
             Walk into reception at 7:00 PM on a Monday. Here are the three operational bottlenecks gym owners deal with every day—and how REPSI automates them in real time.
@@ -140,13 +140,13 @@ export function ReceptionStorySection() {
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-xs font-mono font-bold tracking-wider ${
-                      isActive ? "text-[#C76706]" : "text-[#70747A]"
+                      isActive ? "text-[#E25822]" : "text-[#70747A]"
                     }`}
                   >
                     STEP {item.stepNumber}
                   </span>
                   {isActive && (
-                    <span className="w-2 h-2 rounded-full bg-[#C76706] animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[#E25822] animate-pulse" />
                   )}
                 </div>
                 <h3
@@ -190,8 +190,8 @@ export function ReceptionStorySection() {
               {/* Solution Section (Green/Orange) */}
               <div className="p-6 rounded-2xl bg-[#24272B] border border-white/10 space-y-3 flex-1 flex flex-col justify-between">
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#C76706]">
-                    <CheckCircle2 className="w-4 h-4 text-[#C76706] shrink-0" />
+                  <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#E25822]">
+                    <CheckCircle2 className="w-4 h-4 text-[#E25822] shrink-0" />
                     <span>{activeItem.solutionBadge}</span>
                   </div>
                   <h4 className="text-xl font-bold font-heading text-white">
@@ -214,7 +214,7 @@ export function ReceptionStorySection() {
                   </div>
                   <Link
                     href="/signup"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#C76706] hover:text-[#F9872D] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#E25822] hover:text-[#F9872D] transition-colors"
                   >
                     <span>Test workflow</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -235,7 +235,7 @@ export function ReceptionStorySection() {
                     repsi.app/workspace/frontdesk
                   </span>
                 </div>
-                <span className="text-[11px] font-semibold text-[#C76706] bg-[#C76706]/10 px-2.5 py-1 rounded-md border border-[#C76706]/20">
+                <span className="text-[11px] font-semibold text-[#E25822] bg-[#E25822]/10 px-2.5 py-1 rounded-md border border-[#E25822]/20">
                   REPSI Live OS
                 </span>
               </div>
@@ -268,7 +268,7 @@ export function ReceptionStorySection() {
                   <div className="space-y-2.5">
                     <div className="bg-[#1E2125] p-3.5 rounded-xl border border-emerald-500/30 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#C76706] text-white flex items-center justify-center font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-[#E25822] text-white flex items-center justify-center font-bold text-sm">
                           AS
                         </div>
                         <div>
@@ -324,7 +324,7 @@ export function ReceptionStorySection() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs font-mono font-bold text-[#C76706] bg-[#C76706]/10 px-2.5 py-1 rounded-md">
+                      <span className="text-xs font-mono font-bold text-[#E25822] bg-[#E25822]/10 px-2.5 py-1 rounded-md">
                         60% Peak Capacity
                       </span>
                     </div>
@@ -407,9 +407,9 @@ export function ReceptionStorySection() {
               {activeItem.previewType === "renewals" && (
                 <div className="space-y-4">
                   {/* Upcoming Expiry Automation */}
-                  <div className="bg-[#17191C] p-4 rounded-xl border border-[#C76706]/30 flex items-center justify-between">
+                  <div className="bg-[#17191C] p-4 rounded-xl border border-[#E25822]/30 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#C76706]/10 text-[#C76706] flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-[#E25822]/10 text-[#E25822] flex items-center justify-center font-bold">
                         <CalendarCheck className="w-5 h-5" />
                       </div>
                       <div>
@@ -421,7 +421,7 @@ export function ReceptionStorySection() {
                         </div>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-[#C76706] bg-[#C76706]/10 px-3 py-1 rounded-full border border-[#C76706]/20">
+                    <span className="text-xs font-bold text-[#E25822] bg-[#E25822]/10 px-3 py-1 rounded-full border border-[#E25822]/20">
                       ACTIVE CADENCE
                     </span>
                   </div>
@@ -437,7 +437,7 @@ export function ReceptionStorySection() {
                       <p className="text-[#F7F7F5]">
                         "Hi Priya! Your 3-Month Pilates Membership at Apex Studio expires in 3 days (Oct 24). Tap below to renew in 10 seconds and keep your preferred slot:"
                       </p>
-                      <div className="inline-block bg-[#C76706] text-white font-bold text-xs px-3 py-1.5 rounded-lg">
+                      <div className="inline-block bg-[#E25822] text-white font-bold text-xs px-3 py-1.5 rounded-lg">
                         Renew Now • ₹5,200 ↗
                       </div>
                     </div>

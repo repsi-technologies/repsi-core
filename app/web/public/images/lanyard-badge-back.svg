@@ -10,7 +10,7 @@
     <!-- Orange Gradient -->
     <linearGradient id="orangeGradBack" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF9371"/>
-      <stop offset="100%" stop-color="#C76706"/>
+      <stop offset="100%" stop-color="#E25822"/>
     </linearGradient>
 
     <!-- Grid Pattern -->
@@ -20,8 +20,8 @@
 
     <!-- Glowing Radial for Tick -->
     <radialGradient id="tickGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#C76706" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#C76706" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#E25822" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#E25822" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
@@ -38,9 +38,9 @@
 
   <!-- Top Accreditation Pill -->
   <g transform="translate(160, 74)">
-    <rect width="280" height="28" rx="14" fill="#C76706" fill-opacity="0.12" stroke="#C76706" stroke-width="1.2"/>
-    <circle cx="20" cy="14" r="4.5" fill="#C76706"/>
-    <text x="36" y="19" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#C76706" letter-spacing="2">OFFICIAL ACCREDITATION</text>
+    <rect width="280" height="28" rx="14" fill="#E25822" fill-opacity="0.12" stroke="#E25822" stroke-width="1.2"/>
+    <circle cx="20" cy="14" r="4.5" fill="#E25822"/>
+    <text x="36" y="19" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#E25822" letter-spacing="2">OFFICIAL ACCREDITATION</text>
   </g>
 
   <!-- Official REPSI Logo Header -->
@@ -60,7 +60,7 @@
     <path d="M 327 59 C 329 72 339 81 358 81 C 375 81 385 73 385 61 C 385 37 329 42 329 20 C 329 7 341 0 358 0 C 377 0 388 10 390 24 L 366 24 C 364 15 359 12 352 12 C 345 12 340 15 340 20 C 340 39 396 34 396 58 C 396 73 382 88 355 88 C 331 88 316 74 314 59 Z" fill="#FFFFFF"/>
     
     <!-- I -->
-    <rect x="412" y="0" width="25" height="85" rx="3" fill="#C76706"/>
+    <rect x="412" y="0" width="25" height="85" rx="3" fill="#E25822"/>
   </g>
 
   <!-- Divider Line -->
@@ -71,16 +71,16 @@
     <!-- Ambient Glow -->
     <circle cx="0" cy="0" r="70" fill="url(#tickGlow)"/>
     <!-- Outer Orange Ring -->
-    <circle cx="0" cy="0" r="50" fill="#161922" stroke="#C76706" stroke-width="3"/>
+    <circle cx="0" cy="0" r="50" fill="#161922" stroke="#E25822" stroke-width="3"/>
     <!-- Inner Orange Pill / Radial -->
-    <circle cx="0" cy="0" r="40" fill="#C76706" fill-opacity="0.16"/>
+    <circle cx="0" cy="0" r="40" fill="#E25822" fill-opacity="0.16"/>
     <!-- Crisp Orange Tick / Checkmark -->
-    <path d="M -16 0 L -4 13 L 18 -11" fill="none" stroke="#C76706" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M -16 0 L -4 13 L 18 -11" fill="none" stroke="#E25822" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
   <!-- Verification Statement as Requested -->
   <text x="300" y="410" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="20" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">MAKE YOUR FITNESS CENTRE</text>
-  <text x="300" y="442" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="26" fill="#C76706" text-anchor="middle" letter-spacing="2">REPSI VERIFIED</text>
+  <text x="300" y="442" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="26" fill="#E25822" text-anchor="middle" letter-spacing="2">REPSI VERIFIED</text>
   <text x="300" y="470" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#9CA3AF" text-anchor="middle">Official Benchmark for Modern Gym &amp; Fitness Operations</text>
 
   <!-- QR Code Verification Card -->
@@ -163,13 +163,13 @@
     <rect x="166" y="170" width="12" height="10" fill="#0F1116"/>
 
     <!-- Center QR Orange Shield with 'R' -->
-    <rect x="78" y="78" width="44" height="44" rx="8" fill="#C76706"/>
+    <rect x="78" y="78" width="44" height="44" rx="8" fill="#E25822"/>
     <text x="100" y="110" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="26" fill="#FFFFFF" text-anchor="middle">R</text>
   </g>
 
   <!-- Instructions below QR -->
   <text x="300" y="735" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="12" fill="#E5E7EB" text-anchor="middle" letter-spacing="1">SCAN TO VERIFY CERTIFICATION</text>
-  <text x="300" y="756" font-family="monospace" font-weight="700" font-size="12" fill="#C76706" text-anchor="middle" letter-spacing="3">REP-VERIFIED-CERT-2026</text>
+  <text x="300" y="756" font-family="monospace" font-weight="700" font-size="12" fill="#E25822" text-anchor="middle" letter-spacing="3">REP-VERIFIED-CERT-2026</text>
 
   <!-- Legal & Serial -->
   <text x="300" y="796" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="10" fill="#6B7280" text-anchor="middle" letter-spacing="2">ISSUED BY REPSI TECHNOLOGIES PRIVATE LIMITED</text>

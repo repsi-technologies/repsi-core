@@ -82,12 +82,12 @@ export function ReferenceHero() {
           <path
             d="M 10,0 C 4,18 -1,36 2,52 C 5,68 22,80 42,86 C 65,92 82,88 94,96 C 98,98 100,100 100,100"
             fill="none"
-            stroke="#C76706"
+            stroke="#E25822"
             strokeWidth="3.5"
             vectorEffect="non-scaling-stroke"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="drop-shadow-[0_0_8px_rgba(199, 103, 6,0.4)]"
+            className="drop-shadow-[0_0_8px_rgba(226, 88, 34,0.4)]"
           />
         </svg>
       </div>
@@ -119,12 +119,12 @@ export function ReferenceHero() {
             >
               You run your <br />
               fitness business, <br />
-              <span className="text-[#C76706]">
+              <span className="text-[#E25822]">
                 we handle the{" "}
                 <span className="relative inline-block whitespace-nowrap">
                   rest.
                   <svg
-                    className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-2.5 sm:h-3 text-[#C76706] overflow-visible pointer-events-none"
+                    className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-2.5 sm:h-3 text-[#E25822] overflow-visible pointer-events-none"
                     viewBox="0 0 100 12"
                     fill="none"
                     preserveAspectRatio="none"
@@ -163,7 +163,7 @@ export function ReferenceHero() {
               {/* Primary CTA: Solid Coral Orange */}
               <Link
                 href="/signup"
-                className="group inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3.5 sm:px-6 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold shrink-0 whitespace-nowrap transition-all duration-200 shadow-sm shadow-[#C76706]/30 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3.5 sm:px-6 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold shrink-0 whitespace-nowrap transition-all duration-200 shadow-sm shadow-[#E25822]/30 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 <span>Get Started Free</span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -175,7 +175,7 @@ export function ReferenceHero() {
                 onClick={(e) => handleScrollToSection(e, "why-repsi")}
                 className="group inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3 sm:px-5 rounded-full bg-white hover:bg-[#F5F2ED] border border-[#E7E4DE] text-[#191919] text-xs sm:text-sm font-semibold shrink-0 whitespace-nowrap shadow-2xs hover:-translate-y-0.5 transition-all duration-200 active:translate-y-0 active:scale-[0.98]"
               >
-                <span className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full bg-[#C76706] text-white flex items-center justify-center text-[8px] sm:text-[9px] pl-0.5 transition-transform duration-200 group-hover:scale-110">
+                <span className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full bg-[#E25822] text-white flex items-center justify-center text-[8px] sm:text-[9px] pl-0.5 transition-transform duration-200 group-hover:scale-110">
                   ▶
                 </span>
                 <span>See how it works</span>
@@ -195,7 +195,7 @@ export function ReferenceHero() {
                 onClick={() => setShowPlayStoreModal(true)}
                 title="Google Play Store App (Coming Soon)"
                 aria-label="Google Play Store App (Coming Soon)"
-                className="h-8.5 sm:h-9 px-3 rounded-full bg-white hover:bg-[#FAF9F6] border border-[#E7E4DE] hover:border-[#C76706] shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 shrink-0 cursor-pointer text-[#191919]"
+                className="h-8.5 sm:h-9 px-3 rounded-full bg-white hover:bg-[#FAF9F6] border border-[#E7E4DE] hover:border-[#E25822] shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 shrink-0 cursor-pointer text-[#191919]"
               >
                 {/* Official Google Play authentic 4-color triangle */}
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -211,7 +211,7 @@ export function ReferenceHero() {
               <div className="flex -space-x-2.5 items-center">
                 {/* Brand Mark 1: Coral Barbell */}
                 <div
-                  className="w-8 h-8 rounded-full bg-[#FDF5ED] border-2 border-white shadow-2xs flex items-center justify-center text-[#C76706] ring-1 ring-black/5"
+                  className="w-8 h-8 rounded-full bg-[#FDF1EB] border-2 border-white shadow-2xs flex items-center justify-center text-[#E25822] ring-1 ring-black/5"
                   title="Fitness Studio"
                 >
                   <Dumbbell className="w-3.5 h-3.5" />
@@ -317,7 +317,7 @@ export function ReferenceHero() {
                   <div className="grid grid-cols-12 gap-2 sm:gap-2.5">
                     {/* Mini Sidebar Navigation */}
                     <div className="hidden sm:flex sm:col-span-3 flex-col gap-0.5 border-r border-[#E7E4DE] pr-2">
-                      <div className="bg-[#C76706] text-white text-[9.5px] font-semibold px-2 py-1 rounded-lg flex items-center justify-between shadow-2xs">
+                      <div className="bg-[#E25822] text-white text-[9.5px] font-semibold px-2 py-1 rounded-lg flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-1.5">
                           <LayoutDashboard className="w-3 h-3" />
                           <span>Overview</span>
@@ -390,14 +390,14 @@ export function ReferenceHero() {
                         <div className="sm:col-span-7 bg-[#FAF9F6] p-1.5 sm:p-2 rounded-xl border border-[#E7E4DE] flex flex-col justify-between">
                           <div className="flex items-center justify-between text-[8px] sm:text-[9px] mb-1">
                             <span className="font-bold text-[#191919] truncate">Attendance</span>
-                            <span className="text-[#C76706] font-mono font-bold text-[7.5px] sm:text-[9px] shrink-0">+28 today</span>
+                            <span className="text-[#E25822] font-mono font-bold text-[7.5px] sm:text-[9px] shrink-0">+28 today</span>
                           </div>
                           <div className="h-12 sm:h-18 w-full relative">
                             <svg className="w-full h-full overflow-visible" viewBox="0 0 200 65">
                               <defs>
                                 <linearGradient id="heroGradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#C76706" stopOpacity="0.3" />
-                                  <stop offset="100%" stopColor="#C76706" stopOpacity="0.0" />
+                                  <stop offset="0%" stopColor="#E25822" stopOpacity="0.3" />
+                                  <stop offset="100%" stopColor="#E25822" stopOpacity="0.0" />
                                 </linearGradient>
                               </defs>
                               <line x1="0" y1="15" x2="200" y2="15" stroke="#E7E4DE" strokeDasharray="3 3" />
@@ -411,17 +411,17 @@ export function ReferenceHero() {
                               <path
                                 d="M 0,50 Q 30,44 60,32 T 120,22 T 160,15 T 200,8"
                                 fill="none"
-                                stroke="#C76706"
+                                stroke="#E25822"
                                 strokeWidth="2.5"
                               />
-                              <circle cx="200" cy="8" r="2.5" fill="#C76706" />
+                              <circle cx="200" cy="8" r="2.5" fill="#E25822" />
                             </svg>
                           </div>
                           <div className="flex justify-between text-[6px] sm:text-[6.5px] text-[#858890] font-mono pt-1 border-t border-[#E7E4DE]">
                             <span>Mon</span>
                             <span>Wed</span>
                             <span>Fri</span>
-                            <span className="font-bold text-[#C76706]">Today</span>
+                            <span className="font-bold text-[#E25822]">Today</span>
                           </div>
                         </div>
 
@@ -435,7 +435,7 @@ export function ReferenceHero() {
                             </div>
                             <div className="flex justify-between items-center text-[#191919]">
                               <span className="truncate font-medium">Pooja V.</span>
-                              <span className="text-[#C76706] font-semibold bg-[#FDF5ED] px-1.5 py-0.2 rounded text-[7.5px]">Renewed</span>
+                              <span className="text-[#E25822] font-semibold bg-[#FDF1EB] px-1.5 py-0.2 rounded text-[7.5px]">Renewed</span>
                             </div>
                             <div className="flex justify-between items-center text-[#191919]">
                               <span className="truncate font-medium">Rahul M.</span>
@@ -534,7 +534,7 @@ export function ReferenceHero() {
 
                   {/* Mobile Nav Tabs */}
                   <div className="flex items-center justify-around pt-1 border-t border-[#E7E4DE] text-[7.5px] text-[#858890]">
-                    <span className="font-bold text-[#C76706]">Pass</span>
+                    <span className="font-bold text-[#E25822]">Pass</span>
                     <span>Activity</span>
                     <span>Workouts</span>
                     <span>Profile</span>
@@ -550,7 +550,7 @@ export function ReferenceHero() {
           </div>
 
           {/* Right Column: Primary Coral Orange Promotional Card */}
-          <div className="lg:col-span-5 bg-[#C76706] rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 lg:p-6 xl:p-7 text-white shadow-md flex flex-col justify-between relative overflow-hidden">
+          <div className="lg:col-span-5 bg-[#E25822] rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 lg:p-6 xl:p-7 text-white shadow-md flex flex-col justify-between relative overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center h-full">
               {/* Text Area */}
               <div className="md:col-span-7 space-y-3">
@@ -558,7 +558,7 @@ export function ReferenceHero() {
                 <h3 className="font-heading font-extrabold text-xl sm:text-2xl lg:text-[23px] xl:text-[26px] leading-tight text-white">
                   Run your <br />
                   fitness business <br />
-                  <span className="italic font-serif font-normal text-[#FDF5ED]">smarter.</span>
+                  <span className="italic font-serif font-normal text-[#FDF1EB]">smarter.</span>
                 </h3>
 
                 <p className="text-xs text-white/90 leading-relaxed font-normal">
@@ -584,7 +584,7 @@ export function ReferenceHero() {
                 <div className="pt-2">
                   <Link
                     href="/signup"
-                    className="inline-flex items-center gap-1.5 bg-white text-[#C76706] px-5 py-2 rounded-full font-bold text-xs hover:bg-[#FAF9F6] transition-all shadow-sm active:scale-95 group"
+                    className="inline-flex items-center gap-1.5 bg-white text-[#E25822] px-5 py-2 rounded-full font-bold text-xs hover:bg-[#FAF9F6] transition-all shadow-sm active:scale-95 group"
                   >
                     <span>Explore REPSI</span>
                     <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
@@ -603,8 +603,8 @@ export function ReferenceHero() {
 
                 {/* Floating Bottom Badge */}
                 <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-white/95 backdrop-blur-md p-2 rounded-xl shadow-sm border border-black/5 flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-[#FDF5ED] text-[#C76706] flex items-center justify-center shrink-0 border border-[#F5D2B0]">
-                    <BarChart3 className="w-3.5 h-3.5 text-[#C76706]" />
+                  <div className="w-6 h-6 rounded-md bg-[#FDF1EB] text-[#E25822] flex items-center justify-center shrink-0 border border-[#FACBB7]">
+                    <BarChart3 className="w-3.5 h-3.5 text-[#E25822]" />
                   </div>
                   <div>
                     <div className="text-[11px] font-bold text-[#191919] leading-tight">Real growth</div>
@@ -631,7 +631,7 @@ export function ReferenceHero() {
             </div>
 
             <div>
-              <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-3 py-1 rounded-full">
+              <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7] px-3 py-1 rounded-full">
                 Google Play Store
               </span>
               <h3 className="font-heading font-extrabold text-xl text-[#191919] mt-3">
@@ -646,7 +646,7 @@ export function ReferenceHero() {
               <Link
                 href="/download"
                 onClick={() => setShowPlayStoreModal(false)}
-                className="w-full h-10 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs font-semibold flex items-center justify-center transition-all shadow-sm"
+                className="w-full h-10 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs font-semibold flex items-center justify-center transition-all shadow-sm"
               >
                 View Downloads & Web App
               </Link>

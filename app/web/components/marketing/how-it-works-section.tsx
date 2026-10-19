@@ -121,8 +121,8 @@ export function HowItWorksSection() {
             transition={{ duration: 0.4 }}
             className="mb-3.5"
           >
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C76706] animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
               How REPSI Works
             </span>
           </motion.div>
@@ -135,7 +135,7 @@ export function HowItWorksSection() {
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#17191C] tracking-tight leading-[1.12] mb-4"
           >
             From setup to smoother <br />
-            <span className="text-[#C76706]">daily operations.</span>
+            <span className="text-[#E25822]">daily operations.</span>
           </motion.h2>
 
           <motion.p
@@ -168,10 +168,10 @@ export function HowItWorksSection() {
                 <div>
                   {/* Step Top Bar */}
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-xs font-bold text-[#C76706] bg-[#FDF5ED] border border-[#F5D2B0] px-3 py-1 rounded-full">
+                    <span className="font-mono text-xs font-bold text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7] px-3 py-1 rounded-full">
                       STEP {step.number}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-[#FAF8F5] text-[#6B6F76] group-hover:bg-[#FDF5ED] group-hover:text-[#C76706] border border-[#E4E2DC] group-hover:border-[#F5D2B0] flex items-center justify-center transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-[#FAF8F5] text-[#6B6F76] group-hover:bg-[#FDF1EB] group-hover:text-[#E25822] border border-[#E4E2DC] group-hover:border-[#FACBB7] flex items-center justify-center transition-colors">
                       <Icon className="w-5 h-5" />
                     </div>
                   </div>
@@ -180,7 +180,7 @@ export function HowItWorksSection() {
                   <h3 className="font-heading font-bold text-lg sm:text-xl text-[#17191C] leading-snug mb-1">
                     {step.title}
                   </h3>
-                  <div className="text-xs font-semibold text-[#C76706] mb-3">
+                  <div className="text-xs font-semibold text-[#E25822] mb-3">
                     {step.tagline}
                   </div>
                   <p className="text-xs sm:text-[13px] text-[#6B6F76] leading-relaxed mb-5">
@@ -211,7 +211,7 @@ export function HowItWorksSection() {
                     <div className="bg-[#FAF8F5] rounded-xl border border-[#E4E2DC] p-3.5 mb-5 space-y-2 text-xs">
                       <div className="flex items-center justify-between pb-1.5 border-b border-[#E4E2DC]">
                         <span className="font-bold text-[#17191C]">Membership Catalog</span>
-                        <span className="font-mono text-[#C76706] text-[10px] font-bold">CSV Import Ready</span>
+                        <span className="font-mono text-[#E25822] text-[10px] font-bold">CSV Import Ready</span>
                       </div>
                       <div className="space-y-1.5 text-[11px]">
                         <div className="bg-white p-2 rounded-lg border border-[#E4E2DC] flex items-center justify-between">
@@ -262,7 +262,7 @@ export function HowItWorksSection() {
                         </div>
                         <div className="bg-white p-2 rounded-lg border border-[#E4E2DC] text-center">
                           <div className="text-[9px] text-[#8C9097]">Retention</div>
-                          <div className="font-bold text-[#C76706] mt-0.5">94%</div>
+                          <div className="font-bold text-[#E25822] mt-0.5">94%</div>
                         </div>
                       </div>
                     </div>
@@ -273,7 +273,7 @@ export function HowItWorksSection() {
                 <div className="pt-3.5 border-t border-[#F0EFEA] space-y-2">
                   {step.details.map((detail, dIdx) => (
                     <div key={dIdx} className="flex items-start gap-2 text-xs text-[#4A4E54]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C76706] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#E25822] shrink-0 mt-0.5" />
                       <span className="leading-tight">{detail}</span>
                     </div>
                   ))}
@@ -288,7 +288,7 @@ export function HowItWorksSection() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mb-14 sm:mb-18">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <span className="text-[11px] font-bold tracking-widest uppercase text-[#C76706] font-mono">
+            <span className="text-[11px] font-bold tracking-widest uppercase text-[#E25822] font-mono">
               ✦ Common Questions & Operations
             </span>
             <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#17191C] mt-1">
@@ -303,7 +303,7 @@ export function HowItWorksSection() {
                 className="bg-white rounded-2xl border border-[#E4E2DC] p-5 shadow-xs"
               >
                 <div className="flex items-start gap-3 mb-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#FDF5ED] text-[#C76706] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#FDF1EB] text-[#E25822] flex items-center justify-center shrink-0 mt-0.5">
                     <HelpCircle className="w-4 h-4" />
                   </div>
                   <h4 className="font-heading font-bold text-sm sm:text-base text-[#17191C] leading-snug">
@@ -330,7 +330,7 @@ export function HowItWorksSection() {
           </p>
           <Link
             href="/signup"
-            className="group inline-flex items-center justify-center gap-2 h-11 px-7 rounded-full bg-[#C76706] hover:bg-[#AD5702] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#C76706]/25 hover:shadow-lg active:scale-95"
+            className="group inline-flex items-center justify-center gap-2 h-11 px-7 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md shadow-[#E25822]/25 hover:shadow-lg active:scale-95"
           >
             <span>Create Your Workspace</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

@@ -114,7 +114,7 @@ export function PageImageLoadingScreen({
                 {/* Signature Coral-Orange Diagonal Slash Leg */}
                 <motion.path
                   d="M 50 56 L 76 82"
-                  stroke="#C76706"
+                  stroke="#E25822"
                   strokeWidth="11"
                   strokeLinecap="round"
                   initial={
@@ -135,7 +135,7 @@ export function PageImageLoadingScreen({
                   cx="50"
                   cy="56"
                   r="2.5"
-                  fill="#C76706"
+                  fill="#E25822"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.2 }}
@@ -152,7 +152,7 @@ export function PageImageLoadingScreen({
               {/* Progress Track */}
               <div className="w-40 sm:w-48 h-1.5 bg-[#E7E4DE] rounded-full overflow-hidden relative shadow-inner">
                 <motion.div
-                  className="absolute top-0 bottom-0 left-0 bg-[#C76706] rounded-full"
+                  className="absolute top-0 bottom-0 left-0 bg-[#E25822] rounded-full"
                   initial={{ width: "25%" }}
                   animate={{ width: `${Math.max(10, progress)}%` }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
@@ -163,7 +163,7 @@ export function PageImageLoadingScreen({
                 <span>
                   {progress < 100 ? "Loading Repsi..." : "Ready"}
                 </span>
-                <span className="font-bold text-[#C76706]">{progress}%</span>
+                <span className="font-bold text-[#E25822]">{progress}%</span>
               </div>
             </div>
           </div>

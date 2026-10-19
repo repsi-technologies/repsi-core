@@ -69,7 +69,7 @@ export function Antigravity({ count = 20 }: { count?: number }) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(217, 83, 47, ${Math.max(0, p.alpha)})`;
-        ctx.shadowColor = "#C76706";
+        ctx.shadowColor = "#E25822";
         ctx.shadowBlur = 6;
         ctx.fill();
         ctx.shadowBlur = 0;
