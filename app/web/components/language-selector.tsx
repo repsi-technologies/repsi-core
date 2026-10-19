@@ -39,7 +39,7 @@ export function LanguageSelector({
             {currentLanguageMeta.badge}
           </span>
           <Globe className="h-3.5 w-3.5 text-[var(--text-muted)]" />
-          {showLabel && <span>{currentLanguageMeta.nativeName}</span>}
+          {showLabel && <span className="hidden sm:inline">{currentLanguageMeta.nativeName}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

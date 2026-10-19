@@ -372,7 +372,7 @@ export function ReferenceHero() {
                     {/* Main Content Area */}
                     <div className="col-span-12 sm:col-span-9 space-y-2">
                       {/* Metric Cards Row - 3 beautifully spaced cards with 100% visibility */}
-                      <div className="grid grid-cols-3 gap-1.5 max-w-[62%] sm:max-w-[64%]">
+                      <div className="grid grid-cols-3 gap-1.5 w-full sm:max-w-[64%]">
                         <div className="bg-[#FAF9F6] p-1.5 rounded-xl border border-[#E7E4DE]">
                           <div className="text-[8.5px] text-[#62666D]">Members</div>
                           <div className="text-xs sm:text-[13px] font-bold font-heading text-[#191919]">342</div>
@@ -458,7 +458,7 @@ export function ReferenceHero() {
                       </div>
 
                       {/* Operational Quick Status Strip */}
-                      <div className="flex items-center gap-2 pt-0.5 text-[7.5px] max-w-[62%] sm:max-w-[65%]">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5 text-[7.5px] w-full sm:max-w-[65%]">
                         <div className="bg-[#FAF9F6] px-2 py-0.5 rounded-lg border border-[#E7E4DE] flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           <span className="truncate font-medium text-[#191919]">Gate 01: Turnstile Online</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,6 +52,25 @@ export function MarketingNav() {
       ],
     },
   ];
+
+  // Lock body scroll and handle Escape key when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && mobileOpen) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileOpen]);
 
   // Transparent overlay on homepage so hero reception image shows through; standard relative on subpages
   const headerClass = isHome
@@ -147,8 +166,11 @@ export function MarketingNav() {
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-lg text-[#191919] hover:bg-black/5 transition-colors"
-            aria-label="Toggle navigation menu"
+            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[#191919] hover:bg-black/5 transition-colors"
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-drawer"
+            aria-haspopup="dialog"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -157,7 +179,13 @@ export function MarketingNav() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-b border-[#E7E4DE] bg-white px-6 pt-3 pb-6 space-y-6 shadow-xl h-[calc(100vh-4.5rem)] overflow-y-auto text-[#191919]">
+        <div
+          id="mobile-nav-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation"
+          className="md:hidden border-b border-[#E7E4DE] bg-white px-6 pt-3 pb-8 space-y-6 shadow-xl h-[calc(100dvh-4.5rem)] overflow-y-auto text-[#191919]"
+        >
           <div className="space-y-6">
             {navItems.map((item) => (
               <div key={item.title} className="space-y-3">
@@ -165,7 +193,7 @@ export function MarketingNav() {
                   <Link
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block text-base font-bold text-[#191919] hover:text-[#F07858]"
+                    className="block text-base font-bold text-[#191919] hover:text-[#F07858] py-1"
                   >
                     {item.title}
                   </Link>
@@ -174,13 +202,13 @@ export function MarketingNav() {
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#858890]">
                       {item.title}
                     </h4>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1">
                       {item.links?.map((link) => (
                         <Link
                           key={link.label}
                           href={link.href}
                           onClick={() => setMobileOpen(false)}
-                          className="block py-1 text-sm font-medium text-[#62666D] hover:text-[#F07858]"
+                          className="block py-2 text-sm font-medium text-[#62666D] hover:text-[#F07858] transition-colors"
                         >
                           {link.label}
                         </Link>
@@ -192,18 +220,18 @@ export function MarketingNav() {
             ))}
           </div>
 
-          <div className="pt-6 border-t border-[#E7E4DE] flex flex-col gap-3">
+          <div className="pt-6 border-t border-[#E7E4DE] flex flex-col gap-3 pb-4">
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 text-xs font-bold border border-[#E7E4DE] rounded-full transition-colors hover:bg-[#FAF9F6] text-[#191919]"
+              className="w-full min-h-[44px] flex items-center justify-center py-2.5 text-xs font-bold border border-[#E7E4DE] rounded-full transition-colors hover:bg-[#FAF9F6] text-[#191919]"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 text-xs font-bold bg-[#F07858] hover:bg-[#E76543] text-white rounded-full shadow-sm transition-all"
+              className="w-full min-h-[44px] flex items-center justify-center py-2.5 text-xs font-bold bg-[#F07858] hover:bg-[#E76543] text-white rounded-full shadow-sm transition-all"
             >
               Start for Free →
             </Link>

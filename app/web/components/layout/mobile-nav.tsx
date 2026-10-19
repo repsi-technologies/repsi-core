@@ -91,17 +91,24 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
     onClose();
   }, [pathname, onClose]);
 
-  // Prevent body scroll when open
+  // Prevent body scroll and handle Escape key when open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && open) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [open, onClose]);
 
   return (
     <>
@@ -140,7 +147,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-[6px] text-[var(--text-muted)] hover:bg-[var(--nav-hover-bg)] hover:text-[var(--text)] transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[6px] text-[var(--text-muted)] hover:bg-[var(--nav-hover-bg)] hover:text-[var(--text)] transition-colors"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
@@ -225,7 +232,7 @@ export function MobileMenuButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="lg:hidden p-2 rounded-[8px] text-[var(--text-muted)] hover:bg-[var(--nav-hover-bg)] hover:text-[var(--text)] transition-colors"
+      className="lg:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-[var(--text-muted)] hover:bg-[var(--nav-hover-bg)] hover:text-[var(--text)] transition-colors"
       aria-label="Open menu"
     >
       <Menu className="h-5 w-5" />

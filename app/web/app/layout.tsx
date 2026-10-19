@@ -1,10 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { LanguageProvider } from "@/lib/i18n";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FAF9F6" },
+    { media: "(prefers-color-scheme: dark)", color: "#17191C" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: {

@@ -369,9 +369,9 @@ export function FlexCarouselFeatures() {
                 </span>
                 <div className="space-y-1.5">
                   {activeFeature.highlights.map((h) => (
-                    <div key={h} className="flex items-center gap-2 text-xs text-[#191919] font-medium">
+                    <div key={h} className="flex items-start gap-2 text-xs text-[#191919] font-medium leading-snug">
                       <span
-                        className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px]"
+                        className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] mt-0.5"
                         style={{
                           backgroundColor: activeFeature.accentBg,
                           color: activeFeature.accentColor,
@@ -379,7 +379,7 @@ export function FlexCarouselFeatures() {
                       >
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </span>
-                      <span className="truncate">{h}</span>
+                      <span className="break-words">{h}</span>
                     </div>
                   ))}
                 </div>
