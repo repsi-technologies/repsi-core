@@ -556,6 +556,89 @@ td {
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
+/* REPSI Brand Loader Animations (GPU-accelerated, zero-stuck)         */
+/* ─────────────────────────────────────────────────────────────────── */
+@keyframes repsi-pulse-once {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 0.38;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0.12;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes repsi-logo-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes repsi-body-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes repsi-slash-in {
+  0% {
+    opacity: 0;
+    transform: translate(-8px, 8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes repsi-track-shimmer {
+  0% {
+    left: -40%;
+    width: 40%;
+  }
+  50% {
+    width: 60%;
+  }
+  100% {
+    left: 100%;
+    width: 40%;
+  }
+}
+
+.animate-repsi-pulse {
+  animation: repsi-pulse-once 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-repsi-logo {
+  animation: repsi-logo-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-repsi-body {
+  animation: repsi-body-in 0.45s ease-out forwards;
+}
+
+.animate-repsi-slash {
+  animation: repsi-slash-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+}
+
+.animate-repsi-track {
+  animation: repsi-track-shimmer 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
 /* Accessibility — Reduced Motion                                     */
 /* ─────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

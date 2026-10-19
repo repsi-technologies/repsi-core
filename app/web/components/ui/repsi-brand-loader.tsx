@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
 
 export interface RepsiBrandLoaderProps {
   /** Main status line (defaults to "Preparing your workspace...") */
@@ -26,7 +25,8 @@ export interface RepsiBrandLoaderProps {
  * 2. Single expanding orange energy glow behind the logo (no continuous bounce)
  * 3. Exact screen layout with spaced "R E P S I" heading, "GYM MANAGEMENT PLATFORM" subline,
  *    and thin rounded progress track
- * 4. Full accessibility support with `prefers-reduced-motion`
+ * 4. High-performance GPU CSS animations (guaranteed zero-stuck, zero hydration hang)
+ * 5. Full accessibility support with `prefers-reduced-motion`
  */
 export function RepsiBrandLoader({
   message = "Preparing your workspace...",
@@ -36,10 +36,8 @@ export function RepsiBrandLoader({
   isExiting = false,
   className = "",
 }: RepsiBrandLoaderProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   const containerBase = fullScreen
-    ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#FAF9F6] text-[#191919] select-none p-6"
+    ? "fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAF9F6] text-[#191919] select-none p-6"
     : "flex flex-col items-center justify-center p-8 bg-[#FAF9F6] text-[#191919] select-none";
 
   const exitStyle = isExiting
@@ -59,35 +57,10 @@ export function RepsiBrandLoader({
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="relative w-24 h-20 sm:w-28 sm:h-24 flex items-center justify-center">
           {/* Subtle Orange Energy Pulse (Expands ONCE behind the logo) */}
-          {!shouldReduceMotion ? (
-            <motion.div
-              className="absolute inset-0 rounded-full bg-[#E25822] blur-2xl pointer-events-none"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: [0, 0.32, 0.1],
-                scale: [0.8, 1.35, 1.15],
-              }}
-              transition={{
-                duration: 1.1,
-                delay: 0.3,
-                times: [0, 0.45, 1],
-                ease: "easeOut",
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 rounded-full bg-[#E25822]/10 blur-xl pointer-events-none" />
-          )}
+          <div className="absolute inset-0 rounded-full bg-[#E25822] blur-2xl pointer-events-none animate-repsi-pulse" />
 
-          {/* Logo Container: Fade + Scale from 96% to 100% over 600ms */}
-          <motion.div
-            className="w-full h-full relative z-10 flex items-center justify-center"
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.6,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          >
+          {/* Logo Container: Fade + Scale from 96% to 100% */}
+          <div className="w-full h-full relative z-10 flex items-center justify-center animate-repsi-logo">
             <svg
               viewBox="-25 -5 155 115"
               fill="none"
@@ -103,36 +76,20 @@ export function RepsiBrandLoader({
               </defs>
 
               {/* 1. Black/Charcoal R Body (Appears first) */}
-              <motion.path
+              <path
                 d="M 0 0 L 80 0 C 105 0 118 10 118 30 C 118 46 108 55 92 58 L 120 100 L 86 100 L 62 62 L 32 62 L 32 100 L 0 100 Z M 32 20 L 32 44 L 75 44 C 84 44 90 40 90 32 C 90 24 84 20 75 20 Z"
                 fill="#191919"
-                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  duration: 0.45,
-                  ease: "easeOut",
-                }}
+                className="animate-repsi-body"
               />
 
-              {/* 2. Flame Orange Diagonal Stroke (Follows smoothly) */}
-              <motion.polygon
+              {/* 2. Flame Orange Diagonal Stroke (Follows smoothly with 220ms delay) */}
+              <polygon
                 points="0,55 30,55 5,100 -20,100"
                 fill="url(#repsiSlashGradLoader)"
-                className="filter drop-shadow-[0_2px_8px_rgba(226,88,34,0.4)]"
-                initial={
-                  shouldReduceMotion
-                    ? { opacity: 1 }
-                    : { opacity: 0, x: -6, y: 6 }
-                }
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.22,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
+                className="filter drop-shadow-[0_2px_8px_rgba(226,88,34,0.4)] animate-repsi-slash"
               />
             </svg>
-          </motion.div>
+          </div>
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
@@ -157,46 +114,18 @@ export function RepsiBrandLoader({
           )}
 
           {/* ───────────────────────────────────────────────────────────── */}
-          {/* 03. PROGRESS INDICATOR (THIN ROUNDED TRACK)                   */}
+          {/* 03. PROGRESS INDICATOR (THIN ROUNDED TRACK - NEVER STUCK)     */}
           {/* ───────────────────────────────────────────────────────────── */}
           <div className="w-48 sm:w-56 h-1 sm:h-1.5 bg-[#E7E4DE] rounded-full overflow-hidden relative shadow-inner mt-2">
             {typeof progress === "number" ? (
               // Actual progress mode
-              <motion.div
-                className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#FF7A45] to-[#E25822] rounded-full shadow-[0_0_8px_rgba(226,88,34,0.35)]"
-                initial={{ width: "0%" }}
-                animate={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                transition={{
-                  duration: shouldReduceMotion ? 0 : 0.4,
-                  ease: "easeOut",
-                }}
+              <div
+                className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#FF7A45] to-[#E25822] rounded-full shadow-[0_0_8px_rgba(226,88,34,0.35)] transition-[width] duration-300 ease-out"
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
               />
             ) : (
-              // Indeterminate smooth restrained sweep
-              <motion.div
-                className="absolute top-0 bottom-0 bg-gradient-to-r from-[#E25822] via-[#FF7A45] to-[#E25822] rounded-full shadow-[0_0_8px_rgba(226,88,34,0.35)]"
-                initial={
-                  shouldReduceMotion
-                    ? { left: 0, width: "100%" }
-                    : { left: "-35%", width: "35%" }
-                }
-                animate={
-                  shouldReduceMotion
-                    ? {}
-                    : {
-                        left: ["-35%", "100%"],
-                      }
-                }
-                transition={
-                  shouldReduceMotion
-                    ? {}
-                    : {
-                        repeat: Infinity,
-                        duration: 1.3,
-                        ease: [0.4, 0, 0.2, 1],
-                      }
-                }
-              />
+              // Indeterminate smooth continuous sweep (never stuck)
+              <div className="absolute top-0 bottom-0 bg-gradient-to-r from-[#E25822] via-[#FF7A45] to-[#E25822] rounded-full shadow-[0_0_8px_rgba(226,88,34,0.35)] animate-repsi-track" />
             )}
           </div>
 
