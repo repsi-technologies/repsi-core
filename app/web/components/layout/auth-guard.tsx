@@ -82,7 +82,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // While checking authorization, render branded loading screen
   if (authorized !== true) {
-    return <RepsiBrandLoader message="Verifying workspace authorization..." fullScreen={true} />;
+    return <RepsiBrandLoader showText={false} fullScreen={true} />;
   }
 
   return <>{children}</>;

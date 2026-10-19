@@ -1,48 +1,47 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
 
 /**
- * Marketing Landing Page Genuine Initializer Screen
+ * Marketing Landing Page Initial Loading Screen
  *
- * Implements:
- * 1. Shows strictly on initial cold visit (sessionStorage guarded)
- * 2. Connects to real document/asset readiness (window.load / document.readyState)
- * 3. Never flashes during internal client-side navigation
- * 4. Refined 5-stage animation:
- *    - Stage 1: R body reveal
- *    - Stage 2: Flame Orange diagonal slash
- *    - Stage 3: REPSI brand reveal
- *    - Stage 4: Loading indicator
- *    - Stage 5: Smooth completion and 250ms fade-out
- * 5. Robust error and timeout safety nets
+ * Requirements:
+ * 1. Zero text clutter — only the iconic R lettermark and sleek progress track
+ * 2. Continuously loads ("load and load") until the page actually opens
+ * 3. Once the page has loaded, completes to 100% and smoothly fades out
+ * 4. Guarded by sessionStorage so it doesn't interrupt internal route navigation
  */
 export function PageImageLoadingScreen() {
   const [visible, setVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
-  const [initError, setInitError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(12);
+  const isPageReadyRef = useRef(false);
 
-  const completeAndExit = useCallback(() => {
-    setIsExiting(true);
+  const completeAndReveal = useCallback(() => {
+    // Fill to 100%
+    setProgress(100);
+
     try {
       sessionStorage.setItem("repsi_initial_loaded", "true");
     } catch {}
 
-    const timer = setTimeout(() => {
-      setVisible(false);
-    }, 280);
+    // Brief hold at 100% for smooth visual satisfaction
+    const holdTimer = setTimeout(() => {
+      setIsExiting(true);
 
-    return () => clearTimeout(timer);
-  }, []);
+      const unmountTimer = setTimeout(() => {
+        setVisible(false);
+      }, 300);
 
-  const handleRetry = useCallback(() => {
-    setInitError(null);
-    window.location.reload();
+      return () => clearTimeout(unmountTimer);
+    }, 180);
+
+    return () => clearTimeout(holdTimer);
   }, []);
 
   useEffect(() => {
-    // 01. Never show if user already initialized REPSI in this tab session
+    // 01. Never show if already loaded in this tab session
     try {
       if (sessionStorage.getItem("repsi_initial_loaded")) {
         setVisible(false);
@@ -50,62 +49,79 @@ export function PageImageLoadingScreen() {
       }
     } catch {}
 
-    let exitTimeout: NodeJS.Timeout;
     const startTime = Date.now();
-    // Minimum time to allow the refined 500-600ms logo reveal to complete its aesthetic arc
-    const minRevealDuration = 600;
+    let isCancelled = false;
 
-    const onReady = () => {
+    // 02. Continuous progress loop: simulates realistic progressive network loading
+    // Moves actively from 12% -> 35% -> 60% -> 80% -> 92% until page ready
+    const progressInterval = setInterval(() => {
+      if (isCancelled || isPageReadyRef.current) return;
+
+      setProgress((prev) => {
+        if (prev < 40) return prev + Math.floor(Math.random() * 8 + 6); // fast initial jump
+        if (prev < 70) return prev + Math.floor(Math.random() * 5 + 4); // steady middle
+        if (prev < 88) return prev + Math.floor(Math.random() * 3 + 2); // approaching completion
+        if (prev < 94) return prev + 1; // slow creep while waiting for network/DOM
+        return prev;
+      });
+    }, 120);
+
+    // 03. Detect genuine page & asset completion
+    const checkPageReady = () => {
+      if (isCancelled || isPageReadyRef.current) return;
+
       const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, minRevealDuration - elapsed);
+      // Allow a brief minimum aesthetic duration (700ms) so user sees the loading sequence
+      const remainingTime = Math.max(0, 700 - elapsed);
 
-      exitTimeout = setTimeout(() => {
-        completeAndExit();
-      }, remaining);
+      setTimeout(() => {
+        if (isCancelled) return;
+        isPageReadyRef.current = true;
+        clearInterval(progressInterval);
+        completeAndReveal();
+      }, remainingTime);
     };
 
     if (typeof document !== "undefined") {
       if (document.readyState === "complete") {
-        onReady();
+        checkPageReady();
       } else {
-        window.addEventListener("load", onReady, { once: true });
+        window.addEventListener("load", checkPageReady, { once: true });
+        // Also check when DOM interactive in case window.load is delayed by non-essential scripts
+        document.addEventListener("readystatechange", () => {
+          if (document.readyState === "complete") {
+            checkPageReady();
+          }
+        });
       }
     }
 
-    // 02. Hard timeout failsafe: under no network condition can loader persist past 2s
-    const hardTimeout = setTimeout(() => {
-      completeAndExit();
-    }, 2000);
-
-    // 03. Global unhandled error listener for initialization failures
-    const errorHandler = (event: ErrorEvent) => {
-      // Filter out benign resize observer / cross-origin extension noise
-      if (event.message && !event.message.includes("ResizeObserver")) {
-        setInitError("Unable to initialize workspace smoothly.");
+    // 04. Hard safety fallback: guarantees page opens within 3 seconds regardless of network
+    const safetyTimer = setTimeout(() => {
+      if (!isPageReadyRef.current) {
+        checkPageReady();
       }
-    };
-    window.addEventListener("error", errorHandler);
+    }, 2800);
 
     return () => {
-      clearTimeout(exitTimeout);
-      clearTimeout(hardTimeout);
-      window.removeEventListener("load", onReady);
-      window.removeEventListener("error", errorHandler);
+      isCancelled = true;
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+      window.removeEventListener("load", checkPageReady);
     };
-  }, [completeAndExit]);
+  }, [completeAndReveal]);
 
   if (!visible) return null;
 
   return (
     <div
-      onClick={completeAndExit}
+      onClick={completeAndReveal}
       className="cursor-pointer"
       title="Click to skip"
     >
       <RepsiBrandLoader
-        message="Preparing your workspace..."
-        error={initError}
-        onRetry={handleRetry}
+        progress={progress}
+        showText={false}
         fullScreen={true}
         isExiting={isExiting}
       />
