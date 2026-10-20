@@ -41,6 +41,10 @@ export function AccordionGallery({
     setActiveId((prev) => (prev === id ? "" : id));
   };
 
+  const handleHover = (id: string) => {
+    setActiveId(id);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent, id: string) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -63,6 +67,8 @@ export function AccordionGallery({
         return (
           <div
             key={item.id}
+            onMouseEnter={() => handleHover(item.id)}
+            onFocus={() => handleHover(item.id)}
             className={`rounded-xl sm:rounded-2xl lg:rounded-3xl border transition-all duration-300 overflow-hidden bg-white ${
               isActive
                 ? "border-[#E25822] shadow-md shadow-[#E25822]/10 ring-1 ring-[#E25822]/20"
@@ -72,7 +78,7 @@ export function AccordionGallery({
             {/* Header / Clickable Accordion Bar */}
             <button
               type="button"
-              onClick={() => toggleItem(item.id)}
+              onClick={() => handleHover(item.id)}
               onKeyDown={(e) => handleKeyDown(e, item.id)}
               aria-expanded={isActive}
               aria-controls={`accordion-panel-${item.id}`}
@@ -150,11 +156,11 @@ export function AccordionGallery({
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center pt-2.5 sm:pt-3">
                       {/* Left: Detailed Problem Description & Pain Points */}
                       <div className="lg:col-span-6 space-y-3 sm:space-y-4">
-                        <div className="space-y-2 sm:space-y-2.5">
+                        <div className="space-y-2.5 sm:space-y-3">
                           {item.descriptionPoints.map((point, idx) => (
-                            <div key={idx} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] shrink-0 mt-2" />
-                              <p className="text-xs sm:text-base text-[#62666D] leading-relaxed font-normal">
+                            <div key={idx} className="flex items-start gap-2.5 sm:gap-3">
+                              <span className="w-2 h-2 rounded-full bg-[#E25822] shrink-0 mt-1.5 ring-4 ring-[#E25822]/15" />
+                              <p className="text-xs sm:text-[15px] lg:text-base text-[#191919]/85 leading-relaxed font-normal">
                                 {point}
                               </p>
                             </div>
@@ -162,10 +168,10 @@ export function AccordionGallery({
                         </div>
 
                         {/* Friction Callout Box */}
-                        <div className="p-3 sm:p-3.5 rounded-xl bg-[#FAF9F6] border border-[#E7E4DE] flex items-center gap-2 sm:gap-2.5 text-xs text-[#191919]">
-                          <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E25822] shrink-0" />
-                          <span className="font-medium text-[11px] sm:text-xs leading-snug">
-                            Operational friction: {item.badgeText}
+                        <div className="p-3 sm:p-3.5 rounded-xl bg-[#FAF9F6] border border-[#FACBB7] flex items-center gap-2.5 text-xs sm:text-sm text-[#191919]">
+                          <AlertCircle className="w-4 h-4 text-[#E25822] shrink-0" />
+                          <span className="font-medium leading-snug">
+                            Operational friction: <strong className="font-semibold text-[#191919]">{item.badgeText}</strong>
                           </span>
                         </div>
                       </div>

@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Users,
   CalendarCheck,
@@ -11,17 +9,17 @@ import {
   CreditCard,
   QrCode,
   BarChart3,
-  ArrowRight,
   Check,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
+  ArrowDown,
 } from "lucide-react";
-import { FlexCarousel, type FlexCarouselItem, type FlexCarouselRef } from "@/components/ui/flex-carousel";
+import { ImageWithSkeleton } from "@/components/ui/image-skeleton";
 
-interface FeatureDetail {
+export interface FeatureDetail {
   id: string;
   number: string;
+  tag: string;
   title: string;
   shortDesc: string;
   longDesc: string;
@@ -29,51 +27,23 @@ interface FeatureDetail {
   accentColor: string;
   accentBg: string;
   accentBorder: string;
+  badgeText: string;
   highlights: string[];
+  imageSrc: string;
+  imageAlt: string;
 }
 
 export function FlexCarouselFeatures() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const carouselRef = useRef<FlexCarouselRef>(null);
-  const carouselBoxRef = useRef<HTMLDivElement>(null);
-  const isHoveredRef = useRef(false);
-  const touchStartX = useRef<number | null>(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
-
-  // Scroll to move: when user scrolls the page, smoothly advance the carousel
-  useEffect(() => {
-    let lastY = window.scrollY;
-    let ticking = false;
-
-    const handleWindowScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentY = window.scrollY;
-          const deltaY = currentY - lastY;
-          lastY = currentY;
-
-          const el = carouselBoxRef.current;
-          if (el && !isHoveredRef.current && Math.abs(deltaY) > 0.5) {
-            const rect = el.getBoundingClientRect();
-            const inView = rect.top < window.innerHeight && rect.bottom > 0;
-            if (inView) {
-              carouselRef.current?.scrollBy(deltaY * 0.18);
-            }
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleWindowScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleWindowScroll);
-  }, []);
 
   const featureDetails: FeatureDetail[] = [
     {
       id: "members",
       number: "01",
+      tag: "CENTRAL DIRECTORY",
       title: "Member Management",
       shortDesc: "Organize member profiles, contact information, and membership records.",
       longDesc:
@@ -82,16 +52,20 @@ export function FlexCarouselFeatures() {
       accentColor: "#E25822",
       accentBg: "#FDF1EB",
       accentBorder: "#FACBB7",
+      badgeText: "3+ disconnected apps replaced with 1 directory",
       highlights: [
         "Comprehensive digital member profiles",
         "Instant search by name, phone or member ID",
         "Emergency contacts & health notes",
         "Active membership history & records",
       ],
+      imageSrc: "/images/scattered-records.jpg",
+      imageAlt: "Member Management in Repsi",
     },
     {
       id: "attendance",
       number: "02",
+      tag: "FRONT-DESK CHECK-IN",
       title: "Attendance Tracking",
       shortDesc: "Record and review member attendance efficiently.",
       longDesc:
@@ -100,16 +74,20 @@ export function FlexCarouselFeatures() {
       accentColor: "#D97706",
       accentBg: "#FFFBEB",
       accentBorder: "#FDE68A",
+      badgeText: "1-second check-in eliminates reception queues",
       highlights: [
         "1-second QR or manual front-desk check-in",
         "Real-time live gym occupancy count",
         "Daily attendance logs & peak-hour metrics",
         "Automated alerts for lapsed members",
       ],
+      imageSrc: "/images/manual-attendance.jpg",
+      imageAlt: "Attendance Tracking in Repsi",
     },
     {
       id: "renewals",
       number: "03",
+      tag: "AUTOMATED RETENTION",
       title: "Memberships & Renewals",
       shortDesc: "Manage membership plans, expiry dates, and renewal workflows.",
       longDesc:
@@ -118,16 +96,20 @@ export function FlexCarouselFeatures() {
       accentColor: "#E11D48",
       accentBg: "#FFF1F2",
       accentBorder: "#FECDD3",
+      badgeText: "Automated WhatsApp expiry reminders",
       highlights: [
         "Flexible daily, monthly and annual plan tiers",
         "Upcoming expiry notifications & alerts",
         "1-click WhatsApp renewal reminder triggers",
         "Overdue and grace-period management",
       ],
+      imageSrc: "/images/renewal-calendar.jpg",
+      imageAlt: "Memberships & Renewals in Repsi",
     },
     {
       id: "payments",
       number: "04",
+      tag: "INSTANT RECONCILIATION",
       title: "Payments & Receipts",
       shortDesc: "Track payment records, review submitted receipts, and manage confirmation workflows.",
       longDesc:
@@ -136,16 +118,20 @@ export function FlexCarouselFeatures() {
       accentColor: "#059669",
       accentBg: "#ECFDF5",
       accentBorder: "#A7F3D0",
+      badgeText: "Zero disputed dues with instant GST receipts",
       highlights: [
         "UPI, card, bank transfer and cash recording",
         "Instant digital payment receipts with GST breakdown",
         "Clear pending dues and installment tracking",
         "Daily collection summaries for owners",
       ],
+      imageSrc: "/images/payment-followup.jpg",
+      imageAlt: "Payments & Receipts in Repsi",
     },
     {
       id: "passes",
       number: "05",
+      tag: "TOUCHLESS ACCESS",
       title: "Digital Member Passes",
       shortDesc: "Present QR-based member identification or check-in functionality.",
       longDesc:
@@ -154,16 +140,20 @@ export function FlexCarouselFeatures() {
       accentColor: "#2563EB",
       accentBg: "#EFF6FF",
       accentBorder: "#BFDBFE",
+      badgeText: "Zero plastic RFID printing costs",
       highlights: [
         "Dynamic digital pass accessible on any smartphone",
         "Instant validity check with colored status indicators",
         "Touchless scan at the entrance or reception",
         "Zero printing costs for plastic RFID cards",
       ],
+      imageSrc: "/images/reception-turnstile.jpg",
+      imageAlt: "Digital Member Passes in Repsi",
     },
     {
       id: "analytics",
       number: "06",
+      tag: "BUSINESS INTELLIGENCE",
       title: "Reports & Analytics",
       shortDesc: "Display real business summaries and operational reports supported by the application.",
       longDesc:
@@ -172,322 +162,186 @@ export function FlexCarouselFeatures() {
       accentColor: "#7C3AED",
       accentBg: "#F5F3FF",
       accentBorder: "#DDD6FE",
+      badgeText: "Actionable retention & collection analytics",
       highlights: [
         "Daily, monthly, and annual collection summaries",
         "Active member growth and retention graphs",
         "Peak-hour facility utilization reports",
         "1-click CSV/Excel report exports",
       ],
+      imageSrc: "/images/gym-sunset-weights.jpg",
+      imageAlt: "Reports & Analytics in Repsi",
     },
   ];
 
-  // Official React Bits FlexCarousel items
-  const carouselItems: FlexCarouselItem[] = [
-    {
-      src: "/images/scattered-records.jpg",
-      alt: "Member Management",
-      title: "Member Management",
-      subtitle: "Digital profiles, instant search & contact records",
-    },
-    {
-      src: "/images/manual-attendance.jpg",
-      alt: "Attendance Tracking",
-      title: "Attendance Tracking",
-      subtitle: "1-second QR check-in & live facility occupancy",
-    },
-    {
-      src: "/images/renewal-calendar.jpg",
-      alt: "Memberships & Renewals",
-      title: "Memberships & Renewals",
-      subtitle: "Expiry alerts, auto-renewals & WhatsApp reminders",
-    },
-    {
-      src: "/images/payment-followup.jpg",
-      alt: "Payments & Receipts",
-      title: "Payments & Receipts",
-      subtitle: "UPI, card & cash tracking with digital receipts",
-    },
-    {
-      src: "/images/reception-turnstile.jpg",
-      alt: "Digital Member Passes",
-      title: "Digital Member Passes",
-      subtitle: "Contactless smartphone QR entry passes",
-    },
-    {
-      src: "/images/gym-sunset-weights.jpg",
-      alt: "Reports & Analytics",
-      title: "Reports & Analytics",
-      subtitle: "Daily collection metrics & member retention graphs",
-    },
-  ];
+  // Synchronize window scrolling through the pinned section to drive activeStep
+  useEffect(() => {
+    let ticking = false;
 
-  const handleCarouselChange = useCallback((index: number) => {
-    setActiveIndex(index);
-  }, []);
+    const handleWindowScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const el = sectionRef.current;
+          if (!el) {
+            ticking = false;
+            return;
+          }
 
-  const activeFeature = featureDetails[activeIndex] || featureDetails[0];
+          const rect = el.getBoundingClientRect();
+          const totalScrollable = el.offsetHeight - window.innerHeight;
+
+          if (totalScrollable <= 0) {
+            ticking = false;
+            return;
+          }
+
+          // Distance scrolled into the pinned section
+          const scrolled = -rect.top;
+          const progress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+          setScrollProgress(progress);
+
+          // Map scroll progress evenly across all modules
+          const count = featureDetails.length;
+          const step = Math.min(count - 1, Math.floor(progress * count));
+          setActiveStep(step);
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleWindowScroll, { passive: true });
+    handleWindowScroll();
+
+    return () => window.removeEventListener("scroll", handleWindowScroll);
+  }, [featureDetails.length]);
+
+  // Jump to specific step by smoothly scrolling the window
+  const scrollToStep = useCallback(
+    (stepIndex: number) => {
+      const el = sectionRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const currentScrollTop = window.scrollY;
+      const sectionTop = currentScrollTop + rect.top;
+      const totalScrollable = el.offsetHeight - window.innerHeight;
+
+      if (totalScrollable > 0) {
+        // Place scroll position in the center of the step's segment
+        const stepProgress = (stepIndex + 0.45) / featureDetails.length;
+        const targetScrollY = sectionTop + stepProgress * totalScrollable;
+        window.scrollTo({
+          top: targetScrollY,
+          behavior: "smooth",
+        });
+      }
+      setActiveStep(stepIndex);
+    },
+    [featureDetails.length]
+  );
+
+  const activeFeature = featureDetails[activeStep] || featureDetails[0];
   const ActiveIcon = activeFeature.icon;
 
   return (
     <section
+      ref={sectionRef}
       id="features"
-      className="relative w-full bg-[#FAF9F6] text-[#191919] pt-20 sm:pt-28 lg:pt-32 pb-20 sm:pb-28 border-b border-[#E7E4DE] overflow-hidden"
+      className="relative w-full bg-[#FAF9F6] border-b border-[#E7E4DE]"
+      style={{ height: "420vh" }}
     >
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* PINNED STICKY VIEWPORT CONTAINER (Locked on screen during scroll) */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden py-3 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-10">
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 01. SECTION HEADER (NO EYEBROW PER USER REQUEST)              */}
+        {/* 01. SECTION HEADER WITH REPSI BRANDING                         */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <motion.h2
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.14] mb-4"
-          >
-            Everything your fitness business needs. <br className="hidden sm:inline" />
-            <span className="text-[#E25822]">All in one place.</span>
-          </motion.h2>
+        <div className="text-center max-w-3xl mx-auto shrink-0 mb-2 sm:mb-4">
+          {/* Repsi Brand Pill */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] text-[11px] sm:text-xs font-bold tracking-wider uppercase mb-2 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
+            <span>Repsi All-In-One Platform</span>
+          </div>
 
-          <motion.p
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.16 }}
-            className="text-base sm:text-lg text-[#62666D] leading-relaxed max-w-2xl mx-auto font-normal"
-          >
+          <h2 className="font-heading font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-[40px] text-[#191919] tracking-tight leading-[1.14]">
+            Everything your fitness business needs is Repsi,{" "}
+            <br className="hidden sm:inline" />
+            <span className="text-[#E25822]">all in one place.</span>
+          </h2>
+
+          <p className="hidden md:block text-xs sm:text-sm text-[#62666D] leading-relaxed max-w-2xl mx-auto font-normal mt-1">
             Manage your members, attendance, memberships, payments and daily operations
             from one connected workspace.
-          </motion.p>
+          </p>
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 02. SINGLE UNIFIED FRAME: FLEX CAROUSEL + FEATURE CAPABILITIES */}
+        {/* 02. UNIFIED STAGE: IMAGE + CONTENT BOTH VISIBLE SIMULTANEOUSLY  */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div
-          ref={carouselBoxRef}
-          onMouseEnter={() => {
-            isHoveredRef.current = true;
-          }}
-          onMouseLeave={() => {
-            isHoveredRef.current = false;
-          }}
-          className="group relative w-full rounded-[32px] sm:rounded-[36px] overflow-hidden border border-[#E7E4DE] bg-white shadow-xl shadow-black/[0.03]"
-        >
-          {/* ───────────────────────────────────────────────────────────── */}
-          {/* 02A. MOBILE NORMAL CAROUSEL (TOUCH SWIPEABLE & LIGHTWEIGHT)  */}
-          {/* ───────────────────────────────────────────────────────────── */}
-          <div
-            className="md:hidden relative w-full bg-[#FAF9F6] p-4 flex flex-col gap-3 select-none"
-            onTouchStart={(e) => {
-              touchStartX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              if (touchStartX.current === null) return;
-              const touchEndX = e.changedTouches[0].clientX;
-              const diff = touchStartX.current - touchEndX;
-              if (Math.abs(diff) > 40) {
-                if (diff > 0) {
-                  // Swipe left -> next
-                  setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1));
-                } else {
-                  // Swipe right -> prev
-                  setActiveIndex((prev) => Math.max(0, prev - 1));
-                }
-              }
-              touchStartX.current = null;
-            }}
-          >
-            {/* Slide Image Card with Badge & Direct Arrow Controls */}
-            <div className="relative w-full h-[260px] xs:h-[290px] rounded-2xl overflow-hidden shadow-sm border border-[#E7E4DE]">
-              <Image
-                src={(carouselItems[activeIndex] || carouselItems[0]).src}
-                alt={(carouselItems[activeIndex] || carouselItems[0]).alt || ""}
-                fill
-                priority
-                className="object-cover object-center transition-all duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10 pointer-events-none" />
-
-              {/* Top Pill with Feature Number & Category */}
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 text-[10px] font-bold text-[#191919] shadow-xs">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: activeFeature.accentColor }}
-                />
-                <span>FEATURE {activeFeature.number} / 06</span>
-              </div>
-
-              {/* Bottom Card Title & Subtitle */}
-              <div className="absolute bottom-3 left-3.5 right-3.5 text-white space-y-0.5">
-                <h3 className="font-heading font-extrabold text-base xs:text-lg drop-shadow-sm">
-                  {(carouselItems[activeIndex] || carouselItems[0]).title}
-                </h3>
-                <p className="text-[11px] text-white/90 line-clamp-1 drop-shadow-sm font-normal">
-                  {(carouselItems[activeIndex] || carouselItems[0]).subtitle}
-                </p>
-              </div>
-
-              {/* Mobile Carousel Left/Right Floating Quick Nav */}
-              <button
-                type="button"
-                onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-                disabled={activeIndex === 0}
-                aria-label="Previous slide"
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#191919] flex items-center justify-center disabled:opacity-20 shadow-md transition-opacity cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1))}
-                disabled={activeIndex === featureDetails.length - 1}
-                aria-label="Next slide"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#191919] flex items-center justify-center disabled:opacity-20 shadow-md transition-opacity cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Pagination Dots & Navigation Controls */}
-            <div className="flex items-center justify-between px-1 pt-1">
-              {/* 6 Dots */}
-              <div className="flex items-center gap-1.5">
-                {featureDetails.map((f, i) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setActiveIndex(i)}
-                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                      i === activeIndex ? "w-6 bg-[#E25822]" : "w-2 bg-[#E7E4DE]"
-                    }`}
-                    aria-label={`Jump to feature ${i + 1}`}
-                  />
-                ))}
-              </div>
-
-              {/* Prev / Next buttons */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-                  disabled={activeIndex === 0}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-[#E7E4DE] bg-white text-[#191919] disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                >
-                  Prev
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveIndex((prev) => Math.min(featureDetails.length - 1, prev + 1))}
-                  disabled={activeIndex === featureDetails.length - 1}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#E25822] text-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* ───────────────────────────────────────────────────────────── */}
-          {/* 02B. DESKTOP FLEX CAROUSEL WITH WEBGL LIQUID DISTORTION (md+) */}
-          {/* ───────────────────────────────────────────────────────────── */}
-          <div className="hidden md:block relative w-full h-[500px] lg:h-[540px] overflow-hidden">
-            <FlexCarousel
-              ref={carouselRef}
-              items={carouselItems}
-              preset="liquid"
-              intro="rise"
-              cardHeight={0.65}
-              gap={18}
-              radius={24}
-              fit="portrait"
-              focusOnClick={true}
-              captions={true}
-              captureWheel={true}
-              circular={false}
-              onChange={handleCarouselChange}
-              className="h-full w-full"
-            />
-
-            {/* Previous arrow navigation */}
-            <button
-              type="button"
-              onClick={() => carouselRef.current?.step(-1)}
-              disabled={activeIndex === 0}
-              aria-label="Previous feature"
-              className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#E25822] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
-                activeIndex === 0
-                  ? "opacity-20 cursor-not-allowed pointer-events-none"
-                  : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
-              }`}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {/* Next arrow navigation */}
-            <button
-              type="button"
-              onClick={() => carouselRef.current?.step(1)}
-              disabled={activeIndex === featureDetails.length - 1}
-              aria-label="Next feature"
-              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-[#191919] hover:text-[#E25822] border border-[#E7E4DE] shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
-                activeIndex === featureDetails.length - 1
-                  ? "opacity-20 cursor-not-allowed pointer-events-none"
-                  : "opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
-              }`}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            {/* Interactive instruction cue */}
-            <div className="absolute top-4 right-4 z-20 pointer-events-none hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E7E4DE] text-[11px] font-semibold text-[#62666D] shadow-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E25822] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E25822]" />
-              </span>
-              <span>Scroll to move</span>
-            </div>
-          </div>
-
-          {/* Lower Section: Seamlessly Integrated Feature Capabilities Drawer within the same frame */}
-          <div className="border-t border-[#E7E4DE] bg-[#FCFBF9] p-6 sm:p-8 lg:p-10 transition-colors">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-center">
-              {/* Left: Active Feature Title & Info */}
-              <div className="md:col-span-7 space-y-3">
-                <div className="flex items-center gap-2.5">
+        <div className="relative w-full rounded-2xl sm:rounded-3xl border border-[#E7E4DE] bg-white shadow-lg overflow-hidden flex-1 flex flex-col justify-center p-3.5 sm:p-5 lg:p-7 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center h-full">
+            {/* ───────────────────────────────────────────────────────────── */}
+            {/* LEFT / LOWER CONTENT: TITLE, BENEFIT & VERIFIED CAPABILITIES  */}
+            {/* ───────────────────────────────────────────────────────────── */}
+            <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-3 sm:space-y-4 min-h-0 overflow-y-auto no-scrollbar">
+              <div className="space-y-2 sm:space-y-3">
+                {/* Active Module Eyebrow Pill */}
+                <div className="flex items-center gap-2">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-2xs"
                     style={{
                       backgroundColor: activeFeature.accentBg,
                       color: activeFeature.accentColor,
                       border: `1px solid ${activeFeature.accentBorder}`,
                     }}
                   >
-                    <ActiveIcon className="w-4.5 h-4.5" />
+                    <ActiveIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-mono text-[10px] font-bold text-[#858890] uppercase block">
-                      FEATURE {activeFeature.number} OF 06
+                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase text-[#858890] block">
+                      MODULE {activeFeature.number} OF 06 &bull; {activeFeature.tag}
                     </span>
-                    <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#191919]">
+                    <h3 className="font-heading font-extrabold text-lg sm:text-2xl text-[#191919] leading-snug">
                       {activeFeature.title}
                     </h3>
                   </div>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#62666D] leading-relaxed max-w-xl font-normal">
+                {/* Module Long Benefit Description */}
+                <p className="text-xs sm:text-sm text-[#4A4D53] leading-relaxed font-normal">
                   {activeFeature.longDesc}
                 </p>
               </div>
 
-              {/* Right: Verified Capabilities Checklist */}
-              <div className="md:col-span-5 bg-white rounded-2xl p-4 sm:p-5 border border-[#E7E4DE] shadow-2xs space-y-2">
-                <span className="text-[11px] font-mono font-bold uppercase text-[#858890] block mb-2">
-                  Verified Capabilities
-                </span>
-                <div className="space-y-1.5">
-                  {activeFeature.highlights.map((h) => (
-                    <div key={h} className="flex items-start gap-2 text-xs text-[#191919] font-medium leading-snug">
+              {/* ───────────────────────────────────────────────────────────── */}
+              {/* VERIFIED CAPABILITIES & MODULE BENEFITS (ALL 4 POINTS)        */}
+              {/* ───────────────────────────────────────────────────────────── */}
+              <div className="bg-[#FAF9F6] rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-[#E7E4DE] shadow-2xs space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-[#E7E4DE]">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-[#858890]">
+                    Verified Capabilities & Benefits
+                  </span>
+                  <span
+                    className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border"
+                    style={{
+                      backgroundColor: activeFeature.accentBg,
+                      color: activeFeature.accentColor,
+                      borderColor: activeFeature.accentBorder,
+                    }}
+                  >
+                    Repsi Module {activeFeature.number}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                  {activeFeature.highlights.map((point, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2 text-xs text-[#191919] font-medium leading-snug"
+                    >
                       <span
                         className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] mt-0.5"
                         style={{
@@ -497,13 +351,127 @@ export function FlexCarouselFeatures() {
                       >
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </span>
-                      <span className="break-words">{h}</span>
+                      <span className="break-words">{point}</span>
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* ───────────────────────────────────────────────────────────── */}
+              {/* SCROLL INSTRUCTION + PREV/NEXT QUICK STEP BUTTONS             */}
+              {/* ───────────────────────────────────────────────────────────── */}
+              <div className="flex items-center justify-between pt-1 border-t border-[#F0EDE7] text-xs">
+                <div className="flex items-center gap-2 text-[#62666D]">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E25822] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E25822]" />
+                  </span>
+                  <span className="font-medium text-[#191919]">
+                    Scroll to advance: Module {activeStep + 1} of {featureDetails.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => scrollToStep(Math.max(0, activeStep - 1))}
+                    disabled={activeStep === 0}
+                    aria-label="Previous module"
+                    className="p-1.5 rounded-lg border border-[#E7E4DE] bg-white text-[#191919] hover:border-[#FACBB7] hover:text-[#E25822] disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollToStep(Math.min(featureDetails.length - 1, activeStep + 1))}
+                    disabled={activeStep === featureDetails.length - 1}
+                    aria-label="Next module"
+                    className="p-1.5 rounded-lg border border-[#E7E4DE] bg-white text-[#191919] hover:border-[#FACBB7] hover:text-[#E25822] disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ───────────────────────────────────────────────────────────── */}
+            {/* RIGHT: SMOOTH VISUAL SHOWCASE CARD WITH FLOATING BADGE         */}
+            {/* ───────────────────────────────────────────────────────────── */}
+            <div className="lg:col-span-6 h-full flex items-center justify-center min-h-[220px] sm:min-h-[280px]">
+              <div className="relative w-full h-[220px] sm:h-[300px] lg:h-[380px] rounded-xl sm:rounded-2xl overflow-hidden border border-[#E7E4DE] bg-[#F5F2ED] shadow-sm">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeFeature.id}
+                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.02 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="relative w-full h-full"
+                  >
+                    <ImageWithSkeleton
+                      src={activeFeature.imageSrc}
+                      alt={activeFeature.imageAlt}
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 600px"
+                      className="object-cover object-center"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
+
+                    {/* Top Floating Badge */}
+                    <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-xs">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: activeFeature.accentColor }}
+                      />
+                      <span className="text-[10px] sm:text-xs font-mono font-bold text-[#191919]">
+                        MODULE {activeFeature.number} &bull; {activeFeature.tag}
+                      </span>
+                    </div>
+
+                    {/* Bottom Operational Benefit Callout Badge */}
+                    <div className="absolute bottom-3 left-3 right-3 sm:right-auto bg-white/95 backdrop-blur-md px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-white/60 shadow-xs flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: activeFeature.accentColor }}
+                      />
+                      <span className="text-xs font-semibold text-[#191919] truncate">
+                        {activeFeature.badgeText}
+                      </span>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────── */}
+        {/* 03. BOTTOM MODULE SWITCHER PILLS (01 TO 06)                   */}
+        {/* ───────────────────────────────────────────────────────────── */}
+        <div className="w-full flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 overflow-x-auto py-1 sm:py-2 no-scrollbar shrink-0">
+          {featureDetails.map((f, idx) => {
+            const isActive = idx === activeStep;
+            const FIcon = f.icon;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => scrollToStep(idx)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                  isActive
+                    ? "bg-[#E25822] text-white border-[#E25822] shadow-sm shadow-[#E25822]/20 scale-[1.02]"
+                    : "bg-white text-[#62666D] border-[#E7E4DE] hover:border-[#FACBB7] hover:text-[#191919]"
+                }`}
+                aria-label={`Jump to module ${f.number}: ${f.title}`}
+              >
+                <FIcon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-[#858890]"}`} />
+                <span>
+                  {f.number}. {f.title}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -63,7 +63,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div className="text-xs text-[var(--text-secondary)]">Developer Email</div>
-                      <a href="mailto:nitheesh@respi.app" className="font-medium text-[var(--text)] hover:text-[var(--accent)] transition-colors">nitheesh@respi.app</a>
+                      <a href="mailto:nitheesh@repsi.app" className="font-medium text-[var(--text)] hover:text-[var(--accent)] transition-colors">nitheesh@repsi.app</a>
                     </div>
                   </div>
 

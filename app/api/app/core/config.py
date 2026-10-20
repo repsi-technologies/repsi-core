@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -58,14 +59,14 @@ class Settings(BaseSettings):
 
     @field_validator("SMTP_PORT", mode="before")
     @classmethod
-    def assemble_smtp_port(cls, v: object) -> int:
+    def assemble_smtp_port(cls, v: Any) -> int:
         if v is None or v == "":
             return 587
         return int(v)
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
-    def assemble_database_url(cls, v: object) -> str:
+    def assemble_database_url(cls, v: Any) -> str:
         if isinstance(v, str):
             v_str = v.strip()
             if v_str.startswith("postgres://"):

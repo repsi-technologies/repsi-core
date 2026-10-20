@@ -114,7 +114,7 @@ export function getOrganizationSchema() {
     logo: `${SITE_URL}/icon.png`,
     sameAs: [
       "https://linkedin.com/company/repsi",
-      "https://instagram.com/respi.app",
+      "https://instagram.com/repsi.app",
     ],
     description: "The modern operating system for gyms, studios, swimming pools, and fitness businesses.",
     telephone: "+918667783321",

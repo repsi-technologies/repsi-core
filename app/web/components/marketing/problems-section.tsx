@@ -93,6 +93,17 @@ export function ProblemsSection() {
         {/* 01. SECTION HEADER                                            */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-16">
+          {/* Repsi Brand Eyebrow Pill */}
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] text-xs font-bold tracking-wider uppercase mb-3.5 sm:mb-4 shadow-2xs"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
+            <span>Repsi &bull; The 4 Core Operational Bottlenecks</span>
+          </motion.div>
 
           <motion.h2
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
@@ -102,7 +113,7 @@ export function ProblemsSection() {
             className="font-heading font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.18] sm:leading-[1.14] mb-3 sm:mb-4"
           >
             Behind every great fitness business, <br className="hidden sm:inline" />
-            <span className="text-[#E25822]">there’s a lot to manage.</span>
+            <span className="text-[#E25822]">there’s a lot to manage — until Repsi brings it all together.</span>
           </motion.h2>
 
           <motion.p
@@ -116,6 +127,11 @@ export function ProblemsSection() {
             quickly become overwhelming — especially when handled across different
             tools and paper records.
           </motion.p>
+
+          <div className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-[#858890] mt-3.5 px-3 py-1 rounded-full bg-white border border-[#E7E4DE] shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-ping" />
+            <span>Hover on laptop or tablet to read each drawback</span>
+          </div>
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}

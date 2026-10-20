@@ -87,7 +87,7 @@ export function MarketingFooter() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/respi.app"
+                href="https://instagram.com/repsi.app"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="REPSI on Instagram"
