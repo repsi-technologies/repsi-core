@@ -82,8 +82,8 @@ export function ProductRevealSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#17191C] tracking-tight leading-[1.12] mb-4"
           >
-            Everything your fitness business needs. <br />
-            <span className="text-[#E25822]">All in one place.</span>
+            Everything your fitness business needs is <span className="text-[#E25822]">Repsi</span>, <br />
+            <span className="text-[#E25822]">all in one place.</span>
           </motion.h2>
 
           <motion.p

@@ -90,21 +90,9 @@ export function ProblemsSection() {
     >
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 01. SECTION HEADER                                            */}
+        {/* 01. SECTION HEADER (NO EYEBROWS)                              */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-16">
-          {/* Repsi Brand Eyebrow Pill */}
-          <motion.div
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] text-xs font-bold tracking-wider uppercase mb-3.5 sm:mb-4 shadow-2xs"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-pulse" />
-            <span>Repsi &bull; The 4 Core Operational Bottlenecks</span>
-          </motion.div>
-
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-14">
           <motion.h2
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -113,7 +101,7 @@ export function ProblemsSection() {
             className="font-heading font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-[46px] text-[#191919] tracking-tight leading-[1.18] sm:leading-[1.14] mb-3 sm:mb-4"
           >
             Behind every great fitness business, <br className="hidden sm:inline" />
-            <span className="text-[#E25822]">there’s a lot to manage — until Repsi brings it all together.</span>
+            <span className="text-[#E25822]">there’s a lot to manage.</span>
           </motion.h2>
 
           <motion.p
@@ -124,19 +112,15 @@ export function ProblemsSection() {
             className="text-sm sm:text-lg text-[#62666D] leading-relaxed max-w-2xl mx-auto font-normal px-1 sm:px-0"
           >
             Members, attendance, payments, renewals, staff and daily operations can
-            quickly become overwhelming — especially when handled across different
-            tools and paper records.
+            quickly become overwhelming across disconnected tools — until{" "}
+            <strong className="text-[#191919] font-semibold">Repsi brings your entire fitness business all into one place</strong>.
           </motion.p>
-
-          <div className="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-[#858890] mt-3.5 px-3 py-1 rounded-full bg-white border border-[#E7E4DE] shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E25822] animate-ping" />
-            <span>Hover on laptop or tablet to read each drawback</span>
-          </div>
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
         {/* 02. VERTICAL ACCORDION GALLERY                                */}
         {/* ───────────────────────────────────────────────────────────── */}
+
         <motion.div
           initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -144,6 +128,25 @@ export function ProblemsSection() {
           transition={{ duration: 0.5 }}
         >
           <AccordionGallery items={problemItems} defaultOpenId="records" />
+        </motion.div>
+
+        {/* ───────────────────────────────────────────────────────────── */}
+        {/* 03. REPSI ALL-IN-ONE-PLACE TRANSITION BANNER                  */}
+        {/* ───────────────────────────────────────────────────────────── */}
+        <motion.div
+          initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mt-8 sm:mt-12 text-center"
+        >
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-5 py-3 rounded-2xl bg-white border border-[#FACBB7] shadow-xs text-xs sm:text-sm">
+            <span className="font-heading font-extrabold text-[#E25822] tracking-wider uppercase">REPSI</span>
+            <span className="text-[#D0CDC7] hidden sm:inline">•</span>
+            <span className="text-[#191919] font-medium">
+              Eliminating daily friction so your fitness business runs <span className="text-[#E25822] font-bold">all in one place</span>.
+            </span>
+          </div>
         </motion.div>
       </div>
     </section>

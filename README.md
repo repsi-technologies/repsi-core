@@ -147,9 +147,9 @@ git push origin v1.0.1
 
 - **Phone / WhatsApp**: 8667783321 ([WhatsApp Us](https://wa.me/918667783321))
 - **Email**: [contact@repsi.app](mailto:contact@repsi.app)
-- **Developer Email**: [nitheesh@respi.app](mailto:nitheesh@respi.app)
+- **Developer Email**: [nitheesh@repsi.app](mailto:nitheesh@repsi.app)
 - **Address**: Gandhimanagar, Peelamedu, Coimbatore
-- **Instagram**: [@respi.app](https://instagram.com/respi.app)
+- **Instagram**: [@repsi.app](https://instagram.com/repsi.app)
 - **LinkedIn**: [repsi](https://linkedin.com/company/repsi)
 
 ---
