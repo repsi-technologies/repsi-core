@@ -238,12 +238,9 @@ class EmailOtpService:
 
     @property
     def is_test_mode(self) -> bool:
-        from app.core.email import _smtp_configured
-        if settings.OTP_PROVIDER.lower() == "test":
-            return True
-        if not _smtp_configured():
-            return True
-        return False
+        # Only mobile (WhatsApp) uses OTP_PROVIDER="test". Email OTP is production-ready.
+        # We only return test mode during automated test suite runs (ENVIRONMENT="test").
+        return settings.ENVIRONMENT.lower() == "test"
 
     def request(self, email: str, purpose: str = PURPOSE_AUTH) -> dict:
         normalized_email = email.lower().strip()
@@ -280,7 +277,7 @@ class EmailOtpService:
             self.db.add(challenge)
 
         test_mode = self.is_test_mode
-        code = settings.OTP_TEST_CODE if test_mode else f"{secrets.randbelow(1_000_000):06d}"
+        code = settings.OTP_TEST_CODE if test_mode else f"{secrets.randbelow(900_000) + 100_000:06d}"
         challenge.code_hash = _hash_email_code(normalized_email, purpose, code)
         challenge.expires_at = now + timedelta(minutes=settings.OTP_EXPIRE_MINUTES)
         challenge.last_sent_at = now

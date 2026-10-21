@@ -69,9 +69,13 @@ function SignupForm() {
   // Dual verification state
   const [showVerification, setShowVerification] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [phoneCodeSent, setPhoneCodeSent] = useState(false);
+  const [emailCodeSent, setEmailCodeSent] = useState(false);
+  const [phoneSending, setPhoneSending] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
   const [phoneResendIn, setPhoneResendIn] = useState(30);
   const [emailResendIn, setEmailResendIn] = useState(60);
-  const [testMode, setTestMode] = useState(false);
+  const [phoneTestMode, setPhoneTestMode] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [phoneResending, setPhoneResending] = useState(false);
@@ -105,9 +109,9 @@ function SignupForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    setLoading(true);
     setErrors({});
     if (ticket) {
+      setLoading(true);
       try {
         const session = await authApi.signup({
           registration_token: ticket.token,
@@ -126,19 +130,40 @@ function SignupForm() {
       return;
     }
 
+    // Do NOT send codes automatically.
+    // Transition to confirmation screen where user verifies details and clicks "Send Code".
+    setOtpError("");
+    setShowVerification(true);
+  }
+
+  async function handleSendPhoneCode() {
+    setPhoneSending(true);
+    setOtpError("");
     try {
       const { national } = splitPhone(phone, country as never);
-      const res = await authApi.requestSignupOtps(name.trim(), email.trim(), national, country);
+      const res = await authApi.requestOtp(national, country);
       setVerifiedPhone(res.phone);
-      setPhoneResendIn(res.phone_resend_in);
-      setEmailResendIn(res.email_resend_in);
-      setTestMode(res.test_mode);
-      setOtpError("");
-      setShowVerification(true);
+      setPhoneResendIn(res.resend_in);
+      setPhoneTestMode(res.test_mode);
+      setPhoneCodeSent(true);
     } catch (err) {
-      setErrors({ form: err instanceof ApiError ? err.message : "Couldn't send verification codes. Please try again." });
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't send WhatsApp verification code.");
     } finally {
-      setLoading(false);
+      setPhoneSending(false);
+    }
+  }
+
+  async function handleSendEmailCode() {
+    setEmailSending(true);
+    setOtpError("");
+    try {
+      const res = await authApi.requestEmailOtp(email.trim());
+      setEmailResendIn(res.resend_in);
+      setEmailCodeSent(true);
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't send email verification code.");
+    } finally {
+      setEmailSending(false);
     }
   }
 
@@ -172,6 +197,7 @@ function SignupForm() {
       const { national } = splitPhone(target, country as never);
       const res = await authApi.requestOtp(national, country);
       setPhoneResendIn(res.resend_in);
+      setPhoneTestMode(res.test_mode);
     } catch (err) {
       setOtpError(err instanceof ApiError ? err.message : "Couldn't resend WhatsApp code.");
     } finally {
@@ -189,7 +215,7 @@ function SignupForm() {
     } catch (err) {
       setOtpError(err instanceof ApiError ? err.message : "Couldn't resend email code.");
     } finally {
-      setEmailResending(false);
+      setEmailSending(false);
     }
   }
 
@@ -197,10 +223,10 @@ function SignupForm() {
     <div className="mx-auto w-full max-w-[440px] space-y-6">
       <div className="space-y-1.5 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-[28px]">
-          {showVerification ? "Verify WhatsApp & Email" : "Create your account"}
+          {showVerification ? "Confirm Details & Verify" : "Create your account"}
         </h1>
         <p className="text-sm text-[var(--text-muted)]">
-          {showVerification ? "Enter the verification codes sent to both destinations." : "Start your 14-day free trial. No credit card required."}
+          {showVerification ? "Confirm your contact details and click Send Code to receive your OTPs." : "Start your 14-day free trial. No credit card required."}
         </p>
       </div>
 
@@ -209,13 +235,19 @@ function SignupForm() {
           <DualOtpVerification
             phone={verifiedPhone || phone}
             email={email}
+            phoneCodeSent={phoneCodeSent}
+            emailCodeSent={emailCodeSent}
+            phoneSending={phoneSending}
+            emailSending={emailSending}
             phoneResendIn={phoneResendIn}
             emailResendIn={emailResendIn}
-            testMode={testMode}
+            phoneTestMode={phoneTestMode}
             verifying={verifying}
             phoneResending={phoneResending}
             emailResending={emailResending}
             error={otpError}
+            onSendPhoneCode={handleSendPhoneCode}
+            onSendEmailCode={handleSendEmailCode}
             onVerify={verifyDualOtp}
             onResendPhone={resendPhone}
             onResendEmail={resendEmail}

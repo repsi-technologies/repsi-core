@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Loader2, Mail, MessageCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Loader2, Mail, MessageCircle, RefreshCw, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPhone } from "@/lib/countries";
 
@@ -17,11 +17,14 @@ function useCountdown(initial = 0) {
   return [seconds, setSeconds] as const;
 }
 
-interface SingleOtpInputProps {
+interface SingleOtpSectionProps {
   label: string;
   destination: string;
   icon: React.ReactNode;
   iconBg: string;
+  codeSent: boolean;
+  sending: boolean;
+  onSendCode: () => void;
   digits: string[];
   setDigits: (d: string[]) => void;
   countdown: number;
@@ -29,13 +32,18 @@ interface SingleOtpInputProps {
   onResend: () => void;
   disabled?: boolean;
   error?: string;
+  testModeBadge?: string;
+  tipNote?: React.ReactNode;
 }
 
-function SingleOtpInput({
+function SingleOtpSection({
   label,
   destination,
   icon,
   iconBg,
+  codeSent,
+  sending,
+  onSendCode,
   digits,
   setDigits,
   countdown,
@@ -43,7 +51,9 @@ function SingleOtpInput({
   onResend,
   disabled,
   error,
-}: SingleOtpInputProps) {
+  testModeBadge,
+  tipNote,
+}: SingleOtpSectionProps) {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   const fill = (value: string, start = 0) => {
@@ -57,10 +67,10 @@ function SingleOtpInput({
   };
 
   return (
-    <div className="space-y-3 rounded-[14px] border border-[var(--border)] bg-[var(--background)] p-4">
+    <div className="space-y-3 rounded-[14px] border border-[var(--border)] bg-[var(--background)] p-4 transition-all">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white", iconBg)}>
+          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white shadow-xs", iconBg)}>
             {icon}
           </span>
           <div className="min-w-0">
@@ -74,63 +84,106 @@ function SingleOtpInput({
         </div>
 
         <div>
-          {countdown > 0 ? (
-            <span className="text-xs text-[var(--text-muted)] tabular-nums font-medium">
-              Resend in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
-            </span>
+          {codeSent ? (
+            countdown > 0 ? (
+              <span className="text-xs text-[var(--text-muted)] tabular-nums font-medium">
+                Resend in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={onResend}
+                disabled={resending || disabled}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline disabled:opacity-50"
+              >
+                <RefreshCw className={cn("h-3 w-3", resending && "animate-spin")} />
+                {resending ? "Sending…" : "Resend"}
+              </button>
+            )
           ) : (
             <button
               type="button"
-              onClick={onResend}
-              disabled={resending || disabled}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline disabled:opacity-50"
+              onClick={onSendCode}
+              disabled={sending || disabled}
+              className="inline-flex h-8 items-center gap-1.5 rounded-[8px] bg-[var(--primary)] px-3 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
             >
-              <RefreshCw className={cn("h-3 w-3", resending && "animate-spin")} />
-              {resending ? "Sending…" : "Resend"}
+              {sending ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Sending…
+                </>
+              ) : (
+                <>
+                  <Send className="h-3 w-3" />
+                  Send Code
+                </>
+              )}
             </button>
           )}
         </div>
       </div>
 
-      <div
-        className="flex justify-between gap-1.5 sm:gap-2"
-        onPaste={(e) => {
-          e.preventDefault();
-          fill(e.clipboardData.getData("text"));
-        }}
-      >
-        {digits.map((d, i) => (
-          <input
-            key={i}
-            ref={(el) => {
-              refs.current[i] = el;
+      {!codeSent ? (
+        <div className="rounded-[8px] border border-dashed border-[var(--border)] bg-[var(--surface)] px-3.5 py-3 text-xs text-[var(--text-muted)] flex items-center justify-between">
+          <span>Click <strong>Send Code</strong> to receive your 6-digit code.</span>
+        </div>
+      ) : (
+        <div className="space-y-2.5 pt-1">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+            <span>Verification code sent. Enter the 6 digits below:</span>
+          </div>
+
+          <div
+            className="flex justify-between gap-1.5 sm:gap-2"
+            onPaste={(e) => {
+              e.preventDefault();
+              fill(e.clipboardData.getData("text"));
             }}
-            value={d}
-            inputMode="numeric"
-            autoComplete={i === 0 ? "one-time-code" : "off"}
-            maxLength={1}
-            aria-label={`${label} digit ${i + 1}`}
-            disabled={disabled}
-            onChange={(e) => {
-              const v = e.target.value.replace(/\D/g, "");
-              if (v.length > 1) return fill(v, i);
-              const next = [...digits];
-              next[i] = v;
-              setDigits(next);
-              if (v && i < LENGTH - 1) refs.current[i + 1]?.focus();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Backspace" && !digits[i] && i > 0) refs.current[i - 1]?.focus();
-              if (e.key === "ArrowLeft" && i > 0) refs.current[i - 1]?.focus();
-              if (e.key === "ArrowRight" && i < LENGTH - 1) refs.current[i + 1]?.focus();
-            }}
-            className={cn(
-              "h-11 w-full min-w-0 max-w-[48px] rounded-[8px] border bg-[var(--surface)] text-center text-lg font-semibold tabular-nums text-[var(--text)] outline-none transition-colors focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)] disabled:opacity-60",
-              error ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]"
-            )}
-          />
-        ))}
-      </div>
+          >
+            {digits.map((d, i) => (
+              <input
+                key={i}
+                ref={(el) => {
+                  refs.current[i] = el;
+                }}
+                value={d}
+                inputMode="numeric"
+                autoComplete={i === 0 ? "one-time-code" : "off"}
+                maxLength={1}
+                aria-label={`${label} digit ${i + 1}`}
+                disabled={disabled}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, "");
+                  if (v.length > 1) return fill(v, i);
+                  const next = [...digits];
+                  next[i] = v;
+                  setDigits(next);
+                  if (v && i < LENGTH - 1) refs.current[i + 1]?.focus();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Backspace" && !digits[i] && i > 0) refs.current[i - 1]?.focus();
+                  if (e.key === "ArrowLeft" && i > 0) refs.current[i - 1]?.focus();
+                  if (e.key === "ArrowRight" && i < LENGTH - 1) refs.current[i + 1]?.focus();
+                }}
+                className={cn(
+                  "h-11 w-full min-w-0 max-w-[48px] rounded-[8px] border bg-[var(--surface)] text-center text-lg font-semibold tabular-nums text-[var(--text)] outline-none transition-colors focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)] disabled:opacity-60",
+                  error ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]"
+                )}
+              />
+            ))}
+          </div>
+
+          {testModeBadge && (
+            <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200/80 rounded-[6px] px-2.5 py-1.5">
+              <Info className="h-3.5 w-3.5 shrink-0" />
+              <span>{testModeBadge}</span>
+            </div>
+          )}
+
+          {tipNote}
+        </div>
+      )}
     </div>
   );
 }
@@ -138,13 +191,19 @@ function SingleOtpInput({
 interface DualOtpVerificationProps {
   phone: string; // E.164
   email: string;
+  phoneCodeSent: boolean;
+  emailCodeSent: boolean;
+  phoneSending: boolean;
+  emailSending: boolean;
   phoneResendIn: number;
   emailResendIn: number;
-  testMode?: boolean;
+  phoneTestMode?: boolean;
   verifying: boolean;
   phoneResending: boolean;
   emailResending: boolean;
   error?: string;
+  onSendPhoneCode: () => void;
+  onSendEmailCode: () => void;
   onVerify: (phoneCode: string, emailCode: string) => void;
   onResendPhone: () => void;
   onResendEmail: () => void;
@@ -154,13 +213,19 @@ interface DualOtpVerificationProps {
 export function DualOtpVerification({
   phone,
   email,
+  phoneCodeSent,
+  emailCodeSent,
+  phoneSending,
+  emailSending,
   phoneResendIn,
   emailResendIn,
-  testMode,
+  phoneTestMode,
   verifying,
   phoneResending,
   emailResending,
   error,
+  onSendPhoneCode,
+  onSendEmailCode,
   onVerify,
   onResendPhone,
   onResendEmail,
@@ -181,7 +246,11 @@ export function DualOtpVerification({
 
   const phoneCode = phoneDigits.join("");
   const emailCode = emailDigits.join("");
-  const isComplete = phoneCode.length === LENGTH && emailCode.length === LENGTH;
+  const isComplete =
+    phoneCodeSent &&
+    emailCodeSent &&
+    phoneCode.length === LENGTH &&
+    emailCode.length === LENGTH;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -191,13 +260,12 @@ export function DualOtpVerification({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {testMode && (
-        <div className="rounded-[8px] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-800">
-          <p className="font-semibold">Test Mode Active</p>
-          <p className="mt-0.5">Use the server test code (default <strong>123456</strong>) for both WhatsApp and Email.</p>
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Informational intro */}
+      <div className="rounded-[10px] border border-[var(--border)] bg-[var(--surface-subtle,#F7F7F5)] p-3 text-xs text-[var(--text-secondary)]">
+        <p className="font-semibold text-[var(--text)]">Please confirm your contact details:</p>
+        <p className="mt-0.5">Click <strong>Send Code</strong> for both your mobile number and email ID to receive verification codes.</p>
+      </div>
 
       {error && (
         <div role="alert" className="rounded-[8px] border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
@@ -205,12 +273,15 @@ export function DualOtpVerification({
         </div>
       )}
 
-      {/* WhatsApp OTP Input */}
-      <SingleOtpInput
-        label="WhatsApp Verification"
-        destination={formatPhone(phone)}
+      {/* WhatsApp / Mobile OTP Section */}
+      <SingleOtpSection
+        label="Mobile Number (WhatsApp)"
+        destination={formatPhone(phone) || phone}
         icon={<MessageCircle className="h-4 w-4" />}
         iconBg="bg-[#25D366]"
+        codeSent={phoneCodeSent}
+        sending={phoneSending}
+        onSendCode={onSendPhoneCode}
         digits={phoneDigits}
         setDigits={setPhoneDigits}
         countdown={phoneCountdown}
@@ -218,14 +289,18 @@ export function DualOtpVerification({
         onResend={onResendPhone}
         disabled={verifying}
         error={error && error.toLowerCase().includes("whatsapp") ? error : undefined}
+        testModeBadge={phoneTestMode ? "Mobile Test Mode active: enter test code 123456" : undefined}
       />
 
-      {/* Email OTP Input */}
-      <SingleOtpInput
-        label="Email Verification"
+      {/* Email OTP Section */}
+      <SingleOtpSection
+        label="Email Address"
         destination={email}
         icon={<Mail className="h-4 w-4" />}
         iconBg="bg-[var(--primary)]"
+        codeSent={emailCodeSent}
+        sending={emailSending}
+        onSendCode={onSendEmailCode}
         digits={emailDigits}
         setDigits={setEmailDigits}
         countdown={emailCountdown}
@@ -233,15 +308,30 @@ export function DualOtpVerification({
         onResend={onResendEmail}
         disabled={verifying}
         error={error && error.toLowerCase().includes("email") ? error : undefined}
+        tipNote={
+          <div className="flex items-start gap-2 rounded-[8px] border border-amber-200/90 bg-amber-50/90 px-3 py-2 text-[11px] text-amber-900 leading-tight">
+            <span className="text-sm">📬</span>
+            <div>
+              <span className="font-semibold">Check your Spam or Junk folder: </span>
+              <span>If you don&apos;t see the email code in your inbox, please check your Spam folder and mark REPSI as &ldquo;Not Spam&rdquo;.</span>
+            </div>
+          </div>
+        }
       />
 
       <button
         type="submit"
         disabled={!isComplete || verifying}
-        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-sm transition-colors hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {verifying && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-        {verifying ? "Verifying codes…" : "Verify & Create Account"}
+        {verifying
+          ? "Verifying codes…"
+          : !phoneCodeSent || !emailCodeSent
+          ? "Send both codes to continue"
+          : !isComplete
+          ? "Enter both 6-digit codes"
+          : "Verify & Create Account"}
       </button>
 
       <div className="text-center pt-1">
@@ -252,7 +342,7 @@ export function DualOtpVerification({
           className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text)] transition-colors disabled:opacity-50"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Edit signup details
+          Edit contact details
         </button>
       </div>
     </form>

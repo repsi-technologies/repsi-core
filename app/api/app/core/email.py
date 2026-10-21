@@ -27,7 +27,7 @@ def _dev_print(kind: str, email: str, content: str) -> None:
 def send_registration_otp(email: str, otp: str) -> None:
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD or not settings.EMAIL_FROM:
         if not settings.is_production or settings.ALLOW_TEST_OTP_IN_PRODUCTION:
-            _dev_print("Registration OTP", email, f"Verification code: {otp}")
+            _dev_print("Registration OTP", email, f"Verification code: {otp}\n(Note: Check Spam/Junk folder if not in Inbox)")
             return
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -44,8 +44,15 @@ def send_registration_otp(email: str, otp: str) -> None:
         f"Your REPSI Verification Code: {otp}\n\n"
         f"Enter this 6-digit code to verify your account and continue your setup.\n"
         f"This code will expire in {settings.OTP_EXPIRE_MINUTES} minutes.\n\n"
+        "IMPORTANT NOTE ON SPAM FOLDER:\n"
+        "If this email arrived in your Spam or Junk folder, please move it to your Inbox\n"
+        "or mark REPSI as 'Not Spam' to ensure you receive vital billing receipts, member\n"
+        "notifications, and system alerts.\n\n"
         "Security Note: Never share this code with anyone. REPSI support will never ask for your verification code.\n\n"
-        "If you did not request this code, you can safely ignore this email.\n"
+        "If you did not request this code, you can safely ignore this email.\n\n"
+        "--------------------------------------------------\n"
+        "REPSI Technologies - The Modern Gym & Fitness Operating System\n"
+        "https://repsi.app\n"
     )
     message.set_content(plain_text)
 
@@ -67,7 +74,7 @@ def send_registration_otp(email: str, otp: str) -> None:
             <td style="padding: 32px 40px 24px 40px; text-align: left; border-bottom: 1px solid #E4E2DC;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td style="background-color: #D9532F; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
+                  <td style="background-color: #18B968; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
                     <span style="color: #FFFFFF; font-size: 20px; font-weight: 800; line-height: 36px; display: inline-block;">R</span>
                   </td>
                   <td style="padding-left: 12px;">
@@ -89,20 +96,33 @@ def send_registration_otp(email: str, otp: str) -> None:
               </p>
 
               <!-- OTP Code Card -->
-              <div style="background-color: #EFEEEA; border: 1px solid #E4E2DC; border-radius: 12px; padding: 24px 20px; text-align: center; margin: 24px 0;">
-                <span style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #6B6F76; margin-bottom: 8px;">
+              <div style="background-color: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 24px 20px; text-align: center; margin: 24px 0;">
+                <span style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #15803D; margin-bottom: 8px;">
                   Your Verification Code
                 </span>
-                <div style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, Monaco, monospace; font-size: 38px; font-weight: 700; letter-spacing: 12px; color: #17191C; padding: 4px 0 4px 12px; user-select: all; -webkit-user-select: all;">
+                <div style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, Monaco, monospace; font-size: 38px; font-weight: 800; letter-spacing: 12px; color: #0F172A; padding: 4px 0 4px 12px; user-select: all; -webkit-user-select: all;">
                   {otp}
                 </div>
-                <p style="margin: 8px 0 0 0; font-size: 12px; color: #6B6F76;">
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #166534;">
                   Double-click or press &amp; hold to copy
                 </p>
               </div>
 
+              <!-- Spam / Junk Folder Advisory Callout -->
+              <div style="background-color: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 14px 16px; margin: 20px 0;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="vertical-align: top; width: 24px; font-size: 16px; line-height: 20px;">📬</td>
+                    <td style="padding-left: 10px; font-size: 13px; line-height: 19px; color: #92400E;">
+                      <strong>Check your Spam or Junk folder:</strong><br>
+                      If you didn&apos;t find this email in your Primary Inbox, please check your <strong>Spam</strong> or <strong>Junk</strong> folder and click <strong>&ldquo;Report not spam&rdquo;</strong> to guarantee future billing receipts and member alerts reach you promptly.
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
               <!-- Notice & Expiry -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 20px; background-color: #F7F7F5; border-radius: 8px; padding: 14px 16px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 16px; background-color: #F7F7F5; border-radius: 8px; padding: 14px 16px;">
                 <tr>
                   <td style="font-size: 13px; line-height: 20px; color: #6B6F76;">
                     ⏱ <strong>Expires in {settings.OTP_EXPIRE_MINUTES} minutes.</strong><br>
@@ -124,7 +144,7 @@ def send_registration_otp(email: str, otp: str) -> None:
                 © 2026 REPSI. All rights reserved. The Modern Gym &amp; Fitness Operating System.
               </p>
               <p style="margin: 0; font-size: 12px; color: #A6A8AC;">
-                Questions? Visit <a href="https://repsi.app" style="color: #B8431F; text-decoration: none; font-weight: 500;">repsi.app</a> or reply to this email.
+                Questions? Visit <a href="https://repsi.app" style="color: #18B968; text-decoration: none; font-weight: 500;">repsi.app</a> or reply to this email.
               </p>
             </td>
           </tr>
