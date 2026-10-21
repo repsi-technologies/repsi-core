@@ -123,6 +123,8 @@ def run_database_migrations():
                     except Exception as e:
                         logger.warning(f"Could not add column {col_name} to members: {e}")
 
+        _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name)
+
         # Check invoices columns (amount_paid, membership_id)
         if inspector.has_table("invoices"):
             existing_inv_cols = {col["name"] for col in inspector.get_columns("invoices")}
@@ -137,6 +139,116 @@ def run_database_migrations():
                         logger.info(f"Added column {col_name} to invoices.")
                     except Exception as e:
                         logger.warning(f"Could not add column {col_name} to invoices: {e}")
+
+def _add_missing_columns(conn, inspector, table: str, columns: list[tuple[str, str]]) -> None:
+    if not inspector.has_table(table):
+        return
+    existing = {col["name"] for col in inspector.get_columns(table)}
+    for col_name, col_def in columns:
+        if col_name in existing:
+            continue
+        try:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_def}"))
+            logger.info(f"Added column {col_name} to {table}.")
+        except Exception as e:
+            logger.warning(f"Could not add column {col_name} to {table}: {e}")
+
+
+def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str) -> None:
+    """
+    Unified identity, phone OTP, onboarding and branch columns. Additive only:
+    existing rows keep their data, and backfills only fill NULL/default values.
+    """
+    is_pg = "postgres" in dialect_name
+    false_default = "BOOLEAN NOT NULL DEFAULT FALSE"
+    # First run of this migration on a pre-existing database (users table without the new column).
+    first_identity_run = inspector.has_table("users") and "email_verified" not in {
+        col["name"] for col in inspector.get_columns("users")
+    }
+
+    _add_missing_columns(conn, inspector, "users", [
+        ("phone_e164", "VARCHAR(20)"),
+        ("phone_verified", false_default),
+        ("email_verified", false_default),
+    ])
+    _add_missing_columns(conn, inspector, "workspaces", [
+        ("address_line2", "VARCHAR(255)"),
+        ("state", "VARCHAR(100)"),
+        ("postal_code", "VARCHAR(20)"),
+        ("country_code", "VARCHAR(2)"),
+        ("timezone", "VARCHAR(64)"),
+        ("currency", "VARCHAR(3)"),
+        ("locale", "VARCHAR(16)"),
+        ("opening_hours", "TEXT"),
+        ("closed_dates", "TEXT"),
+    ])
+    _add_missing_columns(conn, inspector, "gym_locations", [
+        ("address_line2", "VARCHAR(255)"),
+        ("city", "VARCHAR(100)"),
+        ("state", "VARCHAR(100)"),
+        ("postal_code", "VARCHAR(20)"),
+        ("country_code", "VARCHAR(2)"),
+        ("phone", "VARCHAR(20)"),
+        ("email", "VARCHAR(255)"),
+        ("timezone", "VARCHAR(64)"),
+        ("opening_hours", "TEXT"),
+        ("is_primary", false_default),
+    ])
+    _add_missing_columns(conn, inspector, "gym_invitations", [
+        ("branch_ids", "TEXT"),
+        ("accepted_user_id", "VARCHAR(64)"),
+    ])
+
+    # Unique/lookup indexes. Created only when existing data allows it.
+    statements = [
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_users_phone_e164 ON users (phone_e164)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_gym_location_ws_code ON gym_locations (workspace_id, code)",
+    ]
+    for stmt in statements:
+        try:
+            with conn.begin_nested():
+                conn.execute(text(stmt))
+        except Exception as e:
+            logger.warning(f"Skipped index ({stmt}): {e}")
+
+    # Existing accounts were admitted by the previous email-based flows (email OTP
+    # registration, emailed invitations, Google). Treat emails of users that already
+    # belong to a workspace as verified so Google sign-in keeps resolving to the same
+    # account after this release. New accounts start unverified.
+    try:
+        with conn.begin_nested():
+            conn.execute(text(
+                "UPDATE users SET email = LOWER(TRIM(email)) WHERE email <> LOWER(TRIM(email)) "
+                "AND NOT EXISTS (SELECT 1 FROM users u2 WHERE u2.email = LOWER(TRIM(users.email)) AND u2.id <> users.id)"
+            ))
+            conn.execute(text(
+                "UPDATE users SET email_verified = TRUE WHERE email_verified = FALSE AND "
+                "(is_superadmin = TRUE OR EXISTS (SELECT 1 FROM workspace_members wm WHERE wm.user_id = users.id))"
+            ))
+            conn.execute(text(
+                "UPDATE workspaces SET country_code = 'IN' WHERE country_code IS NULL AND (country IS NULL OR country = 'India')"
+            ))
+            conn.execute(text(
+                "UPDATE gym_locations SET is_primary = TRUE WHERE code = 'MAIN' AND NOT EXISTS "
+                "(SELECT 1 FROM gym_locations g2 WHERE g2.workspace_id = gym_locations.workspace_id AND g2.is_primary = TRUE)"
+            ))
+            if first_identity_run:
+                # Workspaces that existed before the server-side onboarding flow are already in
+                # use (the old wizard could skip its completion call). Never push them back
+                # through onboarding.
+                conn.execute(text("UPDATE workspaces SET onboarding_completed = TRUE WHERE onboarding_completed = FALSE"))
+    except Exception as e:
+        logger.warning(f"Identity backfill skipped: {e}")
+
+    if is_pg:
+        # SQLAlchemy stores Enum member names; extend the native type for new invitation roles.
+        for value in ("STAFF", "MANAGER", "ADMIN"):
+            try:
+                with conn.begin_nested():
+                    conn.execute(text(f"ALTER TYPE invitationrole ADD VALUE IF NOT EXISTS '{value}'"))
+            except Exception as e:
+                logger.warning(f"Could not extend invitationrole enum with {value}: {e}")
+
 
 if __name__ == "__main__":
     run_database_migrations()

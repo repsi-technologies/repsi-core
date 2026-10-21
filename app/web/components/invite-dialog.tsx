@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhoneInput } from "@/components/ui/phone-input";
+import { PhoneInput, isValidPhone } from "@/components/ui/phone-input";
 import { repsiApi } from "@/lib/api";
 
 interface InviteDialogProps {
@@ -55,8 +55,8 @@ export function InviteDialog({
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [checkingEmail, setCheckingEmail] = useState(false);
-  const [checkingPhone, setCheckingPhone] = useState(false);
+  const checkingEmail = false;
+  const checkingPhone = false;
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [createdCredentials, setCreatedCredentials] = useState<{
     email: string;
@@ -73,39 +73,15 @@ export function InviteDialog({
     setPassword(pwd);
   };
 
-  const handleEmailBlur = async () => {
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) {
+  // Existing REPSI accounts can be invited: acceptance joins their existing account.
+  const handleEmailBlur = () => {
+    if (!email.trim() || !/^S+@S+.S+$/.test(email)) {
       setEmailError(email.trim() ? "Invalid email format" : "Email is required");
-      return;
-    }
-    setCheckingEmail(true);
-    setEmailError(null);
-    try {
-      const check = await repsiApi.checkAvailability({ email: email.trim() });
-      if (check.email_exists) {
-        setEmailError(check.email_message || "This email address is already registered.");
-      }
-    } catch {
-      // Ignore network failures gracefully
-    } finally {
-      setCheckingEmail(false);
     }
   };
 
-  const handlePhoneBlur = async () => {
-    if (!phone.trim() || phone.length < 8) return;
-    setCheckingPhone(true);
-    setPhoneError(null);
-    try {
-      const check = await repsiApi.checkAvailability({ phone: phone.trim() });
-      if (check.phone_exists) {
-        setPhoneError(check.phone_message || "This phone number is already registered.");
-      }
-    } catch {
-      // Ignore network failures gracefully
-    } finally {
-      setCheckingPhone(false);
-    }
+  const handlePhoneBlur = () => {
+    setPhoneError(phone.trim() && !isValidPhone(phone) ? "Enter a valid mobile number for the selected country." : null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,8 +96,8 @@ export function InviteDialog({
       return;
     }
 
-    if (mode === "direct" && password.trim() && password.trim().length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (mode === "direct" && password.trim() && password.trim().length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
 

@@ -33,6 +33,28 @@ class Settings(BaseSettings):
     OTP_EXPIRE_MINUTES: int = 10
     OTP_RESEND_COOLDOWN_SECONDS: int = 60
 
+    # Phone (WhatsApp) OTP
+    # "test" verifies against OTP_TEST_CODE and sends nothing; "aisensy" delivers via WhatsApp.
+    # "test" is refused when ENVIRONMENT=production (see validator below).
+    OTP_PROVIDER: str = "test"
+    OTP_TEST_CODE: str = "123456"
+    PHONE_OTP_EXPIRE_MINUTES: int = 5
+    PHONE_OTP_RESEND_COOLDOWN_SECONDS: int = 30
+    PHONE_OTP_MAX_SENDS_PER_HOUR: int = 5
+    PHONE_OTP_MAX_ATTEMPTS: int = 5
+
+    # AiSensy WhatsApp delivery (server-side only; never exposed to the frontend)
+    AISENSY_API_URL: str = "https://backend.aisensy.com/campaign/t1/api/v2"
+    AISENSY_API_KEY: str = ""
+    AISENSY_CAMPAIGN_NAME: str = ""
+    AISENSY_SOURCE: str = "repsi-auth"
+    AISENSY_TIMEOUT_SECONDS: float = 10.0
+
+    # Google OAuth: tokens are only accepted when issued to this client ID
+    GOOGLE_CLIENT_ID: str = ""
+
+    PASSWORD_RESET_EXPIRE_MINUTES: int = 30
+
     # Database
     DATABASE_URL: str = "sqlite:///./repsi.db"
     DATABASE_POOL_SIZE: int = 10
@@ -100,7 +122,15 @@ class Settings(BaseSettings):
                 raise ValueError("SECRET_KEY must be changed from the default value in production!")
             if len(self.SECRET_KEY) < 32:
                 raise ValueError("SECRET_KEY must be at least 32 characters in production!")
+            if self.OTP_PROVIDER.lower() == "test":
+                raise ValueError("OTP_PROVIDER=test (fixed OTP) is not allowed in production!")
+        if self.OTP_PROVIDER.lower() not in {"test", "aisensy"}:
+            raise ValueError("OTP_PROVIDER must be 'test' or 'aisensy'.")
         return self
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT.lower() == "production"
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILES,

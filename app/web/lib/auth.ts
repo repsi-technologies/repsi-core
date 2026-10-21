@@ -14,6 +14,7 @@ export interface AuthUser {
   role: "OWNER" | "ADMIN" | "MANAGER" | "TRAINER" | "STAFF" | "SUPER_ADMIN" | "USER" | "MEMBER";
   workspaceSlug?: string;
   gymName?: string;
+  onboardingRequired?: boolean;
 }
 
 export function setAuthCookie(token: string, days = 30): void {
@@ -33,12 +34,13 @@ export function getAuthCookie(): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
-export function loginSession(token: string, user: AuthUser, workspaceSlug = "apex-fitness"): void {
+export function loginSession(token: string, user: AuthUser, workspaceSlug = ""): void {
   if (typeof window === "undefined") return;
   setAuthCookie(token);
   localStorage.setItem("repsi_auth_token", token);
   localStorage.setItem("repsi_user", JSON.stringify(user));
-  localStorage.setItem("repsi_workspace_slug", workspaceSlug);
+  if (workspaceSlug) localStorage.setItem("repsi_workspace_slug", workspaceSlug);
+  else localStorage.removeItem("repsi_workspace_slug");
 }
 
 export async function logoutSession(): Promise<void> {

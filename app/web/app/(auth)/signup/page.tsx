@@ -1,252 +1,326 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
-import { PhoneInput } from "@/components/ui/phone-input";
-import { repsiApi } from "@/lib/api";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 
-export default function SignupPage() {
+import { PhoneInput } from "@/components/ui/phone-input";
+import { OtpVerification } from "@/components/auth/otp-verification";
+import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi } from "@/lib/auth-client";
+import { formatPhone, isValidPhone, splitPhone } from "@/lib/countries";
+import { cn } from "@/lib/utils";
+
+const TICKET_TTL_MS = 18 * 60 * 1000; // backend ticket lives 20 minutes
+
+const inputClass =
+  "flex h-10 w-full rounded-[8px] border bg-[var(--surface)] px-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--ring)]";
+
+type Errors = Partial<Record<"name" | "email" | "phone" | "password" | "confirm" | "form", string>>;
+
+function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-[var(--text)]">
+        {label}
+      </label>
+      {children}
+      {error ? (
+        <p id={`${id}-error`} className="mt-1 text-xs font-medium text-[var(--error,#DC2626)]">
+          {error}
+        </p>
+      ) : hint ? (
+        <p className="mt-1 text-xs text-[var(--text-muted)]">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function SignupForm() {
   const router = useRouter();
+  const params = useSearchParams();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("IN");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPwd, setShowPwd] = useState(false);
-  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
+  const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
-  const [checkingEmail, setCheckingEmail] = useState(false);
-  const [checkingPhone, setCheckingPhone] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleEmailBlur = async () => {
-    if (!email.trim()) {
-      setErrors((prev) => ({ ...prev, email: "Work email is required *" }));
-      return;
-    }
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      setErrors((prev) => ({ ...prev, email: "Please enter a valid email address" }));
-      return;
-    }
-    setCheckingEmail(true);
+  // Verified-phone ticket (from the OTP step here, or from the login page).
+  const [ticket, setTicket] = useState<{ token: string; phone: string } | null>(null);
+  const [otpPhone, setOtpPhone] = useState<string | null>(null);
+  const [resendIn, setResendIn] = useState(30);
+  const [testMode, setTestMode] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    if (params.get("continue") !== "1") return;
     try {
-      const check = await repsiApi.checkAvailability({ email: email.trim() });
-      if (check.email_exists) {
-        setErrors((prev) => ({ ...prev, email: check.email_message || "This email is already registered." }));
-      } else {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next.email;
-          return next;
-        });
+      const raw = sessionStorage.getItem(SIGNUP_TICKET_KEY);
+      const saved = raw ? JSON.parse(raw) : null;
+      if (saved?.token && Date.now() - saved.at < TICKET_TTL_MS) {
+        setTicket({ token: saved.token, phone: saved.phone });
+        setPhone(saved.phone);
       }
     } catch {
-      // Ignore network failures
-    } finally {
-      setCheckingEmail(false);
+      /* ignore malformed storage */
     }
-  };
+  }, [params]);
 
-  const handlePhoneBlur = async () => {
-    if (!phone.trim() || phone.length < 8) return;
-    setCheckingPhone(true);
-    try {
-      const check = await repsiApi.checkAvailability({ phone: phone.trim() });
-      if (check.phone_exists) {
-        setErrors((prev) => ({ ...prev, phone: check.phone_message || "This phone number is already registered." }));
-      } else {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next.phone;
-          return next;
-        });
-      }
-    } catch {
-      // Ignore network failures
-    } finally {
-      setCheckingPhone(false);
-    }
-  };
-
-  function validate() {
-    const e: Record<string, string> = { ...errors };
-    if (!name.trim()) e.name = "Full name is required";
-    if (!email.trim()) e.email = "Work email is required *";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) e.email = "Please enter a valid email";
-    if (password.length < 8) e.password = "Password must be at least 8 characters";
-    if (!confirmPassword) e.confirmPassword = "Confirm password is required";
-    else if (confirmPassword !== password) e.confirmPassword = "Passwords do not match";
+  function validate(): boolean {
+    const e: Errors = {};
+    if (name.trim().length < 2) e.name = "Enter your full name.";
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) e.email = "Enter a valid email address.";
+    if (!ticket && !isValidPhone(phone, country as never)) e.phone = "Enter a valid mobile number for the selected country.";
+    if (password.length < 8) e.password = "Use at least 8 characters.";
+    if (confirm !== password) e.confirm = "Passwords don't match.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  async function handleSignup(e: React.FormEvent) {
+  async function createAccount(registrationToken: string) {
+    try {
+      const session = await authApi.signup(registrationToken, name.trim(), email.trim(), password);
+      sessionStorage.removeItem(SIGNUP_TICKET_KEY);
+      router.replace(applySession(session));
+    } catch (err) {
+      const api = err instanceof ApiError ? err : null;
+      if (api?.status === 400) {
+        // Ticket expired: verify the phone again.
+        setTicket(null);
+        sessionStorage.removeItem(SIGNUP_TICKET_KEY);
+      }
+      setOtpPhone(null);
+      setErrors({
+        email: api?.fieldErrors.email,
+        password: api?.fieldErrors.password,
+        form: api?.message || "We couldn't create your account. Please try again.",
+      });
+      setLoading(false);
+      setVerifying(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
+    if (ticket) {
+      await createAccount(ticket.token);
+      return;
+    }
+    try {
+      const { national } = splitPhone(phone, country as never);
+      const res = await authApi.requestOtp(national, country);
+      setOtpPhone(res.phone);
+      setResendIn(res.resend_in);
+      setTestMode(res.test_mode);
+      setOtpError("");
+    } catch (err) {
+      setErrors({ form: err instanceof ApiError ? err.message : "Couldn't send the code. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    localStorage.setItem("repsi_pending_email", email.trim().toLowerCase());
-    localStorage.setItem("repsi_pending_name", name.trim());
-    localStorage.setItem("repsi_pending_password", password);
+  async function verify(code: string) {
+    if (!otpPhone) return;
+    setVerifying(true);
+    setOtpError("");
+    try {
+      const res = await authApi.verifyOtp(otpPhone, country, code);
+      if (res.status === "authenticated" && res.token) {
+        // This number already belongs to an account: sign the person into it.
+        router.replace(applySession(res.token));
+        return;
+      }
+      setTicket({ token: res.registration_token!, phone: res.phone });
+      await createAccount(res.registration_token!);
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please try again.");
+      setVerifying(false);
+    }
+  }
 
-    setLoading(false);
-    // Proceed to Step 2 (Gym Identity Form) of Onboarding Wizard
-    router.push(`/onboarding/wizard?step=2&email=${encodeURIComponent(email.trim().toLowerCase())}&name=${encodeURIComponent(name.trim())}`);
+  async function resend() {
+    if (!otpPhone) return;
+    setResending(true);
+    setOtpError("");
+    try {
+      const res = await authApi.requestOtp(otpPhone, country);
+      setResendIn(res.resend_in);
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend the code.");
+    } finally {
+      setResending(false);
+    }
   }
 
   return (
-    <div className="w-full max-w-[420px] sm:max-w-[440px] mx-auto space-y-6">
-      <div className="text-center space-y-1.5">
-        <h1 className="text-2xl sm:text-[28px] font-bold text-[#17191C] tracking-tight">
-          Create your account
+    <div className="mx-auto w-full max-w-[440px] space-y-6">
+      <div className="space-y-1.5 text-center">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-[28px]">
+          {otpPhone ? "Verify your number" : "Create your account"}
         </h1>
         <p className="text-sm text-[var(--text-muted)]">
-          Start your 14-day free trial. No credit card required.
+          {otpPhone ? "One quick step to secure your account." : "Start your 14-day free trial. No credit card required."}
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E4E2DC] p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-[#17191C] mb-1.5">
-              Full name <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="name"
-              type="text"
-              placeholder="Arjun Nair"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
-              }}
-              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
-                errors.name ? "border-rose-500" : "border-[#E4E2DC]"
-              }`}
-              autoFocus
-              required
-            />
-            {errors.name && <p className="mt-1 text-xs text-rose-600 font-medium">{errors.name}</p>}
-          </div>
+      <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:p-8">
+        {otpPhone ? (
+          <OtpVerification
+            phone={otpPhone}
+            resendIn={resendIn}
+            testMode={testMode}
+            verifying={verifying}
+            resending={resending}
+            error={otpError}
+            onVerify={verify}
+            onResend={resend}
+            onChangeNumber={() => setOtpPhone(null)}
+            submitLabel="Verify & create account"
+          />
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {errors.form && (
+              <div role="alert" className="rounded-[8px] border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
+                {errors.form}{" "}
+                {errors.form.toLowerCase().includes("sign in") && (
+                  <Link href="/login" className="font-semibold underline">Go to sign in</Link>
+                )}
+              </div>
+            )}
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-[#17191C]">
-                Work email <span className="text-red-500">*</span>
-              </label>
-              {checkingEmail && (
-                <span className="text-[10px] text-emerald-600 flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Checking...
+            <Field id="name" label="Full name" error={errors.name}>
+              <input
+                id="name"
+                autoComplete="name"
+                placeholder="Arjun Nair"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                aria-invalid={Boolean(errors.name) || undefined}
+                className={cn(inputClass, errors.name ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")}
+                autoFocus
+              />
+            </Field>
+
+            <Field id="email" label="Work email" error={errors.email}>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@gym.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={Boolean(errors.email) || undefined}
+                className={cn(inputClass, errors.email ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")}
+              />
+            </Field>
+
+            {ticket ? (
+              <div className="flex items-center gap-2 rounded-[8px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
+                <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
+                <span>
+                  <span className="font-semibold">{formatPhone(ticket.phone)}</span> verified on WhatsApp
                 </span>
-              )}
-            </div>
-            <input
-              id="email"
-              type="email"
-              placeholder="you@gym.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
-              }}
-              onBlur={handleEmailBlur}
-              className={`flex h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
-                errors.email ? "border-rose-500" : "border-[#E4E2DC]"
-              }`}
-              required
-            />
-            {errors.email && <p className="mt-1 text-xs text-rose-600 font-medium">{errors.email}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-[#17191C] mb-1.5">
-              Password <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPwd ? "text" : "password"}
-                placeholder="Min. 8 characters"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
-                }}
-                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
-                  errors.password ? "border-rose-500" : "border-[#E4E2DC]"
-                }`}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
-                aria-label={showPwd ? "Hide password" : "Show password"}
-              >
-                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.password && <p className="mt-1 text-xs text-rose-600 font-medium">{errors.password}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#17191C] mb-1.5">
-              Confirm password <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                id="confirmPassword"
-                type={showConfirmPwd ? "text" : "password"}
-                placeholder="Re-enter your password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
-                }}
-                className={`flex h-11 w-full rounded-lg border bg-white px-3.5 pr-10 text-sm text-[#17191C] placeholder:text-[#94A3B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors ${
-                  errors.confirmPassword ? "border-rose-500" : "border-[#E4E2DC]"
-                }`}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#17191C] transition-colors cursor-pointer"
-                aria-label={showConfirmPwd ? "Hide confirm password" : "Show confirm password"}
-              >
-                {showConfirmPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="mt-1 text-xs text-rose-600 font-medium">{errors.confirmPassword}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || checkingEmail || checkingPhone}
-            className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs cursor-pointer mt-2 disabled:opacity-50"
-          >
-            {loading ? (
-              <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
             ) : (
-              <>
-                <span>Continue to setup</span>
-                <ArrowRight className="h-4 w-4" />
-              </>
+              <Field id="signup-phone" label="Mobile number (WhatsApp)" error={errors.phone} hint="We'll send a verification code on WhatsApp.">
+                <PhoneInput
+                  id="signup-phone"
+                  value={phone}
+                  onChange={setPhone}
+                  onCountryChange={(c) => setCountry(c.code)}
+                  error={Boolean(errors.phone)}
+                />
+              </Field>
             )}
-          </button>
-        </form>
+
+            <Field id="password" label="Password" error={errors.password} hint="At least 8 characters.">
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPwd ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-invalid={Boolean(errors.password) || undefined}
+                  className={cn(inputClass, "pr-10", errors.password ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </Field>
+
+            <Field id="confirm" label="Confirm password" error={errors.confirm}>
+              <input
+                id="confirm"
+                type={showPwd ? "text" : "password"}
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                aria-invalid={Boolean(errors.confirm) || undefined}
+                className={cn(inputClass, errors.confirm ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")}
+              />
+            </Field>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading" />
+              ) : (
+                <>
+                  {ticket ? "Create account" : "Continue"}
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </>
+              )}
+            </button>
+          </form>
+        )}
       </div>
 
       <p className="text-center text-sm text-[var(--text-muted)]">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-[#17191C] hover:text-[var(--primary-dark)] transition-colors">
+        <Link href="/login" className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)]">
           Sign in
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
   );
 }

@@ -27,8 +27,18 @@ class Workspace(Base, TimestampMixin):
     phone = Column(String(50), nullable=True)
     email = Column(String(255), nullable=True)
     address = Column(Text, nullable=True)
+    address_line2 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    postal_code = Column(String(20), nullable=True)
     country = Column(String(100), default="India")
+    country_code = Column(String(2), nullable=True)  # ISO-3166 alpha-2, e.g. "IN"
+    # Regional preferences (single source of truth for business settings)
+    timezone = Column(String(64), nullable=True)  # IANA name, e.g. "Asia/Kolkata"
+    currency = Column(String(3), nullable=True)  # ISO-4217, e.g. "INR"
+    locale = Column(String(16), nullable=True)  # BCP-47, e.g. "en-IN"
+    opening_hours = Column(Text, nullable=True)  # JSON: {"mon": {"closed": false, "open": "06:00", "close": "22:00"}, ...}
+    closed_dates = Column(Text, nullable=True)  # JSON: [{"date": "2026-12-25", "label": "Christmas"}]
     gym_type = Column(String(100), default="Commercial Fitness")
     business_types = Column(Text, nullable=True)  # JSON or comma-separated: Gym, Yoga Studio, Pool, PT Studio
     business_size = Column(String(100), nullable=True)  # Just starting, Under 100, 100-500, etc.
@@ -56,6 +66,10 @@ class User(Base, TimestampMixin):
     full_name = Column(String(255), nullable=False)
     hashed_password = Column(String(255), nullable=False)
     phone = Column(String(50), nullable=True)
+    # Canonical, verified-only phone identity used for WhatsApp OTP sign-in
+    phone_e164 = Column(String(20), unique=True, nullable=True, index=True)
+    phone_verified = Column(Boolean, default=False, nullable=False)
+    email_verified = Column(Boolean, default=False, nullable=False)
     avatar_url = Column(String(512), nullable=True)
     is_superadmin = Column(Boolean, default=False, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -64,6 +78,9 @@ class User(Base, TimestampMixin):
     # Relationships
     workspaces = relationship(
         "WorkspaceMember", back_populates="user", cascade="all, delete-orphan"
+    )
+    identities = relationship(
+        "AuthIdentity", back_populates="user", cascade="all, delete-orphan"
     )
 
 

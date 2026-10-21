@@ -21,6 +21,8 @@ import {
   Clock,
   Info,
   Sparkles,
+  MapPin,
+  UserCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,14 @@ import { repsiApi } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { PaymentSettingsTab } from "@/features/settings/payment-settings-tab";
+import {
+  BranchesSection,
+  BusinessProfileSection,
+  HoursSection,
+  ProfileSection,
+  TeamSection,
+} from "@/features/settings/organization-settings";
+import { getAuthUser } from "@/lib/auth";
 
 export default function WorkspaceSettingsPage() {
   const router = useRouter();
@@ -38,7 +48,15 @@ export default function WorkspaceSettingsPage() {
   const workspace = (params.workspace as string) || "apex-fitness";
   const defaultName = slugToGymName(workspace);
 
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState("business");
+  const [myRole, setMyRole] = useState("USER");
+
+  // Deep links such as ?tab=team, and the signed-in role for permission-aware sections.
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab) setActiveTab(tab);
+    setMyRole((getAuthUser()?.role || "USER").toUpperCase());
+  }, []);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -236,14 +254,12 @@ export default function WorkspaceSettingsPage() {
   };
 
   const navItems = [
-    { id: "general", label: "General & Branding", icon: Building2 },
+    { id: "business", label: "Business Profile", icon: Building2 },
+    { id: "hours", label: "Hours & Preferences", icon: Clock },
+    { id: "branches", label: "Branches", icon: MapPin },
+    { id: "team", label: "Team & Access", icon: Users },
     { id: "payments", label: "Payments & Collections", icon: CreditCard },
-    { id: "team", label: "Staff & Coaches", icon: Users },
-    { id: "roles", label: "Role Permissions", icon: Shield },
-    { id: "membership", label: "Plan Rules", icon: Sliders },
-    { id: "billing", label: "Tax & Invoicing", icon: CreditCard },
-    { id: "notifications", label: "SMS & WhatsApp", icon: Bell },
-    { id: "security", label: "Security & 2FA", icon: Lock },
+    { id: "profile", label: "My Profile & Sign-in", icon: UserCircle },
     { id: "danger", label: "Danger Zone", icon: AlertTriangle },
   ];
 
@@ -304,255 +320,15 @@ export default function WorkspaceSettingsPage() {
               transition={{ duration: 0.18 }}
               className="space-y-6"
             >
-              {activeTab === "general" && (
-                <>
-                  <Card className="border-[var(--border)] bg-[var(--surface)]">
-                    <CardHeader>
-                      <CardTitle className="text-base font-semibold">General Information</CardTitle>
-                      <CardDescription>
-                        Your gym's public name, workspace slug, and registered physical address.
-                      </CardDescription>
-                    </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSave} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Gym Brand Name with 30-Day Cooldown & Availability */}
-                      <div className="space-y-2 sm:col-span-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="gymName" className="font-semibold text-sm flex items-center gap-1.5">
-                            Gym Brand Name
-                            {!renameEligibility.can_rename && (
-                              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30 flex items-center gap-1">
-                                <Lock className="w-2.5 h-2.5" />
-                                30-Day Cooldown Active
-                              </span>
-                            )}
-                          </Label>
-                          {renameEligibility.can_rename && (
-                            <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-                              <Sparkles className="w-3 h-3 text-primary" />
-                              Editable (Once every 30 days)
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="relative">
-                          <Input
-                            id="gymName"
-                            value={gymProfile.name}
-                            disabled={!renameEligibility.can_rename || saving}
-                            onChange={(e) => handleNameChange(e.target.value)}
-                            className={`pr-10 ${
-                              !renameEligibility.can_rename
-                                ? "opacity-75 bg-[var(--surface-elevated)] cursor-not-allowed"
-                                : nameCheck.available === false
-                                ? "border-rose-500/80 focus-visible:ring-rose-500"
-                                : nameCheck.available === true && nameCheck.status !== "CURRENT"
-                                ? "border-emerald-500/80 focus-visible:ring-emerald-500"
-                                : ""
-                            }`}
-                          />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {nameCheck.checking && (
-                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                            )}
-                            {!nameCheck.checking && nameCheck.available === true && nameCheck.status !== "CURRENT" && (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            )}
-                            {!nameCheck.checking && nameCheck.available === false && (
-                              <AlertCircle className="w-4 h-4 text-rose-500" />
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Cooldown Active Callout */}
-                        {!renameEligibility.can_rename && (
-                          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs space-y-2">
-                            <div className="flex items-start gap-2.5 text-amber-600 dark:text-amber-400 font-medium">
-                              <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-semibold">{renameEligibility.message}</p>
-                                <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-[var(--text-secondary)]">
-                                  {renameEligibility.last_name_changed_at && (
-                                    <div>
-                                      Last changed:{" "}
-                                      <strong className="text-[var(--text)]">
-                                        {new Date(renameEligibility.last_name_changed_at).toLocaleDateString(undefined, {
-                                          day: "numeric",
-                                          month: "short",
-                                          year: "numeric",
-                                        })}
-                                      </strong>
-                                    </div>
-                                  )}
-                                  {renameEligibility.next_available_change_at && (
-                                    <div>
-                                      Next available change:{" "}
-                                      <strong className="text-[var(--text)]">
-                                        {new Date(renameEligibility.next_available_change_at).toLocaleDateString(undefined, {
-                                          day: "numeric",
-                                          month: "short",
-                                          year: "numeric",
-                                        })}
-                                      </strong>{" "}
-                                      ({renameEligibility.days_remaining}d remaining)
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <p className="text-[11px] text-[var(--text-muted)] border-t border-amber-500/20 pt-1.5">
-                              Phone number, email, and facility address below can still be modified at any time.
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Availability and validation messages */}
-                        {renameEligibility.can_rename && (
-                          <div className="space-y-1">
-                            {nameCheck.checking && (
-                              <p className="text-xs text-primary flex items-center gap-1.5">
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                Checking brand name availability...
-                              </p>
-                            )}
-                            {!nameCheck.checking && nameCheck.available === true && nameCheck.status !== "CURRENT" && (
-                              <p className="text-xs text-emerald-500 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                {nameCheck.message || "Name available for your gym"}
-                              </p>
-                            )}
-                            {!nameCheck.checking && nameCheck.available === false && (
-                              <p className="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1.5 font-medium">
-                                <AlertCircle className="w-3.5 h-3.5" />
-                                {nameCheck.message || "This name is already taken or unavailable"}
-                              </p>
-                            )}
-                            <p className="text-[11px] text-[var(--text-muted)]">
-                              Business names can be updated once every 30 days. Changing the name preserves all membership and payment records.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label htmlFor="slug">Workspace URL Slug</Label>
-                        <Input id="slug" value={workspace} disabled className="opacity-75 font-mono text-xs bg-[var(--surface-elevated)]" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="phone">Official Phone</Label>
-                        <Input
-                          id="phone"
-                          value={gymProfile.phone}
-                          onChange={(e) => setGymProfile({ ...gymProfile, phone: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label htmlFor="email">Official Email</Label>
-                        <Input
-                          id="email"
-                          value={gymProfile.email}
-                          onChange={(e) => setGymProfile({ ...gymProfile, email: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          value={gymProfile.address}
-                          onChange={(e) => setGymProfile({ ...gymProfile, address: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    {saveError && (
-                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-500 dark:text-rose-400 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                        <span>{saveError}</span>
-                      </div>
-                    )}
-
-                    <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
-                      {saved ? (
-                        <span className="text-xs text-emerald-500 dark:text-emerald-400 flex items-center gap-1.5 font-semibold">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Settings saved successfully!
-                        </span>
-                      ) : <span />}
-                      <Button
-                        type="submit"
-                        size="sm"
-                        disabled={saving || (gymProfile.name.trim().toLowerCase() !== initialName.trim().toLowerCase() && nameCheck.available === false)}
-                        className="gap-2"
-                      >
-                        {saving ? (
-                          <>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Saving Changes...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-3.5 w-3.5" />
-                            Save Changes
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* Quick Danger Zone link under General */}
-              <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/5 flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-semibold text-rose-500">Need to close or deregister this gym?</h4>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                    Gym owners can safely close operations and cancel subscriptions at any time.
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-rose-500/40 text-rose-500 hover:bg-rose-500/10 text-xs"
-                  onClick={() => setActiveTab("danger")}
-                >
-                  Manage Deregistration
-                </Button>
-              </div>
-            </>
-          )}
-
+              {activeTab === "business" && <BusinessProfileSection />}
+              {activeTab === "hours" && <HoursSection />}
+              {activeTab === "branches" && <BranchesSection />}
+              {activeTab === "profile" && <ProfileSection />}
           {activeTab === "payments" && (
             <PaymentSettingsTab />
           )}
 
-          {activeTab === "team" && (
-            <Card className="border-[var(--border)] bg-[var(--surface)]">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Team & Staff Access</CardTitle>
-                <CardDescription>
-                  Invite managers, reception staff, and trainers to your workspace.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { name: "Nitheesh Kumar", email: "nitheesh@repsi.app", role: "OWNER" },
-                  { name: "Rahul Verma", email: "rahul@ironcorefitness.in", role: "TRAINER" },
-                  { name: "Pooja Sharma", email: "pooja@ironcorefitness.in", role: "STAFF" },
-                ].map((user, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs">
-                    <div>
-                      <p className="font-semibold text-sm text-[var(--text)]">{user.name}</p>
-                      <p className="text-[var(--text-muted)]">{user.email}</p>
-                    </div>
-                    <span className="px-2 py-0.5 rounded font-mono font-bold bg-[var(--primary-soft)] text-[var(--primary-dark)] dark:text-[var(--primary-hover)]">
-                      {user.role}
-                    </span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "team" && <TeamSection role={myRole} />}
 
           {activeTab === "danger" && (
             <Card className="border-rose-500/40 bg-rose-500/5">
@@ -595,22 +371,6 @@ export default function WorkspaceSettingsPage() {
             </Card>
           )}
 
-          {activeTab !== "general" && activeTab !== "team" && activeTab !== "danger" && activeTab !== "payments" && (
-            <Card className="border-[var(--border)] bg-[var(--surface)]">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold capitalize">{activeTab} Settings</CardTitle>
-                <CardDescription>
-                  Configure and customize parameters for {activeTab}.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="p-4 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--text-muted)]">
-                  All active parameters and automation triggers are synced with the REPSI platform backend.
-                </div>
-                <Button size="sm">Update {activeTab} rules</Button>
-              </CardContent>
-            </Card>
-          )}
             </motion.div>
           </AnimatePresence>
         </div>

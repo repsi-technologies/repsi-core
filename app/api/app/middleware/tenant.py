@@ -79,3 +79,34 @@ def get_current_tenant(
         detail="Authentication token required" if not authorization else "Invalid or expired authentication token",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+ORG_ADMIN_ROLES = ("OWNER", "ADMIN", "SUPER_ADMIN")
+BRANCH_MANAGER_ROLES = ("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")
+
+
+def get_current_user(
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Resolves the signed-in User row (works before the user belongs to any workspace)."""
+    from app.models.user import User
+
+    user = db.query(User).filter(User.id == tenant.user_id).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Your session is no longer valid.")
+    return user
+
+
+def require_roles(*roles: str):
+    """Dependency factory: the caller must hold one of `roles` in the active workspace."""
+
+    def checker(tenant: TenantContext = Depends(get_current_tenant)) -> TenantContext:
+        if not tenant.workspace_id or tenant.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to perform this action.",
+            )
+        return tenant
+
+    return checker

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const REMOTE_API_BASE = process.env.REMOTE_API_URL || "https://api.repsi.app/api/v1";
+// Local development talks to a local API unless REMOTE_API_URL says otherwise, so a dev
+// machine never writes to production by accident.
+const REMOTE_API_BASE =
+  process.env.REMOTE_API_URL ||
+  (process.env.NODE_ENV === "production" ? "https://api.repsi.app/api/v1" : "http://127.0.0.1:8000/api/v1");
 
 async function proxyRequest(
   req: NextRequest,

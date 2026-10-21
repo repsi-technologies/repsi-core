@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum, ForeignKey, Index, Text
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum, ForeignKey, Index, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
@@ -138,9 +138,37 @@ class GymLocation(Base, TimestampMixin, TenantMixin):
     address = Column(String(255), nullable=True)
     closing_time = Column(String(10), default="22:00", nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    # Branch profile (a GymLocation is a branch of the workspace/organization)
+    address_line2 = Column(String(255), nullable=True)
+    city = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    postal_code = Column(String(20), nullable=True)
+    country_code = Column(String(2), nullable=True)
+    phone = Column(String(20), nullable=True)  # E.164
+    email = Column(String(255), nullable=True)
+    timezone = Column(String(64), nullable=True)  # NULL = inherit workspace timezone
+    opening_hours = Column(Text, nullable=True)  # NULL = inherit workspace hours; same JSON shape
+    is_primary = Column(Boolean, default=False, nullable=False)
 
     __table_args__ = (
         Index("ix_gym_loc_ws", "workspace_id", "is_active"),
+        UniqueConstraint("workspace_id", "code", name="uq_gym_location_ws_code"),
+    )
+
+
+class BranchAssignment(Base, TimestampMixin, TenantMixin):
+    """Grants a workspace member access to one branch. Members without rows and with an
+    org-wide role (OWNER/ADMIN) see every branch; other roles see only assigned branches."""
+    __tablename__ = "branch_assignments"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    workspace_member_id = Column(
+        String(64), ForeignKey("workspace_members.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    branch_id = Column(String(64), ForeignKey("gym_locations.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("workspace_member_id", "branch_id", name="uq_branch_assignment"),
     )
 
 

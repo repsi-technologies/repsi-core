@@ -421,6 +421,8 @@ def update_workspace(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    if tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
+        raise HTTPException(status_code=403, detail="Only owners and admins can update business settings.")
     ws = db.query(Workspace).filter(Workspace.id == tenant.workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace not found.")
@@ -520,6 +522,8 @@ def complete_onboarding(
     db: Session = Depends(get_db)
 ):
     import re
+    if tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
+        raise HTTPException(status_code=403, detail="Only the owner can complete workspace setup.")
     ws = db.query(Workspace).filter(Workspace.id == tenant.workspace_id).first()
     if ws:
         if "business_types" in payload:

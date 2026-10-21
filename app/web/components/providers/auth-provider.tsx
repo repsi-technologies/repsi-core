@@ -16,6 +16,7 @@ const PUBLIC_PREFIXES = [
   "/forgot-password",
   "/reset-password",
   "/onboarding",
+  "/invite",
   "/how-it-works",
   "/integrations",
   "/tour",
@@ -58,7 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!hasToken) {
         router.replace("/login");
       } else {
-        router.replace("/apex-fitness/dashboard");
+        const slug = localStorage.getItem("repsi_workspace_slug");
+        router.replace(slug ? `/${slug}/dashboard` : "/onboarding");
       }
       return;
     }

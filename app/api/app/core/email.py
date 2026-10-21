@@ -1,8 +1,27 @@
 import smtplib
 from email.message import EmailMessage
 
+import logging
+
 from app.core.config import settings
 from fastapi import HTTPException, status
+
+logger = logging.getLogger(__name__)
+
+ROLE_LABELS = {"trainer": "trainer", "staff": "staff member", "manager": "manager", "admin": "admin"}
+
+
+def _smtp_configured() -> bool:
+    return bool(settings.SMTP_USER and settings.SMTP_PASSWORD and settings.EMAIL_FROM)
+
+
+def _dev_print(kind: str, email: str, content: str) -> None:
+    """Without SMTP, development prints the email (incl. links) to the console.
+    Production never writes links or tokens to logs."""
+    if settings.is_production:
+        logger.error("SMTP is not configured; %s email to %s was not sent.", kind, email)
+        return
+    print(f"\n[DEV MODE EMAIL] {kind} to {email}:\n{content}\n")
 
 
 def send_registration_otp(email: str, otp: str) -> None:
@@ -122,14 +141,14 @@ def send_registration_otp(email: str, otp: str) -> None:
     except (OSError, smtplib.SMTPException) as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Unable to send verification email: {str(exc)}",
+            detail="Unable to send the verification email right now. Please try again.",
         ) from exc
 
 
 def send_gym_invitation(
     email: str, name: str, role: str, gym_name: str, invite_url: str
 ) -> None:
-    role_label = "trainer" if role.lower() == "trainer" else "member"
+    role_label = ROLE_LABELS.get(role.lower(), "member")
     subject = f"Invitation to join {gym_name} as a {role_label.capitalize()}"
 
     content = f"""Hello {name},
@@ -142,8 +161,8 @@ Accept your invitation and create your password to get started:
 If you did not expect this invitation, you can safely ignore this email.
 """
 
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD or not settings.EMAIL_FROM:
-        print(f"\n[DEV MODE EMAIL] Invitation to {email}:\n{content}\n")
+    if not _smtp_configured():
+        _dev_print("Invitation", email, content)
         return
 
     message = EmailMessage()
@@ -158,14 +177,13 @@ If you did not expect this invitation, you can safely ignore this email.
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(message)
     except (OSError, smtplib.SMTPException) as exc:
-        print(f"[SMTP Error] Failed to send email to {email}: {exc}")
-        print(f"[DEV FALLBACK LINK] {invite_url}")
+        logger.error("Failed to send invitation email to %s: %s", email, type(exc).__name__)
 
 
 def send_direct_credentials_email(
     email: str, name: str, role: str, gym_name: str, password: str, login_url: str
 ) -> None:
-    role_label = "trainer" if role.lower() == "trainer" else "member"
+    role_label = ROLE_LABELS.get(role.lower(), "member")
     subject = f"Welcome to {gym_name} — Your Account Access"
 
     content = f"""Hello {name},
@@ -179,8 +197,8 @@ Your account is now ready. For your security, passwords are never sent in plain 
 If you ever need to set or update your password, use the 'Forgot Password' link on the login page.
 """
 
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD or not settings.EMAIL_FROM:
-        print(f"\n[DEV MODE EMAIL] Welcome notification to {email}:\n{content}\n")
+    if not _smtp_configured():
+        _dev_print("Welcome notification", email, content)
         return
 
     message = EmailMessage()
@@ -195,7 +213,7 @@ If you ever need to set or update your password, use the 'Forgot Password' link 
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(message)
     except (OSError, smtplib.SMTPException) as exc:
-        print(f"[SMTP Error] Failed to send notification email to {email}: {exc}")
+        logger.error("Failed to send notification email to %s: %s", email, type(exc).__name__)
 
 
 def send_password_reset_email(
@@ -209,11 +227,11 @@ We received a request to set or reset your password for your REPSI account.
 Click the link below to choose your new password:
 {reset_url}
 
-This link is valid for 1 hour. If you did not request this, you can safely ignore this email.
+This link is valid for {settings.PASSWORD_RESET_EXPIRE_MINUTES} minutes. If you did not request this, you can safely ignore this email.
 """
 
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD or not settings.EMAIL_FROM:
-        print(f"\n[DEV MODE EMAIL] Password Reset to {email}:\n{content}\n")
+    if not _smtp_configured():
+        _dev_print("Password reset", email, content)
         return
 
     message = EmailMessage()
@@ -228,6 +246,6 @@ This link is valid for 1 hour. If you did not request this, you can safely ignor
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(message)
     except (OSError, smtplib.SMTPException) as exc:
-        print(f"[SMTP Error] Failed to send password reset email to {email}: {exc}")
+        logger.error("Failed to send password reset email to %s: %s", email, type(exc).__name__)
 
 

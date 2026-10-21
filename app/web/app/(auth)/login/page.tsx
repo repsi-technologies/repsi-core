@@ -1,382 +1,325 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, ShieldAlert, Building2 } from "lucide-react";
-import type { Metadata } from "next";
-import Image from "next/image";
-
-import { loginSession } from "@/lib/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff, ArrowRight, Loader2, Mail, MessageCircle } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
-// ─── Login Form ───────────────────────────────────────────────────────────────
+import { PhoneInput } from "@/components/ui/phone-input";
+import { OtpVerification } from "@/components/auth/otp-verification";
+import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi, safeRedirect, type SessionToken } from "@/lib/auth-client";
+import { isValidPhone, splitPhone } from "@/lib/countries";
+import { cn } from "@/lib/utils";
 
-export default function LoginPage() {
+const inputClass =
+  "flex h-10 w-full rounded-[8px] border bg-[var(--surface)] px-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--ring)]";
+
+function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const redirect = safeRedirect(params.get("redirect"));
+
+  const [method, setMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("IN");
+  const [otpPhone, setOtpPhone] = useState<string | null>(null);
+  const [resendIn, setResendIn] = useState(30);
+  const [testMode, setTestMode] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  function finish(session: SessionToken) {
+    const next = applySession(session);
+    // Deep links are honoured once the account has somewhere to land; invitation links
+    // always are, since accepting one is how a new person joins an organization.
+    const honour = redirect && (!session.onboarding_required || redirect.startsWith("/invite"));
+    router.replace(honour ? redirect : next);
+  }
+
+  async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (!email || !password) {
-      setError("Please enter your email/phone and password.");
+    if (!email.trim() || !password) {
+      setError("Enter your email or phone number and your password.");
       return;
     }
-
     setLoading(true);
-
-    const apiBases = Array.from(
-      new Set([
-        process.env.NEXT_PUBLIC_API_URL,
-        "https://repsi.fastapicloud.dev/api/v1",
-      ].filter(Boolean))
-    ) as string[];
-
-    let lastError = "";
-    let loginSuccess = false;
-
-    for (const apiBase of apiBases) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-        const res = await fetch(`${apiBase}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-          signal: controller.signal,
-        }).finally(() => clearTimeout(timeoutId));
-
-        if (!res.ok) {
-          if (res.status === 524) {
-            lastError = "Backend server response timed out (HTTP 524).";
-            continue;
-          } else if (res.status >= 500) {
-            lastError = `Server error (${res.status}).`;
-            continue;
-          } else {
-            const errorData = await res.json().catch(() => ({}));
-            setError(errorData.detail || "Invalid email, phone number, or password.");
-            setLoading(false);
-            return;
-          }
-        }
-
-        const data = await res.json();
-        const token = data.access_token;
-        let userRole = data.role || "OWNER";
-        let targetWorkspace = data.workspace_slug || data.workspace_id || "apex-fitness";
-        let userName = email.split("@")[0] || "User";
-        let gymName = data.gym_name || "Apex Fitness";
-
-        try {
-          const profileRes = await fetch(`${apiBase}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (profileRes.ok) {
-            const profile = await profileRes.json();
-            if (profile.role) userRole = profile.role;
-            if (profile.workspace_slug) targetWorkspace = profile.workspace_slug;
-            else if (profile.workspace_id) targetWorkspace = profile.workspace_id;
-            if (profile.full_name) userName = profile.full_name;
-            if (profile.gym_name) gymName = profile.gym_name;
-          }
-        } catch {
-          // Continue with login token data
-        }
-
-        loginSession(
-          token,
-          {
-            id: data.user_id || "usr_active",
-            name: userName,
-            email: email,
-            role: userRole as any,
-            workspaceSlug: targetWorkspace,
-            gymName: gymName,
-          },
-          targetWorkspace
-        );
-
-        loginSuccess = true;
-        setLoading(false);
-        const roleUpper = (userRole || "").toUpperCase();
-        if (roleUpper === "SUPER_ADMIN") {
-          router.push("/superadmin/dashboard");
-        } else if (roleUpper === "TRAINER") {
-          router.push(`/${targetWorkspace}/trainer/dashboard`);
-        } else if (roleUpper === "USER" || roleUpper === "MEMBER") {
-          router.push(`/${targetWorkspace}/member/dashboard`);
-        } else {
-          router.push(`/${targetWorkspace}/dashboard`);
-        }
-        break;
-      } catch {
-        lastError = "Unable to connect to backend server. Please verify your connection.";
-      }
-    }
-
-    if (!loginSuccess) {
-      setError(lastError || "Invalid email or password.");
+    try {
+      const looksLikePhone = !email.includes("@");
+      finish(await authApi.login(email.trim(), password, looksLikePhone ? "IN" : undefined));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Sign-in failed. Please try again.");
       setLoading(false);
     }
   }
 
-  const fillOwnerDemo = () => {
-    setEmail("owner@apexfitness.in");
-    setPassword("ApexFitness2026!");
-  };
+  async function sendOtp(e?: React.FormEvent) {
+    e?.preventDefault();
+    setError("");
+    const { national } = splitPhone(phone, country as never);
+    if (!national || !isValidPhone(phone, country as never)) {
+      setError("Enter a valid mobile number for the selected country.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await authApi.requestOtp(national, country);
+      setOtpPhone(res.phone);
+      setResendIn(res.resend_in);
+      setTestMode(res.test_mode);
+      setOtpError("");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't send the code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const fillSuperAdminDemo = () => {
-    setEmail("nitheesh@repsi.app");
-    setPassword("PlatformGodMode2026!");
-  };
+  async function resendOtp() {
+    if (!otpPhone) return;
+    setResending(true);
+    setOtpError("");
+    try {
+      const res = await authApi.requestOtp(otpPhone, country);
+      setResendIn(res.resend_in);
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend the code.");
+    } finally {
+      setResending(false);
+    }
+  }
+
+  async function verifyOtp(code: string) {
+    if (!otpPhone) return;
+    setVerifying(true);
+    setOtpError("");
+    try {
+      const res = await authApi.verifyOtp(otpPhone, country, code);
+      if (res.status === "authenticated" && res.token) {
+        finish(res.token);
+        return;
+      }
+      // Verified number without an account: continue sign-up with the verified phone.
+      sessionStorage.setItem(
+        SIGNUP_TICKET_KEY,
+        JSON.stringify({ token: res.registration_token, phone: res.phone, at: Date.now() })
+      );
+      router.push("/signup?continue=1");
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please try again.");
+      setVerifying(false);
+    }
+  }
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       setError("");
-
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-        const res = await fetch(`${apiBase}/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: tokenResponse.access_token }),
-          signal: controller.signal,
-        }).finally(() => clearTimeout(timeoutId));
-
-        if (!res.ok) {
-          if (res.status === 524) {
-            setError("Backend server response timed out (HTTP 524). Please verify backend server status.");
-          } else {
-            const errorData = await res.json().catch(() => ({}));
-            setError(errorData.detail || "Google Sign-In failed.");
-          }
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
-        const token = data.access_token;
-        let userRole = data.role || "OWNER";
-        let targetWorkspace = data.workspace_id || "apex-fitness";
-
-        try {
-          const profileRes = await fetch(`${apiBase}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (profileRes.ok) {
-            const profile = await profileRes.json();
-            if (profile.role) userRole = profile.role;
-            if (profile.workspace_id) targetWorkspace = profile.workspace_id;
-
-            loginSession(
-              token,
-              {
-                id: profile.id || "usr_google",
-                name: profile.full_name || "Google User",
-                email: profile.email || "user@gmail.com",
-                role: userRole as any,
-                workspaceSlug: targetWorkspace,
-                gymName: "Apex Fitness", // Ideally we'd get this from profile or workspace endpoint
-              },
-              targetWorkspace
-            );
-          } else {
-            throw new Error("Profile fetch failed");
-          }
-        } catch {
-          // Fallback if profile fetch fails
-          loginSession(
-            token,
-            {
-              id: "usr_google",
-              name: "Google User",
-              email: "user@gmail.com",
-              role: userRole as any,
-              workspaceSlug: targetWorkspace,
-              gymName: "Apex Fitness",
-            },
-            targetWorkspace
-          );
-        }
-
-        setLoading(false);
-        const gRoleUpper = (userRole || "").toUpperCase();
-        if (gRoleUpper === "SUPER_ADMIN") {
-          router.push("/superadmin/dashboard");
-        } else if (gRoleUpper === "TRAINER") {
-          router.push(`/${targetWorkspace}/trainer/dashboard`);
-        } else if (gRoleUpper === "USER" || gRoleUpper === "MEMBER") {
-          router.push(`/${targetWorkspace}/member/dashboard`);
-        } else {
-          router.push(`/${targetWorkspace}/dashboard`);
-        }
-      } catch {
-        setError("Failed to authenticate with Google. Please try again.");
+        finish(await authApi.google(tokenResponse.access_token));
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "Google sign-in failed. Please try again.");
         setLoading(false);
       }
     },
-    onError: () => {
-      setError("Google Login was cancelled or failed.");
-    }
+    onError: () => setError("Google sign-in was cancelled or failed."),
   });
 
   return (
-    <div className="w-full max-w-[380px]">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-[28px] sm:text-[30px] font-bold text-[var(--text)] tracking-tight">
-          Welcome back
-        </h1>
-        <p className="text-[15px] text-[var(--text-muted)] mt-1.5">
-          Sign in to your REPSI workspace
-        </p>
+    <div className="w-full max-w-[400px]">
+      <div className="mb-6 text-center">
+        <h1 className="text-[28px] font-bold tracking-tight text-[var(--text)] sm:text-[30px]">Welcome back</h1>
+        <p className="mt-1.5 text-[15px] text-[var(--text-muted)]">Sign in to your REPSI workspace</p>
       </div>
 
-      {/* Form Container - No card border or shadow, floating directly on background */}
-      <div className="space-y-4">
-        {/* Google Sign-in */}
-        <button
-          type="button"
-          onClick={() => handleGoogleLogin()}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2.5 h-10 px-4 rounded-lg border border-[#D5DDD7] bg-white text-sm font-medium text-[var(--text)] hover:bg-zinc-50 hover:border-[#C0CCC3] active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer shadow-2xs"
-        >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-          </svg>
-          <span>Continue with Google</span>
-        </button>
-
-        <div className="relative my-5">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[#E1E6E3]" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-[#F7F9F8] px-3 text-[#8A9690] font-normal">
-              or continue with email
-            </span>
-          </div>
+      {otpPhone ? (
+        <div className="space-y-4">
+          <OtpVerification
+            phone={otpPhone}
+            resendIn={resendIn}
+            testMode={testMode}
+            verifying={verifying}
+            resending={resending}
+            error={otpError}
+            onVerify={verifyOtp}
+            onResend={resendOtp}
+            onChangeNumber={() => {
+              setOtpPhone(null);
+              setOtpError("");
+            }}
+            submitLabel="Verify & sign in"
+          />
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-700 space-y-1">
-            <p className="font-semibold">{error}</p>
-            <Link href="/signup" className="underline font-bold text-rose-700 block">
-              Create account →
-            </Link>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-[var(--text)] mb-1.5">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="text"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 text-sm text-[var(--text)] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-[var(--text)]">
-                Password
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-[var(--text-muted)] hover:text-[var(--primary-dark)] transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-[#D5DDD7] bg-white px-3 pr-10 text-sm text-[var(--text)] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--primary)] transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A9690] hover:text-[var(--text)] transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Remember me */}
-          <div className="flex items-center gap-2 pt-0.5">
-            <input
-              id="remember"
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 rounded border-[var(--border)] text-[var(--primary-dark)] focus:ring-[var(--ring)] accent-[var(--primary)]"
-            />
-            <label htmlFor="remember" className="text-sm text-[var(--text-muted)] cursor-pointer selection:bg-none">
-              Remember me
-            </label>
-          </div>
-
-          {/* Submit */}
+      ) : (
+        <div className="space-y-4">
           <button
-            type="submit"
+            type="button"
+            onClick={() => handleGoogleLogin()}
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-sm font-semibold transition-all shadow-xs active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-1"
+            className="flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--text)] shadow-xs transition-colors hover:bg-[var(--surface-hover)] disabled:opacity-60"
           >
-            {loading ? (
-              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Sign in</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </>
-            )}
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden>
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            Continue with Google
           </button>
-        </form>
-      </div>
 
-      {/* Sign up link */}
-      <p className="text-center text-sm text-[var(--text-muted)] mt-6">
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[var(--border)]" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[#F7F9F8] px-3 text-[var(--text-muted)]">or sign in with</span>
+            </div>
+          </div>
+
+          <div role="tablist" aria-label="Sign-in method" className="grid grid-cols-2 gap-1 rounded-[10px] border border-[var(--border)] bg-[var(--background)] p-1">
+            {([
+              { id: "email", label: "Email", icon: Mail },
+              { id: "phone", label: "WhatsApp OTP", icon: MessageCircle },
+            ] as const).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={method === tab.id}
+                onClick={() => {
+                  setMethod(tab.id);
+                  setError("");
+                }}
+                className={cn(
+                  "flex h-8 items-center justify-center gap-1.5 rounded-[8px] text-sm font-medium transition-colors",
+                  method === tab.id
+                    ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-xs"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                )}
+              >
+                <tab.icon className="h-3.5 w-3.5" aria-hidden />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div aria-live="polite">
+            {error && (
+              <div role="alert" className="rounded-[8px] border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
+                {error}
+              </div>
+            )}
+          </div>
+
+          {method === "email" ? (
+            <form onSubmit={handlePasswordLogin} className="space-y-4" noValidate>
+              <div>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[var(--text)]">
+                  Email or phone
+                </label>
+                <input
+                  id="email"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={cn(inputClass, "border-[var(--border)]")}
+                />
+              </div>
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="password" className="text-sm font-medium text-[var(--text)]">
+                    Password
+                  </label>
+                  <Link href="/forgot-password" className="text-xs text-[var(--text-muted)] hover:text-[var(--primary-dark)]">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={cn(inputClass, "border-[var(--border)] pr-10")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <SubmitButton loading={loading} label="Sign in" />
+            </form>
+          ) : (
+            <form onSubmit={sendOtp} className="space-y-4" noValidate>
+              <div>
+                <label htmlFor="login-phone" className="mb-1.5 block text-sm font-medium text-[var(--text)]">
+                  Mobile number
+                </label>
+                <PhoneInput
+                  id="login-phone"
+                  value={phone}
+                  onChange={(v) => {
+                    setPhone(v);
+                    setError("");
+                  }}
+                  onCountryChange={(c) => setCountry(c.code)}
+                />
+                <p className="mt-1.5 text-xs text-[var(--text-muted)]">We&apos;ll send a one-time code to this number on WhatsApp.</p>
+              </div>
+              <SubmitButton loading={loading} label="Send code" />
+            </form>
+          )}
+        </div>
+      )}
+
+      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
         Don&apos;t have an account?{" "}
-        <Link
-          href="/signup"
-          className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)] transition-colors"
-        >
+        <Link href="/signup" className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)]">
           Create one
         </Link>
       </p>
     </div>
+  );
+}
+
+function SubmitButton({ loading, label }: { loading: boolean; label: string }) {
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      className="mt-1 inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading" /> : (
+        <>
+          {label}
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+        </>
+      )}
+    </button>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

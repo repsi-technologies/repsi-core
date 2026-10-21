@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Enum, DateTime, ForeignKey
+from sqlalchemy import Column, String, Enum, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
@@ -9,6 +9,9 @@ from app.models.base import TimestampMixin, TenantMixin, generate_uuid
 class InvitationRole(str, enum.Enum):
     MEMBER = "member"
     TRAINER = "trainer"
+    STAFF = "staff"
+    MANAGER = "manager"
+    ADMIN = "admin"
 
 
 class InvitationStatus(str, enum.Enum):
@@ -32,5 +35,8 @@ class GymInvitation(Base, TimestampMixin, TenantMixin):
     accepted_at = Column(DateTime(timezone=True), nullable=True)
     invited_by_id = Column(String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     status = Column(Enum(InvitationStatus), default=InvitationStatus.PENDING, nullable=False, index=True)
+    branch_ids = Column(Text, nullable=True)  # JSON list of gym_locations.id granted on acceptance
+    accepted_user_id = Column(String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
     invited_by = relationship("User", foreign_keys=[invited_by_id])
+    accepted_user = relationship("User", foreign_keys=[accepted_user_id])

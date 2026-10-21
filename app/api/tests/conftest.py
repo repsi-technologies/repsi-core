@@ -1,3 +1,16 @@
+import os
+
+# Tests must never read a developer's .env (which may point at a real database or set
+# ENVIRONMENT=production). Real environment variables take precedence over .env files.
+os.environ["ENVIRONMENT"] = "test"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["OTP_PROVIDER"] = "test"
+os.environ["OTP_TEST_CODE"] = "123456"
+os.environ["GOOGLE_CLIENT_ID"] = "test-google-client-id"
+os.environ["SMTP_USER"] = ""
+os.environ["SMTP_PASSWORD"] = ""
+os.environ["SECRET_KEY"] = "test-secret-key-that-is-long-enough-for-hs256-signing"
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -30,3 +43,10 @@ def setup_database():
     yield
     Base.metadata.drop_all(bind=test_engine)
     fastapi_app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    from app.core.rate_limit import reset_rate_limits
+    reset_rate_limits()
+    yield

@@ -1,4 +1,16 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+PASSWORD_MIN_LENGTH = 8
+
+
+def _check_password(value: str) -> str:
+    if len(value) < PASSWORD_MIN_LENGTH:
+        raise ValueError(f"Password must be at least {PASSWORD_MIN_LENGTH} characters.")
+    if len(value.encode("utf-8")) > 72:
+        raise ValueError("Password must be at most 72 bytes.")
+    return value
 
 
 class UserResponse(BaseModel):
@@ -13,6 +25,9 @@ class UserResponse(BaseModel):
     workspace_slug: str | None = None
     gym_name: str | None = None
     preferred_language: str = "en"
+    email_verified: bool = False
+    phone_verified: bool = False
+    onboarding_required: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -25,6 +40,10 @@ class Token(BaseModel):
     gym_name: str | None = None
     role: str | None = None
     user: UserResponse | None = None
+    # Where the client should go next, derived from the user's real memberships and
+    # onboarding state (e.g. "/onboarding", "/acme/dashboard", "/superadmin/dashboard").
+    next_path: str | None = None
+    onboarding_required: bool = False
 
 
 class TokenPayload(BaseModel):
@@ -34,13 +53,15 @@ class TokenPayload(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    # Accepts an email address or a phone number (kept as `email` for client compatibility).
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=1, max_length=256)
     workspace_slug: str | None = None
+    country: str | None = Field(default=None, max_length=2)
 
 
 class GoogleLoginRequest(BaseModel):
-    token: str
+    token: str = Field(min_length=10)
     workspace_slug: str | None = None
 
 
@@ -79,5 +100,79 @@ class PasswordResetRequest(BaseModel):
 
 
 class PasswordResetConfirm(BaseModel):
-    token: str
+    token: str = Field(min_length=16)
     new_password: str
+
+    _pw = field_validator("new_password")(_check_password)
+
+
+# ─── Phone (WhatsApp) OTP ───────────────────────────────────────────────
+
+class PhoneOtpRequest(BaseModel):
+    phone: str = Field(min_length=4, max_length=32)
+    country: str | None = Field(default=None, max_length=2)
+    purpose: Literal["auth", "link"] = "auth"
+
+
+class PhoneOtpVerify(BaseModel):
+    phone: str = Field(min_length=4, max_length=32)
+    country: str | None = Field(default=None, max_length=2)
+    code: str = Field(min_length=6, max_length=12)
+
+
+class PhoneOtpRequestResponse(BaseModel):
+    phone: str
+    expires_in: int
+    resend_in: int
+    channel: str = "whatsapp"
+    test_mode: bool = False
+
+
+class PhoneVerifyResponse(BaseModel):
+    """Either a session (`token`) for an existing account, or a short-lived
+    `registration_token` proving the phone was verified, for completing sign-up."""
+    status: Literal["authenticated", "registration_required"]
+    token: Token | None = None
+    registration_token: str | None = None
+    phone: str
+
+
+class SignupRequest(BaseModel):
+    registration_token: str = Field(min_length=16)
+    full_name: str = Field(min_length=2, max_length=255)
+    email: EmailStr
+    password: str
+
+    _pw = field_validator("password")(_check_password)
+
+    @field_validator("full_name")
+    @classmethod
+    def _strip_name(cls, v: str) -> str:
+        v = " ".join(v.split())
+        if len(v) < 2:
+            raise ValueError("Enter your full name.")
+        return v
+
+
+# ─── Account / linked sign-in methods ─────────────────────────────────
+
+class IdentitySummary(BaseModel):
+    email: str
+    email_verified: bool
+    has_password: bool
+    phone: str | None = None
+    phone_verified: bool
+    google_linked: bool
+    google_email: str | None = None
+
+
+class ProfileUpdate(BaseModel):
+    full_name: str | None = Field(default=None, min_length=2, max_length=255)
+    preferred_language: str | None = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str | None = None
+    new_password: str
+
+    _pw = field_validator("new_password")(_check_password)

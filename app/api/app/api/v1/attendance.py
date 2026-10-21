@@ -409,8 +409,11 @@ def get_gym_locations(
     """
     Get available branches/locations for this gym.
     """
+    from app.services.organization import OrganizationService
+
     svc = AttendanceService(db, tenant.workspace_id)
-    return svc.get_locations()
+    allowed = OrganizationService(db).accessible_branch_ids(tenant)
+    return [loc for loc in svc.get_locations() if allowed is None or loc.id in allowed]
 
 
 # ─── BACKWARD COMPATIBLE BASE LIST ────────────────────────────────────

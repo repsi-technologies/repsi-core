@@ -6,10 +6,11 @@ from app.models.attendance import (
     AttendanceQR,
     AttendanceSettings,
     GymLocation,
+    BranchAssignment,
     CheckoutType,
     AttendanceStatus,
 )
-from app.models.auth import PendingRegistration
+from app.models.auth import AuthIdentity, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
 from app.models.base import TenantMixin, TimestampMixin
 from app.models.finance import Expense, Invoice, Payment, PaymentMethod, PaymentStatus
 from app.models.payment_settings import BusinessPaymentSettings, ManualPaymentSubmission, SubmissionStatus

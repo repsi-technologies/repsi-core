@@ -22,6 +22,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     // 2. Validate requested workspace slug against authorized user context
     const user = getAuthUser();
+
+    // Owners whose organization isn't set up yet resume onboarding (state is server-side).
+    if (user?.onboardingRequired || (user && !user.workspaceSlug && user.role !== "SUPER_ADMIN")) {
+      setAuthorized(false);
+      router.replace("/onboarding");
+      return;
+    }
     const storedSlug = typeof window !== "undefined" ? localStorage.getItem("repsi_workspace_slug") : null;
     const authorizedSlug = user?.workspaceSlug || storedSlug;
 
