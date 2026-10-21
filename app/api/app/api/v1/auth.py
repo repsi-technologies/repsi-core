@@ -9,6 +9,9 @@ from app.core.rate_limit import client_ip, enforce_rate_limit
 from app.middleware.tenant import TenantContext, get_current_tenant, get_current_user
 from app.models.user import User, Workspace
 from app.schemas.auth import (
+    EmailOtpRequest,
+    EmailOtpRequestResponse,
+    EmailOtpVerify,
     GoogleLoginRequest,
     IdentitySummary,
     LoginRequest,
@@ -24,13 +27,15 @@ from app.schemas.auth import (
     RegisterOtpRequest,
     RegisterRequest,
     ResendRegisterOtpRequest,
+    SignupOtpsRequest,
+    SignupOtpsResponse,
     SignupRequest,
     Token,
     UserResponse,
     VerifyRegisterOtpRequest,
 )
 from app.services.auth import RESERVED_SLUGS, AuthService, has_usable_password
-from app.services.otp import PURPOSE_AUTH, PURPOSE_LINK, PhoneOtpService
+from app.services.otp import PURPOSE_AUTH, PURPOSE_LINK, EmailOtpService, PhoneOtpService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -127,12 +132,59 @@ def verify_phone_otp(req: PhoneOtpVerify, request: Request, db: Session = Depend
     return PhoneVerifyResponse(status="registration_required", registration_token=registration_token, phone=phone)
 
 
+@router.post("/signup/request-otps", response_model=SignupOtpsResponse)
+def request_signup_otps(req: SignupOtpsRequest, request: Request, db: Session = Depends(get_db)):
+    """Validates inputs and dispatches OTPs to both phone (WhatsApp) and email."""
+    _limit(request, "signup-otps", 10, 3600)
+    auth_service = AuthService(db)
+    phone = require_phone(req.phone, req.country, "mobile")
+    email = req.email.strip().lower()
+
+    if auth_service.get_by_phone(phone):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This phone number already has an account. Please sign in.",
+        )
+    if auth_service.get_by_email(email):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email address already exists. Please sign in.",
+        )
+
+    phone_res = PhoneOtpService(db).request(phone, PURPOSE_AUTH)
+    email_res = EmailOtpService(db).request(email, PURPOSE_AUTH)
+
+    return SignupOtpsResponse(
+        phone=phone,
+        email=email,
+        phone_resend_in=phone_res["resend_in"],
+        email_resend_in=email_res["resend_in"],
+        phone_expires_in=phone_res["expires_in"],
+        email_expires_in=email_res["expires_in"],
+        test_mode=bool(phone_res.get("test_mode") or email_res.get("test_mode")),
+    )
+
+
+@router.post("/email-otp/request", response_model=EmailOtpRequestResponse)
+def request_email_otp(req: EmailOtpRequest, request: Request, db: Session = Depends(get_db)):
+    _limit(request, "email-otp-request", 10, 3600)
+    result = EmailOtpService(db).request(req.email, req.purpose)
+    return EmailOtpRequestResponse(email=req.email, **result)
+
+
+@router.post("/email-otp/verify")
+def verify_email_otp(req: EmailOtpVerify, request: Request, db: Session = Depends(get_db)):
+    _limit(request, "email-otp-verify", 30, 900)
+    EmailOtpService(db).verify(req.email, "auth", req.code)
+    return {"status": "verified", "email": req.email}
+
+
 @router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
 def signup(req: SignupRequest, request: Request, db: Session = Depends(get_db)):
-    """Creates an account for a phone number verified via /auth/otp/verify."""
+    """Creates an account with dual phone+email verification or legacy verified phone token."""
     _limit(request, "signup", 10, 3600)
     auth_service = AuthService(db)
-    user = auth_service.signup_with_verified_phone(req)
+    user = auth_service.signup_user(req)
     return auth_service.issue_session(user)
 
 

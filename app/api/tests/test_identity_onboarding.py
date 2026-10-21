@@ -135,6 +135,75 @@ def test_phone_signup_with_test_otp_leads_to_onboarding():
     assert session["user"]["email_verified"] is False
 
 
+def test_dual_otp_signup_verifies_both_email_and_phone():
+    phone = unique_phone()
+    email = f"dual_{uid()}@example.com"
+    name = "Dual Verified User"
+    password = "StrongPassword123!"
+
+    # 1. Request OTPs to both phone and email
+    res = client.post(
+        f"{API}/auth/signup/request-otps",
+        json={"full_name": name, "email": email, "phone": phone, "country": "IN"},
+    )
+    assert res.status_code == 200, res.text
+    data = res.json()
+    assert data["phone"].startswith("+91")
+    assert data["email"] == email.lower()
+    assert data["phone_resend_in"] > 0
+    assert data["email_resend_in"] > 0
+
+    # 2. Wrong phone code rejected
+    r_bad_phone = client.post(
+        f"{API}/auth/signup",
+        json={
+            "full_name": name,
+            "email": email,
+            "phone": phone,
+            "country": "IN",
+            "password": password,
+            "phone_code": "000000",
+            "email_code": "123456",
+        },
+    )
+    assert r_bad_phone.status_code == 400
+
+    # 3. Wrong email code rejected
+    r_bad_email = client.post(
+        f"{API}/auth/signup",
+        json={
+            "full_name": name,
+            "email": email,
+            "phone": phone,
+            "country": "IN",
+            "password": password,
+            "phone_code": "123456",
+            "email_code": "000000",
+        },
+    )
+    assert r_bad_email.status_code == 400
+
+    # 4. Correct both codes creates account with BOTH verified
+    res_ok = client.post(
+        f"{API}/auth/signup",
+        json={
+            "full_name": name,
+            "email": email,
+            "phone": phone,
+            "country": "IN",
+            "password": password,
+            "phone_code": "123456",
+            "email_code": "123456",
+        },
+    )
+    assert res_ok.status_code == 201, res_ok.text
+    session = res_ok.json()
+    assert session["user"]["phone_verified"] is True
+    assert session["user"]["email_verified"] is True
+    assert session["onboarding_required"] is True
+    assert session["next_path"] == "/onboarding"
+
+
 def test_phone_login_returns_same_account():
     s = phone_signup()
     phone = s["phone"]

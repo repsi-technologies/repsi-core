@@ -26,6 +26,9 @@ def _dev_print(kind: str, email: str, content: str) -> None:
 
 def send_registration_otp(email: str, otp: str) -> None:
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD or not settings.EMAIL_FROM:
+        if not settings.is_production or settings.ALLOW_TEST_OTP_IN_PRODUCTION:
+            _dev_print("Registration OTP", email, f"Verification code: {otp}")
+            return
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Email delivery is not configured. Please contact support.",

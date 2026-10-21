@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { PhoneInput } from "@/components/ui/phone-input";
+import { DualOtpVerification } from "@/components/auth/dual-otp-verification";
 import { OtpVerification } from "@/components/auth/otp-verification";
 import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi } from "@/lib/auth-client";
 import { formatPhone, isValidPhone, splitPhone } from "@/lib/countries";
@@ -62,14 +63,19 @@ function SignupForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
 
-  // Verified-phone ticket (from the OTP step here, or from the login page).
+  // Verified-phone ticket (from login redirect)
   const [ticket, setTicket] = useState<{ token: string; phone: string } | null>(null);
-  const [otpPhone, setOtpPhone] = useState<string | null>(null);
-  const [resendIn, setResendIn] = useState(30);
+
+  // Dual verification state
+  const [showVerification, setShowVerification] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [phoneResendIn, setPhoneResendIn] = useState(30);
+  const [emailResendIn, setEmailResendIn] = useState(60);
   const [testMode, setTestMode] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [verifying, setVerifying] = useState(false);
-  const [resending, setResending] = useState(false);
+  const [phoneResending, setPhoneResending] = useState(false);
+  const [emailResending, setEmailResending] = useState(false);
 
   useEffect(() => {
     if (params.get("continue") !== "1") return;
@@ -96,81 +102,94 @@ function SignupForm() {
     return Object.keys(e).length === 0;
   }
 
-  async function createAccount(registrationToken: string) {
-    try {
-      const session = await authApi.signup(registrationToken, name.trim(), email.trim(), password);
-      sessionStorage.removeItem(SIGNUP_TICKET_KEY);
-      router.replace(applySession(session));
-    } catch (err) {
-      const api = err instanceof ApiError ? err : null;
-      if (api?.status === 400) {
-        // Ticket expired: verify the phone again.
-        setTicket(null);
-        sessionStorage.removeItem(SIGNUP_TICKET_KEY);
-      }
-      setOtpPhone(null);
-      setErrors({
-        email: api?.fieldErrors.email,
-        password: api?.fieldErrors.password,
-        form: api?.message || "We couldn't create your account. Please try again.",
-      });
-      setLoading(false);
-      setVerifying(false);
-    }
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
+    setErrors({});
     if (ticket) {
-      await createAccount(ticket.token);
+      try {
+        const session = await authApi.signup({
+          registration_token: ticket.token,
+          full_name: name.trim(),
+          email: email.trim(),
+          password,
+        });
+        sessionStorage.removeItem(SIGNUP_TICKET_KEY);
+        router.replace(applySession(session));
+      } catch (err) {
+        const api = err instanceof ApiError ? err : null;
+        setErrors({ form: api?.message || "Couldn't create account." });
+      } finally {
+        setLoading(false);
+      }
       return;
     }
+
     try {
       const { national } = splitPhone(phone, country as never);
-      const res = await authApi.requestOtp(national, country);
-      setOtpPhone(res.phone);
-      setResendIn(res.resend_in);
+      const res = await authApi.requestSignupOtps(name.trim(), email.trim(), national, country);
+      setVerifiedPhone(res.phone);
+      setPhoneResendIn(res.phone_resend_in);
+      setEmailResendIn(res.email_resend_in);
       setTestMode(res.test_mode);
       setOtpError("");
+      setShowVerification(true);
     } catch (err) {
-      setErrors({ form: err instanceof ApiError ? err.message : "Couldn't send the code. Please try again." });
+      setErrors({ form: err instanceof ApiError ? err.message : "Couldn't send verification codes. Please try again." });
     } finally {
       setLoading(false);
     }
   }
 
-  async function verify(code: string) {
-    if (!otpPhone) return;
+  async function verifyDualOtp(phoneCode: string, emailCode: string) {
     setVerifying(true);
     setOtpError("");
     try {
-      const res = await authApi.verifyOtp(otpPhone, country, code);
-      if (res.status === "authenticated" && res.token) {
-        // This number already belongs to an account: sign the person into it.
-        router.replace(applySession(res.token));
-        return;
-      }
-      setTicket({ token: res.registration_token!, phone: res.phone });
-      await createAccount(res.registration_token!);
+      const session = await authApi.signup({
+        full_name: name.trim(),
+        email: email.trim(),
+        password,
+        phone: verifiedPhone || phone,
+        country,
+        phone_code: phoneCode,
+        email_code: emailCode,
+      });
+      sessionStorage.removeItem(SIGNUP_TICKET_KEY);
+      router.replace(applySession(session));
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please try again.");
+      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please check both codes.");
       setVerifying(false);
     }
   }
 
-  async function resend() {
-    if (!otpPhone) return;
-    setResending(true);
+  async function resendPhone() {
+    const target = verifiedPhone || phone;
+    if (!target) return;
+    setPhoneResending(true);
     setOtpError("");
     try {
-      const res = await authApi.requestOtp(otpPhone, country);
-      setResendIn(res.resend_in);
+      const { national } = splitPhone(target, country as never);
+      const res = await authApi.requestOtp(national, country);
+      setPhoneResendIn(res.resend_in);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend the code.");
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend WhatsApp code.");
     } finally {
-      setResending(false);
+      setPhoneResending(false);
+    }
+  }
+
+  async function resendEmail() {
+    if (!email) return;
+    setEmailResending(true);
+    setOtpError("");
+    try {
+      const res = await authApi.requestEmailOtp(email.trim());
+      setEmailResendIn(res.resend_in);
+    } catch (err) {
+      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend email code.");
+    } finally {
+      setEmailResending(false);
     }
   }
 
@@ -178,26 +197,29 @@ function SignupForm() {
     <div className="mx-auto w-full max-w-[440px] space-y-6">
       <div className="space-y-1.5 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-[28px]">
-          {otpPhone ? "Verify your number" : "Create your account"}
+          {showVerification ? "Verify WhatsApp & Email" : "Create your account"}
         </h1>
         <p className="text-sm text-[var(--text-muted)]">
-          {otpPhone ? "One quick step to secure your account." : "Start your 14-day free trial. No credit card required."}
+          {showVerification ? "Enter the verification codes sent to both destinations." : "Start your 14-day free trial. No credit card required."}
         </p>
       </div>
 
       <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:p-8">
-        {otpPhone ? (
-          <OtpVerification
-            phone={otpPhone}
-            resendIn={resendIn}
+        {showVerification ? (
+          <DualOtpVerification
+            phone={verifiedPhone || phone}
+            email={email}
+            phoneResendIn={phoneResendIn}
+            emailResendIn={emailResendIn}
             testMode={testMode}
             verifying={verifying}
-            resending={resending}
+            phoneResending={phoneResending}
+            emailResending={emailResending}
             error={otpError}
-            onVerify={verify}
-            onResend={resend}
-            onChangeNumber={() => setOtpPhone(null)}
-            submitLabel="Verify & create account"
+            onVerify={verifyDualOtp}
+            onResendPhone={resendPhone}
+            onResendEmail={resendEmail}
+            onEditDetails={() => setShowVerification(false)}
           />
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>

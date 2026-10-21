@@ -10,7 +10,7 @@ from app.models.attendance import (
     CheckoutType,
     AttendanceStatus,
 )
-from app.models.auth import AuthIdentity, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
+from app.models.auth import AuthIdentity, EmailOtpChallenge, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
 from app.models.base import TenantMixin, TimestampMixin
 from app.models.finance import Expense, Invoice, Payment, PaymentMethod, PaymentStatus
 from app.models.payment_settings import BusinessPaymentSettings, ManualPaymentSubmission, SubmissionStatus

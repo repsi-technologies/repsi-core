@@ -403,39 +403,97 @@ class AuthService:
             )
         return payload["phone"]
 
-    def signup_with_verified_phone(self, req: SignupRequest) -> User:
-        phone = self._read_signup_token(req.registration_token)
+    def signup_user(self, req: SignupRequest) -> User:
         email = normalize_email(req.email)
-        if self.get_by_phone(phone):
-            raise HTTPException(status_code=409, detail="This phone number already has an account. Please sign in.")
-        if self.get_by_email(email):
-            raise HTTPException(
-                status_code=409,
-                detail=(
-                    "An account with this email already exists. Sign in to that account and add this "
-                    "phone number from Profile → Sign-in methods."
-                ),
-            )
-        user = User(
-            email=email,
-            full_name=req.full_name,
-            hashed_password=get_password_hash(req.password),
-            phone=phone,
-            phone_e164=phone,
-            phone_verified=True,
-            email_verified=False,
-            is_active=True,
-        )
-        self.db.add(user)
-        try:
+
+        # Mode 1: Dual OTP verification (both WhatsApp and email verified)
+        if req.phone_code and req.email_code:
+            from app.core.phone import require_phone
+            from app.services.otp import EmailOtpService, PhoneOtpService, PURPOSE_AUTH
+
+            if not req.phone:
+                raise HTTPException(status_code=422, detail="Phone number is required.")
+            phone = require_phone(req.phone, req.country or "IN", "mobile")
+
+            if self.get_by_phone(phone):
+                raise HTTPException(status_code=409, detail="This phone number already has an account. Please sign in.")
+            if self.get_by_email(email):
+                raise HTTPException(status_code=409, detail="An account with this email already exists. Please sign in.")
+
+            # Verify phone code (without consuming yet)
+            phone_ch = PhoneOtpService(self.db).verify(phone, PURPOSE_AUTH, req.phone_code, consume=False)
+            # Verify email code (without consuming yet)
+            email_ch = EmailOtpService(self.db).verify(email, PURPOSE_AUTH, req.email_code, consume=False)
+
+            # Both passed verification: consume both challenges
+            now = datetime.now(timezone.utc)
+            phone_ch.consumed_at = now
+            phone_ch.code_hash = None
+            email_ch.consumed_at = now
+            email_ch.code_hash = None
             self.db.flush()
-            self.attach_verified_records(user)
-            self.db.commit()
-        except IntegrityError:
-            self.db.rollback()
-            raise HTTPException(status_code=409, detail="An account with these details already exists. Please sign in.")
-        self.db.refresh(user)
-        return user
+
+            user = User(
+                email=email,
+                full_name=req.full_name,
+                hashed_password=get_password_hash(req.password),
+                phone=phone,
+                phone_e164=phone,
+                phone_verified=True,
+                email_verified=True,
+                is_active=True,
+            )
+            self.db.add(user)
+            try:
+                self.db.flush()
+                self.attach_verified_records(user)
+                self.db.commit()
+            except IntegrityError:
+                self.db.rollback()
+                raise HTTPException(status_code=409, detail="An account with these details already exists. Please sign in.")
+            self.db.refresh(user)
+            return user
+
+        # Mode 2: Legacy registration_token mode
+        elif req.registration_token:
+            phone = self._read_signup_token(req.registration_token)
+            if self.get_by_phone(phone):
+                raise HTTPException(status_code=409, detail="This phone number already has an account. Please sign in.")
+            if self.get_by_email(email):
+                raise HTTPException(
+                    status_code=409,
+                    detail=(
+                        "An account with this email already exists. Sign in to that account and add this "
+                        "phone number from Profile → Sign-in methods."
+                    ),
+                )
+            user = User(
+                email=email,
+                full_name=req.full_name,
+                hashed_password=get_password_hash(req.password),
+                phone=phone,
+                phone_e164=phone,
+                phone_verified=True,
+                email_verified=False,
+                is_active=True,
+            )
+            self.db.add(user)
+            try:
+                self.db.flush()
+                self.attach_verified_records(user)
+                self.db.commit()
+            except IntegrityError:
+                self.db.rollback()
+                raise HTTPException(status_code=409, detail="An account with these details already exists. Please sign in.")
+            self.db.refresh(user)
+            return user
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail="Verification required: provide both WhatsApp and email verification codes, or a valid registration token.",
+            )
+
+    signup_with_verified_phone = signup_user
 
     def link_phone(self, user: User, phone_e164: str, code: str) -> None:
         PhoneOtpService(self.db).verify(phone_e164, PURPOSE_LINK, code)

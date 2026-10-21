@@ -137,11 +137,50 @@ class PhoneVerifyResponse(BaseModel):
     phone: str
 
 
+class EmailOtpRequest(BaseModel):
+    email: EmailStr
+    purpose: str = "auth"
+
+
+class EmailOtpRequestResponse(BaseModel):
+    email: str
+    expires_in: int
+    resend_in: int
+    channel: str = "email"
+    test_mode: bool = False
+
+
+class EmailOtpVerify(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=12)
+
+
+class SignupOtpsRequest(BaseModel):
+    full_name: str = Field(min_length=2, max_length=255)
+    email: EmailStr
+    phone: str = Field(min_length=4, max_length=32)
+    country: str = Field(default="IN", max_length=2)
+
+
+class SignupOtpsResponse(BaseModel):
+    phone: str
+    email: str
+    phone_resend_in: int
+    email_resend_in: int
+    phone_expires_in: int
+    email_expires_in: int
+    test_mode: bool = False
+
+
 class SignupRequest(BaseModel):
-    registration_token: str = Field(min_length=16)
+    registration_token: str | None = None
     full_name: str = Field(min_length=2, max_length=255)
     email: EmailStr
     password: str
+    phone: str | None = None
+    country: str | None = None
+    phone_code: str | None = None
+    email_code: str | None = None
 
     _pw = field_validator("password")(_check_password)
 

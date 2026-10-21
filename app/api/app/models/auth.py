@@ -69,6 +69,26 @@ class PhoneOtpChallenge(Base, TimestampMixin):
     )
 
 
+class EmailOtpChallenge(Base, TimestampMixin):
+    """One active OTP challenge per (email, purpose). Codes are stored only as HMACs."""
+    __tablename__ = "email_otp_challenges"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    email = Column(String(255), nullable=False, index=True)
+    purpose = Column(String(32), nullable=False)
+    code_hash = Column(String(128), nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    last_sent_at = Column(DateTime(timezone=True), nullable=False)
+    send_window_started_at = Column(DateTime(timezone=True), nullable=False)
+    send_count = Column(Integer, nullable=False, default=0)
+    attempts = Column(Integer, nullable=False, default=0)
+    consumed_at = Column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("email", "purpose", name="uq_email_otp_email_purpose"),
+    )
+
+
 class PasswordResetToken(Base, TimestampMixin):
     __tablename__ = "password_reset_tokens"
 

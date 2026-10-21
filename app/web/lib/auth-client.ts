@@ -120,6 +120,16 @@ export interface OtpRequestResult {
   test_mode: boolean;
 }
 
+export interface SignupOtpsResult {
+  phone: string;
+  email: string;
+  phone_resend_in: number;
+  email_resend_in: number;
+  phone_expires_in: number;
+  email_expires_in: number;
+  test_mode: boolean;
+}
+
 export interface OtpVerifyResult {
   status: "authenticated" | "registration_required";
   token?: SessionToken;
@@ -272,8 +282,29 @@ export const authApi = {
     apiRequest<OtpRequestResult>("/auth/otp/request", { method: "POST", auth: false, body: { phone, country, purpose: "auth" } }),
   verifyOtp: (phone: string, country: string, code: string) =>
     apiRequest<OtpVerifyResult>("/auth/otp/verify", { method: "POST", auth: false, body: { phone, country, code } }),
-  signup: (registration_token: string, full_name: string, email: string, password: string) =>
-    apiRequest<SessionToken>("/auth/signup", { method: "POST", auth: false, body: { registration_token, full_name, email, password } }),
+  requestSignupOtps: (full_name: string, email: string, phone: string, country: string) =>
+    apiRequest<SignupOtpsResult>("/auth/signup/request-otps", {
+      method: "POST",
+      auth: false,
+      body: { full_name, email, phone, country },
+    }),
+  requestEmailOtp: (email: string) =>
+    apiRequest<{ email: string; expires_in: number; resend_in: number; test_mode: boolean }>("/auth/email-otp/request", {
+      method: "POST",
+      auth: false,
+      body: { email, purpose: "auth" },
+    }),
+  signup: (payload: {
+    full_name: string;
+    email: string;
+    password: string;
+    registration_token?: string;
+    phone?: string;
+    country?: string;
+    phone_code?: string;
+    email_code?: string;
+  }) =>
+    apiRequest<SessionToken>("/auth/signup", { method: "POST", auth: false, body: payload }),
   session: (workspace?: string) =>
     apiRequest<SessionToken>(`/auth/session${workspace ? `?workspace=${encodeURIComponent(workspace)}` : ""}`),
   me: () => apiRequest<SessionUser>("/auth/me"),

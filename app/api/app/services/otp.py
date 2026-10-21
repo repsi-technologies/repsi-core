@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.phone import mask_phone
-from app.models.auth import PhoneOtpChallenge
+from app.models.auth import EmailOtpChallenge, PhoneOtpChallenge
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +195,7 @@ class PhoneOtpService:
             "test_mode": self.provider.name == "test",
         }
 
-    def verify(self, phone_e164: str, purpose: str, code: str) -> None:
+    def verify(self, phone_e164: str, purpose: str, code: str, consume: bool = True) -> PhoneOtpChallenge:
         """Raises HTTPException unless `code` is the current, unexpired, unused code."""
         challenge = self._get(phone_e164, purpose)
         generic = HTTPException(status_code=400, detail="Incorrect or expired code.")
@@ -213,6 +213,123 @@ class PhoneOtpService:
             challenge.attempts += 1
             self.db.commit()
             raise HTTPException(status_code=400, detail="Incorrect code. Please check and try again.")
-        challenge.consumed_at = datetime.now(timezone.utc)
-        challenge.code_hash = None
+        if consume:
+            challenge.consumed_at = datetime.now(timezone.utc)
+            challenge.code_hash = None
+            self.db.flush()
+        return challenge
+
+
+def _hash_email_code(email: str, purpose: str, code: str) -> str:
+    msg = f"{email.lower().strip()}:{purpose}:{code}".encode("utf-8")
+    return hmac.new(settings.SECRET_KEY.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+
+
+class EmailOtpService:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def _get(self, email: str, purpose: str) -> EmailOtpChallenge | None:
+        return (
+            self.db.query(EmailOtpChallenge)
+            .filter(EmailOtpChallenge.email == email.lower().strip(), EmailOtpChallenge.purpose == purpose)
+            .first()
+        )
+
+    @property
+    def is_test_mode(self) -> bool:
+        from app.core.email import _smtp_configured
+        if settings.OTP_PROVIDER.lower() == "test":
+            return True
+        if not _smtp_configured():
+            return True
+        return False
+
+    def request(self, email: str, purpose: str = PURPOSE_AUTH) -> dict:
+        normalized_email = email.lower().strip()
+        now = datetime.now(timezone.utc)
+        challenge = self._get(normalized_email, purpose)
+
+        if challenge:
+            last_sent = _aware(challenge.last_sent_at)
+            wait = settings.OTP_RESEND_COOLDOWN_SECONDS - (now - last_sent).total_seconds()
+            if wait > 0 and challenge.consumed_at is None:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=f"Please wait {int(wait) + 1} seconds before requesting a new email code.",
+                    headers={"Retry-After": str(int(wait) + 1)},
+                )
+            window_start = _aware(challenge.send_window_started_at)
+            if (now - window_start).total_seconds() >= 3600:
+                challenge.send_window_started_at = now
+                challenge.send_count = 0
+            if challenge.send_count >= 5:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Too many email codes requested. Try again later.",
+                )
+        else:
+            challenge = EmailOtpChallenge(
+                email=normalized_email,
+                purpose=purpose,
+                send_window_started_at=now,
+                send_count=0,
+                last_sent_at=now,
+                expires_at=now,
+            )
+            self.db.add(challenge)
+
+        test_mode = self.is_test_mode
+        code = settings.OTP_TEST_CODE if test_mode else f"{secrets.randbelow(1_000_000):06d}"
+        challenge.code_hash = _hash_email_code(normalized_email, purpose, code)
+        challenge.expires_at = now + timedelta(minutes=settings.OTP_EXPIRE_MINUTES)
+        challenge.last_sent_at = now
+        challenge.send_count = (challenge.send_count or 0) + 1
+        challenge.attempts = 0
+        challenge.consumed_at = None
         self.db.flush()
+
+        try:
+            from app.core.email import send_registration_otp
+            send_registration_otp(normalized_email, code)
+        except HTTPException:
+            self.db.rollback()
+            raise
+        except Exception as exc:
+            self.db.rollback()
+            logger.error("Email OTP delivery failed for %s: %s", normalized_email, exc)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="We couldn't send the email verification code right now. Please try again shortly.",
+            )
+        self.db.commit()
+        return {
+            "expires_in": settings.OTP_EXPIRE_MINUTES * 60,
+            "resend_in": settings.OTP_RESEND_COOLDOWN_SECONDS,
+            "channel": "email",
+            "test_mode": test_mode,
+        }
+
+    def verify(self, email: str, purpose: str, code: str, consume: bool = True) -> EmailOtpChallenge:
+        normalized_email = email.lower().strip()
+        challenge = self._get(normalized_email, purpose)
+        generic = HTTPException(status_code=400, detail="Incorrect or expired email verification code.")
+        if not challenge or challenge.consumed_at is not None or not challenge.code_hash:
+            raise generic
+        if datetime.now(timezone.utc) > _aware(challenge.expires_at):
+            raise HTTPException(status_code=400, detail="This email verification code has expired. Request a new one.")
+        if challenge.attempts >= 5:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many incorrect email code attempts. Request a new code.",
+            )
+        clean = "".join(ch for ch in (code or "") if ch.isdigit())
+        if len(clean) != 6 or not hmac.compare_digest(challenge.code_hash, _hash_email_code(normalized_email, purpose, clean)):
+            challenge.attempts += 1
+            self.db.commit()
+            raise HTTPException(status_code=400, detail="Incorrect email verification code. Please check and try again.")
+        if consume:
+            challenge.consumed_at = datetime.now(timezone.utc)
+            challenge.code_hash = None
+            self.db.flush()
+        return challenge
