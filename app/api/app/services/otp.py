@@ -216,7 +216,7 @@ class PhoneOtpService:
         if consume:
             challenge.consumed_at = datetime.now(timezone.utc)
             challenge.code_hash = None
-            self.db.flush()
+            self.db.commit()
         return challenge
 
 
@@ -331,5 +331,5 @@ class EmailOtpService:
         if consume:
             challenge.consumed_at = datetime.now(timezone.utc)
             challenge.code_hash = None
-            self.db.flush()
+            self.db.commit()
         return challenge

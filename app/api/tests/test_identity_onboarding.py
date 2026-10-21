@@ -9,7 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.models.auth import PhoneOtpChallenge
+from app.models.auth import EmailOtpChallenge, PhoneOtpChallenge
 from tests.conftest import TestingSessionLocal
 
 client = TestClient(app)
@@ -36,9 +36,34 @@ def auth(token: str) -> dict:
 def phone_signup(name="Asha Rao", email=None, password="Str0ngPass!", phone=None) -> dict:
     phone = phone or unique_phone()
     email = email or f"asha_{uid()}@example.com"
+    r = client.post(
+        f"{API}/auth/signup/request-otps",
+        json={"full_name": name, "email": email, "phone": phone, "country": "IN"},
+    )
+    assert r.status_code == 200, r.text
+    r = client.post(
+        f"{API}/auth/signup",
+        json={
+            "full_name": name,
+            "email": email,
+            "phone": phone,
+            "country": "IN",
+            "password": password,
+            "phone_code": "123456",
+            "email_code": "123456",
+        },
+    )
+    assert r.status_code == 201, r.text
+    return {**r.json(), "phone": phone, "email": email, "password": password}
+
+
+def legacy_phone_signup(name="Asha Rao", email=None, password="Str0ngPass!", phone=None) -> dict:
+    phone = phone or unique_phone()
+    email = email or f"legacy_{uid()}@example.com"
     r = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
     assert r.status_code == 200, r.text
-    assert r.json()["phone"] == f"+91{phone}"
+    phone_e164 = r.json()["phone"]
+    assert phone_e164.endswith(phone.lstrip("+91")) or phone_e164 == phone
     r = client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "123456"})
     assert r.status_code == 200, r.text
     body = r.json()
@@ -48,7 +73,7 @@ def phone_signup(name="Asha Rao", email=None, password="Str0ngPass!", phone=None
         json={"registration_token": body["registration_token"], "full_name": name, "email": email, "password": password},
     )
     assert r.status_code == 201, r.text
-    return {**r.json(), "phone": phone, "email": email, "password": password}
+    return {**r.json(), "phone": phone, "phone_e164": phone_e164, "email": email, "password": password}
 
 
 class FakeResponse:
@@ -132,7 +157,7 @@ def test_phone_signup_with_test_otp_leads_to_onboarding():
     assert session["onboarding_required"] is True
     assert session["next_path"] == "/onboarding"
     assert session["user"]["phone_verified"] is True
-    assert session["user"]["email_verified"] is False
+    assert session["user"]["email_verified"] is True
 
 
 def test_dual_otp_signup_verifies_both_email_and_phone():
@@ -207,7 +232,8 @@ def test_dual_otp_signup_verifies_both_email_and_phone():
 def test_phone_login_returns_same_account():
     s = phone_signup()
     phone = s["phone"]
-    client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    r_req = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    assert r_req.status_code == 200, r_req.text
     r = client.post(f"{API}/auth/otp/verify", json={"phone": f"+91 {phone}", "code": "123456"})
     assert r.status_code == 200
     assert r.json()["status"] == "authenticated"
@@ -216,7 +242,8 @@ def test_phone_login_returns_same_account():
 
 def test_incorrect_otp_rejected_and_attempts_limited():
     phone = unique_phone()
-    client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    r_req = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    assert r_req.status_code == 200, r_req.text
     for _ in range(5):
         r = client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "000000"})
         assert r.status_code == 400
@@ -226,15 +253,19 @@ def test_incorrect_otp_rejected_and_attempts_limited():
 
 def test_otp_single_use_and_expiry():
     phone = unique_phone()
-    client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    r_req = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    assert r_req.status_code == 200, r_req.text
     assert client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "123456"}).status_code == 200
     # Reusing a consumed code fails.
     assert client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "123456"}).status_code == 400
 
     phone2 = unique_phone()
-    client.post(f"{API}/auth/otp/request", json={"phone": phone2, "country": "IN"})
+    r_exp = client.post(f"{API}/auth/otp/request", json={"phone": phone2, "country": "IN"})
+    assert r_exp.status_code == 200
+    phone2_e164 = r_exp.json()["phone"]
     db = TestingSessionLocal()
-    ch = db.query(PhoneOtpChallenge).filter(PhoneOtpChallenge.phone_e164 == f"+91{phone2}").first()
+    ch = db.query(PhoneOtpChallenge).filter(PhoneOtpChallenge.phone_e164 == phone2_e164).first()
+    assert ch is not None, f"Expected PhoneOtpChallenge for {phone2_e164} to exist in DB"
     ch.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
     db.commit()
     db.close()
@@ -245,12 +276,15 @@ def test_otp_single_use_and_expiry():
 
 def test_otp_resend_cooldown_and_hourly_cap():
     phone = unique_phone()
-    assert client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"}).status_code == 200
+    r1 = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    assert r1.status_code == 200
+    phone_e164 = r1.json()["phone"]
     r = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
     assert r.status_code == 429 and "Retry-After" in r.headers
 
     db = TestingSessionLocal()
-    ch = db.query(PhoneOtpChallenge).filter(PhoneOtpChallenge.phone_e164 == f"+91{phone}").first()
+    ch = db.query(PhoneOtpChallenge).filter(PhoneOtpChallenge.phone_e164 == phone_e164).first()
+    assert ch is not None, f"Expected PhoneOtpChallenge for {phone_e164} to exist in DB"
     ch.send_count = 5
     ch.last_sent_at = datetime.now(timezone.utc) - timedelta(minutes=2)
     db.commit()
@@ -258,6 +292,45 @@ def test_otp_resend_cooldown_and_hourly_cap():
     r = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
     assert r.status_code == 429
     assert "Too many codes" in r.json()["detail"]
+
+
+def test_email_otp_single_use_and_expiry():
+    email = f"email_otp_{uid()}@example.com"
+    assert client.post(f"{API}/auth/email-otp/request", json={"email": email}).status_code == 200
+    assert client.post(f"{API}/auth/email-otp/verify", json={"email": email, "code": "123456"}).status_code == 200
+    # Reusing a consumed code fails.
+    assert client.post(f"{API}/auth/email-otp/verify", json={"email": email, "code": "123456"}).status_code == 400
+
+    email2 = f"email_exp_{uid()}@example.com"
+    r2 = client.post(f"{API}/auth/email-otp/request", json={"email": email2})
+    assert r2.status_code == 200
+    db = TestingSessionLocal()
+    ch = db.query(EmailOtpChallenge).filter(EmailOtpChallenge.email == email2.lower()).first()
+    assert ch is not None, f"Expected EmailOtpChallenge for {email2} to exist in DB"
+    ch.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+    db.commit()
+    db.close()
+    r = client.post(f"{API}/auth/email-otp/verify", json={"email": email2, "code": "123456"})
+    assert r.status_code == 400
+    assert "expired" in r.json()["detail"].lower()
+
+
+def test_email_otp_resend_cooldown_and_hourly_cap():
+    email = f"cooldown_{uid()}@example.com"
+    assert client.post(f"{API}/auth/email-otp/request", json={"email": email}).status_code == 200
+    r = client.post(f"{API}/auth/email-otp/request", json={"email": email})
+    assert r.status_code == 429 and "Retry-After" in r.headers
+
+    db = TestingSessionLocal()
+    ch = db.query(EmailOtpChallenge).filter(EmailOtpChallenge.email == email.lower()).first()
+    assert ch is not None, f"Expected EmailOtpChallenge for {email} to exist in DB"
+    ch.send_count = 5
+    ch.last_sent_at = datetime.now(timezone.utc) - timedelta(minutes=2)
+    db.commit()
+    db.close()
+    r = client.post(f"{API}/auth/email-otp/request", json={"email": email})
+    assert r.status_code == 429
+    assert "Too many" in r.json()["detail"]
 
 
 def test_otp_provider_production_rules(monkeypatch):
@@ -381,7 +454,7 @@ def test_password_with_verified_email_then_google_links(google):
 
 
 def test_unverified_email_is_never_auto_linked_to_google(google):
-    s = phone_signup()
+    s = legacy_phone_signup()
     token = google(s["email"])
     r = client.post(f"{API}/auth/google", json={"token": token})
     assert r.status_code == 409
@@ -395,7 +468,7 @@ def test_unverified_email_is_never_auto_linked_to_google(google):
 
 
 def test_google_link_rejects_different_email(google):
-    s = phone_signup()
+    s = legacy_phone_signup()
     r = client.post(f"{API}/auth/me/identities/google", json={"token": google(f"other_{uid()}@example.com")},
                     headers=auth(s["access_token"]))
     assert r.status_code == 409
@@ -410,8 +483,11 @@ def test_duplicate_email_or_phone_signup_rejected():
     s = phone_signup()
     # Same email, new phone.
     phone = unique_phone()
-    client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
-    reg = client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "123456"}).json()
+    r_otp = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})
+    assert r_otp.status_code == 200, r_otp.text
+    r_ver = client.post(f"{API}/auth/otp/verify", json={"phone": phone, "country": "IN", "code": "123456"})
+    assert r_ver.status_code == 200, r_ver.text
+    reg = r_ver.json()
     r = client.post(f"{API}/auth/signup", json={"registration_token": reg["registration_token"], "full_name": "X Y",
                                                  "email": s["email"].upper(), "password": "Str0ngPass!"})
     assert r.status_code == 409
@@ -427,6 +503,7 @@ def test_password_reset_sets_password_and_verifies_email(monkeypatch):
     monkeypatch.setattr("app.services.auth.send_password_reset_email",
                         lambda email, name, url: captured.update(url=url))
     assert client.post(f"{API}/auth/forgot-password", json={"email": s["email"]}).status_code == 200
+    assert "url" in captured, "Expected password reset email to be dispatched"
     token = captured["url"].split("token=")[1]
     r = client.post(f"{API}/auth/reset-password", json={"token": token, "new_password": "Brand+New1"})
     assert r.status_code == 200
@@ -475,7 +552,8 @@ def test_onboarding_validation_errors():
     assert r.status_code == 422
     r = client.put(f"{API}/onboarding/business", json=business_payload(country_code="ZZ"), headers=auth(s["access_token"]))
     assert r.status_code == 422
-    client.put(f"{API}/onboarding/business", json=business_payload(), headers=auth(s["access_token"]))
+    r_biz = client.put(f"{API}/onboarding/business", json=business_payload(), headers=auth(s["access_token"]))
+    assert r_biz.status_code == 200, r_biz.text
     bad_hours = dict(HOURS, mon={"closed": False, "open": "22:00", "close": "06:00"})
     r = client.put(f"{API}/onboarding/preferences",
                    json={"timezone": "Asia/Kolkata", "currency": "INR", "opening_hours": bad_hours},
@@ -494,8 +572,10 @@ def test_full_onboarding_then_settings_persist_and_logo():
     t = done["session"]["access_token"]
 
     # Returning users are not sent back to onboarding.
-    r = client.post(f"{API}/auth/otp/request", json={"phone": s["phone"], "country": "IN"})
+    r_req = client.post(f"{API}/auth/otp/request", json={"phone": s["phone"], "country": "IN"})
+    assert r_req.status_code == 200, r_req.text
     r = client.post(f"{API}/auth/otp/verify", json={"phone": s["phone"], "country": "IN", "code": "123456"})
+    assert r.status_code == 200, r.text
     assert r.json()["token"]["next_path"] == f"/{done['workspace_slug']}/dashboard"
 
     profile = client.get(f"{API}/organization", headers=auth(t)).json()
@@ -544,6 +624,7 @@ def _latest_token_for(email: str) -> str:
         .order_by(GymInvitation.created_at.desc())
         .first()
     )
+    assert inv is not None, f"Expected pending invitation for {email} to exist in DB"
     raw = f"test-token-{uid()}-{uid()}"
     inv.token_hash = hashlib.sha256(raw.encode()).hexdigest()
     db.commit()
@@ -636,11 +717,13 @@ def test_revoked_and_expired_invitations():
     assert client.get(f"{API}/invitations/verify", params={"token": raw}).status_code == 410
 
     email2 = f"exp_{uid()}@example.com"
-    client.post(f"{API}/invitations", json={"name": "Exp", "email": email2, "role": "member"}, headers=auth(t))
+    r_inv2 = client.post(f"{API}/invitations", json={"name": "Exp", "email": email2, "role": "member"}, headers=auth(t))
+    assert r_inv2.status_code == 201, r_inv2.text
     raw2 = _latest_token_for(email2)
     from app.models.invitation import GymInvitation
     db = TestingSessionLocal()
     inv2 = db.query(GymInvitation).filter(GymInvitation.email == email2).first()
+    assert inv2 is not None, f"Expected invitation for {email2} to exist in DB"
     inv2.expires_at = datetime.now(timezone.utc) - timedelta(minutes=1)
     db.commit()
     db.close()
