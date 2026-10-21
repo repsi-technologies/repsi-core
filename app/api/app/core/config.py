@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     # "test" is refused when ENVIRONMENT=production (see validator below).
     OTP_PROVIDER: str = "test"
     OTP_TEST_CODE: str = "123456"
+    ALLOW_TEST_OTP_IN_PRODUCTION: bool = False
     PHONE_OTP_EXPIRE_MINUTES: int = 5
     PHONE_OTP_RESEND_COOLDOWN_SECONDS: int = 30
     PHONE_OTP_MAX_SENDS_PER_HOUR: int = 5
@@ -122,8 +123,11 @@ class Settings(BaseSettings):
                 raise ValueError("SECRET_KEY must be changed from the default value in production!")
             if len(self.SECRET_KEY) < 32:
                 raise ValueError("SECRET_KEY must be at least 32 characters in production!")
-            if self.OTP_PROVIDER.lower() == "test":
-                raise ValueError("OTP_PROVIDER=test (fixed OTP) is not allowed in production!")
+            if self.OTP_PROVIDER.lower() == "test" and not self.ALLOW_TEST_OTP_IN_PRODUCTION:
+                raise ValueError(
+                    "OTP_PROVIDER=test (fixed OTP) is not allowed in production! "
+                    "Set OTP_PROVIDER=aisensy or set ALLOW_TEST_OTP_IN_PRODUCTION=true if intentionally testing in production."
+                )
         if self.OTP_PROVIDER.lower() not in {"test", "aisensy"}:
             raise ValueError("OTP_PROVIDER must be 'test' or 'aisensy'.")
         return self
