@@ -105,8 +105,8 @@ def get_otp_provider() -> OtpProvider:
     provider = settings.OTP_PROVIDER.lower()
     if provider == "aisensy":
         return AiSensyOtpProvider()
-    if settings.is_production:
-        # Defense in depth; Settings already refuses this combination.
+    if settings.is_production and not settings.ALLOW_TEST_OTP_IN_PRODUCTION:
+        # Defense in depth; Settings already refuses this combination unless explicitly allowed.
         raise HTTPException(status_code=503, detail="Phone verification is not available.")
     return TestOtpProvider()
 

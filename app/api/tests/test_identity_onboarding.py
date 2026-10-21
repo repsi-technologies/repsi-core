@@ -191,6 +191,30 @@ def test_otp_resend_cooldown_and_hourly_cap():
     assert "Too many codes" in r.json()["detail"]
 
 
+def test_otp_provider_production_rules(monkeypatch):
+    from fastapi import HTTPException
+    from app.services.otp import get_otp_provider, TestOtpProvider, AiSensyOtpProvider
+
+    monkeypatch.setattr("app.core.config.settings.ENVIRONMENT", "production")
+    monkeypatch.setattr("app.core.config.settings.OTP_PROVIDER", "test")
+    monkeypatch.setattr("app.core.config.settings.ALLOW_TEST_OTP_IN_PRODUCTION", False)
+
+    # In production with test provider and without explicit opt-in, it must raise 503
+    with pytest.raises(HTTPException) as exc_info:
+        get_otp_provider()
+    assert exc_info.value.status_code == 503
+    assert "Phone verification is not available" in exc_info.value.detail
+
+    # When explicitly opted in, it allows TestOtpProvider
+    monkeypatch.setattr("app.core.config.settings.ALLOW_TEST_OTP_IN_PRODUCTION", True)
+    provider = get_otp_provider()
+    assert isinstance(provider, TestOtpProvider)
+
+    # When configured for aisensy, it provides AiSensyOtpProvider
+    monkeypatch.setattr("app.core.config.settings.OTP_PROVIDER", "aisensy")
+    assert isinstance(get_otp_provider(), AiSensyOtpProvider)
+
+
 def test_invalid_phone_for_country_rejected():
     r = client.post(f"{API}/auth/otp/request", json={"phone": "12345", "country": "IN"})
     assert r.status_code == 422
