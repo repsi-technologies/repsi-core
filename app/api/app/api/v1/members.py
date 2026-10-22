@@ -10,9 +10,19 @@ from app.core.database import get_db
 from app.core.security import get_password_hash
 from app.models.member import Member, MemberStatus, Membership, MembershipPlan
 from app.models.user import User, WorkspaceMember, UserRole
-from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MemberListResponse, CheckContactRequest, CheckContactResponse
+import json
+from app.schemas.member import (
+    MemberCreate, MemberUpdate, MemberResponse, MemberListResponse, CheckContactRequest, CheckContactResponse,
+    MemberStatusChangeRequest, MemberNoteCreate, MemberNoteResponse, MemberHistoryItem,
+    MemberSelfResponse, MemberSelfUpdate, SelfMembershipItem, SelfPaymentItem,
+)
+from app.models.member_records import MemberEvent, MemberNote, MembershipEvent
+from app.models.finance import Payment
+from app.models.system import AuditLog
 from app.repositories.member import MemberRepository
-from app.middleware.tenant import get_current_tenant, TenantContext
+from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
+from app.services.member_lifecycle import change_member_status, record_member_event, ACCOUNT_STATUSES
+from app.services import membership_lifecycle
 from app.middleware.entitlements import check_member_capacity, require_feature
 
 router = APIRouter(prefix="/members", tags=["Members"])
@@ -47,6 +57,11 @@ def require_member_mutation_access(tenant: TenantContext = Depends(get_current_t
 def list_members(
     query: Optional[str] = None,
     status: Optional[str] = None,
+    plan_id: Optional[str] = None,
+    joined_from: Optional[date] = None,
+    joined_to: Optional[date] = None,
+    include_archived: bool = False,
+    sort: str = Query("-created_at", pattern="^-?(created_at|joined_date|first_name|status)$"),
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=100),
     tenant: TenantContext = Depends(require_member_manage_access),
@@ -54,14 +69,18 @@ def list_members(
 ):
     repo = MemberRepository(db, tenant.workspace_id)
     skip = (page - 1) * page_size
-    items = repo.search(query=query or "", status=status, skip=skip, limit=page_size)
-    total = repo.count()
+    filters = dict(
+        query=query or "", status=status, plan_id=plan_id, joined_from=joined_from,
+        joined_to=joined_to, include_archived=include_archived,
+    )
+    items = repo.search(**filters, sort=sort, skip=skip, limit=page_size)
+    total = repo.count_search(**filters)
     return MemberListResponse(items=items, total=total, page=page, page_size=page_size)
 
 
 @router.get("/export-csv")
 def export_members_csv(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_roles("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")),
     _feat: bool = Depends(require_feature("data_export")),
     db: Session = Depends(get_db)
 ):
@@ -84,6 +103,14 @@ def export_members_csv(
             m.emergency_contact or ""
         ])
 
+    db.add(AuditLog(
+        workspace_id=tenant.workspace_id,
+        user_id=tenant.user_id,
+        action="members_exported",
+        details=json.dumps({"rows": len(members), "format": "csv"}),
+    ))
+    db.commit()
+
     today_str = date.today().isoformat()
     return Response(
         content=output.getvalue(),
@@ -97,7 +124,7 @@ def export_members_csv(
 @router.post("/check-contact", response_model=CheckContactResponse)
 def check_member_contact(
     req: CheckContactRequest,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_member_mutation_access),
     db: Session = Depends(get_db)
 ):
     clean_email = req.email.strip().lower() if req.email else None
@@ -125,10 +152,76 @@ def check_member_contact(
     return CheckContactResponse(exists=False)
 
 
+def _self_member(db: Session, tenant: TenantContext) -> Member:
+    member = db.query(Member).filter(
+        Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id
+    ).first()
+    if not member:
+        raise HTTPException(status_code=404, detail="No member profile is linked to your account in this gym.")
+    return member
+
+
+def _self_response(db: Session, member: Member) -> MemberSelfResponse:
+    memberships = db.query(Membership).filter(
+        Membership.workspace_id == member.workspace_id, Membership.member_id == member.id
+    ).order_by(Membership.start_date.desc()).all()
+    today = membership_lifecycle.workspace_today(db, member.workspace_id)
+    payments = db.query(Payment).filter(
+        Payment.workspace_id == member.workspace_id, Payment.member_id == member.id
+    ).order_by(Payment.paid_at.desc()).limit(100).all()
+    return MemberSelfResponse(
+        id=member.id, first_name=member.first_name, last_name=member.last_name, email=member.email,
+        phone=member.phone, avatar_url=member.avatar_url, gender=member.gender,
+        date_of_birth=member.date_of_birth, emergency_contact=member.emergency_contact,
+        status=member.status, joined_date=member.joined_date,
+        memberships=[
+            SelfMembershipItem(
+                id=m.id, plan_name=m.plan.name if m.plan else None, start_date=m.start_date,
+                end_date=m.end_date, status=membership_lifecycle.effective_status(m, today),
+                price_paid=m.price_paid, amount_paid=membership_lifecycle.amount_paid(db, m),
+            ) for m in memberships
+        ],
+        payments=[
+            SelfPaymentItem(
+                id=p.id, amount=p.amount, currency=p.currency, method=p.method.value,
+                status=p.status.value, paid_at=p.paid_at, membership_id=p.membership_id,
+            ) for p in payments
+        ],
+    )
+
+
+@router.get("/me", response_model=MemberSelfResponse)
+def get_my_member_profile(
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Self-service: the signed-in member's own profile, memberships and payments."""
+    return _self_response(db, _self_member(db, tenant))
+
+
+@router.put("/me", response_model=MemberSelfResponse)
+def update_my_member_profile(
+    data: MemberSelfUpdate,
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Self-service: members may update only non-identity personal details."""
+    member = _self_member(db, tenant)
+    changes = {k: v for k, v in data.model_dump(exclude_unset=True).items() if getattr(member, k) != v}
+    for field, value in changes.items():
+        setattr(member, field, value)
+    if changes:
+        record_member_event(db, member, "profile_updated", tenant.user_id,
+                            details={"fields": sorted(changes), "self_service": True})
+    db.commit()
+    db.refresh(member)
+    return _self_response(db, member)
+
+
 @router.get("/{id}", response_model=MemberResponse)
 def get_member(
     id: str,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_member_manage_access),
     db: Session = Depends(get_db)
 ):
     repo = MemberRepository(db, tenant.workspace_id)
@@ -274,31 +367,158 @@ def update_member(
         raise HTTPException(status_code=404, detail="Member not found")
 
     update_dict = data.model_dump(exclude_unset=True)
+    new_status = update_dict.pop("status", None)
+    update_dict.pop("user_id", None)  # account linking is not a profile edit
+    if new_status is not None and new_status != member.status:
+        change_member_status(db, member, new_status, tenant.user_id, tenant.role)
+    changed = sorted(k for k, v in update_dict.items() if v is not None and getattr(member, k, None) != v)
+    if changed:
+        record_member_event(db, member, "profile_updated", tenant.user_id, details={"fields": changed})
     updated = repo.update(member, **update_dict)
-
-    # If status changed to suspended / frozen / cancelled / expired, propagate to workspace membership access
-    if "status" in update_dict and update_dict["status"]:
-        new_status = update_dict["status"]
-        if new_status in [MemberStatus.FROZEN, MemberStatus.CANCELLED, MemberStatus.EXPIRED]:
-            if member.user_id:
-                ws_mem = db.query(WorkspaceMember).filter(
-                    WorkspaceMember.workspace_id == tenant.workspace_id,
-                    WorkspaceMember.user_id == member.user_id
-                ).first()
-                if ws_mem:
-                    ws_mem.is_active = False
-                    db.commit()
-        elif new_status == MemberStatus.ACTIVE:
-            if member.user_id:
-                ws_mem = db.query(WorkspaceMember).filter(
-                    WorkspaceMember.workspace_id == tenant.workspace_id,
-                    WorkspaceMember.user_id == member.user_id
-                ).first()
-                if ws_mem:
-                    ws_mem.is_active = True
-                    db.commit()
-
     return updated
+
+
+def _member_or_404(db: Session, tenant: TenantContext, member_id: str) -> Member:
+    member = db.query(Member).filter(Member.workspace_id == tenant.workspace_id, Member.id == member_id).first()
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    return member
+
+
+@router.post("/{id}/status", response_model=MemberResponse)
+def change_status(
+    id: str,
+    data: MemberStatusChangeRequest,
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    member = _member_or_404(db, tenant, id)
+    change_member_status(db, member, data.status, tenant.user_id, tenant.role, data.reason)
+    db.commit()
+    return MemberRepository(db, tenant.workspace_id).get(id)
+
+
+def _author_name(db: Session, user_id: str) -> Optional[str]:
+    user = db.query(User).filter(User.id == user_id).first()
+    return user.full_name if user else None
+
+
+@router.get("/{id}/notes", response_model=List[MemberNoteResponse])
+def list_member_notes(
+    id: str,
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    _member_or_404(db, tenant, id)
+    return db.query(MemberNote).filter(
+        MemberNote.workspace_id == tenant.workspace_id, MemberNote.member_id == id
+    ).order_by(MemberNote.created_at.desc()).all()
+
+
+@router.post("/{id}/notes", response_model=MemberNoteResponse, status_code=status.HTTP_201_CREATED)
+def add_member_note(
+    id: str,
+    data: MemberNoteCreate,
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    member = _member_or_404(db, tenant, id)
+    note = MemberNote(
+        workspace_id=tenant.workspace_id, member_id=member.id, author_user_id=tenant.user_id,
+        author_name=_author_name(db, tenant.user_id), body=data.body.strip(),
+    )
+    db.add(note)
+    db.flush()
+    record_member_event(db, member, "note_added", tenant.user_id, details={"note_id": note.id})
+    db.commit()
+    db.refresh(note)
+    return note
+
+
+def _note_or_404(db: Session, tenant: TenantContext, member_id: str, note_id: str) -> MemberNote:
+    note = db.query(MemberNote).filter(
+        MemberNote.workspace_id == tenant.workspace_id, MemberNote.member_id == member_id, MemberNote.id == note_id
+    ).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note
+
+
+def _require_note_owner(note: MemberNote, tenant: TenantContext) -> None:
+    if note.author_user_id != tenant.user_id and tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
+        raise HTTPException(status_code=403, detail="Only the note's author or a gym admin can change this note.")
+
+
+@router.put("/{id}/notes/{note_id}", response_model=MemberNoteResponse)
+def update_member_note(
+    id: str,
+    note_id: str,
+    data: MemberNoteCreate,
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    member = _member_or_404(db, tenant, id)
+    note = _note_or_404(db, tenant, id, note_id)
+    _require_note_owner(note, tenant)
+    note.body = data.body.strip()
+    record_member_event(db, member, "note_updated", tenant.user_id, details={"note_id": note.id})
+    db.commit()
+    db.refresh(note)
+    return note
+
+
+@router.delete("/{id}/notes/{note_id}")
+def delete_member_note(
+    id: str,
+    note_id: str,
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    member = _member_or_404(db, tenant, id)
+    note = _note_or_404(db, tenant, id, note_id)
+    _require_note_owner(note, tenant)
+    db.delete(note)
+    record_member_event(db, member, "note_deleted", tenant.user_id, details={"note_id": note_id})
+    db.commit()
+    return {"status": "success"}
+
+
+@router.get("/{id}/history", response_model=List[MemberHistoryItem])
+def get_member_history(
+    id: str,
+    source: Optional[str] = Query(None, pattern="^(member|membership)$"),
+    limit: int = Query(200, ge=1, le=500),
+    tenant: TenantContext = Depends(require_member_mutation_access),
+    db: Session = Depends(get_db),
+):
+    """Chronological staff-facing history: account status, notes, profile edits and membership lifecycle."""
+    _member_or_404(db, tenant, id)
+    items: List[MemberHistoryItem] = []
+    if source in (None, "member"):
+        for e in db.query(MemberEvent).filter(
+            MemberEvent.workspace_id == tenant.workspace_id, MemberEvent.member_id == id
+        ).order_by(MemberEvent.created_at.desc()).limit(limit).all():
+            items.append(MemberHistoryItem(
+                id=e.id, source="member", event_type=e.event_type, actor_user_id=e.actor_user_id,
+                from_status=e.from_status, to_status=e.to_status, reason=e.reason,
+                details=json.loads(e.details) if e.details else None, created_at=e.created_at,
+            ))
+    if source in (None, "membership"):
+        for e in db.query(MembershipEvent).filter(
+            MembershipEvent.workspace_id == tenant.workspace_id, MembershipEvent.member_id == id
+        ).order_by(MembershipEvent.created_at.desc()).limit(limit).all():
+            items.append(MemberHistoryItem(
+                id=e.id, source="membership", event_type=e.event_type, membership_id=e.membership_id,
+                actor_user_id=e.actor_user_id, from_status=e.from_status, to_status=e.to_status,
+                previous_end_date=e.previous_end_date, new_end_date=e.new_end_date, reason=e.reason,
+                details=json.loads(e.details) if e.details else None, created_at=e.created_at,
+            ))
+    actor_ids = {i.actor_user_id for i in items if i.actor_user_id}
+    names = dict(db.query(User.id, User.full_name).filter(User.id.in_(actor_ids)).all()) if actor_ids else {}
+    for item in items:
+        item.actor_name = names.get(item.actor_user_id) if item.actor_user_id else "System"
+    items.sort(key=lambda i: i.created_at, reverse=True)
+    return items[:limit]
 
 
 @router.post("/{id}/renew")
@@ -343,14 +563,21 @@ def renew_member_membership(
 
     months = (data and data.duration_months) or plan.duration_months or 1
     price = (data and data.price_paid) if (data and data.price_paid is not None) else plan.price
-    start = (data and data.start_date) or date.today()
-    end = start + timedelta(days=months * 30)
+    start = (data and data.start_date) or membership_lifecycle.workspace_today(db, tenant.workspace_id)
+    end = membership_lifecycle.period_end(start, months)
 
-    # Deactivate existing memberships for this member
-    db.query(Membership).filter(
+    # Close current periods (history is kept; cancelled/expired rows are left untouched)
+    for current in db.query(Membership).filter(
         Membership.workspace_id == tenant.workspace_id,
-        Membership.member_id == member.id
-    ).update({Membership.status: MemberStatus.EXPIRED}, synchronize_session=False)
+        Membership.member_id == member.id,
+        Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.FROZEN]),
+    ).all():
+        previous_status = current.status
+        current.status = MemberStatus.EXPIRED
+        membership_lifecycle.record_event(
+            db, current, "closed_for_renewal", tenant.user_id,
+            from_status=previous_status, to_status=MemberStatus.EXPIRED,
+        )
 
     new_membership = Membership(
         workspace_id=tenant.workspace_id,
@@ -363,6 +590,25 @@ def renew_member_membership(
         auto_renew=False
     )
     db.add(new_membership)
+    db.flush()
+    membership_lifecycle.record_event(
+        db, new_membership, "renewed", tenant.user_id, to_status=MemberStatus.ACTIVE, new_end_date=end,
+        details={"plan_id": plan.id, "plan_name": plan.name, "duration_months": months, "price": price},
+    )
+
+    # Renewal restores access only for lapsed members; suspended/archived/inactive stay as staff set them.
+    if member.status in (MemberStatus.SUSPENDED, MemberStatus.ARCHIVED, MemberStatus.INACTIVE):
+        db.commit()
+        db.refresh(member)
+        return {
+            "status": "success",
+            "message": f"Membership renewed until {end.strftime('%d %b %Y')}. Member account is still {member.status.value}.",
+            "member_id": member.id,
+            "membership_id": new_membership.id,
+            "plan_name": plan.name,
+            "end_date": end.isoformat(),
+            "member_status": member.status.value
+        }
 
     member.status = MemberStatus.ACTIVE
     if member.user_id:

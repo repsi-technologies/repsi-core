@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.member import MembershipPlan, Membership, Member, MemberStatus
 from app.models.user import Workspace
@@ -14,9 +15,21 @@ from app.schemas.membership import (
     MembershipResponse,
     ExpiringMembershipItem,
     RenewalReminderItem,
+    MembershipFreezeRequest,
+    MembershipExtendRequest,
+    MembershipCancelRequest,
+    MembershipRenewRequest,
+    MembershipDetailResponse,
+    MembershipEventResponse,
+    MembershipFreezeResponse,
 )
+from app.models.member_records import MembershipEvent, MembershipFreeze
 from app.repositories.base import BaseTenantRepository
-from app.middleware.tenant import get_current_tenant, TenantContext
+from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
+from app.services import membership_lifecycle as lifecycle
+
+STAFF_ROLES = ("OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN")
+require_staff = require_roles(*STAFF_ROLES)
 
 router = APIRouter(prefix="/memberships", tags=["Memberships"])
 
@@ -84,7 +97,7 @@ def delete_plan(
 @router.get("/", response_model=List[MembershipResponse])
 def list_memberships(
     member_id: Optional[str] = None,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_staff),
     db: Session = Depends(get_db)
 ):
     query = db.query(Membership).filter(Membership.workspace_id == tenant.workspace_id)
@@ -116,26 +129,16 @@ def create_membership(
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    # Calculate end date based on duration_months
-    days_duration = max(1, plan.duration_months) * 30
-    end_date = data.start_date + timedelta(days=days_duration)
-
-    repo = BaseTenantRepository[Membership](Membership, db, tenant.workspace_id)
-    membership = repo.create(
-        member_id=data.member_id,
-        plan_id=data.plan_id,
-        start_date=data.start_date,
-        end_date=end_date,
-        status=MemberStatus.ACTIVE,
-        price_paid=data.price_paid,
-        auto_renew=data.auto_renew
+    membership = lifecycle.assign_membership(
+        db, member, plan, data.start_date, data.price_paid, tenant.user_id, auto_renew=data.auto_renew
     )
 
-    # Ensure member status is active
-    if member.status != MemberStatus.ACTIVE:
+    # Assignment restores members whose account status was a legacy membership value (expired/frozen/...),
+    # but never overrides a deliberate account status such as suspended, inactive or archived.
+    if member.status in (MemberStatus.EXPIRED, MemberStatus.EXPIRING, MemberStatus.FROZEN, MemberStatus.CANCELLED):
         member.status = MemberStatus.ACTIVE
-        db.commit()
-
+    db.commit()
+    db.refresh(membership)
     return membership
 
 
@@ -143,7 +146,7 @@ def create_membership(
 def get_expiring_memberships(
     days: int = Query(7, ge=1, le=90),
     include_expired: bool = Query(True),
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_staff),
     db: Session = Depends(get_db)
 ):
     """
@@ -205,38 +208,10 @@ def check_and_update_expiries(
     if tenant.role not in ["OWNER", "ADMIN", "STAFF", "SUPER_ADMIN"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
 
-    today = date.today()
-    overdue_memberships = (
-        db.query(Membership)
-        .filter(
-            Membership.workspace_id == tenant.workspace_id,
-            Membership.end_date < today,
-            Membership.status == MemberStatus.ACTIVE
-        )
-        .all()
-    )
-
-    expired_count = len(overdue_memberships)
-    for mem in overdue_memberships:
-        mem.status = MemberStatus.EXPIRED
-        # Also check if member has any other active membership
-        other_active = (
-            db.query(Membership)
-            .filter(
-                Membership.workspace_id == tenant.workspace_id,
-                Membership.member_id == mem.member_id,
-                Membership.id != mem.id,
-                Membership.end_date >= today,
-                Membership.status == MemberStatus.ACTIVE
-            )
-            .first()
-        )
-        if not other_active:
-            m = db.query(Member).filter(Member.id == mem.member_id).first()
-            if m:
-                m.status = MemberStatus.EXPIRED
-
+    result = lifecycle.run_due_transitions(db, tenant.workspace_id)
     db.commit()
+    today = date.fromisoformat(result["run_date"])
+    expired_count = result["expired"]
 
     # Expiring soon (next 7 days)
     expiring_soon_count = (
@@ -254,14 +229,16 @@ def check_and_update_expiries(
         "status": "success",
         "expired_updated": expired_count,
         "expiring_soon_7d": expiring_soon_count,
-        "audit_date": today.isoformat()
+        "audit_date": today.isoformat(),
+        "freezes_started": result["freezes_started"],
+        "freezes_resumed": result["freezes_resumed"],
     }
 
 
 @router.get("/renewal-reminders", response_model=List[RenewalReminderItem])
 def get_renewal_reminders(
     days: int = Query(7, ge=1, le=90),
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_staff),
     db: Session = Depends(get_db)
 ):
     """
@@ -326,3 +303,147 @@ def get_renewal_reminders(
             )
         )
     return reminders
+
+
+def _get_membership_or_404(db: Session, tenant: TenantContext, membership_id: str) -> Membership:
+    membership = db.query(Membership).filter(
+        Membership.workspace_id == tenant.workspace_id, Membership.id == membership_id
+    ).first()
+    if not membership:
+        raise HTTPException(status_code=404, detail="Membership not found")
+    return membership
+
+
+def _membership_detail(db: Session, membership: Membership) -> MembershipDetailResponse:
+    today = lifecycle.workspace_today(db, membership.workspace_id)
+    paid = lifecycle.amount_paid(db, membership)
+    balance = round(max(0.0, membership.price_paid - paid), 2)
+    if membership.price_paid <= 0 or balance == 0:
+        payment_status = "paid"
+    elif paid > 0:
+        payment_status = "partial"
+    else:
+        payment_status = "unpaid"
+    used = lifecycle.used_freeze_days(db, membership)
+    freezes = db.query(MembershipFreeze).filter(
+        MembershipFreeze.workspace_id == membership.workspace_id,
+        MembershipFreeze.membership_id == membership.id,
+    ).order_by(MembershipFreeze.start_date.desc()).all()
+    events = db.query(MembershipEvent).filter(
+        MembershipEvent.workspace_id == membership.workspace_id,
+        MembershipEvent.membership_id == membership.id,
+    ).order_by(MembershipEvent.created_at.desc()).all()
+    return MembershipDetailResponse(
+        id=membership.id,
+        member_id=membership.member_id,
+        plan_id=membership.plan_id,
+        plan_name=membership.plan.name if membership.plan else None,
+        start_date=membership.start_date,
+        end_date=membership.end_date,
+        status=membership.status,
+        effective_status=lifecycle.effective_status(membership, today),
+        price_paid=membership.price_paid,
+        amount_paid=paid,
+        balance_due=balance,
+        payment_status=payment_status,
+        auto_renew=membership.auto_renew,
+        freeze_days_used=used,
+        freeze_days_remaining=max(0, settings.MEMBERSHIP_MAX_FREEZE_DAYS - used),
+        freezes=[MembershipFreezeResponse.model_validate(f) for f in freezes],
+        events=[MembershipEventResponse.model_validate(e) for e in events],
+    )
+
+
+@router.post("/run-lifecycle")
+def run_membership_lifecycle(
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    """Applies due freezes, automatic resumptions and expiries for this gym. Safe to call repeatedly."""
+    result = lifecycle.run_due_transitions(db, tenant.workspace_id)
+    db.commit()
+    return {"status": "success", **result}
+
+
+@router.get("/{membership_id}", response_model=MembershipDetailResponse)
+def get_membership_detail(
+    membership_id: str,
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    return _membership_detail(db, _get_membership_or_404(db, tenant, membership_id))
+
+
+@router.post("/{membership_id}/freeze", response_model=MembershipDetailResponse)
+def freeze_membership(
+    membership_id: str,
+    data: MembershipFreezeRequest,
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    membership = _get_membership_or_404(db, tenant, membership_id)
+    today = lifecycle.workspace_today(db, tenant.workspace_id)
+    lifecycle.freeze_membership(db, membership, data.start_date, data.end_date, data.reason, tenant.user_id, today)
+    db.commit()
+    return _membership_detail(db, membership)
+
+
+@router.post("/{membership_id}/unfreeze", response_model=MembershipDetailResponse)
+def unfreeze_membership(
+    membership_id: str,
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    membership = _get_membership_or_404(db, tenant, membership_id)
+    today = lifecycle.workspace_today(db, tenant.workspace_id)
+    lifecycle.unfreeze_membership(db, membership, tenant.user_id, today)
+    db.commit()
+    return _membership_detail(db, membership)
+
+
+@router.post("/{membership_id}/extend", response_model=MembershipDetailResponse)
+def extend_membership(
+    membership_id: str,
+    data: MembershipExtendRequest,
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    membership = _get_membership_or_404(db, tenant, membership_id)
+    today = lifecycle.workspace_today(db, tenant.workspace_id)
+    lifecycle.extend_membership(db, membership, data.days, data.reason, tenant.user_id, today)
+    db.commit()
+    return _membership_detail(db, membership)
+
+
+@router.post("/{membership_id}/cancel", response_model=MembershipDetailResponse)
+def cancel_membership(
+    membership_id: str,
+    data: MembershipCancelRequest,
+    tenant: TenantContext = Depends(require_roles("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")),
+    db: Session = Depends(get_db),
+):
+    membership = _get_membership_or_404(db, tenant, membership_id)
+    lifecycle.cancel_membership(db, membership, data.reason, tenant.user_id)
+    db.commit()
+    return _membership_detail(db, membership)
+
+
+@router.post("/{membership_id}/renew", response_model=MembershipDetailResponse, status_code=status.HTTP_201_CREATED)
+def renew_membership(
+    membership_id: str,
+    data: MembershipRenewRequest,
+    tenant: TenantContext = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
+    membership = _get_membership_or_404(db, tenant, membership_id)
+    plan_id = data.plan_id or membership.plan_id
+    plan = db.query(MembershipPlan).filter(
+        MembershipPlan.workspace_id == tenant.workspace_id, MembershipPlan.id == plan_id
+    ).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Membership plan not found")
+    today = lifecycle.workspace_today(db, tenant.workspace_id)
+    renewed = lifecycle.renew_membership(db, membership, plan, data.mode, data.price, tenant.user_id, today)
+    db.commit()
+    db.refresh(renewed)
+    return _membership_detail(db, renewed)

@@ -3,7 +3,16 @@
 // all frontend features. When the FastAPI backend is integrated, the
 // API client will return these exact shapes.
 
-export type MemberStatus = "active" | "expiring" | "expired" | "frozen" | "cancelled";
+export type MemberStatus =
+  | "active"
+  | "inactive"
+  | "suspended"
+  | "archived"
+  // legacy values written by older versions
+  | "expiring"
+  | "expired"
+  | "frozen"
+  | "cancelled";
 export type MembershipPlanName = "Monthly" | "Quarterly" | "Annual" | "Day Pass";
 
 export interface Member {
@@ -16,8 +25,8 @@ export interface Member {
   repsiAccess?: "Connected" | "Not connected";
   userId?: string | null;
   joined: string; // ISO date string
-  expiry: string; // ISO date string
-  lastPayment: number; // INR amount
+  expiry?: string | null; // ISO date string of the current membership end
+  lastPayment?: number; // INR amount
   avatar?: string;
   trainerId?: string;
   notes?: string;

@@ -6,12 +6,17 @@ from app.models.base import TimestampMixin, TenantMixin, generate_uuid
 
 
 class MemberStatus(str, enum.Enum):
+    # Shared by Member (account status) and Membership (period status).
+    # Account statuses: ACTIVE, INACTIVE, SUSPENDED, ARCHIVED.
+    # Period statuses: ACTIVE, FROZEN, EXPIRED, CANCELLED (EXPIRING is legacy/display only).
     ACTIVE = "active"
     EXPIRING = "expiring"
     EXPIRED = "expired"
     FROZEN = "frozen"
     CANCELLED = "cancelled"
     SUSPENDED = "suspended"
+    INACTIVE = "inactive"
+    ARCHIVED = "archived"
 
 
 class MembershipPlan(Base, TimestampMixin, TenantMixin):
@@ -62,6 +67,15 @@ class Member(Base, TimestampMixin, TenantMixin):
             if self.memberships[0].plan:
                 return self.memberships[0].plan.name
         return "Monthly"
+
+    @property
+    def membership_end_date(self):
+        """End date of the latest active/frozen period, else of the most recent period."""
+        if not self.memberships:
+            return None
+        current = [m for m in self.memberships if m.status in (MemberStatus.ACTIVE, MemberStatus.FROZEN)]
+        pool = current or self.memberships
+        return max(m.end_date for m in pool)
 
     # Relationships
     memberships = relationship("Membership", back_populates="member", cascade="all, delete-orphan")

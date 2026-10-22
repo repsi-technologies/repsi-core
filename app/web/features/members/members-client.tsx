@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MembersToolbar } from "./members-toolbar";
-import { MembersTable } from "./members-table";
+import { MembersTable, type ServerSort } from "./members-table";
 import { AddMemberDialog } from "./add-member-dialog";
 import { InviteDialog } from "@/components/invite-dialog";
 import { CsvImportModal } from "./csv-import-modal";
 import { RenewalAlertsCard } from "./renewal-alerts-card";
+import { Button } from "@/components/ui/button";
 import type { Member, MemberStatus, MembershipPlanName } from "@/types";
 import { repsiApi } from "@/lib/api";
 
@@ -14,32 +15,69 @@ interface MembersClientProps {
   initialMembers: Member[];
 }
 
+const PAGE_SIZES = [25, 50, 100];
+
+function toMember(m: any): Member {
+  return {
+    id: m.id,
+    name: `${m.first_name || ""} ${m.last_name || ""}`.trim(),
+    email: m.email,
+    phone: m.phone || "",
+    status: m.status as MemberStatus,
+    plan: (m.plan_name as MembershipPlanName) || "Monthly",
+    repsiAccess: m.repsi_access,
+    userId: m.user_id,
+    joined: m.joined_date,
+    expiry: m.membership_end_date,
+  };
+}
+
 export function MembersClient({ initialMembers }: MembersClientProps) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
+  const [total, setTotal] = useState(initialMembers.length);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatus | "all">("all");
-  const [planFilter, setPlanFilter] = useState<MembershipPlanName | "all">("all");
+  const [planFilter, setPlanFilter] = useState<string>("all");
+  const [sort, setSort] = useState<ServerSort>({ column: "created_at", direction: "desc" });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [csvModalOpen, setCsvModalOpen] = useState(false);
 
-  // Sync with persistent API / DB on mount
-  const fetchMembers = useCallback(() => {
-    repsiApi.getMembers().then((apiMems) => {
-      const mapped: Member[] = (apiMems || []).map((m) => ({
-        id: m.id,
-        name: m.name,
-        email: m.email,
-        phone: m.phone,
-        status: m.status as MemberStatus,
-        plan: (m.plan as MembershipPlanName) || "Monthly",
-        joined: m.joinedDate || new Date().toISOString().split("T")[0],
-        expiry: "2026-12-31",
-        lastPayment: 1000,
-      }));
-      setMembers(mapped);
-    });
-  }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Any filter change returns to the first page.
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, planFilter, sort, pageSize]);
+
+  const fetchMembers = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await repsiApi.listMembers({
+        query: debouncedSearch,
+        status: statusFilter,
+        planId: planFilter,
+        sort: `${sort.direction === "desc" ? "-" : ""}${sort.column}`,
+        page,
+        pageSize,
+      });
+      setMembers(res.items.map(toMember));
+      setTotal(res.total);
+    } catch (err: any) {
+      setLoadError(err.message || "Failed to load members");
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearch, statusFilter, planFilter, sort, page, pageSize]);
 
   useEffect(() => {
     fetchMembers();
@@ -53,7 +91,10 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       const res = await fetch(repsiApi.getExportMembersCsvUrl(), {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      if (!res.ok) throw new Error("Failed to export members");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to export members");
+      }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -62,43 +103,33 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    } catch (err) {
-      console.warn("Export CSV error", err);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(err.message || "Failed to export members");
     }
   };
 
-  const filtered = useMemo(() => {
-    return members.filter((m) => {
-      const matchesSearch =
-        search === "" ||
-        m.name.toLowerCase().includes(search.toLowerCase()) ||
-        (m.email?.toLowerCase() || "").includes(search.toLowerCase()) ||
-        (m.phone || "").includes(search);
-      const matchesStatus = statusFilter === "all" || m.status === statusFilter;
-      const matchesPlan = planFilter === "all" || m.plan === planFilter;
-      return matchesSearch && matchesStatus && matchesPlan;
-    });
-  }, [members, search, statusFilter, planFilter]);
-
   const handleDeleteMember = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This will permanently remove the member and their user account from this gym.`)) {
+    if (!confirm(`Permanently delete "${name}"? This removes their membership, payment and attendance history. To keep records, archive the member from their profile instead.`)) {
       return;
     }
     try {
       await repsiApi.deleteMember(id);
-      setMembers((prev) => prev.filter((m) => m.id !== id));
-      window.dispatchEvent(new CustomEvent("repsi_storage_update"));
+      fetchMembers();
     } catch (err: any) {
       alert(err.message || "Failed to delete member");
     }
   };
 
+  const hasFilters = debouncedSearch !== "" || statusFilter !== "all" || planFilter !== "all";
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const firstRow = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastRow = Math.min(total, page * pageSize);
+
   return (
     <div className="space-y-5">
-      {/* 1. Automated Renewal Alerts Engine */}
       <RenewalAlertsCard />
 
-      {/* 2. Toolbar with Search, Filters, CSV Import/Export */}
       <MembersToolbar
         search={search}
         onSearchChange={setSearch}
@@ -110,16 +141,53 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
         onInviteMember={() => setInviteDialogOpen(true)}
         onImportCsv={() => setCsvModalOpen(true)}
         onExportCsv={handleExportCsv}
-        totalCount={members.length}
-        filteredCount={filtered.length}
+        totalCount={total}
+        filteredCount={total}
       />
 
-      <MembersTable
-        members={filtered}
-        onAddMember={() => setAddDialogOpen(true)}
-        onImportCsv={() => setCsvModalOpen(true)}
-        onDeleteMember={handleDeleteMember}
-      />
+      {loadError ? (
+        <div role="alert" className="rounded-[12px] border border-rose-500/30 bg-rose-500/5 p-6 text-center text-sm text-rose-500">
+          <p>{loadError}</p>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={fetchMembers}>Try again</Button>
+        </div>
+      ) : !loading && members.length === 0 && hasFilters ? (
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-8 text-center text-sm text-[var(--text-muted)]">
+          No members match these filters.
+        </div>
+      ) : (
+        <div className={loading ? "opacity-60 transition-opacity" : ""} aria-busy={loading}>
+          <MembersTable
+            members={members}
+            onAddMember={() => setAddDialogOpen(true)}
+            onImportCsv={() => setCsvModalOpen(true)}
+            onDeleteMember={handleDeleteMember}
+            serverSort={sort}
+            onServerSortChange={setSort}
+            footer={
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
+                <span>
+                  {firstRow}–{lastRow} of {total} member{total !== 1 ? "s" : ""}
+                </span>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1">
+                    Rows
+                    <select
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                      className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-1 text-[var(--text)]"
+                    >
+                      {PAGE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </label>
+                  <Button variant="secondary" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)}>Previous</Button>
+                  <span>Page {page} of {pageCount}</span>
+                  <Button variant="secondary" size="sm" disabled={page >= pageCount || loading} onClick={() => setPage((p) => p + 1)}>Next</Button>
+                </div>
+              </div>
+            }
+          />
+        </div>
+      )}
 
       <InviteDialog
         open={inviteDialogOpen}
@@ -131,42 +199,13 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
         onSubmit={async (data) => {
-          // Persist to FastAPI and DB via repsiApi
-          const created = await repsiApi.createMember({
+          await repsiApi.createMember({
             name: data.name,
             email: data.email,
             phone: data.phone,
             password: data.password,
             plan: data.plan,
           });
-
-          const newMember: Member = {
-            id: created.id,
-            name: created.name,
-            email: created.email,
-            phone: created.phone,
-            plan: (created.plan as MembershipPlanName) || data.plan,
-            status: "active",
-            joined: data.startDate,
-            expiry: new Date(
-              new Date(data.startDate).setMonth(
-                new Date(data.startDate).getMonth() +
-                  (data.plan === "Annual" ? 12 : data.plan === "Quarterly" ? 3 : 1)
-              )
-            )
-              .toISOString()
-              .split("T")[0],
-            lastPayment:
-              data.plan === "Annual"
-                ? 18000
-                : data.plan === "Quarterly"
-                ? 6500
-                : data.plan === "Day Pass"
-                ? 200
-                : 2500,
-          };
-          setMembers((prev) => [newMember, ...prev.filter((m) => m.id !== newMember.id)]);
-          // Also fetch full updated list from DB
           fetchMembers();
         }}
       />

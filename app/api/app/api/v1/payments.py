@@ -25,6 +25,7 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 
 @router.get("/", response_model=List[PaymentResponse])
 def get_payments(
+    member_id: Optional[str] = None,
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
@@ -44,6 +45,8 @@ def get_payments(
                     Payment.member_id == m.id
                 ).order_by(Payment.paid_at.desc()).all()
             return []
+    if member_id:
+        return repo.scoped_query().filter(Payment.member_id == member_id).order_by(Payment.paid_at.desc()).limit(200).all()
     payments = repo.get_multi(limit=50)
     return payments or []
 

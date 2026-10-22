@@ -1,6 +1,6 @@
-from typing import Optional, List
-from datetime import date
-from pydantic import BaseModel, EmailStr, ConfigDict
+from typing import Optional, List, Dict, Any
+from datetime import date, datetime
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from app.models.member import MemberStatus
 
 
@@ -53,6 +53,8 @@ class MemberResponse(BaseModel):
     gender: Optional[str] = None
     emergency_contact: Optional[str] = None
     plan_name: Optional[str] = "Monthly"
+    membership_end_date: Optional[date] = None
+    date_of_birth: Optional[date] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -76,3 +78,83 @@ class CheckContactResponse(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
 
+
+
+class MemberStatusChangeRequest(BaseModel):
+    status: MemberStatus
+    reason: Optional[str] = Field(None, max_length=1000)
+
+
+class MemberNoteCreate(BaseModel):
+    body: str = Field(..., min_length=1, max_length=5000)
+
+
+class MemberNoteResponse(BaseModel):
+    id: str
+    member_id: str
+    author_user_id: Optional[str] = None
+    author_name: Optional[str] = None
+    body: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MemberHistoryItem(BaseModel):
+    id: str
+    source: str  # member | membership
+    event_type: str
+    membership_id: Optional[str] = None
+    actor_user_id: Optional[str] = None
+    actor_name: Optional[str] = None
+    from_status: Optional[str] = None
+    to_status: Optional[str] = None
+    previous_end_date: Optional[date] = None
+    new_end_date: Optional[date] = None
+    reason: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+    created_at: datetime
+
+
+class SelfMembershipItem(BaseModel):
+    id: str
+    plan_name: Optional[str] = None
+    start_date: date
+    end_date: date
+    status: str
+    price_paid: float
+    amount_paid: float
+
+
+class SelfPaymentItem(BaseModel):
+    id: str
+    amount: float
+    currency: str
+    method: str
+    status: str
+    paid_at: datetime
+    membership_id: Optional[str] = None
+
+
+class MemberSelfResponse(BaseModel):
+    """Member-facing profile. Never includes staff notes or internal history."""
+    id: str
+    first_name: str
+    last_name: Optional[str] = ""
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    emergency_contact: Optional[str] = None
+    status: MemberStatus
+    joined_date: date
+    memberships: List[SelfMembershipItem] = []
+    payments: List[SelfPaymentItem] = []
+
+
+class MemberSelfUpdate(BaseModel):
+    gender: Optional[str] = Field(None, max_length=20)
+    date_of_birth: Optional[date] = None
+    emergency_contact: Optional[str] = Field(None, max_length=100)

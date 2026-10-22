@@ -40,9 +40,12 @@ import { Users } from "lucide-react";
 
 const statusBadgeVariant: Record<
   MemberStatus,
-  "active" | "expiring" | "expired" | "frozen" | "cancelled"
+  "active" | "expiring" | "expired" | "frozen" | "cancelled" | "outline"
 > = {
   active: "active",
+  inactive: "expired",
+  suspended: "cancelled",
+  archived: "outline",
   expiring: "expiring",
   expired: "expired",
   frozen: "frozen",
@@ -51,11 +54,26 @@ const statusBadgeVariant: Record<
 
 const statusLabel: Record<MemberStatus, string> = {
   active: "Active",
+  inactive: "Inactive",
+  suspended: "Suspended",
+  archived: "Archived",
   expiring: "Expiring",
   expired: "Expired",
   frozen: "Frozen",
   cancelled: "Cancelled",
 };
+
+/** Columns the API can sort by, keyed by table column id. */
+const SERVER_SORT_COLUMNS: Record<string, string> = {
+  name: "first_name",
+  status: "status",
+  joined: "joined_date",
+};
+
+export interface ServerSort {
+  column: string;
+  direction: SortDirection;
+}
 
 // ─── Sort Icon ────────────────────────────────────────────────────────────────
 
@@ -172,15 +190,33 @@ interface MembersTableProps {
   onAddMember: () => void;
   onImportCsv?: () => void;
   onDeleteMember?: (id: string, name: string) => void;
+  /** When provided, sorting is delegated to the server and rows are rendered in the given order. */
+  serverSort?: ServerSort;
+  onServerSortChange?: (sort: ServerSort) => void;
+  footer?: React.ReactNode;
 }
 
-export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember }: MembersTableProps) {
+export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember, serverSort, onServerSortChange, footer }: MembersTableProps) {
   const pathname = usePathname();
   const workspace = getWorkspaceFromPath(pathname);
-  const [sortColumn, setSortColumn] = useState("name");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [localSortColumn, setSortColumn] = useState("name");
+  const [localSortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const serverColumnId = serverSort
+    ? Object.keys(SERVER_SORT_COLUMNS).find((k) => SERVER_SORT_COLUMNS[k] === serverSort.column) || ""
+    : "";
+  const sortColumn = serverSort ? serverColumnId : localSortColumn;
+  const sortDirection = serverSort ? serverSort.direction : localSortDirection;
 
   function handleSort(column: string) {
+    if (serverSort && onServerSortChange) {
+      const apiColumn = SERVER_SORT_COLUMNS[column];
+      if (!apiColumn) return;
+      onServerSortChange({
+        column: apiColumn,
+        direction: apiColumn === serverSort.column && serverSort.direction === "asc" ? "desc" : "asc",
+      });
+      return;
+    }
     if (column === sortColumn) {
       setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -189,7 +225,7 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
     }
   }
 
-  const sorted = [...members].sort((a, b) => {
+  const sorted = serverSort ? members : [...members].sort((a, b) => {
     let valA: string | number = "";
     let valB: string | number = "";
 
@@ -211,12 +247,12 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
         valB = b.joined;
         break;
       case "expiry":
-        valA = a.expiry;
-        valB = b.expiry;
+        valA = a.expiry || "";
+        valB = b.expiry || "";
         break;
       case "payment":
-        valA = a.lastPayment;
-        valB = b.lastPayment;
+        valA = a.lastPayment ?? 0;
+        valB = b.lastPayment ?? 0;
         break;
     }
 
@@ -402,14 +438,14 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
                         : "text-[var(--text-secondary)]"
                     )}
                   >
-                    {formatDate(member.expiry)}
+                    {member.expiry ? formatDate(member.expiry) : "—"}
                   </span>
                 </td>
 
                 {/* Last Payment */}
                 <td className="px-4 py-3">
                   <span className="text-sm text-[var(--text-secondary)] tabular-nums">
-                    {formatCurrency(member.lastPayment)}
+                    {member.lastPayment != null ? formatCurrency(member.lastPayment) : "—"}
                   </span>
                 </td>
 
@@ -425,9 +461,11 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-[var(--border)] bg-[var(--background)]">
-        <p className="text-xs text-[var(--text-muted)]">
-          Showing {sorted.length} member{sorted.length !== 1 ? "s" : ""}
-        </p>
+        {footer ?? (
+          <p className="text-xs text-[var(--text-muted)]">
+            Showing {sorted.length} member{sorted.length !== 1 ? "s" : ""}
+          </p>
+        )}
       </div>
     </div>
   );

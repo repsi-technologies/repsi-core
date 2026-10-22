@@ -289,6 +289,77 @@ function checkAuthResponse(res: Response) {
   }
 }
 
+export type ApiAccountStatus = "active" | "inactive" | "suspended" | "archived";
+
+export interface ApiMemberNote {
+  id: string;
+  member_id: string;
+  author_user_id?: string | null;
+  author_name?: string | null;
+  body: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiMemberHistoryItem {
+  id: string;
+  source: "member" | "membership";
+  event_type: string;
+  membership_id?: string | null;
+  actor_user_id?: string | null;
+  actor_name?: string | null;
+  from_status?: string | null;
+  to_status?: string | null;
+  previous_end_date?: string | null;
+  new_end_date?: string | null;
+  reason?: string | null;
+  details?: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface ApiMembership {
+  id: string;
+  member_id: string;
+  plan_id: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  price_paid: number;
+  auto_renew: boolean;
+}
+
+export interface ApiMembershipDetail extends ApiMembership {
+  plan_name?: string | null;
+  effective_status: string;
+  amount_paid: number;
+  balance_due: number;
+  payment_status: "unpaid" | "partial" | "paid";
+  freeze_days_used: number;
+  freeze_days_remaining: number;
+  freezes: { id: string; start_date: string; end_date: string; reason?: string | null; resumed_at?: string | null; days_frozen?: number | null }[];
+  events: { id: string; event_type: string; reason?: string | null; created_at: string; previous_end_date?: string | null; new_end_date?: string | null }[];
+}
+
+/** JSON request helper for member/membership endpoints; surfaces the backend's `detail` message. */
+async function memberRequest(path: string, method: string, body: unknown, fallbackError: string): Promise<any> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: {
+      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...getAuthHeader(),
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    checkAuthResponse(res);
+    const err = await res.json().catch(() => ({}));
+    const detail = Array.isArray(err.detail) ? err.detail.map((d: any) => d.msg).join("; ") : err.detail;
+    throw new Error(detail || fallbackError);
+  }
+  return res.status === 204 ? null : await res.json();
+}
+
 export const repsiApi = {
   // Members
   async getMembers(): Promise<ApiMember[]> {
@@ -415,6 +486,89 @@ export const repsiApi = {
       throw new Error(err.detail || "Failed to update member");
     }
     return await res.json();
+  },
+
+  /** Server-side search, filtering, sorting and pagination for the member directory. */
+  async listMembers(params: {
+    query?: string;
+    status?: string;
+    planId?: string;
+    sort?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ items: any[]; total: number; page: number; page_size: number }> {
+    const qs = new URLSearchParams();
+    if (params.query) qs.set("query", params.query);
+    if (params.status && params.status !== "all") qs.set("status", params.status);
+    if (params.planId && params.planId !== "all") qs.set("plan_id", params.planId);
+    if (params.sort) qs.set("sort", params.sort);
+    qs.set("page", String(params.page || 1));
+    qs.set("page_size", String(params.pageSize || 25));
+    return memberRequest(`/members/?${qs.toString()}`, "GET", undefined, "Failed to load members");
+  },
+
+  async changeMemberStatus(id: string, status: ApiAccountStatus, reason?: string): Promise<any> {
+    return memberRequest(`/members/${id}/status`, "POST", { status, reason: reason || null }, "Failed to change member status");
+  },
+
+  async getMemberNotes(id: string): Promise<ApiMemberNote[]> {
+    return memberRequest(`/members/${id}/notes`, "GET", undefined, "Failed to load notes");
+  },
+
+  async addMemberNote(id: string, body: string): Promise<ApiMemberNote> {
+    return memberRequest(`/members/${id}/notes`, "POST", { body }, "Failed to add note");
+  },
+
+  async updateMemberNote(id: string, noteId: string, body: string): Promise<ApiMemberNote> {
+    return memberRequest(`/members/${id}/notes/${noteId}`, "PUT", { body }, "Failed to update note");
+  },
+
+  async deleteMemberNote(id: string, noteId: string): Promise<void> {
+    await memberRequest(`/members/${id}/notes/${noteId}`, "DELETE", undefined, "Failed to delete note");
+  },
+
+  async getMemberHistory(id: string, source?: "member" | "membership"): Promise<ApiMemberHistoryItem[]> {
+    const qs = source ? `?source=${source}` : "";
+    return memberRequest(`/members/${id}/history${qs}`, "GET", undefined, "Failed to load history");
+  },
+
+  async getMemberMemberships(memberId: string): Promise<ApiMembership[]> {
+    return memberRequest(`/memberships/?member_id=${encodeURIComponent(memberId)}`, "GET", undefined, "Failed to load memberships");
+  },
+
+  async getMembershipDetail(membershipId: string): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}`, "GET", undefined, "Failed to load membership");
+  },
+
+  async assignMembership(data: { member_id: string; plan_id: string; start_date: string; price_paid: number }): Promise<ApiMembership> {
+    return memberRequest(`/memberships/`, "POST", data, "Failed to assign membership");
+  },
+
+  async freezeMembership(membershipId: string, data: { start_date: string; end_date: string; reason?: string }): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}/freeze`, "POST", data, "Failed to freeze membership");
+  },
+
+  async unfreezeMembership(membershipId: string): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}/unfreeze`, "POST", {}, "Failed to unfreeze membership");
+  },
+
+  async extendMembership(membershipId: string, days: number, reason: string): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}/extend`, "POST", { days, reason }, "Failed to extend membership");
+  },
+
+  async cancelMembership(membershipId: string, reason: string): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}/cancel`, "POST", { reason }, "Failed to cancel membership");
+  },
+
+  async renewMembershipPeriod(
+    membershipId: string,
+    data: { mode: "after_current" | "immediate"; plan_id?: string; price?: number },
+  ): Promise<ApiMembershipDetail> {
+    return memberRequest(`/memberships/${membershipId}/renew`, "POST", data, "Failed to renew membership");
+  },
+
+  async getMemberPayments(memberId: string): Promise<any[]> {
+    return memberRequest(`/payments/?member_id=${encodeURIComponent(memberId)}`, "GET", undefined, "Failed to load payments");
   },
 
   async renewMember(id: string, data?: any): Promise<any> {

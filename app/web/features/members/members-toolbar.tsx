@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { repsiApi } from "@/lib/api";
 import { Search, SlidersHorizontal, Plus, Download, Mail, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,15 +13,16 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { MemberStatus, MembershipPlanName } from "@/types";
+import type { MemberStatus } from "@/types";
 
 interface MembersToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
   statusFilter: MemberStatus | "all";
   onStatusFilterChange: (value: MemberStatus | "all") => void;
-  planFilter: MembershipPlanName | "all";
-  onPlanFilterChange: (value: MembershipPlanName | "all") => void;
+  /** Membership plan id, or "all" */
+  planFilter: string;
+  onPlanFilterChange: (value: string) => void;
   onAddMember: () => void;
   onInviteMember?: () => void;
   onImportCsv?: () => void;
@@ -30,20 +32,11 @@ interface MembersToolbarProps {
 }
 
 const statusOptions: Array<{ value: MemberStatus | "all"; label: string }> = [
-  { value: "all", label: "All statuses" },
+  { value: "all", label: "All (except archived)" },
   { value: "active", label: "Active" },
-  { value: "expiring", label: "Expiring soon" },
-  { value: "expired", label: "Expired" },
-  { value: "frozen", label: "Frozen" },
-  { value: "cancelled", label: "Cancelled" },
-];
-
-const planOptions: Array<{ value: MembershipPlanName | "all"; label: string }> = [
-  { value: "all", label: "All plans" },
-  { value: "Monthly", label: "Monthly" },
-  { value: "Quarterly", label: "Quarterly" },
-  { value: "Annual", label: "Annual" },
-  { value: "Day Pass", label: "Day Pass" },
+  { value: "inactive", label: "Inactive" },
+  { value: "suspended", label: "Suspended" },
+  { value: "archived", label: "Archived" },
 ];
 
 export function MembersToolbar({
@@ -61,6 +54,13 @@ export function MembersToolbar({
   filteredCount,
 }: MembersToolbarProps) {
   const hasFilters = statusFilter !== "all" || planFilter !== "all" || search !== "";
+  const [planOptions, setPlanOptions] = useState<Array<{ value: string; label: string }>>([{ value: "all", label: "All plans" }]);
+
+  useEffect(() => {
+    repsiApi.getMembershipPlans().then((plans) =>
+      setPlanOptions([{ value: "all", label: "All plans" }, ...plans.map((p: any) => ({ value: p.id, label: p.name }))])
+    );
+  }, []);
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -69,7 +69,8 @@ export function MembersToolbar({
         {/* Search */}
         <div className="flex-1 min-w-[140px]">
           <Input
-            placeholder="Search members..."
+            aria-label="Search members by name, phone, email or member ID"
+            placeholder="Name, phone, email or ID…"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             startIcon={<Search className="h-3.5 w-3.5" />}
@@ -114,7 +115,7 @@ export function MembersToolbar({
               size="sm"
               className={planFilter !== "all" ? "border-[var(--primary)] text-[var(--primary-dark)] dark:text-[var(--primary-hover)]" : ""}
             >
-              {planFilter === "all" ? "Plan" : planFilter}
+              {planFilter === "all" ? "Plan" : planOptions.find((o) => o.value === planFilter)?.label || "Plan"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-40">

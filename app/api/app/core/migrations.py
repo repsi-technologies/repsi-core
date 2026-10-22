@@ -248,6 +248,13 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
                     conn.execute(text(f"ALTER TYPE invitationrole ADD VALUE IF NOT EXISTS '{value}'"))
             except Exception as e:
                 logger.warning(f"Could not extend invitationrole enum with {value}: {e}")
+        # Account statuses for members (memberships share the same enum type).
+        for value in ("INACTIVE", "ARCHIVED"):
+            try:
+                with conn.begin_nested():
+                    conn.execute(text(f"ALTER TYPE memberstatus ADD VALUE IF NOT EXISTS '{value}'"))
+            except Exception as e:
+                logger.warning(f"Could not extend memberstatus enum with {value}: {e}")
 
 
 if __name__ == "__main__":

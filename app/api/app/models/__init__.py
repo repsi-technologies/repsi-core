@@ -17,6 +17,7 @@ from app.models.payment_settings import BusinessPaymentSettings, ManualPaymentSu
 from app.models.invitation import GymInvitation, InvitationRole, InvitationStatus
 from app.models.machine import GymMachine
 from app.models.member import Member, Membership, MembershipPlan, MemberStatus
+from app.models.member_records import MemberEvent, MemberNote, MembershipEvent, MembershipFreeze
 from app.models.system import Activity, AuditLog, Notification, Report
 from app.models.trainer import (
     GymClass,
@@ -61,6 +62,10 @@ __all__ = [
     "InvitationStatus",
     "Invoice",
     "Member",
+    "MemberEvent",
+    "MemberNote",
+    "MembershipEvent",
+    "MembershipFreeze",
     "MemberStatus",
     "Membership",
     "MembershipPlan",

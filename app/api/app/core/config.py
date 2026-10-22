@@ -56,6 +56,11 @@ class Settings(BaseSettings):
 
     PASSWORD_RESET_EXPIRE_MINUTES: int = 30
 
+    # Membership lifecycle defaults (used when a workspace has no override)
+    DEFAULT_TIMEZONE: str = "Asia/Kolkata"
+    MEMBERSHIP_MAX_FREEZE_DAYS: int = 90
+    MEMBERSHIP_MAX_EXTENSION_DAYS: int = 365
+
     # Database
     DATABASE_URL: str = "sqlite:///./repsi.db"
     DATABASE_POOL_SIZE: int = 10
