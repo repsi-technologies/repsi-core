@@ -16,6 +16,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.audit import record_audit
 from app.core.phone import optional_phone, require_phone
 from app.middleware.tenant import TenantContext
 from app.models.attendance import BranchAssignment, GymLocation
@@ -569,14 +570,35 @@ class OrganizationService:
         if tenant.role == "ADMIN" and (member.role == UserRole.ADMIN or data.role == "ADMIN"):
             raise HTTPException(status_code=403, detail="Only the owner can manage admins.")
 
+        before = {"role": member.role.value, "is_active": bool(member.is_active)}
         if data.role is not None and data.role != member.role.value:
             member.role = UserRole(data.role)
             if member.role == UserRole.TRAINER:
                 self._ensure_trainer_record(member)
         if data.is_active is not None:
             member.is_active = data.is_active
+            # Deactivation revokes gym access (tenant middleware rejects inactive members) but keeps
+            # the trainer profile, assignments and attendance history intact for reporting.
+            if not data.is_active and member.role == UserRole.TRAINER:
+                trainer = self.db.query(Trainer).filter(
+                    Trainer.workspace_id == member.workspace_id, Trainer.user_id == member.user_id
+                ).first()
+                if trainer:
+                    trainer.is_active = False
+                    trainer.status = TrainerStatus.INACTIVE
         if data.branch_ids is not None:
             self.set_assignments(member, data.branch_ids)
+        after = {"role": member.role.value, "is_active": bool(member.is_active)}
+        if before != after or data.branch_ids is not None:
+            action = "staff.updated"
+            if before["is_active"] != after["is_active"]:
+                action = "staff.activated" if after["is_active"] else "staff.deactivated"
+            elif before["role"] != after["role"]:
+                action = "staff.role_changed"
+            record_audit(self.db, tenant.workspace_id, tenant.user_id, action,
+                         resource_type="workspace_member", resource_id=member.id,
+                         details={"before": before, "after": after,
+                                  **({"branch_ids": data.branch_ids} if data.branch_ids is not None else {})})
         self.db.commit()
         return next(m for m in self.list_team(tenant.workspace_id, tenant.user_id) if m.id == member.id)
 

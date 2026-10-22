@@ -194,6 +194,26 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
         ("opening_hours", "TEXT"),
         ("is_primary", false_default),
     ])
+    _add_missing_columns(conn, inspector, "attendance", [
+        ("recorded_by_user_id", "VARCHAR(64)"),
+        ("checked_out_by_user_id", "VARCHAR(64)"),
+        ("override_reason", "VARCHAR(500)"),
+        ("corrected_at", "TIMESTAMP"),
+    ])
+    _add_missing_columns(conn, inspector, "attendance_settings", [
+        ("require_active_membership", "BOOLEAN NOT NULL DEFAULT TRUE"),
+        ("expiry_grace_days", "INTEGER NOT NULL DEFAULT 0"),
+        ("max_visits_per_day", "INTEGER NOT NULL DEFAULT 0"),
+        ("block_on_overdue_invoice", "BOOLEAN NOT NULL DEFAULT TRUE"),
+    ])
+    _add_missing_columns(conn, inspector, "trainers", [
+        ("max_active_clients", "INTEGER"),
+    ])
+    _add_missing_columns(conn, inspector, "audit_logs", [
+        ("resource_type", "VARCHAR(50)"),
+        ("resource_id", "VARCHAR(64)"),
+        ("outcome", "VARCHAR(20)"),
+    ])
     _add_missing_columns(conn, inspector, "gym_invitations", [
         ("branch_ids", "TEXT"),
         ("accepted_user_id", "VARCHAR(64)"),
@@ -203,6 +223,14 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
     statements = [
         "CREATE UNIQUE INDEX IF NOT EXISTS uq_users_phone_e164 ON users (phone_e164)",
         "CREATE UNIQUE INDEX IF NOT EXISTS uq_gym_location_ws_code ON gym_locations (workspace_id, code)",
+        # One open visit per person. Skipped (with a warning) if existing data has duplicate open visits;
+        # run the auto-checkout or close them before restarting.
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_attendance_open_member ON attendance (workspace_id, member_id) "
+        "WHERE check_out_time IS NULL AND member_id IS NOT NULL",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_attendance_open_trainer ON attendance (workspace_id, trainer_id) "
+        "WHERE check_out_time IS NULL AND trainer_id IS NOT NULL",
+        "CREATE INDEX IF NOT EXISTS ix_audit_logs_resource_type ON audit_logs (resource_type)",
+        "CREATE INDEX IF NOT EXISTS ix_audit_logs_resource_id ON audit_logs (resource_id)",
     ]
     for stmt in statements:
         try:

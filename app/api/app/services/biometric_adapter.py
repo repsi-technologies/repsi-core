@@ -256,14 +256,6 @@ class BiometricService:
         person_type = "member" if member else "trainer"
         person_name = f"{member.first_name} {member.last_name or ''}".strip() if member else trainer.name
 
-        # 3. Check membership status
-        if member and member.status in [MemberStatus.EXPIRED, MemberStatus.CANCELLED]:
-            return {
-                "success": False,
-                "status": "MEMBERSHIP_INACTIVE",
-                "message": f"Access denied. Membership for {person_name} is {member.status.value.upper()}.",
-            }
-
         # 4. Check if currently checked in -> Check out; otherwise check in
         m_id = member.id if member else None
         t_id = trainer.id if trainer else None
@@ -302,7 +294,15 @@ class BiometricService:
             action = "CHECK_OUT"
             record = active_session
         else:
-            # Check in
+            # Check in: same access rules as desk and QR check-in
+            from app.services.attendance import AttendanceService
+            decision = AttendanceService(db, workspace_id).evaluate_access({"type": person_type, "obj": person_obj})
+            if not decision.allowed:
+                return {
+                    "success": False,
+                    "status": decision.code,
+                    "message": f"Access denied for {person_name}. {decision.reason}",
+                }
             record = Attendance(
                 workspace_id=workspace_id,
                 member_id=m_id,

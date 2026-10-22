@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum, ForeignKey, Index, Text, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum, ForeignKey, Index, Text, UniqueConstraint, text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
@@ -41,6 +41,10 @@ class Attendance(Base, TimestampMixin, TenantMixin):
     terminal_id = Column(String(64), nullable=True)  # Turnstile, Reception Tablet, or Kiosk ID
     status = Column(String(30), default=AttendanceStatus.CHECKED_IN.value, nullable=False, index=True)
     notes = Column(String(255), nullable=True)
+    recorded_by_user_id = Column(String(64), nullable=True)  # staff who recorded a manual/scanned check-in
+    checked_out_by_user_id = Column(String(64), nullable=True)
+    override_reason = Column(String(500), nullable=True)  # set when staff overrode an access denial
+    corrected_at = Column(DateTime, nullable=True)
 
     member = relationship("Member", foreign_keys=[member_id], lazy="joined")
     trainer = relationship("Trainer", foreign_keys=[trainer_id], lazy="joined")
@@ -91,6 +95,13 @@ class Attendance(Base, TimestampMixin, TenantMixin):
         Index("ix_attendance_ws_date", "workspace_id", "check_in_time"),
         Index("ix_attendance_ws_active", "workspace_id", "check_out_time"),
         Index("ix_attendance_mem_active", "workspace_id", "member_id", "check_out_time"),
+        # At most one open visit per person: the database rejects concurrent duplicate check-ins.
+        Index("uq_attendance_open_member", "workspace_id", "member_id", unique=True,
+              sqlite_where=text("check_out_time IS NULL AND member_id IS NOT NULL"),
+              postgresql_where=text("check_out_time IS NULL AND member_id IS NOT NULL")),
+        Index("uq_attendance_open_trainer", "workspace_id", "trainer_id", unique=True,
+              sqlite_where=text("check_out_time IS NULL AND trainer_id IS NOT NULL"),
+              postgresql_where=text("check_out_time IS NULL AND trainer_id IS NOT NULL")),
     )
 
 
@@ -123,6 +134,11 @@ class AttendanceSettings(Base, TimestampMixin, TenantMixin):
     qr_rotation_interval_minutes = Column(Integer, default=0, nullable=False)  # 0 = manual rotation
     allow_member_manual_checkout = Column(Boolean, default=True, nullable=False)
     allow_staff_manual_checkout = Column(Boolean, default=True, nullable=False)
+    # Access rules (see app/services/access_eligibility.py)
+    require_active_membership = Column(Boolean, default=True, nullable=False)
+    expiry_grace_days = Column(Integer, default=0, nullable=False)
+    max_visits_per_day = Column(Integer, default=0, nullable=False)  # 0 = unlimited
+    block_on_overdue_invoice = Column(Boolean, default=True, nullable=False)
 
     __table_args__ = (
         Index("ix_settings_ws_loc", "workspace_id", "gym_location_id"),
@@ -180,3 +196,28 @@ class ClassAttendance(Base, TimestampMixin, TenantMixin):
     member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
     check_in_time = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     status = Column(String(20), default="attended", nullable=False)  # booked, attended, no_show, cancelled
+
+
+class AttendanceCorrection(Base, TimestampMixin, TenantMixin):
+    """Append-only record of staff corrections to an attendance row."""
+    __tablename__ = "attendance_corrections"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    attendance_id = Column(String(64), ForeignKey("attendance.id", ondelete="CASCADE"), nullable=False, index=True)
+    actor_user_id = Column(String(64), nullable=False)
+    reason = Column(String(500), nullable=False)
+    previous_check_in_time = Column(DateTime, nullable=True)
+    previous_check_out_time = Column(DateTime, nullable=True)
+    new_check_in_time = Column(DateTime, nullable=True)
+    new_check_out_time = Column(DateTime, nullable=True)
+    voided = Column(Boolean, default=False, nullable=False)
+
+
+class MemberPassRedemption(Base, TimestampMixin, TenantMixin):
+    """One row per redeemed signed member pass; the unique jti blocks replays."""
+    __tablename__ = "member_pass_redemptions"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    jti = Column(String(64), nullable=False, unique=True)
+    member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
+    attendance_id = Column(String(64), nullable=True)

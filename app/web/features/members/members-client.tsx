@@ -205,6 +205,7 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
             phone: data.phone,
             password: data.password,
             plan: data.plan,
+            startDate: data.startDate,
           });
           fetchMembers();
         }}

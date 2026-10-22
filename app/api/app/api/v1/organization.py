@@ -1,6 +1,8 @@
+import json
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -13,7 +15,11 @@ from app.middleware.tenant import (
     get_current_user,
     require_roles,
 )
-from app.models.user import User
+from app.core import permissions
+from app.core.audit import record_audit
+from app.core.permissions import require_permission
+from app.models.system import AuditLog
+from app.models.user import User, UserRole, WorkspaceMember
 from app.schemas.organization import (
     BranchIn,
     BranchOut,
@@ -260,3 +266,146 @@ def update_team_member(
     db: Session = Depends(get_db),
 ):
     return OrganizationService(db).update_team_member(tenant, member_id, data)
+
+
+# ─── Staff permissions & audit log ───────────────────────────────────────
+
+class PermissionOverridesIn(BaseModel):
+    grant: list[str] = []
+    revoke: list[str] = []
+
+
+def _team_member_or_404(db: Session, tenant: TenantContext, member_id: str) -> WorkspaceMember:
+    member = db.query(WorkspaceMember).filter(
+        WorkspaceMember.id == member_id, WorkspaceMember.workspace_id == tenant.workspace_id
+    ).first()
+    if not member or member.role == UserRole.USER:
+        raise HTTPException(status_code=404, detail="Team member not found.")
+    return member
+
+
+def _permission_view(member: WorkspaceMember) -> dict:
+    role = member.role.value
+    grant, revoke = permissions.parse_overrides(member.permissions)
+    return {
+        "member_id": member.id,
+        "role": role,
+        "role_defaults": sorted(permissions.ROLE_DEFAULTS.get(role, frozenset()) if role not in permissions.UNRESTRICTED_ROLES else permissions.ALL),
+        "grant": sorted(grant),
+        "revoke": sorted(revoke),
+        "effective": sorted(permissions.effective_permissions(role, member.permissions)),
+        "locked": role in permissions.UNRESTRICTED_ROLES,
+    }
+
+
+@team_router.get("/permissions/catalog")
+def permission_catalog(tenant: TenantContext = Depends(require_roles(*BRANCH_MANAGER_ROLES))):
+    return {
+        "permissions": [{"key": k, "label": v} for k, v in permissions.PERMISSIONS.items()],
+        "role_defaults": {role: sorted(perms) for role, perms in permissions.ROLE_DEFAULTS.items() if role != "SUPER_ADMIN"},
+    }
+
+
+@team_router.get("/me/permissions")
+def my_permissions(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    """What the signed-in user may do in this gym (for hiding UI the backend would refuse anyway)."""
+    return {"role": tenant.role, "permissions": sorted(permissions.tenant_permissions(db, tenant))}
+
+
+@team_router.get("/{member_id}/permissions")
+def get_member_permissions(
+    member_id: str,
+    tenant: TenantContext = Depends(require_permission("permissions.manage")),
+    db: Session = Depends(get_db),
+):
+    return _permission_view(_team_member_or_404(db, tenant, member_id))
+
+
+@team_router.put("/{member_id}/permissions")
+def set_member_permissions(
+    member_id: str,
+    data: PermissionOverridesIn,
+    tenant: TenantContext = Depends(require_permission("permissions.manage")),
+    db: Session = Depends(get_db),
+):
+    member = _team_member_or_404(db, tenant, member_id)
+    unknown = (set(data.grant) | set(data.revoke)) - permissions.ALL
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"Unknown permission(s): {', '.join(sorted(unknown))}")
+    if set(data.grant) & set(data.revoke):
+        raise HTTPException(status_code=422, detail="A permission can't be both granted and revoked.")
+    if member.user_id == tenant.user_id:
+        raise HTTPException(status_code=403, detail="You can't change your own permissions.")
+    if member.role.value in permissions.UNRESTRICTED_ROLES:
+        raise HTTPException(status_code=403, detail="The owner's permissions can't be restricted.")
+    if tenant.role == "ADMIN" and member.role == UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only the owner can change an admin's permissions.")
+    actor_perms = permissions.tenant_permissions(db, tenant)
+    beyond = set(data.grant) - actor_perms
+    if beyond:
+        raise HTTPException(status_code=403, detail=f"You can't grant permissions you don't hold: {', '.join(sorted(beyond))}")
+
+    before = _permission_view(member)
+    member.permissions = permissions.serialize_overrides(data.grant, data.revoke)
+    after = _permission_view(member)
+    record_audit(db, tenant.workspace_id, tenant.user_id, "staff.permissions_changed",
+                 resource_type="workspace_member", resource_id=member.id,
+                 details={"before": {"grant": before["grant"], "revoke": before["revoke"]},
+                          "after": {"grant": after["grant"], "revoke": after["revoke"]}})
+    db.commit()
+    return after
+
+
+audit_router = APIRouter(prefix="/audit-logs", tags=["Audit"])
+
+
+@audit_router.get("")
+def list_audit_logs(
+    action: Optional[str] = None,
+    resource_type: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    actor_user_id: Optional[str] = None,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
+    tenant: TenantContext = Depends(require_permission("audit.view")),
+    db: Session = Depends(get_db),
+):
+    """Read-only, tenant-scoped audit trail. There are no update or delete endpoints for audit rows."""
+    q = db.query(AuditLog).filter(AuditLog.workspace_id == tenant.workspace_id)
+    if action:
+        q = q.filter(AuditLog.action.like(f"{action}%"))
+    if resource_type:
+        q = q.filter(AuditLog.resource_type == resource_type)
+    if resource_id:
+        q = q.filter(AuditLog.resource_id == resource_id)
+    if actor_user_id:
+        q = q.filter(AuditLog.user_id == actor_user_id)
+    if date_from:
+        q = q.filter(AuditLog.created_at >= datetime.combine(date_from, time.min))
+    if date_to:
+        q = q.filter(AuditLog.created_at < datetime.combine(date_to + timedelta(days=1), time.min))
+    total = q.count()
+    rows = q.order_by(AuditLog.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    actor_ids = {r.user_id for r in rows if r.user_id}
+    names = dict(db.query(User.id, User.full_name).filter(User.id.in_(actor_ids)).all()) if actor_ids else {}
+    return {
+        "items": [
+            {
+                "id": r.id,
+                "action": r.action,
+                "actor_user_id": r.user_id,
+                "actor_name": names.get(r.user_id) if r.user_id else "System",
+                "resource_type": r.resource_type,
+                "resource_id": r.resource_id,
+                "outcome": r.outcome or "success",
+                "details": json.loads(r.details) if r.details and r.details.startswith("{") else r.details,
+                "created_at": (r.created_at if r.created_at.tzinfo else r.created_at.replace(tzinfo=timezone.utc)).isoformat(),
+            }
+            for r in rows
+        ],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }

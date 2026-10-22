@@ -9,6 +9,8 @@ from app.models.attendance import (
     BranchAssignment,
     CheckoutType,
     AttendanceStatus,
+    AttendanceCorrection,
+    MemberPassRedemption,
 )
 from app.models.auth import AuthIdentity, EmailOtpChallenge, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
 from app.models.base import TenantMixin, TimestampMixin
@@ -62,6 +64,8 @@ __all__ = [
     "InvitationStatus",
     "Invoice",
     "Member",
+    "AttendanceCorrection",
+    "MemberPassRedemption",
     "MemberEvent",
     "MemberNote",
     "MembershipEvent",

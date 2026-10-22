@@ -48,6 +48,7 @@ class Trainer(Base, TimestampMixin, TenantMixin):
     joining_date = Column(Date, nullable=True)
     certifications = Column(Text, nullable=True)
     working_hours = Column(Text, nullable=True)
+    max_active_clients = Column(Integer, nullable=True)  # NULL = no capacity limit
     emergency_contact = Column(String(100), nullable=True)
 
 

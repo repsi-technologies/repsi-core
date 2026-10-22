@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, date
 from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
+from app.core.audit import record_audit
 from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 
@@ -267,33 +268,50 @@ class TrainerService:
         if not member:
             raise HTTPException(status_code=404, detail="Client / Member not found.")
 
-        if member.status in [MemberStatus.FROZEN, MemberStatus.CANCELLED, MemberStatus.EXPIRED]:
+        if member.status in [MemberStatus.FROZEN, MemberStatus.CANCELLED, MemberStatus.EXPIRED,
+                             MemberStatus.SUSPENDED, MemberStatus.INACTIVE, MemberStatus.ARCHIVED]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Cannot assign trainer to a member who is {member.status.value.lower()}."
             )
 
-        # Check existing relationship
-        existing = (
+        # An active (or pending) assignment between this pair already exists
+        current = (
             self.db.query(TrainerClient)
             .filter(
                 TrainerClient.workspace_id == self.tenant.workspace_id,
                 TrainerClient.trainer_id == trainer_id,
                 TrainerClient.client_id == client_id,
+                TrainerClient.status.in_([TrainerClientStatus.ACTIVE, TrainerClientStatus.REQUESTED]),
             )
             .first()
         )
+        if current and current.status == TrainerClientStatus.ACTIVE:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail="This member is already assigned to this trainer.")
+
+        if trainer.max_active_clients:
+            active_count = self.db.query(TrainerClient).filter(
+                TrainerClient.workspace_id == self.tenant.workspace_id,
+                TrainerClient.trainer_id == trainer_id,
+                TrainerClient.status == TrainerClientStatus.ACTIVE,
+            ).count()
+            if active_count >= trainer.max_active_clients:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                    detail=f"{trainer.name} is at capacity ({trainer.max_active_clients} active clients).")
 
         now = datetime.now(timezone.utc)
-        if existing:
-            existing.status = TrainerClientStatus.ACTIVE
-            existing.assigned_by = self.tenant.user_id
-            existing.assigned_at = now
-            existing.ended_at = None
+        if current:
+            # Approve a pending request
+            current.status = TrainerClientStatus.ACTIVE
+            current.assigned_by = self.tenant.user_id
+            current.assigned_at = now
+            current.started_at = now
             if notes:
-                existing.notes = notes
-            relationship = existing
+                current.notes = notes
+            relationship = current
         else:
+            # Each assignment period is its own row so ended assignments stay in history.
             relationship = TrainerClient(
                 workspace_id=self.tenant.workspace_id,
                 trainer_id=trainer_id,
@@ -305,6 +323,10 @@ class TrainerService:
                 notes=notes,
             )
             self.db.add(relationship)
+        self.db.flush()
+        record_audit(self.db, self.tenant.workspace_id, self.tenant.user_id, "trainer.assigned",
+                     resource_type="trainer_client", resource_id=relationship.id,
+                     details={"trainer_id": trainer_id, "member_id": client_id})
 
         # Update member.trainer_id for backward compatibility
         member.trainer_id = trainer_id

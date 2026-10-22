@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { repsiApi, ApiMemberPersonalAttendance, ApiAttendanceQR } from "@/lib/api";
+import { repsiApi, ApiMemberPersonalAttendance } from "@/lib/api";
+import { QrCameraScanner } from "@/features/attendance/components/qr-camera-scanner";
 import { getAuthUser } from "@/lib/auth";
 import { slugToGymName } from "@/lib/workspace";
 
@@ -42,50 +43,24 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
   const gymName = slugToGymName(workspace);
 
   const [personalStats, setPersonalStats] = useState<ApiMemberPersonalAttendance | null>(null);
-  const [activeQr, setActiveQr] = useState<ApiAttendanceQR | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Camera & Scan Modal
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
-  const [cameraPermission, setCameraPermission] = useState<"prompt" | "granted" | "denied">("prompt");
   const [cameraScanning, setCameraScanning] = useState(false);
   const [scanResultState, setScanResultState] = useState<AttendanceState | null>(null);
   const [scanFeedbackMessage, setScanFeedbackMessage] = useState<string>("");
-  const [scanDetails, setScanDetails] = useState<any>(null);
 
   // Live Timer for Active Session
   const [liveDuration, setLiveDuration] = useState("0m");
 
   const loadData = async () => {
     try {
-      const [stats, qr] = await Promise.all([
-        repsiApi.getMyPersonalAttendance().catch(async () => {
-          // Fallback to demo profile if not logged in
-          return {
-            member_id: "demo-member",
-            member_name: "Valued Member",
-            total_visits: 24,
-            this_week_visits: 4,
-            this_month_visits: 16,
-            average_duration_minutes: 74,
-            current_streak_days: 5,
-            last_visit_time: new Date().toISOString(),
-            is_currently_inside: false,
-            active_session: undefined,
-            calendar_attendance_dates: [
-              new Date().toISOString().slice(0, 10),
-              new Date(Date.now() - 86400000).toISOString().slice(0, 10),
-              new Date(Date.now() - 86400000 * 2).toISOString().slice(0, 10),
-            ],
-            recent_sessions: [],
-          };
-        }),
-        repsiApi.getActiveQr().catch(() => null),
-      ]);
-      setPersonalStats(stats);
-      if (qr) setActiveQr(qr);
-    } catch (err) {
-      console.warn("Failed to load personal attendance", err);
+      setLoadError(null);
+      setPersonalStats(await repsiApi.getMyPersonalAttendance());
+    } catch (err: any) {
+      setLoadError(err.message || "Couldn't load your attendance.");
     } finally {
       setLoading(false);
     }
@@ -114,55 +89,25 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
     return () => clearInterval(interval);
   }, [personalStats]);
 
-  // Camera Permission Handler
-  const requestCameraAccess = async () => {
-    try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setCameraPermission("granted");
-        // Release stream after permission test
-        stream.getTracks().forEach((track) => track.stop());
-      } else {
-        setCameraPermission("granted"); // Software fallback
-      }
-    } catch (err) {
-      console.warn("Camera permission denied", err);
-      setCameraPermission("denied");
-    }
-  };
-
-  // Perform Scan Check-In
-  const handlePerformScan = async () => {
+  // Check in by scanning the physical entrance QR (the backend validates the token and membership)
+  const handleEntranceScan = async (scanned: string) => {
     setCameraScanning(true);
     setScanResultState(null);
     setScanFeedbackMessage("");
 
     try {
-      // Use active QR payload or token
-      const token = activeQr?.token || "rep_default_sample";
-      const qrPayload = `repsi://gym/checkin?gym_id=${workspace}&token=${token}`;
-
-      const res = await repsiApi.scanQr(qrPayload);
-
-      if (res.action === "check_in") {
-        setScanResultState("CHECKED_IN");
-        setScanFeedbackMessage(`Check-in successful! Welcome to ${gymName}.`);
-        setScanDetails(res.record);
-      } else {
-        setScanResultState("CHECKED_OUT");
-        setScanFeedbackMessage(`Check-out recorded. Duration: ${res.record?.duration_formatted || "completed"}.`);
-        setScanDetails(res.record);
-      }
-
+      await repsiApi.selfCheckInWithGymQr(scanned);
+      setScanResultState("CHECKED_IN");
+      setScanFeedbackMessage(`Check-in successful! Welcome to ${gymName}.`);
       await loadData();
     } catch (err: any) {
       const errMsg = err.message || "";
-      if (errMsg.includes("already checked in")) {
+      if (errMsg.toLowerCase().includes("already checked in")) {
         setScanResultState("ALREADY_CHECKED_IN");
         setScanFeedbackMessage(errMsg);
-      } else if (errMsg.includes("suspended") || errMsg.includes("frozen")) {
+      } else if (errMsg.startsWith("Check-in blocked")) {
         setScanResultState("SUSPENDED_MEMBER");
-        setScanFeedbackMessage(errMsg);
+        setScanFeedbackMessage(errMsg.replace("Check-in blocked: ", ""));
       } else if (errMsg.includes("deactivated") || errMsg.includes("replaced")) {
         setScanResultState("QR_INACTIVE");
         setScanFeedbackMessage("This QR code has been rotated or deactivated by the gym owner.");
@@ -215,6 +160,13 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
           )}
         </div>
       </div>
+
+      {loadError && (
+        <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-500/30 bg-rose-500/5 px-4 py-3 text-sm text-rose-600">
+          <span>{loadError}</span>
+          <Button variant="secondary" size="sm" onClick={loadData}>Try again</Button>
+        </div>
+      )}
 
       {/* Main Action Banner: Mobile-First Scan or Active Session */}
       <div className="rounded-3xl border border-[var(--border)] bg-gradient-to-br from-emerald-500/10 via-[var(--surface)] to-[var(--surface)] p-6 sm:p-8 space-y-6 shadow-sm">
@@ -293,8 +245,8 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
 
             <Button
               onClick={() => {
+                setScanResultState(null);
                 setCameraModalOpen(true);
-                requestCameraAccess();
               }}
               size="lg"
               className="h-13 px-8 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-extrabold text-sm gap-2.5 shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.02]"
@@ -412,33 +364,15 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
               </button>
             </div>
 
-            {/* Permission Check */}
-            {cameraPermission === "denied" ? (
-              <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center space-y-3">
-                <VideoOff className="w-10 h-10 text-amber-500 mx-auto" />
-                <h4 className="text-sm font-bold text-[var(--text)]">Camera Access Denied</h4>
-                <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                  Camera access is required to scan the gym QR code. Please allow camera access in your browser or device settings.
-                </p>
-                <Button
-                  onClick={requestCameraAccess}
-                  size="sm"
-                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-semibold"
-                >
-                  Allow Camera
-                </Button>
-              </div>
-            ) : (
-              /* Simulated Camera Viewfinder */
+            {/* Camera scanner (handles permission-denied and unsupported browsers itself) */}
+            {(
               <div className="space-y-4">
-                <div className="relative aspect-square w-full max-w-[280px] mx-auto rounded-3xl bg-black border-2 border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center">
-                  {/* Viewfinder crosshairs */}
-                  <div className="absolute inset-8 border border-white/30 rounded-2xl pointer-events-none" />
-                  <div className="absolute w-full h-0.5 bg-emerald-400 animate-pulse top-1/2 -translate-y-1/2" />
-
-                  <Camera className="w-12 h-12 text-white/30" />
-                  <p className="text-[11px] text-white/70 mt-2 font-medium">Align QR code within frame</p>
-                </div>
+                <QrCameraScanner
+                  busy={cameraScanning}
+                  onResult={handleEntranceScan}
+                  label="Start camera"
+                  manualPlaceholder="Code shown under the entrance QR"
+                />
 
                 {/* Scan Status Feedback */}
                 {scanResultState && (
@@ -472,15 +406,6 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
                     <p className="text-xs opacity-90">{scanFeedbackMessage}</p>
                   </div>
                 )}
-
-                <Button
-                  onClick={handlePerformScan}
-                  disabled={cameraScanning}
-                  className="w-full h-11 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs gap-2"
-                >
-                  <Scan className="w-4 h-4" />
-                  <span>{cameraScanning ? "Verifying with Gym Gate..." : "Simulate Scan QR Code"}</span>
-                </Button>
               </div>
             )}
           </div>

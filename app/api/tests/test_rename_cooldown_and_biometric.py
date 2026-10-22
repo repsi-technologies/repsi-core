@@ -258,6 +258,16 @@ def test_biometric_device_lifecycle(client, test_workspace_and_owner, db_session
     )
     db_session.add(member)
     db_session.commit()
+    # Check-in requires an active membership
+    from datetime import timedelta
+    from app.models.member import Membership, MembershipPlan
+    plan = MembershipPlan(workspace_id=ws.id, name="Biometric Test Plan", duration_months=1, price=1000.0)
+    db_session.add(plan)
+    db_session.flush()
+    db_session.add(Membership(workspace_id=ws.id, member_id=member.id, plan_id=plan.id,
+                              start_date=date.today(), end_date=date.today() + timedelta(days=30),
+                              status=MemberStatus.ACTIVE, price_paid=1000.0))
+    db_session.commit()
 
     # 4. Sync a simulated fingerprint event
     res_sync = client.post(
@@ -270,7 +280,7 @@ def test_biometric_device_lifecycle(client, test_workspace_and_owner, db_session
     )
     assert res_sync.status_code == 200
     assert res_sync.json()["processed_count"] == 1
-    assert res_sync.json()["results"][0]["action"] == "CHECK_IN"
+    assert res_sync.json()["results"][0].get("action") == "CHECK_IN", res_sync.json()["results"][0]
 
     # 5. Export CSV
     res_csv = client.get("/api/v1/attendance/export-csv", headers=headers)

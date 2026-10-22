@@ -1,11 +1,12 @@
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.middleware.tenant import get_current_tenant, TenantContext
 from app.middleware.entitlements import check_trainer_capacity, require_feature
+from app.core.permissions import require_permission
 from app.models.trainer import (
     Trainer,
     TrainerStatus,
@@ -378,7 +379,7 @@ def delete_trainer(
 @router.post("/trainer-client/assign", response_model=TrainerClientResponse)
 def assign_trainer_client(
     data: TrainerClientAssignRequest,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("trainers.assign")),
     db: Session = Depends(get_db)
 ):
     service = TrainerService(db, tenant)
@@ -670,6 +671,31 @@ def get_training_sessions(
     return res
 
 
+def _ensure_no_session_conflict(db: Session, workspace_id: str, trainer_id: str, start: datetime,
+                                duration_minutes: int, exclude_id: Optional[str] = None) -> None:
+    """A trainer can't have two scheduled sessions that overlap in time."""
+    if duration_minutes is None or duration_minutes < 5 or duration_minutes > 480:
+        raise HTTPException(status_code=422, detail="Session duration must be between 5 and 480 minutes.")
+    start_utc = start if start.tzinfo else start.replace(tzinfo=timezone.utc)
+    end_utc = start_utc + timedelta(minutes=duration_minutes)
+    q = db.query(TrainingSession).filter(
+        TrainingSession.workspace_id == workspace_id,
+        TrainingSession.trainer_id == trainer_id,
+        TrainingSession.status == SessionStatus.SCHEDULED,
+        TrainingSession.scheduled_at < end_utc,
+        TrainingSession.scheduled_at > start_utc - timedelta(minutes=480),
+    )
+    if exclude_id:
+        q = q.filter(TrainingSession.id != exclude_id)
+    for other in q.all():
+        o_start = other.scheduled_at if other.scheduled_at.tzinfo else other.scheduled_at.replace(tzinfo=timezone.utc)
+        if o_start + timedelta(minutes=other.duration_minutes) > start_utc:
+            raise HTTPException(
+                status_code=409,
+                detail=f"This trainer already has '{other.title}' scheduled at {o_start.strftime('%d %b %H:%M')} UTC.",
+            )
+
+
 @router.post("/trainer/sessions", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
 def create_training_session(
     data: SessionCreateRequest,
@@ -681,6 +707,7 @@ def create_training_session(
 
     if data.client_id:
         service.verify_client_access(data.client_id, trainer.id)
+    _ensure_no_session_conflict(db, tenant.workspace_id, trainer.id, data.scheduled_at, data.duration_minutes)
 
     session_obj = TrainingSession(
         workspace_id=tenant.workspace_id,
@@ -738,6 +765,12 @@ def update_training_session(
         service.verify_trainer_access(session_obj.trainer_id)
 
     update_dict = data.model_dump(exclude_unset=True)
+    new_start = update_dict.get("scheduled_at", session_obj.scheduled_at)
+    new_duration = update_dict.get("duration_minutes", session_obj.duration_minutes)
+    new_status = update_dict.get("status", session_obj.status)
+    if ("scheduled_at" in update_dict or "duration_minutes" in update_dict) and new_status == SessionStatus.SCHEDULED:
+        _ensure_no_session_conflict(db, tenant.workspace_id, session_obj.trainer_id, new_start, new_duration,
+                                    exclude_id=session_obj.id)
     for k, v in update_dict.items():
         setattr(session_obj, k, v)
 

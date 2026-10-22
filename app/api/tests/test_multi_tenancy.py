@@ -62,7 +62,9 @@ def test_tenant_isolation_and_workspace_scoping():
         get_cross = client.get(f"/api/v1/members/{mem_a_id}", headers=headers_b)
         assert get_cross.status_code == 404
 
-        # 7. Check attendance recording for Gym A
+        # 7. Check attendance recording for Gym A (check-in requires an active membership)
+        from tests.conftest import give_active_membership
+        give_active_membership(ws_a, mem_a_id)
         att_res = client.post(
             "/api/v1/attendance/check-in",
             json={"member_id": mem_a_id, "method": "qr"},

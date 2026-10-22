@@ -1,6 +1,6 @@
 from typing import Optional, List, Any
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from app.models.attendance import AttendanceMethod, CheckoutType, AttendanceStatus
 
 
@@ -12,6 +12,7 @@ class CheckInRequest(BaseModel):
     gym_location_id: Optional[str] = None
     method: AttendanceMethod = AttendanceMethod.QR
     terminal_id: Optional[str] = None
+    override_reason: Optional[str] = Field(None, max_length=500)  # staff override of an access denial
 
 
 class CheckOutRequest(BaseModel):
@@ -39,6 +40,37 @@ class AttendanceResponse(BaseModel):
     terminal_id: Optional[str] = None
     status: str = "CHECKED_IN"
     notes: Optional[str] = None
+    recorded_by_user_id: Optional[str] = None
+    checked_out_by_user_id: Optional[str] = None
+    override_reason: Optional[str] = None
+    corrected_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AttendanceHistoryPage(BaseModel):
+    items: List[AttendanceResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+class AttendanceCorrectionRequest(BaseModel):
+    reason: str = Field(..., min_length=3, max_length=500)
+    check_in_time: Optional[datetime] = None
+    check_out_time: Optional[datetime] = None
+
+
+class AttendanceCorrectionResponse(BaseModel):
+    id: str
+    attendance_id: str
+    actor_user_id: str
+    reason: str
+    previous_check_in_time: Optional[datetime] = None
+    previous_check_out_time: Optional[datetime] = None
+    new_check_in_time: Optional[datetime] = None
+    new_check_out_time: Optional[datetime] = None
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -108,6 +140,10 @@ class AttendanceSettingsSchema(BaseModel):
     qr_rotation_interval_minutes: int = 0
     allow_member_manual_checkout: bool = True
     allow_staff_manual_checkout: bool = True
+    require_active_membership: bool = True
+    expiry_grace_days: int = 0
+    max_visits_per_day: int = 0
+    block_on_overdue_invoice: bool = True
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -119,6 +155,10 @@ class AttendanceSettingsUpdate(BaseModel):
     qr_rotation_interval_minutes: Optional[int] = None
     allow_member_manual_checkout: Optional[bool] = None
     allow_staff_manual_checkout: Optional[bool] = None
+    require_active_membership: Optional[bool] = None
+    expiry_grace_days: Optional[int] = Field(None, ge=0, le=30)
+    max_visits_per_day: Optional[int] = Field(None, ge=0, le=20)
+    block_on_overdue_invoice: Optional[bool] = None
 
 
 class MemberPersonalAttendanceResponse(BaseModel):

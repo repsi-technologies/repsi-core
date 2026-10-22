@@ -61,6 +61,11 @@ class Settings(BaseSettings):
     MEMBERSHIP_MAX_FREEZE_DAYS: int = 90
     MEMBERSHIP_MAX_EXTENSION_DAYS: int = 365
 
+    # Signed member QR passes (staff scan); short TTL limits screenshot reuse, jti blocks replay
+    MEMBER_PASS_TTL_SECONDS: int = 60
+    # Invalid scans allowed per staff user per minute before rate limiting
+    ATTENDANCE_INVALID_SCAN_LIMIT: int = 10
+
     # Database
     DATABASE_URL: str = "sqlite:///./repsi.db"
     DATABASE_POOL_SIZE: int = 10

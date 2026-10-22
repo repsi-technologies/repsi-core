@@ -81,9 +81,18 @@ export function AddMemberDialog({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof AddMemberFormData | "dbEmail" | "dbPhone", string>>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [checkingPhone, setCheckingPhone] = useState(false);
+
+  // Clear errors when dialog closes or opens
+  useEffect(() => {
+    if (!open) {
+      setGeneralError(null);
+      setErrors({});
+    }
+  }, [open]);
 
   // Check email onBlur
   const handleCheckEmail = async () => {
@@ -145,6 +154,7 @@ export function AddMemberDialog({
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
+    setGeneralError(null);
 
     try {
       await onSubmit?.(form);
@@ -152,12 +162,17 @@ export function AddMemberDialog({
       onOpenChange(false);
       setForm({ name: "", email: "", phone: "+91 ", password: "", plan: "Monthly", startDate: today, useExistingUser: false });
       setErrors({});
+      setGeneralError(null);
     } catch (err: any) {
       setLoading(false);
-      setErrors((prev) => ({
-        ...prev,
-        email: err?.message || "Failed to create member",
-      }));
+      const msg = typeof err === "string" ? err : err?.message || "Failed to create member";
+      if (/email/i.test(msg) && !/workspace|subscription|plan/i.test(msg)) {
+        setErrors((prev) => ({ ...prev, email: msg }));
+      } else if (/phone|mobile/i.test(msg) && !/workspace|subscription|plan/i.test(msg)) {
+        setErrors((prev) => ({ ...prev, phone: msg }));
+      } else {
+        setGeneralError(msg);
+      }
     }
   }
 
@@ -175,6 +190,15 @@ export function AddMemberDialog({
             This member will be added to your gym database and set to <strong>Active</strong> immediately.
           </DialogDescription>
         </DialogHeader>
+
+        {generalError && (
+          <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-3 text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-medium flex items-start gap-2.5 mt-2">
+            <span className="text-base leading-none">⚠️</span>
+            <div className="flex-1 leading-snug">
+              <p>{generalError}</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           {/* Full Name */}

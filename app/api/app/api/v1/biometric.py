@@ -234,12 +234,17 @@ def ingest_biometric_hardware_event(
             detail="Biometric match failed. Member record not found.",
         )
 
-    # 3. Membership status validation
-    if member.status in [MemberStatus.EXPIRED, MemberStatus.CANCELLED]:
+    # 3. Same access rules as desk and QR check-in
+    from app.services.attendance import AttendanceService
+    svc = AttendanceService(db, payload.workspace_id)
+    decision = svc.evaluate_access({"type": "member", "obj": member})
+    if not decision.allowed:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Access denied. Membership is {member.status.value.upper()}.",
+            detail=f"Access denied. {decision.reason}",
         )
+    if svc._active_visit(member.id, None):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Member is already checked in.")
 
     # 4. Record attendance log
     now = datetime.now(timezone.utc)

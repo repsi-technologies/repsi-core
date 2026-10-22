@@ -14,6 +14,9 @@ paths:
 - Roles (`app/models/user.py::UserRole`): `SUPER_ADMIN, OWNER, ADMIN, MANAGER, TRAINER, STAFF, USER`. `USER` = gym member.
 - Tenant tables use `TenantMixin` (`workspace_id`). `BaseTenantRepository` scopes every query.
 - Feature gating: `app/middleware/entitlements.py` (`require_feature`, `check_member_capacity`).
+- Granular staff permissions: `app/core/permissions.py` (`require_permission("attendance.record")`, `has_permission`, role defaults + per-staff grant/revoke overrides in `WorkspaceMember.permissions`). Prefer a permission over a raw role list for new staff actions; add new keys to `PERMISSIONS` and `ROLE_DEFAULTS`.
+- Audit trail: `app/core/audit.py::record_audit` writes to `audit_logs` (read via `GET /audit-logs`, `audit.view`). Call it for overrides, corrections, exports, staff/permission changes.
+- Gym access decisions: `app/services/access_eligibility.py` is the only place that decides whether a member may enter; every check-in path (desk, pass scan, self check-in, biometric) goes through it.
 
 ## Workflow
 

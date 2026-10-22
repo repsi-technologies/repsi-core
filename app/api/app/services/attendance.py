@@ -13,7 +13,12 @@ from app.models.attendance import (
     GymLocation,
     CheckoutType,
     AttendanceStatus,
+    AttendanceCorrection,
+    MemberPassRedemption,
 )
+from sqlalchemy.exc import IntegrityError
+from app.core.audit import record_audit
+from app.services.access_eligibility import AccessDecision, MEMBER_FACING, evaluate_member_access, local_day_bounds_utc, workspace_tz
 from app.models.member import Member, MemberStatus, Membership
 from app.models.trainer import Trainer, TrainerStatus
 from app.models.user import User, Workspace
@@ -378,58 +383,42 @@ class AttendanceService:
 
         return None
 
-    def _validate_eligibility(self, person: dict):
-        if person["type"] == "member":
-            m: Member = person["obj"]
-            if m.status in [MemberStatus.FROZEN, MemberStatus.CANCELLED, MemberStatus.EXPIRED, MemberStatus.SUSPENDED]:
-                status_desc = "suspended" if m.status in [MemberStatus.FROZEN, MemberStatus.SUSPENDED] else m.status.value
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Check-in blocked: Member account is {status_desc.upper()}. Please settle dues or renew membership.",
-                )
-
-            # Centralized fee check: overdue unpaid invoices block check-in
-            from app.models.finance import Invoice
-            from app.models.payment_settings import ManualPaymentSubmission, SubmissionStatus
-            unpaid_invoice = (
-                self.db.query(Invoice)
-                .filter(
-                    Invoice.workspace_id == self.workspace_id,
-                    Invoice.member_id == m.id,
-                    Invoice.status.in_(["pending", "unpaid"]),
-                    Invoice.due_date < date.today(),
-                )
-                .first()
-            )
-            if unpaid_invoice:
-                has_pending = (
-                    self.db.query(ManualPaymentSubmission)
-                    .filter(
-                        ManualPaymentSubmission.workspace_id == self.workspace_id,
-                        ManualPaymentSubmission.member_id == m.id,
-                        ManualPaymentSubmission.invoice_id == unpaid_invoice.id,
-                        ManualPaymentSubmission.status == SubmissionStatus.PENDING_REVIEW.value,
-                    )
-                    .first()
-                )
-                if has_pending:
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=f"Check-in blocked: Payment proof for invoice #{unpaid_invoice.invoice_number} is pending owner verification. Access unlocks after approval.",
-                    )
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Check-in blocked: Overdue payment required for invoice #{unpaid_invoice.invoice_number} (₹{unpaid_invoice.total_amount:,.2f}). Please settle fee to enter.",
-                )
-        elif person["type"] == "trainer":
+    def evaluate_access(self, person: dict, gym_location_id: Optional[str] = None) -> AccessDecision:
+        """Centralized eligibility (see services/access_eligibility.py). Trainers are checked by profile status."""
+        if person["type"] == "trainer":
             t: Trainer = person["obj"]
-            if t.status in [TrainerStatus.SUSPENDED, TrainerStatus.INACTIVE]:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Check-in blocked: Trainer account is suspended or inactive.",
-                )
+            if t.status in [TrainerStatus.SUSPENDED, TrainerStatus.INACTIVE] or not t.is_active:
+                return AccessDecision(False, "TRAINER_INACTIVE", "Trainer account is suspended or inactive.")
+            return AccessDecision(True, "OK", "Access permitted.")
+        rules = self.get_or_create_settings(gym_location_id)
+        return evaluate_member_access(self.db, person["obj"], rules)
+
+    def _validate_eligibility(self, person: dict, gym_location_id: Optional[str] = None,
+                              override_reason: Optional[str] = None, can_override: bool = False,
+                              member_facing: bool = False) -> AccessDecision:
+        decision = self.evaluate_access(person, gym_location_id)
+        if decision.allowed:
+            return decision
+        if override_reason and override_reason.strip():
+            if not can_override:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                    detail="You don't have permission to override access denials.")
+            if not decision.overridable:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                    detail=f"Check-in blocked: {decision.reason} This can't be overridden.")
+            return decision
+        message = MEMBER_FACING.get(decision.code, "Access denied.") if member_facing else decision.reason
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Check-in blocked: {message}")
 
     # ─── CHECK-IN & CHECK-OUT ─────────────────────────────────────────────
+
+    def _active_visit(self, member_id: Optional[str], trainer_id: Optional[str]) -> Optional[Attendance]:
+        q = self.db.query(Attendance).filter(
+            Attendance.workspace_id == self.workspace_id,
+            Attendance.check_out_time.is_(None),
+        )
+        q = q.filter(Attendance.member_id == member_id) if member_id else q.filter(Attendance.trainer_id == trainer_id)
+        return q.first()
 
     def check_in(
         self,
@@ -441,18 +430,22 @@ class AttendanceService:
         gym_location_id: Optional[str] = None,
         method: AttendanceMethod = AttendanceMethod.QR,
         terminal_id: Optional[str] = None,
+        actor_user_id: Optional[str] = None,
+        override_reason: Optional[str] = None,
+        can_override: bool = False,
+        pass_jti: Optional[str] = None,
+        member_facing: bool = False,
     ) -> Attendance:
+        """`actor_user_id` is the staff user recording the visit (None for self check-in)."""
         # Run auto checkout first so stale sessions are cleared
         self.run_smart_auto_checkout()
 
-        # Validate QR token if provided
         qr_record = None
         if qr_token:
             qr_record = self.validate_qr_token(qr_token)
             if not gym_location_id and qr_record.gym_location_id:
                 gym_location_id = qr_record.gym_location_id
 
-        # Resolve person
         person = self._resolve_person(identifier=identifier, user_id=user_id, member_id=member_id, trainer_id=trainer_id)
         if not person:
             raise HTTPException(
@@ -460,26 +453,20 @@ class AttendanceService:
                 detail="No matching member or trainer found in this gym workspace.",
             )
 
-        # Validate membership eligibility
-        self._validate_eligibility(person)
+        decision = self._validate_eligibility(person, gym_location_id, override_reason, can_override, member_facing)
+        overridden = not decision.allowed
 
         resolved_member_id = person["obj"].id if person["type"] == "member" else None
         resolved_trainer_id = person["obj"].id if person["type"] == "trainer" else None
 
-        # Check for existing active check-in
-        active = self.db.query(Attendance).filter(
-            Attendance.workspace_id == self.workspace_id,
-            (Attendance.member_id == resolved_member_id) if resolved_member_id else (Attendance.trainer_id == resolved_trainer_id),
-            Attendance.check_out_time.is_(None),
-        ).first()
-
+        active = self._active_visit(resolved_member_id, resolved_trainer_id)
         if active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"You're already checked in at {active.check_in_time.strftime('%I:%M %p')}. Duration: {active.duration_formatted}.",
+                detail=f"Already checked in at {active.check_in_time.strftime('%I:%M %p')}. Duration: {active.duration_formatted}.",
             )
 
-        # Anti-abuse: prevent rapid duplicate scan within 30 seconds
+        # Anti-abuse: prevent rapid duplicate scan within 30 seconds of a check-out
         recent = self.db.query(Attendance).filter(
             Attendance.workspace_id == self.workspace_id,
             (Attendance.member_id == resolved_member_id) if resolved_member_id else (Attendance.trainer_id == resolved_trainer_id),
@@ -502,8 +489,36 @@ class AttendanceService:
             qr_token_id=qr_record.id if qr_record else None,
             terminal_id=terminal_id or ("QR_APP" if method == AttendanceMethod.QR else "MAIN_DESK"),
             status=AttendanceStatus.CHECKED_IN.value,
+            recorded_by_user_id=actor_user_id,
+            override_reason=override_reason.strip()[:500] if overridden else None,
         )
         self.db.add(record)
+        try:
+            self.db.flush()
+            if pass_jti:
+                self.db.add(MemberPassRedemption(
+                    workspace_id=self.workspace_id, jti=pass_jti, member_id=resolved_member_id, attendance_id=record.id
+                ))
+                self.db.flush()
+        except IntegrityError:
+            self.db.rollback()
+            if pass_jti and self.db.query(MemberPassRedemption).filter(MemberPassRedemption.jti == pass_jti).first():
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                    detail="This pass was already used. Ask the member to refresh the QR in their app.")
+            # Unique open-visit index: another request checked this person in concurrently.
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already checked in.")
+
+        if actor_user_id:
+            record_audit(
+                self.db, self.workspace_id, actor_user_id,
+                "attendance.override_check_in" if overridden else "attendance.check_in",
+                resource_type="attendance", resource_id=record.id,
+                details={
+                    "member_id": resolved_member_id, "trainer_id": resolved_trainer_id,
+                    "method": method.value if hasattr(method, "value") else str(method),
+                    **({"denial_code": decision.code, "override_reason": record.override_reason} if overridden else {}),
+                },
+            )
         self.db.commit()
         self.db.refresh(record)
         return record
@@ -514,6 +529,7 @@ class AttendanceService:
         member_id: Optional[str] = None,
         user_id: Optional[str] = None,
         checkout_type: str = "MANUAL",
+        actor_user_id: Optional[str] = None,
     ) -> Attendance:
         now = datetime.now(timezone.utc)
         record = None
@@ -526,15 +542,10 @@ class AttendanceService:
         else:
             person = self._resolve_person(user_id=user_id, member_id=member_id)
             if person:
-                target_id = person["obj"].id
-                query = self.db.query(Attendance).filter(
-                    Attendance.workspace_id == self.workspace_id,
-                    Attendance.check_out_time.is_(None),
+                record = self._active_visit(
+                    person["obj"].id if person["type"] == "member" else None,
+                    person["obj"].id if person["type"] == "trainer" else None,
                 )
-                if person["type"] == "member":
-                    record = query.filter(Attendance.member_id == target_id).first()
-                else:
-                    record = query.filter(Attendance.trainer_id == target_id).first()
 
         if not record:
             raise HTTPException(
@@ -543,7 +554,10 @@ class AttendanceService:
             )
 
         if record.check_out_time is not None:
-            return record
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This visit has already been checked out.",
+            )
 
         check_in = record.check_in_time
         if check_in and check_in.tzinfo is None:
@@ -555,7 +569,85 @@ class AttendanceService:
         record.duration_minutes = duration_mins
         record.checkout_type = checkout_type
         record.status = AttendanceStatus.CHECKED_OUT.value
+        record.checked_out_by_user_id = actor_user_id
+        if actor_user_id:
+            record_audit(self.db, self.workspace_id, actor_user_id, "attendance.check_out",
+                         resource_type="attendance", resource_id=record.id,
+                         details={"member_id": record.member_id, "trainer_id": record.trainer_id})
         self.db.commit()
+        self.db.refresh(record)
+        return record
+
+    def correct_attendance(
+        self,
+        attendance_id: str,
+        actor_user_id: str,
+        reason: str,
+        check_in_time: Optional[datetime] = None,
+        check_out_time: Optional[datetime] = None,
+    ) -> Attendance:
+        """Staff correction of visit times. Keeps the previous values in attendance_corrections."""
+        record = self.db.query(Attendance).filter(
+            Attendance.id == attendance_id, Attendance.workspace_id == self.workspace_id
+        ).first()
+        if not record:
+            raise HTTPException(status_code=404, detail="Attendance record not found.")
+        if not (reason or "").strip():
+            raise HTTPException(status_code=422, detail="A reason is required for attendance corrections.")
+        if check_in_time is None and check_out_time is None:
+            raise HTTPException(status_code=422, detail="Provide a corrected check-in or check-out time.")
+
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        new_in = (_to_utc(check_in_time).replace(tzinfo=None) if check_in_time else record.check_in_time)
+        new_out = (_to_utc(check_out_time).replace(tzinfo=None) if check_out_time else record.check_out_time)
+        new_in = new_in.replace(tzinfo=None) if new_in and new_in.tzinfo else new_in
+        new_out = new_out.replace(tzinfo=None) if new_out and new_out.tzinfo else new_out
+        if new_in > now or (new_out and new_out > now):
+            raise HTTPException(status_code=422, detail="Corrected times can't be in the future.")
+        if new_out and new_out <= new_in:
+            raise HTTPException(status_code=422, detail="Check-out must be after check-in.")
+
+        # The corrected visit must not overlap another visit of the same person.
+        others = self.db.query(Attendance).filter(
+            Attendance.workspace_id == self.workspace_id,
+            Attendance.id != record.id,
+            (Attendance.member_id == record.member_id) if record.member_id else (Attendance.trainer_id == record.trainer_id),
+            Attendance.check_in_time < (new_out or now),
+        ).all()
+        for o in others:
+            o_in = o.check_in_time.replace(tzinfo=None) if o.check_in_time.tzinfo else o.check_in_time
+            o_out = o.check_out_time.replace(tzinfo=None) if o.check_out_time and o.check_out_time.tzinfo else o.check_out_time
+            if (o_out or now) > new_in:
+                raise HTTPException(status_code=409, detail="The corrected times overlap another visit by this person.")
+
+        correction = AttendanceCorrection(
+            workspace_id=self.workspace_id,
+            attendance_id=record.id,
+            actor_user_id=actor_user_id,
+            reason=reason.strip()[:500],
+            previous_check_in_time=record.check_in_time,
+            previous_check_out_time=record.check_out_time,
+            new_check_in_time=new_in,
+            new_check_out_time=new_out,
+        )
+        self.db.add(correction)
+        record.check_in_time = new_in
+        record.check_out_time = new_out
+        record.duration_minutes = max(1, int((new_out - new_in).total_seconds() // 60)) if new_out else None
+        if new_out:
+            record.status = AttendanceStatus.CHECKED_OUT.value
+            record.checkout_type = CheckoutType.STAFF.value
+        record.corrected_at = now
+        record_audit(self.db, self.workspace_id, actor_user_id, "attendance.corrected",
+                     resource_type="attendance", resource_id=record.id,
+                     details={"reason": correction.reason,
+                              "before": {"check_in": correction.previous_check_in_time, "check_out": correction.previous_check_out_time},
+                              "after": {"check_in": new_in, "check_out": new_out}})
+        try:
+            self.db.commit()
+        except IntegrityError:
+            self.db.rollback()
+            raise HTTPException(status_code=409, detail="This person already has another open visit.")
         self.db.refresh(record)
         return record
 
@@ -674,31 +766,36 @@ class AttendanceService:
 
     # ─── ATTENDANCE HISTORY ───────────────────────────────────────────────
 
-    def get_attendance_history(
+    def _history_query(
         self,
         search: Optional[str] = None,
         date_from: Optional[date] = None,
         date_to: Optional[date] = None,
-        status_filter: Optional[str] = None,  # "all", "in", "out", "auto"
+        status_filter: Optional[str] = None,  # "all", "in", "out", "auto", "corrected"
         checkout_type: Optional[str] = None,
         gym_location_id: Optional[str] = None,
-        skip: int = 0,
-        limit: int = 100,
-    ) -> List[Attendance]:
-        self.run_smart_auto_checkout()
-
+        member_id: Optional[str] = None,
+        trainer_id: Optional[str] = None,
+        method: Optional[AttendanceMethod] = None,
+    ):
         query = self.db.query(Attendance).filter(Attendance.workspace_id == self.workspace_id)
 
         if gym_location_id:
             query = query.filter(Attendance.gym_location_id == gym_location_id)
+        if member_id:
+            query = query.filter(Attendance.member_id == member_id)
+        if trainer_id:
+            query = query.filter(Attendance.trainer_id == trainer_id)
+        if method:
+            query = query.filter(Attendance.method == method)
 
-        if date_from:
-            dt_from = datetime.combine(date_from, time.min).replace(tzinfo=timezone.utc)
-            query = query.filter(Attendance.check_in_time >= dt_from)
-
-        if date_to:
-            dt_to = datetime.combine(date_to, time.max).replace(tzinfo=timezone.utc)
-            query = query.filter(Attendance.check_in_time <= dt_to)
+        # Date filters are the gym's local calendar days, converted to UTC bounds.
+        if date_from or date_to:
+            tz = workspace_tz(self.db, self.workspace_id)
+            if date_from:
+                query = query.filter(Attendance.check_in_time >= local_day_bounds_utc(tz, date_from)[0])
+            if date_to:
+                query = query.filter(Attendance.check_in_time < local_day_bounds_utc(tz, date_to)[1])
 
         if status_filter == "in":
             query = query.filter(Attendance.check_out_time.is_(None))
@@ -706,23 +803,54 @@ class AttendanceService:
             query = query.filter(Attendance.check_out_time.is_not(None))
         elif status_filter == "auto":
             query = query.filter(Attendance.checkout_type == CheckoutType.AUTO.value)
+        elif status_filter == "corrected":
+            query = query.filter(Attendance.corrected_at.is_not(None))
 
         if checkout_type:
             query = query.filter(Attendance.checkout_type == checkout_type)
 
         if search:
-            s = f"%{search.strip().lower()}%"
+            term = search.strip()
+            s = f"%{term.lower()}%"
             query = query.join(Attendance.member, isouter=True).filter(
                 or_(
                     func.lower(Member.first_name).like(s),
                     func.lower(Member.last_name).like(s),
                     Member.phone.like(s),
                     Member.email.like(s),
+                    Member.id == term,
                     Attendance.terminal_id.like(s),
                 )
             )
+        return query
 
+    def get_attendance_history(
+        self,
+        search: Optional[str] = None,
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None,
+        status_filter: Optional[str] = None,
+        checkout_type: Optional[str] = None,
+        gym_location_id: Optional[str] = None,
+        member_id: Optional[str] = None,
+        trainer_id: Optional[str] = None,
+        method: Optional[AttendanceMethod] = None,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> List[Attendance]:
+        self.run_smart_auto_checkout()
+        query = self._history_query(search, date_from, date_to, status_filter, checkout_type,
+                                    gym_location_id, member_id, trainer_id, method)
         return query.order_by(Attendance.check_in_time.desc()).offset(skip).limit(limit).all()
+
+    def get_attendance_history_page(self, sort: str = "-check_in_time", skip: int = 0, limit: int = 25, **filters):
+        self.run_smart_auto_checkout()
+        query = self._history_query(**filters)
+        total = query.count()
+        column = getattr(Attendance, sort.lstrip("-"))
+        order = column.desc() if sort.startswith("-") else column.asc()
+        items = query.order_by(order, Attendance.id).offset(skip).limit(limit).all()
+        return items, total
 
     # ─── MEMBER PERSONAL STATS ───────────────────────────────────────────
 

@@ -38,18 +38,28 @@ class AttendanceService {
     }
   }
 
+  /// Member self check-in by scanning the gym's entrance QR
+  /// (`repsi://gym/checkin?gym_id=...&token=...`). `/attendance/scan-qr` is staff-only.
   Future<Map<String, dynamic>> scanGymQr({
     required String qrPayload,
   }) async {
+    final token = Uri.tryParse(qrPayload)?.queryParameters['token'] ?? qrPayload;
     try {
       final response = await _apiClient.post(
-        '/attendance/scan-qr',
+        ApiEndpoints.attendanceCheckIn,
         data: {
-          'identifier': qrPayload,
+          'qr_token': token,
           'method': 'qr',
+          'terminal_id': 'MEMBER_APP',
         },
       );
-      return response.data as Map<String, dynamic>;
+      final record = response.data as Map<String, dynamic>;
+      return {
+        'status': 'success',
+        'action': 'check_in',
+        'person_name': record['person_name'],
+        'record': record,
+      };
     } on DioException catch (e) {
       throw ApiError.fromDioException(e);
     }

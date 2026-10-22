@@ -34,6 +34,9 @@ class AuditLog(Base, TimestampMixin, TenantMixin):
     ip_address = Column(String(50), nullable=True)
     action = Column(String(150), nullable=False)
     details = Column(Text, nullable=True)
+    resource_type = Column(String(50), nullable=True, index=True)
+    resource_id = Column(String(64), nullable=True, index=True)
+    outcome = Column(String(20), nullable=True)  # success | denied | failed
 
 
 class Report(Base, TimestampMixin, TenantMixin):

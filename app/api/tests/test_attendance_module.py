@@ -35,6 +35,8 @@ def test_full_attendance_lifecycle():
     assert mem_resp.status_code == 201
     member = mem_resp.json()
     member_id = member["id"]
+    from tests.conftest import give_active_membership
+    give_active_membership(member["workspace_id"], member_id)
 
     # 3. Add a suspended member
     susp_resp = client.post("/api/v1/members", json={

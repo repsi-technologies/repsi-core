@@ -340,6 +340,64 @@ export interface ApiMembershipDetail extends ApiMembership {
   events: { id: string; event_type: string; reason?: string | null; created_at: string; previous_end_date?: string | null; new_end_date?: string | null }[];
 }
 
+/** Robustly extracts a human-readable message from API errors (handling strings, { message }, { detail: {...} }, and Pydantic validation arrays). */
+export function extractErrorMessage(err: any, fallback: string = "Request failed"): string {
+  if (!err) return fallback;
+  const detail = err.detail !== undefined ? err.detail : (err.message || err.error);
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const msgs = detail
+      .map((d: any) => (typeof d === "string" ? d : d.msg || d.message || JSON.stringify(d)))
+      .filter(Boolean);
+    return msgs.length > 0 ? msgs.join("; ") : fallback;
+  }
+  if (typeof detail === "object") {
+    return detail.message || detail.msg || detail.error || detail.reason || JSON.stringify(detail);
+  }
+  return String(detail);
+}
+
+export interface ApiAccessDecision {
+  allowed: boolean;
+  code: string;
+  reason: string;
+  overridable: boolean;
+  membership_id?: string | null;
+  valid_until?: string | null;
+  warnings: string[];
+}
+
+export interface ApiAccessEligibility {
+  member: { id: string; name: string; phone?: string | null; avatar_url?: string | null; status: string; plan_name?: string | null };
+  decision: ApiAccessDecision;
+  can_override: boolean;
+  active_visit: { id: string; check_in_time: string } | null;
+  last_visit: { check_in_time: string; check_out_time?: string | null; method: string } | null;
+}
+
+export interface ApiStaffPermissions {
+  member_id: string;
+  role: string;
+  role_defaults: string[];
+  grant: string[];
+  revoke: string[];
+  effective: string[];
+  locked: boolean;
+}
+
+export interface ApiAuditLog {
+  id: string;
+  action: string;
+  actor_user_id?: string | null;
+  actor_name?: string | null;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  outcome: string;
+  details?: Record<string, unknown> | string | null;
+  created_at: string;
+}
+
 /** JSON request helper for member/membership endpoints; surfaces the backend's `detail` message. */
 async function memberRequest(path: string, method: string, body: unknown, fallbackError: string): Promise<any> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -354,8 +412,7 @@ async function memberRequest(path: string, method: string, body: unknown, fallba
   if (!res.ok) {
     checkAuthResponse(res);
     const err = await res.json().catch(() => ({}));
-    const detail = Array.isArray(err.detail) ? err.detail.map((d: any) => d.msg).join("; ") : err.detail;
-    throw new Error(detail || fallbackError);
+    throw new Error(extractErrorMessage(err, fallbackError));
   }
   return res.status === 204 ? null : await res.json();
 }
@@ -402,10 +459,23 @@ export const repsiApi = {
     plan?: string;
     gender?: string;
     emergencyContact?: string;
+    startDate?: string;
   }): Promise<ApiMember> {
     const parts = member.name.trim().split(" ");
     const firstName = parts[0] || "Member";
     const lastName = parts.slice(1).join(" ") || "";
+
+    const payload: Record<string, any> = {
+      first_name: firstName,
+      last_name: lastName,
+      plan_name: member.plan,
+    };
+    if (member.email && member.email.trim()) payload.email = member.email.trim();
+    if (member.phone && member.phone.trim()) payload.phone = member.phone.trim();
+    if (member.password && member.password.trim()) payload.password = member.password.trim();
+    if (member.startDate) payload.start_date = member.startDate;
+    if (member.gender) payload.gender = member.gender;
+    if (member.emergencyContact) payload.emergency_contact = member.emergencyContact;
 
     const res = await fetch(`${API_BASE}/members/`, {
       method: "POST",
@@ -413,22 +483,13 @@ export const repsiApi = {
         "Content-Type": "application/json",
         ...getAuthHeader(),
       },
-      body: JSON.stringify({
-        first_name: firstName,
-        last_name: lastName,
-        email: member.email,
-        phone: member.phone,
-        password: member.password,
-        plan_name: member.plan,
-        gender: member.gender,
-        emergency_contact: member.emergencyContact,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
       checkAuthResponse(res);
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || "Failed to create member");
+      throw new Error(extractErrorMessage(err, "Failed to create member"));
     }
 
     const m = await res.json();
@@ -486,6 +547,106 @@ export const repsiApi = {
       throw new Error(err.detail || "Failed to update member");
     }
     return await res.json();
+  },
+
+  // ─── Attendance access control ───────────────────────────────────────
+
+  /** Front-desk preview: identity, current visit and whether a check-in would be allowed (with reason). */
+  async getAccessEligibility(params: { memberId?: string; identifier?: string }): Promise<ApiAccessEligibility> {
+    const qs = new URLSearchParams();
+    if (params.memberId) qs.set("member_id", params.memberId);
+    if (params.identifier) qs.set("identifier", params.identifier);
+    return memberRequest(`/attendance/eligibility?${qs.toString()}`, "GET", undefined, "Member not found");
+  },
+
+  /** Staff check-in; `overrideReason` admits a denied member when the user holds attendance.override. */
+  async staffCheckIn(data: { memberId?: string; identifier?: string; method: "manual" | "qr"; overrideReason?: string }): Promise<any> {
+    return memberRequest(`/attendance/check-in`, "POST", {
+      member_id: data.memberId,
+      identifier: data.identifier,
+      method: data.method,
+      terminal_id: "FRONT_DESK",
+      override_reason: data.overrideReason || null,
+    }, "Check-in failed");
+  },
+
+  async staffCheckOut(attendanceId: string): Promise<any> {
+    return memberRequest(`/attendance/check-out`, "POST", { attendance_id: attendanceId, checkout_type: "STAFF" }, "Check-out failed");
+  },
+
+  /** Member self check-in by scanning the gym's entrance QR (token or full repsi:// payload). */
+  async selfCheckInWithGymQr(scanned: string): Promise<any> {
+    let token = scanned.trim();
+    try {
+      const url = new URL(token);
+      token = url.searchParams.get("token") || token;
+    } catch {
+      /* plain token */
+    }
+    return memberRequest(`/attendance/check-in`, "POST", { qr_token: token, method: "qr", terminal_id: "MEMBER_APP" }, "Check-in failed");
+  },
+
+  async selfCheckOut(): Promise<any> {
+    return memberRequest(`/attendance/check-out`, "POST", {}, "Check-out failed");
+  },
+
+  /** Short-lived signed QR pass for the signed-in member. */
+  async getMyMemberPass(): Promise<{ token: string; expires_at: number; ttl_seconds: number }> {
+    return memberRequest(`/attendance/member/me/pass`, "GET", undefined, "Couldn't create your pass");
+  },
+
+  async getAttendanceHistoryPage(params: {
+    search?: string; dateFrom?: string; dateTo?: string; status?: string; memberId?: string;
+    method?: string; sort?: string; page?: number; pageSize?: number;
+  }): Promise<{ items: any[]; total: number; page: number; page_size: number }> {
+    const qs = new URLSearchParams();
+    if (params.search) qs.set("search", params.search);
+    if (params.dateFrom) qs.set("date_from", params.dateFrom);
+    if (params.dateTo) qs.set("date_to", params.dateTo);
+    if (params.status && params.status !== "all") qs.set("status", params.status);
+    if (params.memberId) qs.set("member_id", params.memberId);
+    if (params.method && params.method !== "all") qs.set("method", params.method);
+    if (params.sort) qs.set("sort", params.sort);
+    qs.set("page", String(params.page || 1));
+    qs.set("page_size", String(params.pageSize || 25));
+    return memberRequest(`/attendance/history/page?${qs.toString()}`, "GET", undefined, "Failed to load attendance history");
+  },
+
+  async correctAttendance(attendanceId: string, data: { reason: string; check_in_time?: string; check_out_time?: string }): Promise<any> {
+    return memberRequest(`/attendance/${attendanceId}/correct`, "POST", data, "Correction failed");
+  },
+
+  async getAttendanceCorrections(attendanceId: string): Promise<any[]> {
+    return memberRequest(`/attendance/${attendanceId}/corrections`, "GET", undefined, "Failed to load corrections");
+  },
+
+  // ─── Staff permissions & audit ───────────────────────────────────────
+
+  async getMyPermissions(): Promise<{ role: string; permissions: string[] }> {
+    return memberRequest(`/team/me/permissions`, "GET", undefined, "Failed to load permissions");
+  },
+
+  async getPermissionCatalog(): Promise<{ permissions: { key: string; label: string }[]; role_defaults: Record<string, string[]> }> {
+    return memberRequest(`/team/permissions/catalog`, "GET", undefined, "Failed to load permissions");
+  },
+
+  async getTeamMemberPermissions(memberId: string): Promise<ApiStaffPermissions> {
+    return memberRequest(`/team/${memberId}/permissions`, "GET", undefined, "Failed to load permissions");
+  },
+
+  async setTeamMemberPermissions(memberId: string, data: { grant: string[]; revoke: string[] }): Promise<ApiStaffPermissions> {
+    return memberRequest(`/team/${memberId}/permissions`, "PUT", data, "Failed to update permissions");
+  },
+
+  async getAuditLogs(params: { action?: string; resourceType?: string; dateFrom?: string; dateTo?: string; page?: number; pageSize?: number }): Promise<{ items: ApiAuditLog[]; total: number; page: number; page_size: number }> {
+    const qs = new URLSearchParams();
+    if (params.action) qs.set("action", params.action);
+    if (params.resourceType) qs.set("resource_type", params.resourceType);
+    if (params.dateFrom) qs.set("date_from", params.dateFrom);
+    if (params.dateTo) qs.set("date_to", params.dateTo);
+    qs.set("page", String(params.page || 1));
+    qs.set("page_size", String(params.pageSize || 50));
+    return memberRequest(`/audit-logs?${qs.toString()}`, "GET", undefined, "Failed to load audit logs");
   },
 
   /** Server-side search, filtering, sorting and pagination for the member directory. */

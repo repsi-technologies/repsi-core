@@ -139,6 +139,11 @@ def setup_tenants(db: Session):
         joined_date=date.today(),
     )
     db.add(mem1)
+    db.add(Membership(
+        workspace_id=ws1.id, member_id=mem1.id, plan_id=plan1.id,
+        start_date=date.today() - timedelta(days=2), end_date=date.today() + timedelta(days=28),
+        status=MemberStatus.ACTIVE, price_paid=1500.0,
+    ))
 
     # Invoice for Member 1 in Alpha Gym (Unpaid / Pending)
     inv1 = Invoice(
@@ -192,6 +197,16 @@ def setup_tenants(db: Session):
 def auth_header(user_id: str, workspace_id: str, role: str):
     token = create_access_token(subject=user_id, workspace_id=workspace_id, role=role)
     return {"Authorization": f"Bearer {token}"}
+
+
+def member_self_checkin(client: TestClient, env: dict):
+    """Members check themselves in by scanning the gym's entrance QR."""
+    qr = client.get("/api/v1/attendance/qr", headers=auth_header(env["owner1"].id, env["ws1"].id, "OWNER")).json()
+    return client.post(
+        "/api/v1/attendance/check-in",
+        json={"method": "qr", "qr_token": qr["token"]},
+        headers=auth_header(env["user_mem1"].id, env["ws1"].id, "USER"),
+    )
 
 
 # ─── 1. OWNER PAYMENT SETTINGS TESTS ──────────────────────────────────────────
@@ -308,11 +323,7 @@ def test_member_submit_receipt_and_restrictions(client: TestClient, setup_tenant
     headers_member = auth_header(env["user_mem1"].id, env["ws1"].id, "USER")
 
     # 1. Before payment, check-in is blocked because invoice is overdue
-    res_checkin = client.post(
-        "/api/v1/attendance/check-in",
-        json={"method": "manual"},
-        headers=headers_member,
-    )
+    res_checkin = member_self_checkin(client, env)
     assert res_checkin.status_code == 403
     assert "Check-in blocked" in res_checkin.json()["detail"]
 
@@ -339,13 +350,9 @@ def test_member_submit_receipt_and_restrictions(client: TestClient, setup_tenant
 
     # 3. Critical verification: Submitting a receipt must NOT unlock restricted member access!
     # Status is pending review -> check-in must still be blocked.
-    res_checkin_pending = client.post(
-        "/api/v1/attendance/check-in",
-        json={"method": "manual"},
-        headers=headers_member,
-    )
+    res_checkin_pending = member_self_checkin(client, env)
     assert res_checkin_pending.status_code == 403
-    assert "pending owner verification" in res_checkin_pending.json()["detail"]
+    assert "awaiting confirmation" in res_checkin_pending.json()["detail"]
 
     # 4. Duplicate submission against same invoice while pending must be REJECTED
     res_dup = client.post(
@@ -421,11 +428,7 @@ def test_owner_approve_payment_activates_access(client: TestClient, setup_tenant
     assert res_appr_again.status_code == 400
 
     # Access is now restored: Check-in succeeds!
-    res_checkin_restored = client.post(
-        "/api/v1/attendance/check-in",
-        json={"method": "manual"},
-        headers=headers_member,
-    )
+    res_checkin_restored = member_self_checkin(client, env)
     assert res_checkin_restored.status_code == 201
 
 
@@ -476,11 +479,7 @@ def test_owner_reject_payment_keeps_restrictions(client: TestClient, setup_tenan
     assert inv_check.json()["status"] == "pending"
 
     # Member check-in remains blocked
-    res_checkin_blocked = client.post(
-        "/api/v1/attendance/check-in",
-        json={"method": "manual"},
-        headers=headers_member,
-    )
+    res_checkin_blocked = member_self_checkin(client, env)
     assert res_checkin_blocked.status_code == 403
 
 

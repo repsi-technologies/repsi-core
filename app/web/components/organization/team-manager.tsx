@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Mail, RefreshCw, Send, UserX, Users, X } from "lucide-react";
+import { KeyRound, Mail, RefreshCw, Send, UserX, Users, X } from "lucide-react";
 import type { CountryCode } from "libphonenumber-js/min";
 
 import { PhoneInput } from "@/components/ui/phone-input";
 import { FormAlert, FormField, PrimaryButton, SecondaryButton, SelectInput, TextInput } from "@/components/organization/form-fields";
+import { PermissionEditor } from "@/components/organization/permission-editor";
 import { ApiError, orgApi, type Branch, type Invitation, type TeamMember } from "@/lib/auth-client";
 import { isValidPhone, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
@@ -286,6 +287,7 @@ function MemberRow({
 }) {
   const [role, setRole] = useState(member.role);
   const [ids, setIds] = useState(member.branch_ids);
+  const [showPermissions, setShowPermissions] = useState(false);
   useEffect(() => {
     setRole(member.role);
     setIds(member.branch_ids);
@@ -326,8 +328,15 @@ function MemberRow({
       </div>
       {canManage && (
         <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+          <SecondaryButton type="button" className="h-8 px-3 text-xs" aria-expanded={showPermissions}
+            onClick={() => setShowPermissions((v) => !v)}>
+            <KeyRound className="h-3.5 w-3.5" aria-hidden /> Permissions
+          </SecondaryButton>
           <SecondaryButton type="button" disabled={busy} className="h-8 px-3 text-xs"
-            onClick={() => onSave({ is_active: !member.is_active }, member.is_active ? `${member.full_name} deactivated.` : `${member.full_name} reactivated.`)}>
+            onClick={() => {
+              if (member.is_active && !confirm(`Deactivate ${member.full_name}? They lose access immediately. Their history, assigned members and attendance records are kept.`)) return;
+              onSave({ is_active: !member.is_active }, member.is_active ? `${member.full_name} deactivated.` : `${member.full_name} reactivated.`);
+            }}>
             <UserX className="h-3.5 w-3.5" aria-hidden /> {member.is_active ? "Deactivate" : "Reactivate"}
           </SecondaryButton>
           <PrimaryButton type="button" disabled={!dirty} loading={busy} className="h-8 px-3 text-xs"
@@ -336,6 +345,7 @@ function MemberRow({
           </PrimaryButton>
         </div>
       )}
+      {canManage && showPermissions && <PermissionEditor memberId={member.id} onClose={() => setShowPermissions(false)} />}
     </li>
   );
 }

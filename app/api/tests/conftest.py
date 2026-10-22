@@ -50,3 +50,23 @@ def _reset_rate_limits():
     from app.core.rate_limit import reset_rate_limits
     reset_rate_limits()
     yield
+
+
+def give_active_membership(workspace_id: str, member_id: str, months: int = 1):
+    """Test helper: gives a member a paid-up active membership covering today (check-in requires one)."""
+    from datetime import date, timedelta
+    from app.models.member import Membership, MembershipPlan, MemberStatus
+
+    db = TestingSessionLocal()
+    try:
+        plan = MembershipPlan(workspace_id=workspace_id, name=f"Test Plan {member_id[:6]}", duration_months=months, price=1000.0)
+        db.add(plan)
+        db.flush()
+        db.add(Membership(
+            workspace_id=workspace_id, member_id=member_id, plan_id=plan.id,
+            start_date=date.today() - timedelta(days=1), end_date=date.today() + timedelta(days=30 * months),
+            status=MemberStatus.ACTIVE, price_paid=1000.0,
+        ))
+        db.commit()
+    finally:
+        db.close()
