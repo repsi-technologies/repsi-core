@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum as SQLEnum, JSON, Text
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum as SQLEnum, JSON, Text, Index
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import TimestampMixin
@@ -57,6 +57,9 @@ class SubscriptionPlan(Base, TimestampMixin):
 
 class GymSubscription(Base, TimestampMixin):
     __tablename__ = "gym_subscriptions"
+    __table_args__ = (
+        Index("ix_gym_subscriptions_status", "status"),
+    )
 
     id = Column(String(36), primary_key=True)
     workspace_id = Column(String(64), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -115,6 +118,9 @@ class SubscriptionAuditLog(Base, TimestampMixin):
 
 class SubscriptionPayment(Base, TimestampMixin):
     __tablename__ = "subscription_payments"
+    __table_args__ = (
+        Index("ix_subscription_payments_status_created", "status", "created_at"),
+    )
 
     id = Column(String(36), primary_key=True)
     workspace_id = Column(String(36), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)

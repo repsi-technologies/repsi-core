@@ -6,6 +6,9 @@ from typing import Optional
 from app.core.database import get_db
 from app.middleware.tenant import get_current_tenant, TenantContext
 from app.models.system import Notification
+from app.models.user import WorkspaceMember
+from app.schemas.communication import PreferencesResponse, PreferencesUpdate
+from app.services import communication as comms
 from app.schemas.notification import (
     NotificationResponse,
     NotificationCreate,
@@ -13,6 +16,24 @@ from app.schemas.notification import (
 )
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+STAFF_SENDER_ROLES = ("OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN")
+
+
+@router.get("/preferences", response_model=PreferencesResponse)
+def get_my_preferences(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    """The caller's channel preferences in this workspace (defaults when never saved)."""
+    return comms.get_preferences(db, tenant.workspace_id, tenant.user_id)
+
+
+@router.put("/preferences", response_model=PreferencesResponse)
+def update_my_preferences(
+    data: PreferencesUpdate,
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Opt in/out per channel. Turning WhatsApp on records the consent timestamp; off clears it immediately."""
+    return comms.update_preferences(db, tenant.workspace_id, tenant.user_id, data.model_dump(exclude_unset=True))
 
 
 @router.get("", response_model=NotificationListResponse)
@@ -66,10 +87,20 @@ def create_notification(
     db: Session = Depends(get_db),
 ):
     """
-    Create a notification scoped to current workspace.
-    Recipient defaults to caller unless specified.
+    Create a notification scoped to current workspace (staff only).
+    Recipient defaults to caller; any other recipient must be an active member of this workspace.
     """
+    if tenant.role not in STAFF_SENDER_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only staff can create notifications.")
     recipient_id = data.user_id or tenant.user_id
+    if recipient_id != tenant.user_id:
+        in_workspace = db.scalar(select(WorkspaceMember.id).where(
+            WorkspaceMember.workspace_id == tenant.workspace_id,
+            WorkspaceMember.user_id == recipient_id,
+            WorkspaceMember.is_active == True,
+        ))
+        if not in_workspace:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found in this workspace.")
     notif = Notification(
         workspace_id=tenant.workspace_id,
         user_id=recipient_id,

@@ -23,6 +23,7 @@ from app.schemas.crm import (
     AtRiskMemberItem,
 )
 from app.repositories.crm import CrmRepository
+from app.middleware.entitlements import assert_capacity
 from app.middleware.tenant import get_current_tenant, TenantContext
 from app.core.security import get_password_hash
 
@@ -289,6 +290,7 @@ def convert_lead_to_member(
         member_id = existing_member.id
         was_existing = True
     else:
+        assert_capacity(db, tenant.workspace_id, "members")
         # Create Member
         new_member = Member(
             workspace_id=tenant.workspace_id,

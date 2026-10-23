@@ -24,6 +24,8 @@ from app.api.v1.search import router as search_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.organization import audit_router, branches_router, onboarding_router, organization_router, team_router
 
+from app.api.v1.communications import broadcasts_router, deliveries_router, templates_router
+
 api_router = APIRouter()
 
 api_router.include_router(auth_router)
@@ -54,3 +56,6 @@ api_router.include_router(organization_router)
 api_router.include_router(branches_router)
 api_router.include_router(team_router)
 api_router.include_router(audit_router)
+api_router.include_router(broadcasts_router)
+api_router.include_router(templates_router)
+api_router.include_router(deliveries_router)

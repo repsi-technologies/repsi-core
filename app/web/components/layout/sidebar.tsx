@@ -31,6 +31,7 @@ import {
   BookOpen,
   Target,
   Globe,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -82,6 +83,7 @@ const ownerNavGroups: NavGroupDef[] = [
     title: "BUSINESS",
     items: [
       { label: "Reports", path: "/reports", icon: BarChart3 },
+      { label: "Broadcasts", path: "/broadcasts", icon: Megaphone },
       { label: "Notifications", path: "/notifications", icon: Bell },
       { label: "Activity", path: "/activity", icon: Activity },
     ],

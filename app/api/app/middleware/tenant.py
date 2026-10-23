@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import Header, HTTPException, status, Depends
+from fastapi import Header, HTTPException, Request, status, Depends
 from jose import JWTError, jwt
 from app.core.config import settings
 from app.core.security import decode_access_token
@@ -7,6 +7,29 @@ from app.core.security import decode_access_token
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
+
+
+# While a workspace is suspended its users can still sign in, read their own session/billing state
+# and see why access is restricted; everything else is refused until a super admin reactivates it.
+SUSPENDED_WORKSPACE_ALLOWED_PATHS = (
+    "/auth/", "/billing/trial-status", "/billing/entitlements", "/billing/plans", "/notifications",
+)
+
+
+def _refuse_if_suspended(ws, request: Optional[Request]) -> None:
+    if ws is None or ws.is_active is not False:
+        return
+    path = request.url.path if request is not None else ""
+    if request is not None and request.method == "GET" and any(seg in path for seg in SUSPENDED_WORKSPACE_ALLOWED_PATHS):
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail={
+            "error_code": "WORKSPACE_SUSPENDED",
+            "workspace_id": ws.id,
+            "message": "This gym workspace is suspended. Contact REPSI support to reactivate it.",
+        },
+    )
 
 
 class TenantContext:
@@ -17,6 +40,7 @@ class TenantContext:
 
 
 def get_current_tenant(
+    request: Request = None,
     authorization: Optional[str] = Header(None),
     x_workspace_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
@@ -59,6 +83,7 @@ def get_current_tenant(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Access denied. You do not have an active account in this gym workspace.",
                 )
+            _refuse_if_suspended(ws, request)
             role = member.role.value if hasattr(member.role, "value") else str(member.role)
             return TenantContext(workspace_id=actual_ws_id, user_id=user_id, role=role)
 
@@ -68,6 +93,7 @@ def get_current_tenant(
             WorkspaceMember.is_active == True,
         ).first()
         if first_member:
+            _refuse_if_suspended(db.get(Workspace, first_member.workspace_id), request)
             resolved_role = first_member.role.value if hasattr(first_member.role, "value") else str(first_member.role)
             return TenantContext(workspace_id=first_member.workspace_id, user_id=user_id, role=resolved_role)
 

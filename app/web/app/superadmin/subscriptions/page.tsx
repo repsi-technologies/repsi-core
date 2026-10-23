@@ -312,11 +312,11 @@ export default function SuperAdminSubscriptionsPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <CreditCard className="w-6 h-6 text-emerald-400" />
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight flex items-center gap-2.5">
+            <CreditCard className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             SaaS Subscription & Entitlement Control
           </h1>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-[var(--text-muted)] mt-1">
             Super Admin control center: manage gym plan allocations, 14-day trials, feature gates, and audit trails.
           </p>
         </div>
@@ -327,7 +327,7 @@ export default function SuperAdminSubscriptionsPage() {
             variant="outline"
             onClick={loadData}
             disabled={loading}
-            className="border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:text-white text-xs gap-1.5"
+            className="border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:text-[var(--text)] text-xs gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -336,11 +336,11 @@ export default function SuperAdminSubscriptionsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-zinc-800 gap-4">
+      <div className="flex border-b border-[var(--border)] gap-4">
         <button
           onClick={() => setActiveTab("gyms")}
           className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 relative ${
-            activeTab === "gyms" ? "text-emerald-400" : "text-zinc-400 hover:text-zinc-200"
+            activeTab === "gyms" ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -357,7 +357,7 @@ export default function SuperAdminSubscriptionsPage() {
         <button
           onClick={() => setActiveTab("plans")}
           className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 relative ${
-            activeTab === "plans" ? "text-emerald-400" : "text-zinc-400 hover:text-zinc-200"
+            activeTab === "plans" ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
         >
           <Sliders className="w-4 h-4" />
@@ -377,29 +377,29 @@ export default function SuperAdminSubscriptionsPage() {
         <div className="space-y-6">
           {/* Super Admin 14-Day Trial & Subscription Overview Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-zinc-400">Total Gyms</span>
-              <div className="text-xl font-black text-white mt-1">
+            <div className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] flex flex-col justify-between">
+              <span className="text-[11px] font-medium text-[var(--text-muted)]">Total Gyms</span>
+              <div className="text-xl font-black text-[var(--text)] mt-1">
                 {trialAnalytics?.total_businesses ?? gyms.length}
               </div>
-              <span className="text-[10px] text-zinc-500 mt-1">Registered businesses</span>
+              <span className="text-[10px] text-[var(--text-muted)] mt-1">Registered businesses</span>
             </div>
 
             <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-emerald-400 flex items-center gap-1">
+              <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <Clock className="w-3 h-3" /> Active Trials
               </span>
-              <div className="text-xl font-black text-emerald-400 mt-1">
+              <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                 {trialAnalytics?.active_trials ?? 0}
               </div>
               <span className="text-[10px] text-emerald-500/70 mt-1">Growth plan (35 cap)</span>
             </div>
 
             <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-amber-400 flex items-center gap-1">
+              <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" /> Expiring &le; 3d
               </span>
-              <div className="text-xl font-black text-amber-400 mt-1">
+              <div className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">
                 {trialAnalytics?.trials_expiring_3_days ?? 0}
               </div>
               <span className="text-[10px] text-amber-500/70 mt-1">
@@ -408,30 +408,30 @@ export default function SuperAdminSubscriptionsPage() {
             </div>
 
             <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/5 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-rose-400 flex items-center gap-1">
+              <span className="text-[11px] font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1">
                 <Lock className="w-3 h-3" /> Expired Trials
               </span>
-              <div className="text-xl font-black text-rose-400 mt-1">
+              <div className="text-xl font-black text-rose-600 dark:text-rose-400 mt-1">
                 {trialAnalytics?.expired_trials ?? 0}
               </div>
               <span className="text-[10px] text-rose-500/70 mt-1">Requires upgrade</span>
             </div>
 
             <div className="p-3.5 rounded-xl border border-sky-500/30 bg-sky-500/5 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-sky-400 flex items-center gap-1">
+              <span className="text-[11px] font-medium text-sky-600 dark:text-sky-400 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Active Paid
               </span>
-              <div className="text-xl font-black text-sky-400 mt-1">
+              <div className="text-xl font-black text-sky-600 dark:text-sky-400 mt-1">
                 {trialAnalytics?.active_paid ?? 0}
               </div>
               <span className="text-[10px] text-sky-500/70 mt-1">Active subscriptions</span>
             </div>
 
             <div className="p-3.5 rounded-xl border border-purple-500/30 bg-purple-500/5 flex flex-col justify-between">
-              <span className="text-[11px] font-medium text-purple-400 flex items-center gap-1">
+              <span className="text-[11px] font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" /> Conversion Rate
               </span>
-              <div className="text-xl font-black text-purple-400 mt-1">
+              <div className="text-xl font-black text-purple-600 dark:text-purple-400 mt-1">
                 {trialAnalytics?.conversion_rate_pct ?? 0}%
               </div>
               <span className="text-[10px] text-purple-500/70 mt-1">Trial to paid conversions</span>
@@ -440,7 +440,7 @@ export default function SuperAdminSubscriptionsPage() {
 
           {/* Quick Filter Tabs & Action Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs">
               {[
                 { id: "all", label: "All Businesses" },
                 { id: "active_trial", label: "Active Trials" },
@@ -453,8 +453,8 @@ export default function SuperAdminSubscriptionsPage() {
                   onClick={() => setFilterType(tab.id)}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
                     filterType === tab.id
-                      ? "bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
                   }`}
                 >
                   {tab.label}
@@ -467,7 +467,7 @@ export default function SuperAdminSubscriptionsPage() {
               variant="outline"
               onClick={handleReconcileTrials}
               disabled={reconciling}
-              className="border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:text-white text-xs gap-1.5 cursor-pointer"
+              className="border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:text-[var(--text)] text-xs gap-1.5 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${reconciling ? "animate-spin" : ""}`} />
               {reconciling ? "Syncing..." : "Sync Trial Lifecycle"}
@@ -475,14 +475,14 @@ export default function SuperAdminSubscriptionsPage() {
           </div>
 
           {/* Search & Select Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <form onSubmit={handleSearchSubmit} className="relative flex-1">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Search by gym name, workspace slug, or owner email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-zinc-950 border-zinc-800 text-xs text-white"
+                className="pl-9 bg-[var(--background)] border-[var(--border)] text-xs text-[var(--text)]"
               />
             </form>
 
@@ -490,7 +490,7 @@ export default function SuperAdminSubscriptionsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-3 py-2 outline-none"
+                className="bg-[var(--background)] border border-[var(--border)] text-[var(--text)] text-xs rounded-lg px-3 py-2 outline-none"
               >
                 <option value="all">All Statuses</option>
                 <option value="trialing">Trialing (Growth)</option>
@@ -504,7 +504,7 @@ export default function SuperAdminSubscriptionsPage() {
               <select
                 value={planFilter}
                 onChange={(e) => setPlanFilter(e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-3 py-2 outline-none"
+                className="bg-[var(--background)] border border-[var(--border)] text-[var(--text)] text-xs rounded-lg px-3 py-2 outline-none"
               >
                 <option value="all">All Plans</option>
                 <option value="basic">Basic</option>
@@ -518,10 +518,10 @@ export default function SuperAdminSubscriptionsPage() {
           </div>
 
           {/* Table */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-900/90 text-[11px] font-semibold uppercase text-zinc-400 border-b border-zinc-800">
+              <table className="w-full text-left text-xs text-[var(--text)]">
+                <thead className="bg-[var(--surface)] text-[11px] font-semibold uppercase text-[var(--text-muted)] border-b border-[var(--border)]">
                   <tr>
                     <th className="py-3 px-4">Gym Tenant</th>
                     <th className="py-3 px-4">Owner</th>
@@ -532,17 +532,17 @@ export default function SuperAdminSubscriptionsPage() {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 font-medium">
+                <tbody className="divide-y divide-[var(--border)] font-medium">
                   {loading ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-zinc-500">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-emerald-400" />
+                      <td colSpan={7} className="py-8 text-center text-[var(--text-muted)]">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-emerald-600 dark:text-emerald-400" />
                         Loading gym subscriptions...
                       </td>
                     </tr>
                   ) : gyms.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-zinc-500">
+                      <td colSpan={7} className="py-8 text-center text-[var(--text-muted)]">
                         No gym subscriptions found matching your filters.
                       </td>
                     </tr>
@@ -552,23 +552,23 @@ export default function SuperAdminSubscriptionsPage() {
                       const isSuspended = gym.status === "suspended";
                       const isTrial = gym.status === "trialing";
                       return (
-                        <tr key={gym.subscription_id} className="hover:bg-zinc-800/30 transition-colors">
+                        <tr key={gym.subscription_id} className="hover:bg-[var(--surface-secondary)] transition-colors">
                           <td className="py-3 px-4">
-                            <div className="font-bold text-white text-sm">{gym.workspace_name}</div>
-                            <div className="text-[11px] text-zinc-400 font-mono">/{gym.workspace_slug}</div>
+                            <div className="font-bold text-[var(--text)] text-sm">{gym.workspace_name}</div>
+                            <div className="text-[11px] text-[var(--text-muted)] font-mono">/{gym.workspace_slug}</div>
                           </td>
 
                           <td className="py-3 px-4">
-                            <div className="text-zinc-200">{gym.owner_name || "—"}</div>
-                            <div className="text-[11px] text-zinc-500">{gym.owner_email || "—"}</div>
+                            <div className="text-[var(--text)]">{gym.owner_name || "—"}</div>
+                            <div className="text-[11px] text-[var(--text-muted)]">{gym.owner_email || "—"}</div>
                           </td>
 
                           <td className="py-3 px-4">
-                            <div className="flex items-center gap-1.5 font-bold text-emerald-400 uppercase">
+                            <div className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400 uppercase">
                               <Sparkles className="w-3.5 h-3.5" />
                               {gym.plan_name}
                             </div>
-                            <div className="text-[10px] text-zinc-500">
+                            <div className="text-[10px] text-[var(--text-muted)]">
                               {gym.billing_cycle || "monthly"} • ₹{gym.plan_price || 0}
                             </div>
                           </td>
@@ -577,29 +577,29 @@ export default function SuperAdminSubscriptionsPage() {
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                                 gym.status === "active"
-                                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                  ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                                   : gym.status === "trialing"
-                                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                  ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30"
                                   : gym.status === "suspended"
-                                  ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                                  : "bg-zinc-800 text-zinc-400 border border-zinc-700"
+                                  ? "bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                                  : "bg-[var(--surface-secondary)] text-[var(--text-muted)] border border-[var(--border-strong)]"
                               }`}
                             >
                               {gym.status}
                             </span>
                             {gym.is_complimentary && (
-                              <span className="block mt-1 text-[9px] text-purple-400 font-bold">
+                              <span className="block mt-1 text-[9px] text-purple-600 dark:text-purple-400 font-bold">
                                 ★ COMPLIMENTARY
                               </span>
                             )}
                           </td>
 
                           <td className="py-3 px-4">
-                            <div className="text-zinc-200">
-                              Members: <strong className="text-white">{gym.active_members_count}</strong> /{" "}
+                            <div className="text-[var(--text)]">
+                              Members: <strong className="text-[var(--text)]">{gym.active_members_count}</strong> /{" "}
                               {isUnlimited ? "Unlimited" : gym.member_limit}
                             </div>
-                            <div className="text-[10px] text-zinc-500">
+                            <div className="text-[10px] text-[var(--text-muted)]">
                               Trainers: {gym.active_trainers_count} / {gym.trainer_limit === -1 ? "Unlimited" : gym.trainer_limit}
                             </div>
                           </td>
@@ -607,7 +607,7 @@ export default function SuperAdminSubscriptionsPage() {
                           <td className="py-3 px-4 font-mono text-[11px]">
                             {gym.expires_at ? new Date(gym.expires_at).toLocaleDateString() : "Permanent / None"}
                             {isTrial && gym.expires_at && (
-                              <span className="block text-[10px] text-amber-400">
+                              <span className="block text-[10px] text-amber-600 dark:text-amber-400">
                                 {currentTime ? `${Math.max(0, Math.ceil((new Date(gym.expires_at).getTime() - currentTime) / (1000 * 3600 * 24)))} days left` : ""}
                               </span>
                             )}
@@ -620,7 +620,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openExtendTrial(gym)}
-                                className="h-7 text-[10px] bg-zinc-900 border-zinc-700 text-amber-300 hover:bg-amber-500/10"
+                                className="h-7 text-[10px] bg-[var(--surface)] border-[var(--border-strong)] text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
                                 title="Extend Trial"
                               >
                                 <Clock className="w-3 h-3 mr-1" />
@@ -632,7 +632,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openChangePlan(gym)}
-                                className="h-7 text-[10px] bg-zinc-900 border-zinc-700 text-zinc-300 hover:text-white"
+                                className="h-7 text-[10px] bg-[var(--surface)] border-[var(--border-strong)] text-[var(--text)] hover:text-[var(--text)]"
                                 title="Change Plan"
                               >
                                 <Edit2 className="w-3 h-3 mr-1" />
@@ -644,7 +644,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openOverrides(gym)}
-                                className="h-7 text-[10px] bg-zinc-900 border-zinc-700 text-zinc-300 hover:text-white"
+                                className="h-7 text-[10px] bg-[var(--surface)] border-[var(--border-strong)] text-[var(--text)] hover:text-[var(--text)]"
                                 title="Set Resource Overrides"
                               >
                                 <Sliders className="w-3 h-3" />
@@ -655,7 +655,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openComplimentary(gym)}
-                                className="h-7 text-[10px] bg-zinc-900 border-zinc-700 text-purple-400 hover:bg-purple-500/10"
+                                className="h-7 text-[10px] bg-[var(--surface)] border-[var(--border-strong)] text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
                                 title="Grant Complimentary Access"
                               >
                                 <Gift className="w-3 h-3" />
@@ -688,7 +688,7 @@ export default function SuperAdminSubscriptionsPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openHistory(gym)}
-                                className="h-7 text-[10px] bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white"
+                                className="h-7 text-[10px] bg-[var(--surface)] border-[var(--border-strong)] text-[var(--text-muted)] hover:text-[var(--text)]"
                                 title="Audit history"
                               >
                                 <History className="w-3 h-3" />
@@ -714,60 +714,60 @@ export default function SuperAdminSubscriptionsPage() {
               <SpotlightCard
                 key={p.id}
                 spotlightColor="rgba(16, 185, 129, 0.12)"
-                className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 flex flex-col justify-between space-y-4"
+                className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col justify-between space-y-4"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                    <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                       {p.code}
                     </span>
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
-                        p.is_active ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-800 text-zinc-500"
+                        p.is_active ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-[var(--surface-secondary)] text-[var(--text-muted)]"
                       }`}
                     >
                       {p.is_active ? "ACTIVE CATALOG" : "INACTIVE"}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mt-1">{p.name}</h3>
+                  <h3 className="text-xl font-bold text-[var(--text)] mt-1">{p.name}</h3>
 
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-2xl font-black text-white">
+                    <span className="text-2xl font-black text-[var(--text)]">
                       {p.monthly_price === 0 ? "Custom" : `₹${p.monthly_price}`}
                     </span>
-                    <span className="text-xs text-zinc-400">/ mo</span>
-                    <span className="text-xs text-zinc-500 font-mono">
+                    <span className="text-xs text-[var(--text-muted)]">/ mo</span>
+                    <span className="text-xs text-[var(--text-muted)] font-mono">
                       (Annual: ₹{p.annual_price || 0})
                     </span>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-zinc-800 text-xs space-y-1.5 text-zinc-300">
+                  <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs space-y-1.5 text-[var(--text)]">
                     <div>
                       • Member Limit:{" "}
-                      <strong className="text-white">
+                      <strong className="text-[var(--text)]">
                         {p.member_limit === -1 ? "Unlimited" : p.member_limit}
                       </strong>
                     </div>
                     <div>
                       • Trainer Limit:{" "}
-                      <strong className="text-white">
+                      <strong className="text-[var(--text)]">
                         {p.trainer_limit === -1 ? "Unlimited" : p.trainer_limit}
                       </strong>
                     </div>
                     <div>
                       • Staff Limit:{" "}
-                      <strong className="text-white">
+                      <strong className="text-[var(--text)]">
                         {p.staff_limit === -1 ? "Unlimited" : p.staff_limit}
                       </strong>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-zinc-800 text-xs text-zinc-400 space-y-1">
-                    <div className="text-[11px] font-semibold text-zinc-300">Features Unlocked:</div>
+                  <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs text-[var(--text-muted)] space-y-1">
+                    <div className="text-[11px] font-semibold text-[var(--text)]">Features Unlocked:</div>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {Object.keys(p.features || {}).map((f) => (
-                        <span key={f} className="px-1.5 py-0.5 rounded bg-zinc-800 font-mono text-[9px] text-zinc-300">
+                        <span key={f} className="px-1.5 py-0.5 rounded bg-[var(--surface-secondary)] font-mono text-[9px] text-[var(--text)]">
                           {f}
                         </span>
                       ))}
@@ -779,7 +779,7 @@ export default function SuperAdminSubscriptionsPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => openEditPlan(p)}
-                  className="w-full bg-zinc-950 border-zinc-700 text-zinc-200 hover:text-white text-xs gap-1.5"
+                  className="w-full bg-[var(--background)] border-[var(--border-strong)] text-[var(--text)] hover:text-[var(--text)] text-xs gap-1.5"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   Edit Plan Details & Limits
@@ -797,24 +797,24 @@ export default function SuperAdminSubscriptionsPage() {
       {/* EXTEND TRIAL MODAL */}
       {modalType === "extend_trial" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-amber-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-amber-600 dark:text-amber-400">
                 <Clock className="w-5 h-5" />
                 Extend 14-Day Free Trial
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300">
-              Extend access for <strong className="text-white">{selectedGym.workspace_name}</strong> without creating duplicate subscriptions.
+            <p className="text-xs text-[var(--text)]">
+              Extend access for <strong className="text-[var(--text)]">{selectedGym.workspace_name}</strong> without creating duplicate subscriptions.
             </p>
 
             <form onSubmit={handleExtendTrialSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block text-zinc-400 mb-1">Additional Days</label>
+                <label className="block text-[var(--text-muted)] mb-1">Additional Days</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[7, 14, 30, 60].map((d) => (
                     <button
@@ -823,8 +823,8 @@ export default function SuperAdminSubscriptionsPage() {
                       onClick={() => setTrialDays(d)}
                       className={`py-2 rounded-lg font-bold border transition ${
                         trialDays === d
-                          ? "bg-amber-500/20 border-amber-500 text-amber-300"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                          ? "bg-amber-500/20 border-amber-500 text-amber-700 dark:text-amber-300"
+                          : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-muted)]"
                       }`}
                     >
                       +{d} Days
@@ -834,12 +834,12 @@ export default function SuperAdminSubscriptionsPage() {
               </div>
 
               <div>
-                <label className="block text-zinc-400 mb-1">Reason for Extension</label>
+                <label className="block text-[var(--text-muted)] mb-1">Reason for Extension</label>
                 <Input
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
                   placeholder="e.g. Granted by CEO for pilot onboarding"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
@@ -860,28 +860,28 @@ export default function SuperAdminSubscriptionsPage() {
       {/* CHANGE PLAN MODAL */}
       {modalType === "change_plan" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-emerald-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                 <Edit2 className="w-5 h-5" />
                 Change Gym Plan
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300">
-              Assign a new catalog plan to <strong className="text-white">{selectedGym.workspace_name}</strong>.
+            <p className="text-xs text-[var(--text)]">
+              Assign a new catalog plan to <strong className="text-[var(--text)]">{selectedGym.workspace_name}</strong>.
             </p>
 
             <form onSubmit={handleChangePlanSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block text-zinc-400 mb-1">Target Plan</label>
+                <label className="block text-[var(--text-muted)] mb-1">Target Plan</label>
                 <select
                   value={targetPlanCode}
                   onChange={(e) => setTargetPlanCode(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white outline-none"
+                  className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--text)] outline-none"
                 >
                   <option value="basic">Basic (10 Members · ₹149/mo)</option>
                   <option value="growth">Growth (35 Members · ₹499/mo)</option>
@@ -893,11 +893,11 @@ export default function SuperAdminSubscriptionsPage() {
               </div>
 
               <div>
-                <label className="block text-zinc-400 mb-1">Billing Cycle</label>
+                <label className="block text-[var(--text-muted)] mb-1">Billing Cycle</label>
                 <select
                   value={targetBillingCycle}
                   onChange={(e) => setTargetBillingCycle(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-white outline-none"
+                  className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--text)] outline-none"
                 >
                   <option value="monthly">Monthly</option>
                   <option value="annual">Annual</option>
@@ -905,12 +905,12 @@ export default function SuperAdminSubscriptionsPage() {
               </div>
 
               <div>
-                <label className="block text-zinc-400 mb-1">Administrative Reason</label>
+                <label className="block text-[var(--text-muted)] mb-1">Administrative Reason</label>
                 <Input
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
                   placeholder="e.g. Plan upgrade requested via support ticket"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
@@ -931,55 +931,55 @@ export default function SuperAdminSubscriptionsPage() {
       {/* COMPLIMENTARY ACCESS MODAL */}
       {modalType === "complimentary" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-purple-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-purple-600 dark:text-purple-400">
                 <Gift className="w-5 h-5" />
                 Grant Complimentary Access
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300">
-              Grant free complimentary access to <strong className="text-white">{selectedGym.workspace_name}</strong> without tampering billing ledger history.
+            <p className="text-xs text-[var(--text)]">
+              Grant free complimentary access to <strong className="text-[var(--text)]">{selectedGym.workspace_name}</strong> without tampering billing ledger history.
             </p>
 
             <form onSubmit={handleComplimentarySubmit} className="space-y-4 text-xs">
-              <div className="flex items-center gap-2 p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+              <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]">
                 <input
                   type="checkbox"
                   id="compPerm"
                   checked={compPermanent}
                   onChange={(e) => setCompPermanent(e.target.checked)}
-                  className="rounded border-zinc-700"
+                  className="rounded border-[var(--border-strong)]"
                 />
-                <label htmlFor="compPerm" className="text-xs font-semibold text-zinc-200">
+                <label htmlFor="compPerm" className="text-xs font-semibold text-[var(--text)]">
                   Grant Permanent Complimentary Access (until manually revoked)
                 </label>
               </div>
 
               {!compPermanent && (
                 <div>
-                  <label className="block text-zinc-400 mb-1">Duration (Days)</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Duration (Days)</label>
                   <Input
                     type="number"
                     value={compDays}
                     onChange={(e) => setCompDays(Number(e.target.value))}
                     min={1}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-zinc-400 mb-1">Reason</label>
+                <label className="block text-[var(--text-muted)] mb-1">Reason</label>
                 <Input
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
                   placeholder="e.g. VIP Partner sponsorship"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
@@ -1000,62 +1000,62 @@ export default function SuperAdminSubscriptionsPage() {
       {/* OVERRIDES MODAL */}
       {modalType === "override" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-blue-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <Sliders className="w-5 h-5" />
                 Configure Tenant Resource Overrides
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300">
-              Apply per-gym custom limits to <strong className="text-white">{selectedGym.workspace_name}</strong>. Leave empty to use plan defaults.
+            <p className="text-xs text-[var(--text)]">
+              Apply per-gym custom limits to <strong className="text-[var(--text)]">{selectedGym.workspace_name}</strong>. Leave empty to use plan defaults.
             </p>
 
             <form onSubmit={handleOverridesSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-zinc-400 mb-1">Member Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Member Limit</label>
                   <Input
                     type="number"
                     value={customMemberLimit}
                     onChange={(e) => setCustomMemberLimit(e.target.value)}
                     placeholder="Plan default"
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 mb-1">Trainer Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Trainer Limit</label>
                   <Input
                     type="number"
                     value={customTrainerLimit}
                     onChange={(e) => setCustomTrainerLimit(e.target.value)}
                     placeholder="Plan default"
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 mb-1">Staff Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Staff Limit</label>
                   <Input
                     type="number"
                     value={customStaffLimit}
                     onChange={(e) => setCustomStaffLimit(e.target.value)}
                     placeholder="Plan default"
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-zinc-400 mb-1">Reason</label>
+                <label className="block text-[var(--text-muted)] mb-1">Reason</label>
                 <Input
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
                   placeholder="e.g. Custom agreement addendum"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
@@ -1076,18 +1076,18 @@ export default function SuperAdminSubscriptionsPage() {
       {/* STATUS TOGGLE MODAL */}
       {modalType === "status" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-rose-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-rose-600 dark:text-rose-400">
                 <AlertTriangle className="w-5 h-5" />
                 {statusAction === "suspended" ? "Suspend Subscription" : "Reactivate Subscription"}
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300">
+            <p className="text-xs text-[var(--text)]">
               {statusAction === "suspended"
                 ? `Suspending will block all feature and capacity operations for ${selectedGym.workspace_name}.`
                 : `Reactivating will restore plan entitlements for ${selectedGym.workspace_name}.`}
@@ -1095,12 +1095,12 @@ export default function SuperAdminSubscriptionsPage() {
 
             <form onSubmit={handleStatusSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block text-zinc-400 mb-1">Reason for Status Change</label>
+                <label className="block text-[var(--text-muted)] mb-1">Reason for Status Change</label>
                 <Input
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
                   placeholder="Required administrative reason"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
@@ -1114,7 +1114,7 @@ export default function SuperAdminSubscriptionsPage() {
                   disabled={actionLoading}
                   className={`${
                     statusAction === "suspended" ? "bg-rose-600 hover:bg-rose-700" : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
-                  } text-white text-xs`}
+                  } text-[var(--text)] text-xs`}
                 >
                   {actionLoading ? "Updating..." : `Confirm ${statusAction.toUpperCase()}`}
                 </Button>
@@ -1127,38 +1127,38 @@ export default function SuperAdminSubscriptionsPage() {
       {/* HISTORY / AUDIT MODAL */}
       {modalType === "history" && selectedGym && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-2xl w-full shadow-2xl space-y-4 text-white max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-zinc-200">
-                <History className="w-5 h-5 text-emerald-400" />
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-2xl w-full shadow-2xl space-y-4 text-[var(--text)] max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-[var(--text)]">
+                <History className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 Subscription History & Audit Log — {selectedGym.workspace_name}
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 pr-2 text-xs">
               {detailedGymSub?.audit_logs?.length === 0 ? (
-                <div className="py-8 text-center text-zinc-500">No administrative changes recorded for this workspace.</div>
+                <div className="py-8 text-center text-[var(--text-muted)]">No administrative changes recorded for this workspace.</div>
               ) : (
                 detailedGymSub?.audit_logs?.map((log: any) => (
-                  <div key={log.id} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/80 space-y-1">
-                    <div className="flex items-center justify-between font-mono text-[10px] text-zinc-400">
-                      <span className="font-bold text-emerald-400 uppercase">{log.action}</span>
+                  <div key={log.id} className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)] space-y-1">
+                    <div className="flex items-center justify-between font-mono text-[10px] text-[var(--text-muted)]">
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase">{log.action}</span>
                       <span>{new Date(log.created_at).toLocaleString()}</span>
                     </div>
-                    <div className="text-zinc-200 text-xs">{log.reason || "No reason specified"}</div>
-                    <div className="text-[10px] text-zinc-400 font-mono">
+                    <div className="text-[var(--text)] text-xs">{log.reason || "No reason specified"}</div>
+                    <div className="text-[10px] text-[var(--text-muted)] font-mono">
                       {log.old_value && <span>Old: {log.old_value} → </span>}
-                      {log.new_value && <span className="text-white">New: {log.new_value}</span>}
+                      {log.new_value && <span className="text-[var(--text)]">New: {log.new_value}</span>}
                     </div>
                   </div>
                 ))
               )}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-zinc-800">
+            <div className="flex justify-end pt-2 border-t border-[var(--border)]">
               <Button type="button" variant="outline" onClick={() => setModalType(null)} className="text-xs">
                 Close
               </Button>
@@ -1170,75 +1170,75 @@ export default function SuperAdminSubscriptionsPage() {
       {/* EDIT PLAN MODAL */}
       {modalType === "edit_plan" && editingPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2 text-emerald-400">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-bold text-base flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                 <Edit2 className="w-5 h-5" />
                 Edit Plan: {editingPlan.name}
               </h3>
-              <button onClick={() => setModalType(null)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setModalType(null)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleEditPlanSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-zinc-400 mb-1">Display Name</label>
+                <label className="block text-[var(--text-muted)] mb-1">Display Name</label>
                 <Input
                   value={editingPlan.name}
                   onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-400 mb-1">Monthly Price (₹)</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Monthly Price (₹)</label>
                   <Input
                     type="number"
                     value={editingPlan.monthly_price}
                     onChange={(e) => setEditingPlan({ ...editingPlan, monthly_price: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 mb-1">Annual Price (₹)</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Annual Price (₹)</label>
                   <Input
                     type="number"
                     value={editingPlan.annual_price}
                     onChange={(e) => setEditingPlan({ ...editingPlan, annual_price: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-zinc-400 mb-1">Member Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Member Limit</label>
                   <Input
                     type="number"
                     value={editingPlan.member_limit}
                     onChange={(e) => setEditingPlan({ ...editingPlan, member_limit: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 mb-1">Trainer Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Trainer Limit</label>
                   <Input
                     type="number"
                     value={editingPlan.trainer_limit}
                     onChange={(e) => setEditingPlan({ ...editingPlan, trainer_limit: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 mb-1">Staff Limit</label>
+                  <label className="block text-[var(--text-muted)] mb-1">Staff Limit</label>
                   <Input
                     type="number"
                     value={editingPlan.staff_limit}
                     onChange={(e) => setEditingPlan({ ...editingPlan, staff_limit: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                    className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   />
                 </div>
               </div>
@@ -1249,14 +1249,14 @@ export default function SuperAdminSubscriptionsPage() {
                   id="planActive"
                   checked={editingPlan.is_active}
                   onChange={(e) => setEditingPlan({ ...editingPlan, is_active: e.target.checked })}
-                  className="rounded border-zinc-700"
+                  className="rounded border-[var(--border-strong)]"
                 />
-                <label htmlFor="planActive" className="text-zinc-300">
+                <label htmlFor="planActive" className="text-[var(--text)]">
                   Active for new purchases
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[var(--border)]">
                 <Button type="button" variant="outline" onClick={() => setModalType(null)} className="text-xs">
                   Cancel
                 </Button>

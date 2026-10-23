@@ -152,7 +152,7 @@ export default function SuperAdminUsers() {
                       {user.workspace_name ? (
                         <span className="font-medium text-[var(--text)]">{user.workspace_name}</span>
                       ) : (
-                        <span className="text-zinc-400 italic">No gym / Orphaned</span>
+                        <span className="text-[var(--text-muted)] italic">No gym / Orphaned</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -204,7 +204,7 @@ export default function SuperAdminUsers() {
       {/* Delete User Modal */}
       {userToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-zinc-950 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[var(--background)] border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-2 text-rose-500">
                 <AlertTriangle className="w-5 h-5" />
@@ -213,7 +213,7 @@ export default function SuperAdminUsers() {
               <button
                 type="button"
                 onClick={() => setUserToDelete(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                className="text-[var(--text-muted)] hover:text-[var(--text-disabled)] dark:hover:text-[var(--text)]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -240,7 +240,7 @@ export default function SuperAdminUsers() {
                 type="button"
                 onClick={() => setUserToDelete(null)}
                 disabled={deleting}
-                className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                className="flex-1 h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-[var(--surface)] transition-colors"
               >
                 Cancel
               </button>

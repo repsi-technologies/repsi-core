@@ -28,6 +28,7 @@ from app.core.email import send_direct_credentials_email, send_gym_invitation
 from app.core.phone import normalize_phone, optional_phone
 from app.core.rate_limit import client_ip, enforce_rate_limit
 from app.core.security import decode_access_token, get_password_hash
+from app.middleware.entitlements import assert_capacity
 from app.middleware.tenant import TenantContext, get_current_tenant, require_roles
 from app.models.attendance import GymLocation
 from app.models.invitation import GymInvitation, InvitationRole, InvitationStatus
@@ -36,6 +37,7 @@ from app.models.trainer import Trainer, TrainerStatus
 from app.models.user import User, UserRole, Workspace, WorkspaceMember
 from app.schemas.auth import PASSWORD_MIN_LENGTH, Token
 from app.services.auth import UNUSABLE_PASSWORD, AuthService, normalize_email
+from app.services.billing import STAFF_LIMIT_ROLES
 from app.services.organization import OrganizationService
 
 router = APIRouter(prefix="/invitations", tags=["Invitations"])
@@ -120,6 +122,29 @@ def _branch_ids(inv: GymInvitation) -> list[str]:
         return [str(v) for v in value] if isinstance(value, list) else []
     except ValueError:
         return []
+
+
+def _assert_join_capacity(db: Session, workspace_id: str, role: InvitationRole, user_id: Optional[str], email: str) -> None:
+    """Rejects (409 PLAN_LIMIT_REACHED) a join that would add an active member, trainer or staff account over quota."""
+    if role == InvitationRole.MEMBER:
+        already = db.query(Member.id).filter(
+            Member.workspace_id == workspace_id, func.lower(Member.email) == email,
+            Member.status == MemberStatus.ACTIVE,
+        ).first()
+        resource = "members"
+    elif role == InvitationRole.TRAINER:
+        already = db.query(Trainer.id).filter(
+            Trainer.workspace_id == workspace_id, func.lower(Trainer.email) == email, Trainer.is_active == True,
+        ).first()
+        resource = "trainers"
+    else:
+        already = db.query(WorkspaceMember.id).filter(
+            WorkspaceMember.workspace_id == workspace_id, WorkspaceMember.user_id == user_id,
+            WorkspaceMember.is_active == True, WorkspaceMember.role.in_(STAFF_LIMIT_ROLES),
+        ).first()
+        resource = "staff"
+    if not already:
+        assert_capacity(db, workspace_id, resource)
 
 
 def _to_response(inv: GymInvitation) -> InvitationResponse:
@@ -351,7 +376,6 @@ def accept_invitation(
     email = normalize_email(inv.email)
     caller = _optional_user(authorization, db)
     auth = AuthService(db)
-
     if caller is not None:
         invited_phone = normalize_phone(inv.phone, workspace.country_code or "IN") if inv.phone else None
         same_email = normalize_email(caller.email) == email
@@ -361,6 +385,7 @@ def accept_invitation(
                 status_code=403,
                 detail=f"This invitation was sent to {inv.email}. Sign in with that account to accept it.",
             )
+        _assert_join_capacity(db, workspace.id, inv.role, caller.id, email)
         user = caller
         if same_email and not user.email_verified:
             user.email_verified = True  # the emailed token proves this inbox
@@ -375,6 +400,8 @@ def accept_invitation(
             raise HTTPException(
                 status_code=422, detail=f"Choose a password with at least {PASSWORD_MIN_LENGTH} characters."
             )
+        # Quota check before the account row is written, so a rejected join leaves nothing behind.
+        _assert_join_capacity(db, workspace.id, inv.role, None, email)
         user = User(
             email=email,
             full_name=" ".join((data.full_name or inv.name).split()) or inv.name,
@@ -479,6 +506,7 @@ def direct_add_user(
     # Existing accounts keep their password; new accounts get the provided password or
     # none (they sign in via WhatsApp OTP or "Forgot password").
     user = db.query(User).filter(func.lower(User.email) == normalized_email).first()
+    _assert_join_capacity(db, workspace.id, data.role, user.id if user else None, normalized_email)
     if not user:
         password = data.password.strip() if data.password and len(data.password.strip()) >= PASSWORD_MIN_LENGTH else None
         user = User(

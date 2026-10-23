@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint, Index
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -86,6 +86,9 @@ class User(Base, TimestampMixin):
 
 class WorkspaceMember(Base, TimestampMixin):
     __tablename__ = "workspace_members"
+    __table_args__ = (
+        Index("ix_workspace_members_ws_role_active", "workspace_id", "role", "is_active"),
+    )
 
     id = Column(String(64), primary_key=True, default=generate_uuid)
     workspace_id = Column(

@@ -248,6 +248,17 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
         "WHERE check_out_time IS NULL AND trainer_id IS NOT NULL",
         "CREATE INDEX IF NOT EXISTS ix_audit_logs_resource_type ON audit_logs (resource_type)",
         "CREATE INDEX IF NOT EXISTS ix_audit_logs_resource_id ON audit_logs (resource_id)",
+        # Composite indexes for hot dashboard/report filters (2026-10).
+        "CREATE INDEX IF NOT EXISTS ix_members_ws_status ON members (workspace_id, status)",
+        "CREATE INDEX IF NOT EXISTS ix_members_ws_joined ON members (workspace_id, joined_date)",
+        "CREATE INDEX IF NOT EXISTS ix_memberships_ws_member_status ON memberships (workspace_id, member_id, status)",
+        "CREATE INDEX IF NOT EXISTS ix_memberships_ws_status_end ON memberships (workspace_id, status, end_date)",
+        "CREATE INDEX IF NOT EXISTS ix_notifications_ws_user_read ON notifications (workspace_id, user_id, is_read, created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_audit_logs_ws_created ON audit_logs (workspace_id, created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_workspace_members_ws_role_active ON workspace_members (workspace_id, role, is_active)",
+        "CREATE INDEX IF NOT EXISTS ix_subscription_payments_status_created ON subscription_payments (status, created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_gym_subscriptions_status ON gym_subscriptions (status)",
+        "CREATE INDEX IF NOT EXISTS ix_payments_ws_created ON payments (workspace_id, created_at)",
     ]
     for stmt in statements:
         try:
@@ -300,6 +311,23 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
                     conn.execute(text(f"ALTER TYPE memberstatus ADD VALUE IF NOT EXISTS '{value}'"))
             except Exception as e:
                 logger.warning(f"Could not extend memberstatus enum with {value}: {e}")
+
+    sync_plan_catalog()
+
+
+def sync_plan_catalog() -> None:
+    """Adds new default plans/feature keys to existing catalogs without touching admin-edited prices or flags."""
+    from app.core.database import SessionLocal
+    from app.services.billing import BillingService
+
+    db = SessionLocal()
+    try:
+        BillingService.ensure_default_plans(db)
+    except Exception as e:
+        db.rollback()
+        logger.warning(f"Plan catalog sync skipped: {e}")
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":

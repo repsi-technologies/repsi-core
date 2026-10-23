@@ -127,7 +127,7 @@ export function PaymentVerificationQueue() {
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>{actionSuccess}</span>
           </div>
-          <button onClick={() => setActionSuccess("")} className="text-emerald-400 hover:text-white text-xs">✕</button>
+          <button onClick={() => setActionSuccess("")} className="text-emerald-600 dark:text-emerald-400 hover:text-[var(--text)] text-xs">✕</button>
         </div>
       )}
 
@@ -153,7 +153,7 @@ export function PaymentVerificationQueue() {
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>Audit Notice</span>
           </div>
-          <p className="text-[11px] text-zinc-400 mt-1">
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">
             Manual approval confirms you verified funds in your bank/UPI statement. It records an immutable ledger entry.
           </p>
         </div>
@@ -330,7 +330,7 @@ export function PaymentVerificationQueue() {
                                 setRejectionReason("");
                                 setRejectModalOpen(true);
                               }}
-                              className="h-7 px-2 text-xs border-rose-500/30 text-rose-400 hover:bg-rose-500/10 gap-1"
+                              className="h-7 px-2 text-xs border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 gap-1"
                             >
                               <X className="w-3 h-3" />
                               Reject
@@ -362,50 +362,50 @@ export function PaymentVerificationQueue() {
       {/* Receipt Preview Modal */}
       {previewReceiptOpen && selectedSub && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-zinc-950 rounded-2xl border border-zinc-800 p-6 max-w-xl w-full shadow-2xl space-y-4 text-zinc-100">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+          <div className="bg-[var(--background)] rounded-2xl border border-[var(--border)] p-6 max-w-xl w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-emerald-500" />
                 <h3 className="font-bold text-sm">Payment Receipt & Details</h3>
               </div>
               <button
                 onClick={() => setPreviewReceiptOpen(false)}
-                className="text-zinc-400 hover:text-white"
+                className="text-[var(--text-muted)] hover:text-[var(--text)]"
               >
                 ✕
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-zinc-400">Amount Paid</span>
-                <p className="text-lg font-bold text-emerald-400 mt-1">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</p>
+              <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+                <span className="text-[var(--text-muted)]">Amount Paid</span>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</p>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-zinc-400">Payment Method</span>
-                <p className="text-sm font-semibold capitalize text-white mt-1">{selectedSub.payment_method}</p>
+              <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+                <span className="text-[var(--text-muted)]">Payment Method</span>
+                <p className="text-sm font-semibold capitalize text-[var(--text)] mt-1">{selectedSub.payment_method}</p>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-zinc-400">Transaction ID / UTR</span>
-                <p className="font-mono text-xs text-white mt-1">{selectedSub.transaction_reference || selectedSub.transaction_ref || "Not provided"}</p>
+              <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+                <span className="text-[var(--text-muted)]">Transaction ID / UTR</span>
+                <p className="font-mono text-xs text-[var(--text)] mt-1">{selectedSub.transaction_reference || selectedSub.transaction_ref || "Not provided"}</p>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-zinc-400">Submission Date</span>
-                <p className="text-xs text-white mt-1">{selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at ? new Date(selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at!).toLocaleString() : "date unavailable"}</p>
+              <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+                <span className="text-[var(--text-muted)]">Submission Date</span>
+                <p className="text-xs text-[var(--text)] mt-1">{selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at ? new Date(selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at!).toLocaleString() : "date unavailable"}</p>
               </div>
             </div>
 
             {selectedSub.notes && (
-              <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
-                <span className="text-zinc-400">Member Note:</span>
-                <p className="text-zinc-200 mt-0.5">{selectedSub.notes}</p>
+              <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
+                <span className="text-[var(--text-muted)]">Member Note:</span>
+                <p className="text-[var(--text)] mt-0.5">{selectedSub.notes}</p>
               </div>
             )}
 
             {/* Receipt Media Preview */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-zinc-300">Uploaded Receipt / Screenshot:</span>
-              <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex flex-col items-center justify-center min-h-[220px] max-h-[360px] overflow-auto">
+              <span className="text-xs font-semibold text-[var(--text)]">Uploaded Receipt / Screenshot:</span>
+              <div className="p-2 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex flex-col items-center justify-center min-h-[220px] max-h-[360px] overflow-auto">
                 <img
                   src={repsiApi.getReceiptUrl(selectedSub.id)}
                   alt="Receipt Preview"
@@ -420,7 +420,7 @@ export function PaymentVerificationQueue() {
                     href={repsiApi.getReceiptUrl(selectedSub.id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-secondary)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text)] font-medium transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     Open Original Document (New Tab)
@@ -430,7 +430,7 @@ export function PaymentVerificationQueue() {
             </div>
 
             {selectedSub.status === "rejected" && selectedSub.rejection_reason && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
                 <span className="font-semibold">Rejection Reason: </span>
                 {selectedSub.rejection_reason}
               </div>
@@ -441,7 +441,7 @@ export function PaymentVerificationQueue() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPreviewReceiptOpen(false)}
-                className="bg-zinc-900 border-zinc-800 text-zinc-300 text-xs"
+                className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
                 Close
               </Button>
@@ -453,21 +453,21 @@ export function PaymentVerificationQueue() {
       {/* Approve Confirmation Modal */}
       {approveConfirmOpen && selectedSub && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-zinc-950 rounded-2xl border border-emerald-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-zinc-100">
-            <div className="flex items-center gap-2 text-emerald-400">
+          <div className="bg-[var(--background)] rounded-2xl border border-emerald-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
               <h3 className="font-bold text-base">Approve Manual Payment</h3>
             </div>
 
-            <p className="text-xs text-zinc-300">
+            <p className="text-xs text-[var(--text)]">
               You are approving a payment of{" "}
-              <span className="font-bold text-emerald-400">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</span> for invoice{" "}
-              <span className="font-mono font-bold text-white">{selectedSub.invoice_id}</span>.
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</span> for invoice{" "}
+              <span className="font-mono font-bold text-[var(--text)]">{selectedSub.invoice_id}</span>.
             </p>
 
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-zinc-300 space-y-1.5">
-              <p className="font-semibold text-emerald-400">Atomic Actions Upon Approval:</p>
-              <ul className="list-disc list-inside space-y-0.5 text-zinc-400">
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-[var(--text)] space-y-1.5">
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400">Atomic Actions Upon Approval:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-[var(--text-muted)]">
                 <li>Creates official Payment ledger record</li>
                 <li>Marks Invoice as fully paid</li>
                 <li>Restores member attendance & active gym access</li>
@@ -476,7 +476,7 @@ export function PaymentVerificationQueue() {
             </div>
 
             {actionError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
                 {actionError}
               </div>
             )}
@@ -487,7 +487,7 @@ export function PaymentVerificationQueue() {
                 size="sm"
                 onClick={() => setApproveConfirmOpen(false)}
                 disabled={actionLoading}
-                className="bg-zinc-900 border-zinc-800 text-zinc-300 text-xs"
+                className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
                 Cancel
               </Button>
@@ -517,29 +517,29 @@ export function PaymentVerificationQueue() {
       {/* Reject Reason Modal */}
       {rejectModalOpen && selectedSub && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <form onSubmit={handleReject} className="bg-zinc-950 rounded-2xl border border-rose-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-zinc-100">
-            <div className="flex items-center gap-2 text-rose-400">
+          <form onSubmit={handleReject} className="bg-[var(--background)] rounded-2xl border border-rose-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <XCircle className="w-5 h-5" />
               <h3 className="font-bold text-base">Reject Payment Submission</h3>
             </div>
 
-            <p className="text-xs text-zinc-300">
+            <p className="text-xs text-[var(--text)]">
               Provide a clear reason why this payment proof was rejected. The member will be notified and given the option to re-submit valid proof.
             </p>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-300">Rejection Reason</label>
+              <label className="text-xs font-semibold text-[var(--text)]">Rejection Reason</label>
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="e.g. UTR number not found in bank statement, screenshot illegible, or amount mismatch."
-                className="w-full h-24 p-3 rounded-lg border border-zinc-700 bg-zinc-900 text-xs text-white focus:outline-none focus:border-rose-500"
+                className="w-full h-24 p-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] text-xs text-[var(--text)] focus:outline-none focus:border-rose-500"
                 required
               />
             </div>
 
             {actionError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
                 {actionError}
               </div>
             )}
@@ -551,7 +551,7 @@ export function PaymentVerificationQueue() {
                 size="sm"
                 onClick={() => setRejectModalOpen(false)}
                 disabled={actionLoading}
-                className="bg-zinc-900 border-zinc-800 text-zinc-300 text-xs"
+                className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
                 Cancel
               </Button>

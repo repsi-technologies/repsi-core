@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, String, Integer, Float, Boolean, Enum, ForeignKey, Date, Text
+from sqlalchemy import Column, String, Integer, Float, Boolean, Enum, ForeignKey, Date, Text, Index
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
@@ -36,6 +36,10 @@ class MembershipPlan(Base, TimestampMixin, TenantMixin):
 
 class Member(Base, TimestampMixin, TenantMixin):
     __tablename__ = "members"
+    __table_args__ = (
+        Index("ix_members_ws_status", "workspace_id", "status"),
+        Index("ix_members_ws_joined", "workspace_id", "joined_date"),
+    )
 
     id = Column(String(64), primary_key=True, default=generate_uuid)
     user_id = Column(String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
@@ -83,6 +87,10 @@ class Member(Base, TimestampMixin, TenantMixin):
 
 class Membership(Base, TimestampMixin, TenantMixin):
     __tablename__ = "memberships"
+    __table_args__ = (
+        Index("ix_memberships_ws_member_status", "workspace_id", "member_id", "status"),
+        Index("ix_memberships_ws_status_end", "workspace_id", "status", "end_date"),
+    )
 
     id = Column(String(64), primary_key=True, default=generate_uuid)
     member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)

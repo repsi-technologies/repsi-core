@@ -61,8 +61,13 @@ from app.models.billing import (
     PaymentStatus as BillingPaymentStatus,
 )
 from app.models.biometric import BiometricDevice, BiometricDeviceStatus
+from app.models.communication import Broadcast, MessageTemplate, NotificationDelivery, NotificationPreference
 
 __all__ = [
+    "Broadcast",
+    "MessageTemplate",
+    "NotificationDelivery",
+    "NotificationPreference",
     "Activity",
     "Attendance",
     "AttendanceMethod",

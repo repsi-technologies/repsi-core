@@ -341,18 +341,18 @@ export default function ContentAndGrowthAdminPage() {
   });
 
   return (
-    <div className="p-6 sm:p-8 space-y-8 bg-[#070A0F] min-h-screen text-zinc-100 font-sans">
+    <div className="p-6 sm:p-8 space-y-8 bg-[var(--surface)] min-h-screen text-[var(--text)] font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider mb-1">
             <Sparkles className="w-4 h-4" />
             <span>Growth & Content System</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)]">
             Content & Growth Engine
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">
             Manage Blog CMS articles, Careers recruitment pipeline, Partner affiliate program, and SEO schemas.
           </p>
         </div>
@@ -362,38 +362,38 @@ export default function ContentAndGrowthAdminPage() {
           <Link
             href="/blog"
             target="_blank"
-            className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-secondary)] text-xs font-semibold text-[var(--text)] flex items-center gap-1.5 transition-colors"
           >
             <span>Live Blog</span>
-            <ExternalLink className="w-3 h-3 text-zinc-500" />
+            <ExternalLink className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             href="/careers"
             target="_blank"
-            className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-secondary)] text-xs font-semibold text-[var(--text)] flex items-center gap-1.5 transition-colors"
           >
             <span>Live Careers</span>
-            <ExternalLink className="w-3 h-3 text-zinc-500" />
+            <ExternalLink className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             href="/partners"
             target="_blank"
-            className="px-3 py-1.5 rounded-lg bg-[var(--primary)]/20 border border-emerald-500/30 hover:bg-[var(--primary-hover)]/30 text-xs font-semibold text-emerald-300 flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-[var(--primary)]/20 border border-emerald-500/30 hover:bg-[var(--primary-hover)]/30 text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 transition-colors"
           >
             <span>Live Partners</span>
-            <ExternalLink className="w-3 h-3 text-emerald-400" />
+            <ExternalLink className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
           </Link>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-zinc-800 pb-1 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-[var(--border)] pb-1 overflow-x-auto">
         <button
           onClick={() => setActiveTab("blogs")}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
             activeTab === "blogs"
               ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md shadow-emerald-600/20"
-              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -405,7 +405,7 @@ export default function ContentAndGrowthAdminPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
             activeTab === "careers"
               ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md shadow-emerald-600/20"
-              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]"
           }`}
         >
           <Briefcase className="w-4 h-4" />
@@ -417,7 +417,7 @@ export default function ContentAndGrowthAdminPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
             activeTab === "partners"
               ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md shadow-emerald-600/20"
-              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]"
           }`}
         >
           <Users className="w-4 h-4" />
@@ -429,7 +429,7 @@ export default function ContentAndGrowthAdminPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
             activeTab === "seo"
               ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md shadow-emerald-600/20"
-              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]"
           }`}
         >
           <Globe className="w-4 h-4" />
@@ -444,13 +444,13 @@ export default function ContentAndGrowthAdminPage() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="relative max-w-sm w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
               <input
                 type="text"
                 value={blogSearch}
                 onChange={(e) => setBlogSearch(e.target.value)}
                 placeholder="Filter blogs by title or category..."
-                className="w-full h-9 pl-9 pr-3 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full h-9 pl-9 pr-3 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
@@ -463,9 +463,9 @@ export default function ContentAndGrowthAdminPage() {
             </button>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-xl">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xl">
             <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-950 text-zinc-400 border-b border-zinc-800 uppercase tracking-wider font-semibold text-[10px]">
+              <thead className="bg-[var(--background)] text-[var(--text-muted)] border-b border-[var(--border)] uppercase tracking-wider font-semibold text-[10px]">
                 <tr>
                   <th className="p-3.5 pl-5">Article</th>
                   <th className="p-3.5">Category</th>
@@ -475,19 +475,19 @@ export default function ContentAndGrowthAdminPage() {
                   <th className="p-3.5 pr-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800/60 text-zinc-200">
+              <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
                 {filteredBlogs.map((b) => (
-                  <tr key={b.id} className="hover:bg-zinc-800/30 transition-colors">
+                  <tr key={b.id} className="hover:bg-[var(--surface-secondary)] transition-colors">
                     <td className="p-3.5 pl-5 max-w-md">
-                      <div className="font-bold text-white text-sm hover:text-emerald-400 transition-colors">
+                      <div className="font-bold text-[var(--text)] text-sm hover:text-emerald-400 transition-colors">
                         {b.title}
                       </div>
-                      <div className="text-[11px] text-zinc-500 font-mono">
+                      <div className="text-[11px] text-[var(--text-muted)] font-mono">
                         repsi.app/blog/{b.slug}
                       </div>
                     </td>
                     <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-medium text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-[var(--surface-secondary)] text-[var(--text)] font-medium text-[11px]">
                         {b.category}
                       </span>
                     </td>
@@ -495,38 +495,38 @@ export default function ContentAndGrowthAdminPage() {
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                           b.status === "published"
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-amber-500/20 text-amber-300"
+                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                            : "bg-amber-500/20 text-amber-700 dark:text-amber-300"
                         }`}
                       >
                         {b.status}
                       </span>
                     </td>
-                    <td className="p-3.5 text-zinc-400 font-mono text-[11px]">
+                    <td className="p-3.5 text-[var(--text-muted)] font-mono text-[11px]">
                       {b.publishDate}
                     </td>
-                    <td className="p-3.5 text-zinc-300 font-mono">
+                    <td className="p-3.5 text-[var(--text)] font-mono">
                       {b.views.toLocaleString()}
                     </td>
                     <td className="p-3.5 pr-5 text-right space-x-2">
                       <Link
                         href={`/blog/${b.slug}`}
                         target="_blank"
-                        className="inline-block p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+                        className="inline-block p-1.5 rounded bg-[var(--surface-secondary)] hover:bg-[var(--surface-hover)] text-[var(--text)] transition-colors"
                         title="View Public Post"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
                       <button
                         onClick={() => handleEditBlog(b)}
-                        className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors cursor-pointer"
+                        className="p-1.5 rounded bg-[var(--surface-secondary)] hover:bg-[var(--surface-hover)] text-[var(--text)] transition-colors cursor-pointer"
                         title="Edit Article"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteBlog(b.id)}
-                        className="p-1.5 rounded bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 transition-colors cursor-pointer"
+                        className="p-1.5 rounded bg-rose-950/40 hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 transition-colors cursor-pointer"
                         title="Delete Article"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -547,13 +547,13 @@ export default function ContentAndGrowthAdminPage() {
         <div className="space-y-8">
           {/* Section A: Job Postings */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-emerald-400" />
+                <h2 className="text-lg font-bold text-[var(--text)] flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Active Job Postings ({jobs.length})</span>
                 </h2>
-                <p className="text-xs text-zinc-400">Manage indexable positions on repsi.app/careers</p>
+                <p className="text-xs text-[var(--text-muted)]">Manage indexable positions on repsi.app/careers</p>
               </div>
               <button
                 onClick={handleOpenNewJob}
@@ -568,35 +568,35 @@ export default function ContentAndGrowthAdminPage() {
               {jobs.map((job) => (
                 <div
                   key={job.id}
-                  className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-3 flex flex-col justify-between"
+                  className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-3 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase">
                         {job.department}
                       </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                           job.status === "published"
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-zinc-800 text-zinc-400"
+                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                            : "bg-[var(--surface-secondary)] text-[var(--text-muted)]"
                         }`}
                       >
                         {job.status}
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-white">{job.title}</h3>
-                    <p className="text-[11px] text-zinc-400 line-clamp-2">{job.description}</p>
-                    <div className="text-[11px] text-zinc-500 font-mono pt-1">
+                    <h3 className="text-sm font-bold text-[var(--text)]">{job.title}</h3>
+                    <p className="text-[11px] text-[var(--text-muted)] line-clamp-2">{job.description}</p>
+                    <div className="text-[11px] text-[var(--text-muted)] font-mono pt-1">
                       {job.location} • {job.experience}
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+                  <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs">
                     <button
                       onClick={() => handleToggleJobStatus(job.id, job.status)}
-                      className="text-[11px] text-zinc-400 hover:text-white underline cursor-pointer"
+                      className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text)] underline cursor-pointer"
                     >
                       {job.status === "published" ? "Close Position" : "Republish"}
                     </button>
@@ -604,13 +604,13 @@ export default function ContentAndGrowthAdminPage() {
                       <Link
                         href={`/careers/${job.slug}`}
                         target="_blank"
-                        className="p-1 rounded bg-zinc-800 text-zinc-300 hover:text-white"
+                        className="p-1 rounded bg-[var(--surface-secondary)] text-[var(--text)] hover:text-[var(--text)]"
                       >
                         <Eye className="w-3 h-3" />
                       </Link>
                       <button
                         onClick={() => handleEditJob(job)}
-                        className="p-1 rounded bg-zinc-800 text-zinc-300 hover:text-white cursor-pointer"
+                        className="p-1 rounded bg-[var(--surface-secondary)] text-[var(--text)] hover:text-[var(--text)] cursor-pointer"
                       >
                         <Edit2 className="w-3 h-3" />
                       </button>
@@ -622,14 +622,14 @@ export default function ContentAndGrowthAdminPage() {
           </div>
 
           {/* Section B: Applications Recruitment Board */}
-          <div className="space-y-4 pt-6 border-t border-zinc-800">
+          <div className="space-y-4 pt-6 border-t border-[var(--border)]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-emerald-400" />
+                <h2 className="text-lg font-bold text-[var(--text)] flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Applicant Recruitment Pipeline ({applications.length})</span>
                 </h2>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-[var(--text-muted)]">
                   Track candidate progression: New → Screening → Interview → Selected / Rejected
                 </p>
               </div>
@@ -643,7 +643,7 @@ export default function ContentAndGrowthAdminPage() {
                     className={`px-2.5 py-1 rounded-md text-xs font-semibold capitalize transition-all cursor-pointer ${
                       appStatusFilter === s
                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        : "bg-zinc-900 text-zinc-400 border border-zinc-800 hover:bg-zinc-800"
+                        : "bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:bg-[var(--surface-secondary)]"
                     }`}
                   >
                     {s}
@@ -652,9 +652,9 @@ export default function ContentAndGrowthAdminPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-xl">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xl">
               <table className="w-full text-left text-xs">
-                <thead className="bg-zinc-950 text-zinc-400 border-b border-zinc-800 uppercase tracking-wider font-semibold text-[10px]">
+                <thead className="bg-[var(--background)] text-[var(--text-muted)] border-b border-[var(--border)] uppercase tracking-wider font-semibold text-[10px]">
                   <tr>
                     <th className="p-3.5 pl-5">Candidate</th>
                     <th className="p-3.5">Applied Role</th>
@@ -664,29 +664,29 @@ export default function ContentAndGrowthAdminPage() {
                     <th className="p-3.5 pr-5">Hiring Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 text-zinc-200">
+                <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
                   {filteredApplications.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-6 text-center text-zinc-500">
+                      <td colSpan={6} className="p-6 text-center text-[var(--text-muted)]">
                         No candidate applications matching this status.
                       </td>
                     </tr>
                   ) : (
                     filteredApplications.map((app) => (
-                      <tr key={app.id} className="hover:bg-zinc-800/30 transition-colors">
-                        <td className="p-3.5 pl-5 font-semibold text-white">
+                      <tr key={app.id} className="hover:bg-[var(--surface-secondary)] transition-colors">
+                        <td className="p-3.5 pl-5 font-semibold text-[var(--text)]">
                           <div>{app.applicantName}</div>
-                          <div className="text-[11px] text-zinc-400">{app.email}</div>
-                          <div className="text-[10px] text-zinc-500 font-mono">{app.phone}</div>
+                          <div className="text-[11px] text-[var(--text-muted)]">{app.email}</div>
+                          <div className="text-[10px] text-[var(--text-muted)] font-mono">{app.phone}</div>
                         </td>
-                        <td className="p-3.5 text-zinc-300 font-medium">
+                        <td className="p-3.5 text-[var(--text)] font-medium">
                           {app.jobTitle}
                         </td>
-                        <td className="p-3.5 text-zinc-400">
+                        <td className="p-3.5 text-[var(--text-muted)]">
                           {app.experienceYears}
                         </td>
                         <td className="p-3.5 space-y-1">
-                          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
+                          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
                             📄 {app.resumeFileName}
                           </span>
                           {app.portfolioUrl && (
@@ -695,21 +695,21 @@ export default function ContentAndGrowthAdminPage() {
                                 href={app.portfolioUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-[10px] text-zinc-400 hover:text-emerald-400 underline"
+                                className="text-[10px] text-[var(--text-muted)] hover:text-emerald-400 underline"
                               >
                                 Portfolio Link ↗
                               </a>
                             </div>
                           )}
                         </td>
-                        <td className="p-3.5 text-zinc-400 font-mono text-[11px]">
+                        <td className="p-3.5 text-[var(--text-muted)] font-mono text-[11px]">
                           {app.appliedAt}
                         </td>
                         <td className="p-3.5 pr-5">
                           <select
                             value={app.status}
                             onChange={(e) => handleUpdateApplicationStatus(app.id, e.target.value as any)}
-                            className="bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold"
+                            className="bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold"
                           >
                             <option value="new">New</option>
                             <option value="screening">Screening</option>
@@ -737,11 +737,11 @@ export default function ContentAndGrowthAdminPage() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-400" />
+                <h2 className="text-lg font-bold text-[var(--text)] flex items-center gap-2">
+                  <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Partner Accounts & Applications ({partners.length})</span>
                 </h2>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-[var(--text-muted)]">
                   Approve partners, generate referral links & promo codes, and manage commissions.
                 </p>
               </div>
@@ -755,7 +755,7 @@ export default function ContentAndGrowthAdminPage() {
                     className={`px-2.5 py-1 rounded-md text-xs font-semibold capitalize transition-all cursor-pointer ${
                       partnerStatusFilter === s
                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        : "bg-zinc-900 text-zinc-400 border border-zinc-800 hover:bg-zinc-800"
+                        : "bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:bg-[var(--surface-secondary)]"
                     }`}
                   >
                     {s}
@@ -764,9 +764,9 @@ export default function ContentAndGrowthAdminPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-xl">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xl">
               <table className="w-full text-left text-xs">
-                <thead className="bg-zinc-950 text-zinc-400 border-b border-zinc-800 uppercase tracking-wider font-semibold text-[10px]">
+                <thead className="bg-[var(--background)] text-[var(--text-muted)] border-b border-[var(--border)] uppercase tracking-wider font-semibold text-[10px]">
                   <tr>
                     <th className="p-3.5 pl-5">Partner Profile</th>
                     <th className="p-3.5">Category</th>
@@ -777,32 +777,32 @@ export default function ContentAndGrowthAdminPage() {
                     <th className="p-3.5 pr-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 text-zinc-200">
+                <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
                   {filteredPartners.map((p) => (
-                    <tr key={p.id} className="hover:bg-zinc-800/30 transition-colors">
+                    <tr key={p.id} className="hover:bg-[var(--surface-secondary)] transition-colors">
                       <td className="p-3.5 pl-5">
-                        <div className="font-bold text-white">{p.company}</div>
-                        <div className="text-[11px] text-zinc-400">{p.name} ({p.email})</div>
-                        <div className="text-[10px] text-zinc-500 font-mono">{p.phone}</div>
+                        <div className="font-bold text-[var(--text)]">{p.company}</div>
+                        <div className="text-[11px] text-[var(--text-muted)]">{p.name} ({p.email})</div>
+                        <div className="text-[10px] text-[var(--text-muted)] font-mono">{p.phone}</div>
                       </td>
                       <td className="p-3.5">
-                        <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-medium text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-[var(--surface-secondary)] text-[var(--text)] font-medium text-[11px]">
                           {p.partnerType}
                         </span>
                       </td>
                       <td className="p-3.5 space-y-0.5">
-                        <div className="font-mono font-bold text-emerald-400">{p.referralCode}</div>
-                        <div className="text-[10px] text-zinc-500 font-mono truncate max-w-[180px]">
+                        <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{p.referralCode}</div>
+                        <div className="text-[10px] text-[var(--text-muted)] font-mono truncate max-w-[180px]">
                           {p.referralUrl}
                         </div>
                       </td>
                       <td className="p-3.5 font-mono">
                         <div>{p.signups} signups ({p.clicks} clicks)</div>
-                        <div className="text-emerald-400 font-bold">{p.paidCustomers} paid gyms</div>
+                        <div className="text-emerald-600 dark:text-emerald-400 font-bold">{p.paidCustomers} paid gyms</div>
                       </td>
                       <td className="p-3.5 font-mono">
                         <div>₹{p.revenueGenerated.toLocaleString()} rev</div>
-                        <div className="text-emerald-300 font-semibold">
+                        <div className="text-emerald-700 dark:text-emerald-300 font-semibold">
                           ₹{p.commissionEarned.toLocaleString()} comm ({p.commissionRate}%)
                         </div>
                       </td>
@@ -810,10 +810,10 @@ export default function ContentAndGrowthAdminPage() {
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                             p.status === "active"
-                              ? "bg-emerald-500/20 text-emerald-300"
+                              ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
                               : p.status === "pending"
-                              ? "bg-amber-500/20 text-amber-300"
-                              : "bg-rose-500/20 text-rose-300"
+                              ? "bg-amber-500/20 text-amber-700 dark:text-amber-300"
+                              : "bg-rose-500/20 text-rose-700 dark:text-rose-300"
                           }`}
                         >
                           {p.status}
@@ -833,8 +833,8 @@ export default function ContentAndGrowthAdminPage() {
                             onClick={() => handleTogglePartnerSuspension(p.id, p.status)}
                             className={`px-2 py-1 rounded text-[11px] font-semibold cursor-pointer ${
                               p.status === "suspended"
-                                ? "bg-emerald-950 text-emerald-300 border border-emerald-500/40"
-                                : "bg-zinc-800 text-zinc-400 hover:text-rose-400"
+                                ? "bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40"
+                                : "bg-[var(--surface-secondary)] text-[var(--text-muted)] hover:text-rose-400"
                             }`}
                           >
                             {p.status === "suspended" ? "Unsuspend" : "Suspend Code"}
@@ -849,22 +849,22 @@ export default function ContentAndGrowthAdminPage() {
           </div>
 
           {/* Section B: All Referral Transactions & Commission States */}
-          <div className="space-y-4 pt-4 border-t border-zinc-800">
+          <div className="space-y-4 pt-4 border-t border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-base font-bold text-[var(--text)] flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Referral Attribution Orders & Commission States</span>
                 </h3>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-[var(--text-muted)]">
                   Lifecycle state machine: Pending → Confirmed → Payable → Paid (or Cancelled on refund)
                 </p>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-xl">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xl">
               <table className="w-full text-left text-xs">
-                <thead className="bg-zinc-950 text-zinc-400 border-b border-zinc-800 uppercase tracking-wider font-semibold text-[10px]">
+                <thead className="bg-[var(--background)] text-[var(--text-muted)] border-b border-[var(--border)] uppercase tracking-wider font-semibold text-[10px]">
                   <tr>
                     <th className="p-3.5 pl-5">Customer Gym</th>
                     <th className="p-3.5">Partner Attributed</th>
@@ -874,32 +874,32 @@ export default function ContentAndGrowthAdminPage() {
                     <th className="p-3.5 pr-5">Commission Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 text-zinc-200">
+                <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
                   {referrals.map((ref) => (
-                    <tr key={ref.id} className="hover:bg-zinc-800/30 transition-colors">
+                    <tr key={ref.id} className="hover:bg-[var(--surface-secondary)] transition-colors">
                       <td className="p-3.5 pl-5">
-                        <div className="font-bold text-white">{ref.gymName}</div>
-                        <div className="text-[10px] text-zinc-500 font-mono">{ref.customerEmail}</div>
+                        <div className="font-bold text-[var(--text)]">{ref.gymName}</div>
+                        <div className="text-[10px] text-[var(--text-muted)] font-mono">{ref.customerEmail}</div>
                       </td>
                       <td className="p-3.5">
-                        <div className="font-semibold text-zinc-200">{ref.partnerName}</div>
-                        <div className="text-[10px] text-emerald-400 font-mono">Code: {ref.partnerCode}</div>
+                        <div className="font-semibold text-[var(--text)]">{ref.partnerName}</div>
+                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">Code: {ref.partnerCode}</div>
                       </td>
                       <td className="p-3.5 font-mono">
                         <div>{ref.planName} (₹{ref.planAmount.toLocaleString()})</div>
-                        <div className="text-[10px] text-zinc-500">{ref.orderId}</div>
+                        <div className="text-[10px] text-[var(--text-muted)]">{ref.orderId}</div>
                       </td>
-                      <td className="p-3.5 font-mono font-bold text-emerald-400">
+                      <td className="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">
                         ₹{ref.commissionAmount.toFixed(2)}
                       </td>
-                      <td className="p-3.5 text-zinc-400 font-mono text-[11px]">
+                      <td className="p-3.5 text-[var(--text-muted)] font-mono text-[11px]">
                         {ref.purchaseDate}
                       </td>
                       <td className="p-3.5 pr-5">
                         <select
                           value={ref.status}
                           onChange={(e) => handleUpdateReferralStatus(ref.id, e.target.value as any)}
-                          className="bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold"
+                          className="bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold"
                         >
                           <option value="pending">Pending (14d hold)</option>
                           <option value="confirmed">Confirmed</option>
@@ -916,20 +916,20 @@ export default function ContentAndGrowthAdminPage() {
           </div>
 
           {/* Section C: Commission Settings Configuration */}
-          <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-5">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+          <div className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-5">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-base font-bold text-[var(--text)] flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Partner Commission Rules & Fraud Protection Settings</span>
                 </h3>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-[var(--text-muted)]">
                   Configure default commission percentage, hold durations, and fraud prevention locks.
                 </p>
               </div>
 
               {settingsSaved && (
-                <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Settings Saved!</span>
                 </span>
@@ -939,41 +939,41 @@ export default function ContentAndGrowthAdminPage() {
             <form onSubmit={handleSaveCommissionSettings} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Starter Plan Commission (%)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Starter Plan Commission (%)</label>
                   <input
                     type="number"
                     value={settings.starterRate}
                     onChange={(e) => setSettings({ ...settings, starterRate: Number(e.target.value) })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Pro Plan Commission (%)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Pro Plan Commission (%)</label>
                   <input
                     type="number"
                     value={settings.proRate}
                     onChange={(e) => setSettings({ ...settings, proRate: Number(e.target.value) })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Business Plan Commission (%)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Business Plan Commission (%)</label>
                   <input
                     type="number"
                     value={settings.businessRate}
                     onChange={(e) => setSettings({ ...settings, businessRate: Number(e.target.value) })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Commission Duration</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Commission Duration</label>
                   <select
                     value={settings.commissionDuration}
                     onChange={(e) => setSettings({ ...settings, commissionDuration: e.target.value as any })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="first_payment">First Payment Only</option>
                     <option value="12_months">12 Months (Recurring)</option>
@@ -982,29 +982,29 @@ export default function ContentAndGrowthAdminPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Minimum Payout Threshold (₹)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Minimum Payout Threshold (₹)</label>
                   <input
                     type="number"
                     value={settings.minPayoutThreshold}
                     onChange={(e) => setSettings({ ...settings, minPayoutThreshold: Number(e.target.value) })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Refund Clearance Hold (Days)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Refund Clearance Hold (Days)</label>
                   <input
                     type="number"
                     value={settings.refundHoldDays}
                     onChange={(e) => setSettings({ ...settings, refundHoldDays: Number(e.target.value) })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Fraud rules info box */}
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-start gap-2.5 text-xs text-zinc-400">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] flex items-start gap-2.5 text-xs text-[var(--text-muted)]">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 <span>
                   Anti-Abuse Engine Active: Prevents partner self-referral, locks first attribution immutably upon first paid checkout, and disables commission triggers on refunded invoices.
                 </span>
@@ -1028,32 +1028,32 @@ export default function ContentAndGrowthAdminPage() {
       {/* ========================================================================= */}
       {activeTab === "seo" && (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Globe className="w-4 h-4 text-emerald-400" />
+          <div className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-4">
+            <h3 className="text-base font-bold text-[var(--text)] flex items-center gap-2">
+              <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>SEO Infrastructure & Topic Cluster Indexing</span>
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
               All blog posts and career openings are dynamically included in sitemaps and formatted with structured JSON-LD schemas (`Article`, `FAQPage`, `JobPosting`, `SoftwareApplication`).
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase">Blog Topic Clusters</span>
-                <div className="text-xl font-black text-emerald-400 font-mono">{blogs.length} Articles</div>
-                <div className="text-[11px] text-zinc-400">JSON-LD FAQ Schema Enabled</div>
+              <div className="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Blog Topic Clusters</span>
+                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{blogs.length} Articles</div>
+                <div className="text-[11px] text-[var(--text-muted)]">JSON-LD FAQ Schema Enabled</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase">Open Job Listings</span>
-                <div className="text-xl font-black text-emerald-400 font-mono">{jobs.length} Positions</div>
-                <div className="text-[11px] text-zinc-400">JobPosting Schema Enabled</div>
+              <div className="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Open Job Listings</span>
+                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{jobs.length} Positions</div>
+                <div className="text-[11px] text-[var(--text-muted)]">JobPosting Schema Enabled</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase">Partner Attribution Links</span>
-                <div className="text-xl font-black text-emerald-400 font-mono">{partners.length} Active</div>
-                <div className="text-[11px] text-zinc-400">Dual Query (?ref=) + Promo Codes</div>
+              <div className="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Partner Attribution Links</span>
+                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{partners.length} Active</div>
+                <div className="text-[11px] text-[var(--text-muted)]">Dual Query (?ref=) + Promo Codes</div>
               </div>
             </div>
           </div>
@@ -1065,14 +1065,14 @@ export default function ContentAndGrowthAdminPage() {
       {/* ========================================================================= */}
       {blogModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-lg font-bold text-white">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="text-lg font-bold text-[var(--text)]">
                 {editingBlog ? "Edit Blog Article" : "Create New Blog Article"}
               </h3>
               <button
                 onClick={() => setBlogModalOpen(false)}
-                className="text-zinc-500 hover:text-zinc-300 text-sm font-bold cursor-pointer"
+                className="text-[var(--text-muted)] hover:text-[var(--text)] text-sm font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -1080,7 +1080,7 @@ export default function ContentAndGrowthAdminPage() {
 
             <form onSubmit={handleSaveBlog} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Article Title *</label>
+                <label className="text-xs font-semibold text-[var(--text)]">Article Title *</label>
                 <input
                   type="text"
                   required
@@ -1091,29 +1091,29 @@ export default function ContentAndGrowthAdminPage() {
                     setBlogForm({ ...blogForm, title, slug: blogForm.slug || slug });
                   }}
                   placeholder="e.g. 10 Ways to Increase Gym Membership"
-                  className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">URL Slug * (repsi.app/blog/...)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">URL Slug * (repsi.app/blog/...)</label>
                   <input
                     type="text"
                     required
                     value={blogForm.slug}
                     onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })}
                     placeholder="how-to-increase-gym-membership"
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Category</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Category</label>
                   <select
                     value={blogForm.category}
                     onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="Gym Growth">Gym Growth</option>
                     <option value="Gym Management Software">Gym Management Software</option>
@@ -1126,22 +1126,22 @@ export default function ContentAndGrowthAdminPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Featured Image URL</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Featured Image URL</label>
                   <input
                     type="url"
                     value={blogForm.featuredImage}
                     onChange={(e) => setBlogForm({ ...blogForm, featuredImage: e.target.value })}
                     placeholder="https://images.unsplash.com/..."
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Status</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Status</label>
                   <select
                     value={blogForm.status}
                     onChange={(e) => setBlogForm({ ...blogForm, status: e.target.value as any })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
@@ -1150,32 +1150,32 @@ export default function ContentAndGrowthAdminPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Summary / SEO Meta Description</label>
+                <label className="text-xs font-semibold text-[var(--text)]">Summary / SEO Meta Description</label>
                 <textarea
                   rows={2}
                   value={blogForm.summary}
                   onChange={(e) => setBlogForm({ ...blogForm, summary: e.target.value })}
                   placeholder="Concise overview for Google search snippets..."
-                  className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-2.5 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Markdown Content</label>
+                <label className="text-xs font-semibold text-[var(--text)]">Markdown Content</label>
                 <textarea
                   rows={8}
                   value={blogForm.content}
                   onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
                   placeholder="## Section Title&#10;&#10;Write article content here..."
-                  className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
                 <button
                   type="button"
                   onClick={() => setBlogModalOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-zinc-800 text-xs font-semibold text-zinc-300 hover:bg-zinc-700 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-[var(--surface-secondary)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1196,14 +1196,14 @@ export default function ContentAndGrowthAdminPage() {
       {/* ========================================================================= */}
       {jobModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-lg font-bold text-white">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="text-lg font-bold text-[var(--text)]">
                 {editingJob ? "Edit Job Posting" : "Create New Job Opening"}
               </h3>
               <button
                 onClick={() => setJobModalOpen(false)}
-                className="text-zinc-500 hover:text-zinc-300 text-sm font-bold cursor-pointer"
+                className="text-[var(--text-muted)] hover:text-[var(--text)] text-sm font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -1211,24 +1211,24 @@ export default function ContentAndGrowthAdminPage() {
 
             <form onSubmit={handleSaveJob} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Job Title *</label>
+                <label className="text-xs font-semibold text-[var(--text)]">Job Title *</label>
                 <input
                   type="text"
                   required
                   value={jobForm.title}
                   onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
                   placeholder="e.g. Senior Full Stack Engineer"
-                  className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Department</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Department</label>
                   <select
                     value={jobForm.department}
                     onChange={(e) => setJobForm({ ...jobForm, department: e.target.value as any })}
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="Engineering">Engineering</option>
                     <option value="Product">Product</option>
@@ -1239,57 +1239,57 @@ export default function ContentAndGrowthAdminPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Location</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Location</label>
                   <input
                     type="text"
                     value={jobForm.location}
                     onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })}
                     placeholder="Bangalore / Remote"
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Experience</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Experience</label>
                   <input
                     type="text"
                     value={jobForm.experience}
                     onChange={(e) => setJobForm({ ...jobForm, experience: e.target.value })}
                     placeholder="3-5 years"
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300">Salary Range (Optional)</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">Salary Range (Optional)</label>
                   <input
                     type="text"
                     value={jobForm.salaryRange}
                     onChange={(e) => setJobForm({ ...jobForm, salaryRange: e.target.value })}
                     placeholder="₹18L - ₹28L + ESOPs"
-                    className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full h-9 px-3 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Role Description</label>
+                <label className="text-xs font-semibold text-[var(--text)]">Role Description</label>
                 <textarea
                   rows={4}
                   value={jobForm.description}
                   onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
                   placeholder="Describe the mission and key objectives..."
-                  className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-2.5 bg-[var(--background)] border border-[var(--border)] rounded-lg text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
                 <button
                   type="button"
                   onClick={() => setJobModalOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-zinc-800 text-xs font-semibold text-zinc-300 hover:bg-zinc-700 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-[var(--surface-secondary)] text-xs font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] cursor-pointer"
                 >
                   Cancel
                 </button>

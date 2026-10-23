@@ -71,6 +71,15 @@ class Settings(BaseSettings):
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
 
+    # In-process TTL cache (entitlements, platform overview). Per worker; see app/core/cache.py.
+    CACHE_ENABLED: bool = True
+    ENTITLEMENT_CACHE_SECONDS: float = 30.0
+    PLATFORM_OVERVIEW_CACHE_SECONDS: float = 60.0
+    # Slow-request warning threshold for the request log
+    SLOW_REQUEST_MS: int = 1000
+    # Hard cap on request bodies (largest upload is a 10 MB payment proof)
+    MAX_REQUEST_BYTES: int = 12 * 1024 * 1024
+
     # Cashfree Payment Gateway
     CASHFREE_APP_ID: str = ""
     CASHFREE_SECRET_KEY: str = ""

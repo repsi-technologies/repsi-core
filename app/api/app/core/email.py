@@ -272,3 +272,26 @@ This link is valid for {settings.PASSWORD_RESET_EXPIRE_MINUTES} minutes. If you 
         logger.error("Failed to send password reset email to %s: %s", email, type(exc).__name__)
 
 
+
+
+def send_notification_email(email: str, subject: str, body: str) -> tuple[str, str | None]:
+    """
+    Plain-text notification (broadcasts, reminders, receipts) for the delivery log.
+    Returns (status, error): "sent" only once the SMTP server accepted the message;
+    "skipped_not_configured" without SMTP (nothing is sent or printed); "failed" otherwise.
+    """
+    if not _smtp_configured():
+        return "skipped_not_configured", "SMTP is not configured"
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = f"REPSI <{settings.EMAIL_FROM}>" if "<" not in settings.EMAIL_FROM else settings.EMAIL_FROM
+    message["To"] = email
+    message.set_content(body)
+    try:
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as server:
+            server.starttls()
+            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            server.send_message(message)
+    except (OSError, smtplib.SMTPException) as exc:
+        return "failed", f"SMTP error: {type(exc).__name__}"
+    return "sent", None

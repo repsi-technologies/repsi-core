@@ -5,6 +5,7 @@ import { Bell, AlertTriangle, CheckCircle2, Info, Check, RefreshCw } from "lucid
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { NotificationPreferencesCard } from "@/features/communications/notification-preferences";
 
 interface NotificationItem {
   id: string;
@@ -125,6 +126,8 @@ export default function WorkspaceNotificationsPage() {
           )}
         </div>
       </div>
+
+      <NotificationPreferencesCard />
 
       {loading ? (
         <div className="space-y-3">

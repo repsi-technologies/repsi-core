@@ -102,6 +102,10 @@ def change_member_status(
             status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Only owners, admins and managers can suspend, archive or restore members.",
         )
+    if new_status == MemberStatus.ACTIVE:
+        # Reactivation consumes an active-member slot; never let it bypass the plan quota.
+        from app.middleware.entitlements import assert_capacity
+        assert_capacity(db, member.workspace_id, "members")
 
     member.status = new_status
     if member.user_id:

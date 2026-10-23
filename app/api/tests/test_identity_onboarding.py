@@ -132,7 +132,9 @@ def business_payload(name=None, **extra):
 
 
 def onboard(token: str, name=None) -> dict:
-    r = client.put(f"{API}/onboarding/business", json=business_payload(name), headers=auth(token))
+    # Unique business phone: a shared one trips the repeat-trial block and starts the gym expired.
+    payload = business_payload(name, phone=f"98{uuid.uuid4().int % 10**8:08d}")
+    r = client.put(f"{API}/onboarding/business", json=payload, headers=auth(token))
     assert r.status_code == 200, r.text
     session = r.json()["session"]
     t = session["access_token"]

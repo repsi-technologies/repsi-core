@@ -23,7 +23,7 @@ from app.repositories.member import MemberRepository
 from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
 from app.services.member_lifecycle import change_member_status, record_member_event, ACCOUNT_STATUSES
 from app.services import membership_lifecycle
-from app.middleware.entitlements import check_member_capacity, require_feature
+from app.middleware.entitlements import capacity_error, check_member_capacity, require_feature
 
 router = APIRouter(prefix="/members", tags=["Members"])
 
@@ -723,6 +723,12 @@ def _process_imported_rows(rows: List[Dict[str, Any]], tenant: TenantContext, db
         gender = normalized.get("gender") or "Not Specified"
         plan_name = normalized.get("plan") or normalized.get("membership_plan") or normalized.get("plan_name")
         emergency = normalized.get("emergency_contact") or normalized.get("emergency")
+
+        limit = capacity_error(db, tenant.workspace_id, "members")
+        if limit:
+            errors += 1
+            details.append({"row": idx, "status": "error", "name": f"{first_name} {last_name}", "message": limit["message"]})
+            continue
 
         # Create Member
         new_member = repo.create(

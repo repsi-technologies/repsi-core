@@ -2691,10 +2691,15 @@ export const repsiApi = {
         headers: { ...getAuthHeader() },
         cache: "no-store",
       });
-      if (!res.ok) return { status: "healthy", database: "connected", memory_usage: "normal" };
+      checkAuthResponse(res);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(extractErrorMessage(err, `Health check failed (HTTP ${res.status})`));
+      }
       return await res.json();
-    } catch {
-      return { status: "healthy", database: "connected", memory_usage: "normal" };
+    } catch (err) {
+      // Never report a healthy platform when the check itself failed.
+      throw err instanceof Error ? err : new Error("Could not reach the API");
     }
   },
 

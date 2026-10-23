@@ -56,7 +56,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-12 px-4 max-w-2xl mx-auto rounded-2xl bg-white/70 dark:bg-[#151c18]/70 border border-[var(--border)] dark:border-[#243329] backdrop-blur-sm shadow-xs transition-all",
+        "flex flex-col items-center justify-center text-center py-12 px-4 max-w-2xl mx-auto rounded-2xl bg-white/70 dark:bg-[var(--surface)] border border-[var(--border)] dark:border-[var(--border)] backdrop-blur-sm shadow-xs transition-all",
         className
       )}
     >
@@ -117,7 +117,7 @@ export function EmptyState({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[#E8F8ED] dark:bg-[#1a3824] px-2 py-0.5 rounded">
               Example Template
             </span>
-            <span className="text-[11px] text-[var(--text-muted)] dark:text-[#8D9C94] font-medium">
+            <span className="text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted)] font-medium">
               Not saved to database
             </span>
           </div>
@@ -156,7 +156,7 @@ export function EmptyState({
 
       {/* Mini-Guide Section */}
       {guideSteps && guideSteps.length > 0 && (
-        <div className="w-full max-w-md mt-2 pt-4 border-t border-[var(--border)] dark:border-[#243329] text-left">
+        <div className="w-full max-w-md mt-2 pt-4 border-t border-[var(--border)] dark:border-[var(--border)] text-left">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-[var(--text)] flex items-center gap-1.5">
               <HelpCircle className="w-3.5 h-3.5 text-[var(--primary-dark)]" />

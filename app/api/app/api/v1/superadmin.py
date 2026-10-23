@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, desc
 
@@ -24,7 +24,12 @@ from app.models.website import Website
 from app.models.system import AuditLog, Notification
 from app.models.auth import PendingRegistration
 from app.models.billing import SubscriptionPlan, GymSubscription, SubscriptionAuditLog, SubscriptionStatus, BillingCycle
-from app.services.billing import BillingService
+from app.services.billing import BillingService, invalidate_entitlements
+from app.services import platform_metrics
+from app.core import cache
+from app.core.config import settings
+from app.models.billing import SubscriptionPayment
+from app.models.communication import Broadcast, NotificationDelivery, PLATFORM_WORKSPACE_ID
 
 router = APIRouter(prefix="/superadmin", tags=["Super Admin"])
 
@@ -105,6 +110,7 @@ class OverviewMetricsResponse(BaseModel):
     gym_growth_chart: List[ActivityPoint]
     member_growth_chart: List[ActivityPoint]
     recent_activities: List[RecentActivityItem]
+    subscription_status_breakdown: Dict[str, int] = {}
 
 
 @router.get("/overview", response_model=OverviewMetricsResponse)
@@ -112,96 +118,37 @@ def get_platform_overview(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    """Platform KPIs from real workspaces, subscriptions, platform payments and audit logs (cached briefly)."""
     check_superadmin(tenant, db)
+    return platform_metrics.cached_overview(db)
 
-    total_gyms = db.query(Workspace).count()
-    active_gyms = db.query(Workspace).filter(Workspace.is_active == True).count()
-    suspended_gyms = db.query(Workspace).filter(Workspace.is_active == False).count()
-    trial_gyms = db.query(Workspace).filter(Workspace.onboarding_completed == False).count()
-    paid_gyms = max(0, active_gyms - trial_gyms)
 
-    total_members = db.query(Member).count()
-    total_trainers = db.query(Trainer).count()
-
-    now = datetime.now(timezone.utc)
-    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    new_gyms_this_month = db.query(Workspace).filter(Workspace.created_at >= month_start).count()
-    new_users_this_month = db.query(User).filter(User.created_at >= month_start).count()
-
-    monthly_revenue = float(paid_gyms * 4999.0) if paid_gyms > 0 else 482000.0
-    failed_payments_count = 3
-    failed_payments_amount = 14997.0
-    system_alerts = 2 if suspended_gyms > 0 else 0
-
-    gym_growth = [
-        ActivityPoint(label="Jan", value=max(10, total_gyms - 40)),
-        ActivityPoint(label="Feb", value=max(15, total_gyms - 32)),
-        ActivityPoint(label="Mar", value=max(22, total_gyms - 25)),
-        ActivityPoint(label="Apr", value=max(30, total_gyms - 18)),
-        ActivityPoint(label="May", value=max(38, total_gyms - 9)),
-        ActivityPoint(label="Jun", value=max(total_gyms, 45)),
-    ]
-
-    member_growth = [
-        ActivityPoint(label="Jan", value=max(120, total_members - 350)),
-        ActivityPoint(label="Feb", value=max(240, total_members - 280)),
-        ActivityPoint(label="Mar", value=max(390, total_members - 210)),
-        ActivityPoint(label="Apr", value=max(560, total_members - 140)),
-        ActivityPoint(label="May", value=max(780, total_members - 60)),
-        ActivityPoint(label="Jun", value=max(total_members, 950)),
-    ]
-
-    recent_activities = [
-        RecentActivityItem(
-            id="act-1",
-            type="gym",
-            title="Apex Fitness Club registered",
-            subtitle="New Pro tier subscription activated",
-            timestamp="4 minutes ago"
-        ),
-        RecentActivityItem(
-            id="act-2",
-            type="payment",
-            title="₹4,999 Subscription Renewed",
-            subtitle="Cashfree Auto-debit successful for IronCore Lab",
-            timestamp="18 minutes ago"
-        ),
-        RecentActivityItem(
-            id="act-3",
-            type="admin",
-            title="Tenant Status Updated",
-            subtitle="Titan Barbell Co. reactivated by Super Admin",
-            timestamp="42 minutes ago"
-        ),
-        RecentActivityItem(
-            id="act-4",
-            type="security",
-            title="Multi-tenant Audit Check Passed",
-            subtitle="Automated tenant isolation scan healthy",
-            timestamp="1 hour ago"
-        ),
-    ]
-
-    return OverviewMetricsResponse(
-        total_gyms=total_gyms or 128,
-        active_gyms=active_gyms or 118,
-        suspended_gyms=suspended_gyms or 10,
-        trial_gyms=trial_gyms or 14,
-        paid_gyms=paid_gyms or 104,
-        total_members=total_members or 4820,
-        total_trainers=total_trainers or 340,
-        monthly_revenue=monthly_revenue,
-        failed_payments_amount=failed_payments_amount,
-        failed_payments_count=failed_payments_count,
-        system_alerts=system_alerts,
-        new_gyms_this_month=new_gyms_this_month or 8,
-        new_users_this_month=new_users_this_month or 142,
-        mrr_growth_pct=14.8,
-        system_health="100% Operational",
-        gym_growth_chart=gym_growth,
-        member_growth_chart=member_growth,
-        recent_activities=recent_activities,
-    )
+@router.get("/revenue")
+def get_platform_revenue(
+    months: int = Query(12, ge=1, le=36),
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Platform (SaaS subscription) revenue by month, plus current MRR by plan."""
+    check_superadmin(tenant, db)
+    by_plan: Dict[str, Dict[str, Any]] = {}
+    for sub, plan in db.query(GymSubscription, SubscriptionPlan).join(
+        SubscriptionPlan, SubscriptionPlan.id == GymSubscription.plan_id
+    ).all():
+        row = by_plan.setdefault(plan.code, {"plan": plan.name, "workspaces": 0, "paying": 0, "mrr": 0.0})
+        row["workspaces"] += 1
+        mrr = platform_metrics.subscription_mrr(sub, plan)
+        if mrr > 0:
+            row["paying"] += 1
+            row["mrr"] += mrr
+    monthly = platform_metrics.revenue_by_month(db, months)
+    return {
+        "months": monthly,
+        "total_collected": round(sum(m["collected"] for m in monthly), 2),
+        "mrr": round(sum(r["mrr"] for r in by_plan.values()), 2),
+        "by_plan": list(by_plan.values()),
+        "currency": "INR",
+    }
 
 
 # ----------------------------------------------------
@@ -323,60 +270,28 @@ class GymDetailResponse(BaseModel):
     owner_email: Optional[str] = None
     members_count: int = 0
     trainers_count: int = 0
+    staff_count: int = 0
+    plan_code: Optional[str] = None
+    subscription_status: Optional[str] = None
+    is_complimentary: bool = False
+    trial_ends_at: Optional[datetime] = None
 
 
 @router.get("/workspaces", response_model=List[GymDetailResponse])
 def get_all_workspaces(
+    response: Response,
     status_filter: Optional[str] = None,
+    q: Optional[str] = Query(None, max_length=100),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    """Tenants with real plan, subscription status, MRR and usage. Total in X-Total-Count."""
     check_superadmin(tenant, db)
-    query = db.query(Workspace)
-
-    if status_filter == "active":
-        query = query.filter(Workspace.is_active == True)
-    elif status_filter == "suspended":
-        query = query.filter(Workspace.is_active == False)
-    elif status_filter == "trial":
-        query = query.filter(Workspace.onboarding_completed == False)
-
-    workspaces = query.order_by(Workspace.created_at.desc()).all()
-    results = []
-
-    for w in workspaces:
-        owner_mem = db.query(WorkspaceMember).filter(
-            WorkspaceMember.workspace_id == w.id,
-            WorkspaceMember.role == UserRole.OWNER
-        ).first()
-
-        owner_user = owner_mem.user if owner_mem else None
-        m_count = db.query(Member).filter(Member.workspace_id == w.id).count()
-        t_count = db.query(Trainer).filter(Trainer.workspace_id == w.id).count()
-
-        plan_name = "TRIAL" if not w.onboarding_completed else ("PRO" if w.is_active else "SUSPENDED")
-
-        results.append(GymDetailResponse(
-            id=w.id,
-            name=w.name,
-            slug=w.slug,
-            email=w.email or (owner_user.email if owner_user else None),
-            phone=w.phone,
-            city=w.city or "India",
-            gym_type=w.gym_type or "Commercial Gym",
-            plan=plan_name,
-            mrr=4999.0 if w.is_active else 0.0,
-            last_active="Active 5 min ago" if w.is_active else "Suspended",
-            is_active=bool(w.is_active) if w.is_active is not None else True,
-            onboarding_completed=bool(w.onboarding_completed) if w.onboarding_completed is not None else True,
-            created_at=w.created_at,
-            owner_name=owner_user.full_name if owner_user else "Unassigned",
-            owner_email=owner_user.email if owner_user else None,
-            members_count=m_count,
-            trainers_count=t_count,
-        ))
-
-    return results
+    rows, total = platform_metrics.workspace_rows(db, status_filter, q, limit, offset)
+    response.headers["X-Total-Count"] = str(total)
+    return [GymDetailResponse(**r) for r in rows]
 
 
 class CreateGymRequest(BaseModel):
@@ -384,9 +299,9 @@ class CreateGymRequest(BaseModel):
     slug: str
     owner_name: str
     owner_email: EmailStr
-    owner_password: Optional[str] = "OwnerPass2026!"
-    phone: Optional[str] = "+919876500000"
-    city: Optional[str] = "Bengaluru"
+    owner_password: str = Field(min_length=8, max_length=128)
+    phone: Optional[str] = None
+    city: Optional[str] = None
 
 
 @router.post("/workspaces", response_model=GymDetailResponse, status_code=status.HTTP_201_CREATED)
@@ -477,6 +392,8 @@ def update_workspace_status(
 
     ws.is_active = req.is_active
     db.commit()
+    invalidate_entitlements(ws.id)
+    cache.invalidate("platform:")
 
     action = "REACTIVATE_WORKSPACE" if req.is_active else "SUSPEND_WORKSPACE"
     log_audit_event(db, admin_user.id, action, f"Reason: {req.reason or 'Admin update'}", ws.id)
@@ -1014,9 +931,9 @@ def get_platform_audit_logs(
 
 class SystemHealthMetric(BaseModel):
     component: str
-    status: str
-    latency_ms: int
-    uptime_pct: float
+    status: str  # HEALTHY | DEGRADED | DOWN | CONFIGURED | NOT_CONFIGURED | DISABLED
+    latency_ms: Optional[float] = None
+    uptime_pct: Optional[float] = None  # not measured in-process; only external monitoring can report it
     details: str
 
 class SystemHealthResponse(BaseModel):
@@ -1030,49 +947,43 @@ def get_system_health(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    """Live checks only: a DB round trip, provider configuration and delivery backlog. No invented uptime."""
     check_superadmin(tenant, db)
+    database = platform_metrics.database_health(db)
+    dialect = db.get_bind().dialect.name
+    queued = db.query(func.count(NotificationDelivery.id)).filter(NotificationDelivery.status == "queued").scalar() or 0
+    failed_24h = db.query(func.count(NotificationDelivery.id)).filter(
+        NotificationDelivery.status == "failed",
+        NotificationDelivery.created_at >= (datetime.now(timezone.utc) - timedelta(days=1)).replace(tzinfo=None),
+    ).scalar() or 0
 
-    return SystemHealthResponse(
-        overall_status="OPERATIONAL",
-        timestamp=datetime.now(timezone.utc),
-        metrics=[
-            SystemHealthMetric(
-                component="PostgreSQL Database",
-                status="HEALTHY",
-                latency_ms=12,
-                uptime_pct=99.99,
-                details="Connection pool active • 0 deadlocks"
-            ),
-            SystemHealthMetric(
-                component="FastAPI Core Cluster",
-                status="HEALTHY",
-                latency_ms=24,
-                uptime_pct=99.98,
-                details="4 worker instances online"
-            ),
-            SystemHealthMetric(
-                component="Cashfree / Razorpay Gateway",
-                status="HEALTHY",
-                latency_ms=110,
-                uptime_pct=99.95,
-                details="Webhook callbacks responsive"
-            ),
-            SystemHealthMetric(
-                component="Biometric Sync Engine",
-                status="HEALTHY",
-                latency_ms=45,
-                uptime_pct=99.90,
-                details="Real-time check-in stream connected"
-            ),
-            SystemHealthMetric(
-                component="Multi-Tenant Isolation Firewall",
-                status="HEALTHY",
-                latency_ms=5,
-                uptime_pct=100.0,
-                details="Strict tenant filtering active"
-            ),
-        ]
-    )
+    def configured(name: str, ok: bool, details_ok: str, details_missing: str) -> SystemHealthMetric:
+        return SystemHealthMetric(component=name, status="CONFIGURED" if ok else "NOT_CONFIGURED",
+                                  details=details_ok if ok else details_missing)
+
+    cache_stats = cache.stats()
+    metrics = [
+        SystemHealthMetric(
+            component=f"Database ({dialect})", status=database["status"], latency_ms=database["latency_ms"],
+            details="SELECT 1 round trip" if database["status"] == "HEALTHY" else f"Error: {database['error']}",
+        ),
+        configured("Email (SMTP)", bool(settings.SMTP_USER and settings.SMTP_PASSWORD and settings.EMAIL_FROM),
+                   f"Sending via {settings.SMTP_HOST}", "Emails are recorded as skipped_not_configured"),
+        configured("WhatsApp (AiSensy)", bool(settings.AISENSY_API_KEY),
+                   "Template campaigns enabled", "WhatsApp deliveries are recorded as skipped_not_configured"),
+        configured("Cashfree billing", bool(settings.CASHFREE_APP_ID and settings.CASHFREE_SECRET_KEY),
+                   f"Environment {settings.CASHFREE_ENV}", "Online subscription checkout is disabled"),
+        SystemHealthMetric(
+            component="Notification queue", status="HEALTHY" if failed_24h == 0 else "DEGRADED",
+            details=f"{queued} queued, {failed_24h} failed in the last 24h",
+        ),
+        SystemHealthMetric(
+            component="In-process cache", status="HEALTHY" if settings.CACHE_ENABLED else "DISABLED",
+            details=f"{cache_stats['entries']} entries, {cache_stats['hits']} hits / {cache_stats['misses']} misses (this worker)",
+        ),
+    ]
+    overall = "OPERATIONAL" if database["status"] == "HEALTHY" else "DEGRADED"
+    return SystemHealthResponse(overall_status=overall, timestamp=datetime.now(timezone.utc), metrics=metrics)
 
 
 class PlatformPaymentItem(BaseModel):
@@ -1089,73 +1000,40 @@ class PlatformPaymentItem(BaseModel):
 
 @router.get("/payments", response_model=List[PlatformPaymentItem])
 def get_platform_payments(
+    response: Response,
+    status_filter: Optional[str] = Query(None, alias="status"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    """Platform subscription payments (gyms paying REPSI). Gym-member payments are a different domain."""
     check_superadmin(tenant, db)
-
-    payments = db.query(Payment).order_by(desc(Payment.created_at)).limit(50).all()
-    results = []
-
-    for p in payments:
-        ws = db.query(Workspace).filter(Workspace.id == p.workspace_id).first()
-        results.append(PlatformPaymentItem(
+    query = db.query(SubscriptionPayment, Workspace).outerjoin(Workspace, Workspace.id == SubscriptionPayment.workspace_id)
+    if status_filter:
+        query = query.filter(SubscriptionPayment.status == status_filter.lower())
+    response.headers["X-Total-Count"] = str(query.count())
+    rows = query.order_by(desc(SubscriptionPayment.created_at)).offset(offset).limit(limit).all()
+    return [
+        PlatformPaymentItem(
             id=p.id,
-            gym_name=ws.name if ws else "Direct Platform Subscription",
-            gym_slug=ws.slug if ws else "repsi",
+            gym_name=ws.name if ws else "Deleted workspace",
+            gym_slug=ws.slug if ws else "",
             amount=float(p.amount),
             currency=p.currency or "INR",
-            status=p.status.value if hasattr(p.status, 'value') else str(p.status),
-            gateway="Cashfree",
-            payment_method=p.payment_method.value if hasattr(p.payment_method, 'value') else str(p.payment_method),
-            created_at=p.created_at
-        ))
-
-    # If few payments in fresh DB, supply representative platform billing records
-    if not results:
-        results = [
-            PlatformPaymentItem(
-                id="pay-sub-101",
-                gym_name="Apex Fitness Club",
-                gym_slug="apex-fitness",
-                amount=4999.0,
-                currency="INR",
-                status="COMPLETED",
-                gateway="Cashfree",
-                payment_method="UPI_AUTOPAY",
-                created_at=datetime.now(timezone.utc) - timedelta(hours=2)
-            ),
-            PlatformPaymentItem(
-                id="pay-sub-102",
-                gym_name="IronCore Athletic Lab",
-                gym_slug="ironcore",
-                amount=4999.0,
-                currency="INR",
-                status="COMPLETED",
-                gateway="Cashfree",
-                payment_method="CARD",
-                created_at=datetime.now(timezone.utc) - timedelta(days=1)
-            ),
-            PlatformPaymentItem(
-                id="pay-sub-103",
-                gym_name="Volt CrossFit Arena",
-                gym_slug="volt-crossfit",
-                amount=2499.0,
-                currency="INR",
-                status="COMPLETED",
-                gateway="Cashfree",
-                payment_method="NETBANKING",
-                created_at=datetime.now(timezone.utc) - timedelta(days=2)
-            ),
-        ]
-
-    return results
+            status=p.status.value if hasattr(p.status, "value") else str(p.status),
+            gateway="Cashfree" if (p.cashfree_order_id or p.cashfree_payment_id) else "Manual",
+            payment_method=p.payment_method or "unknown",
+            created_at=p.created_at,
+        )
+        for p, ws in rows
+    ]
 
 
 class BroadcastRequest(BaseModel):
-    target_audience: str
-    subject: str
-    message: str
+    target_audience: str = Field(pattern="^(all_owners|active_owners|trial_owners|all_users)$")
+    subject: str = Field(min_length=2, max_length=200)
+    message: str = Field(min_length=2, max_length=4000)
 
 
 @router.post("/broadcast")
@@ -1164,15 +1042,65 @@ def broadcast_platform_announcement(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    """Delivers an in-app notification to every recipient now and logs one delivery row each."""
     admin_user = check_superadmin(tenant, db)
+    ws_query = db.query(Workspace.id).filter(Workspace.is_active == True)
+    if req.target_audience in ("active_owners", "trial_owners"):
+        wanted = platform_metrics.PAID_STATUSES if req.target_audience == "active_owners" else (SubscriptionStatus.TRIALING.value,)
+        ws_query = ws_query.join(GymSubscription, GymSubscription.workspace_id == Workspace.id).filter(
+            GymSubscription.status.in_(wanted))
+    workspace_ids = [w for (w,) in ws_query.all()]
+
+    wm_query = db.query(WorkspaceMember.workspace_id, WorkspaceMember.user_id).filter(
+        WorkspaceMember.workspace_id.in_(workspace_ids or ["-"]), WorkspaceMember.is_active == True)
+    if req.target_audience != "all_users":
+        wm_query = wm_query.filter(WorkspaceMember.role.in_((UserRole.OWNER, UserRole.ADMIN)))
+    recipients = wm_query.distinct().all()
+
+    now = datetime.now(timezone.utc)
+    broadcast = Broadcast(
+        workspace_id=PLATFORM_WORKSPACE_ID, title=req.subject, message=req.message, channels=["in_app"],
+        audience={"segment": req.target_audience, "workspaces": len(workspace_ids)},
+        status="completed", recipient_count=len(recipients), created_by=admin_user.id, completed_at=now,
+    )
+    db.add(broadcast)
+    db.flush()
+    for ws_id, user_id in recipients:
+        db.add(Notification(workspace_id=ws_id, user_id=user_id, title=req.subject, message=req.message, is_read=False))
+        db.add(NotificationDelivery(
+            workspace_id=ws_id, broadcast_id=broadcast.id, event_type="platform_broadcast", channel="in_app",
+            recipient_user_id=user_id, status="sent", provider="in_app", attempts=1, sent_at=now,
+            idempotency_key=f"platform:broadcast:{broadcast.id}:{ws_id}:{user_id}",
+        ))
+    db.commit()
     log_audit_event(
         db, admin_user.id, "BROADCAST_ANNOUNCEMENT",
-        f"Audience: {req.target_audience} | Subject: {req.subject}"
+        f"Audience: {req.target_audience} | Subject: {req.subject} | Delivered in-app to {len(recipients)} accounts "
+        f"across {len(workspace_ids)} workspaces",
     )
     return {
-        "status": "success",
-        "message": f"Broadcast '{req.subject}' queued for delivery to target audience '{req.target_audience}'."
+        "status": "sent" if recipients else "no_recipients",
+        "broadcast_id": broadcast.id,
+        "recipients": len(recipients),
+        "workspaces": len(workspace_ids),
+        "message": f"Delivered in-app to {len(recipients)} accounts across {len(workspace_ids)} workspaces.",
     }
+
+
+@router.get("/broadcasts")
+def list_platform_broadcasts(
+    limit: int = Query(50, ge=1, le=200),
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    check_superadmin(tenant, db)
+    rows = db.query(Broadcast).filter(Broadcast.workspace_id == PLATFORM_WORKSPACE_ID).order_by(
+        desc(Broadcast.created_at)).limit(limit).all()
+    return [
+        {"id": b.id, "title": b.title, "message": b.message, "audience": b.audience, "status": b.status,
+         "recipient_count": b.recipient_count, "created_at": b.created_at}
+        for b in rows
+    ]
 
 
 # ----------------------------------------------------
@@ -1300,6 +1228,7 @@ def update_subscription_plan(
 
     db.commit()
     db.refresh(plan)
+    invalidate_entitlements()  # every workspace on this plan
 
     log_audit_event(
         db, admin_user.id, "UPDATE_SUBSCRIPTION_PLAN",

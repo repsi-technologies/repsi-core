@@ -28,7 +28,7 @@ export function DashboardSkeleton({
       {/* 01. DASHBOARD HEADER SKELETON                                 */}
       {/* ───────────────────────────────────────────────────────────── */}
       {showShellHeader && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E7E4DE] pb-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
           <div className="space-y-2.5">
             <div className={cn("h-4 w-44 rounded-md", shimmerClass)} />
             <div className={cn("h-8 w-60 rounded-xl", shimmerClass)} />
@@ -49,7 +49,7 @@ export function DashboardSkeleton({
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="p-5 rounded-2xl border border-[#E7E4DE] bg-white shadow-2xs space-y-3"
+            className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xs space-y-3"
           >
             <div className="flex items-center justify-between">
               <div className={cn("h-3.5 w-24 rounded-md", shimmerClass)} />
@@ -69,7 +69,7 @@ export function DashboardSkeleton({
       {/* ───────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Revenue Chart Placeholder (7 cols) */}
-        <div className="lg:col-span-7 rounded-2xl border border-[#E7E4DE] bg-white p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
+        <div className="lg:col-span-7 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
               <div className={cn("h-4 w-32 rounded-md", shimmerClass)} />
@@ -82,7 +82,7 @@ export function DashboardSkeleton({
           </div>
 
           {/* Chart Bars Simulation */}
-          <div className="h-52 w-full flex items-end gap-3 pt-6 pb-2 px-2 border-b border-[#E7E4DE]">
+          <div className="h-52 w-full flex items-end gap-3 pt-6 pb-2 px-2 border-b border-[var(--border)]">
             {[35, 60, 45, 75, 55, 85, 70, 95].map((heightPct, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                 <div
@@ -101,7 +101,7 @@ export function DashboardSkeleton({
         </div>
 
         {/* Attendance Activity Chart Placeholder (5 cols) */}
-        <div className="lg:col-span-5 rounded-2xl border border-[#E7E4DE] bg-white p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
+        <div className="lg:col-span-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
               <div className={cn("h-4 w-36 rounded-md", shimmerClass)} />
@@ -116,11 +116,11 @@ export function DashboardSkeleton({
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="p-2.5 rounded-xl bg-[#FAF9F6] border border-[#E7E4DE] space-y-1">
+            <div className="p-2.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-1">
               <div className={cn("h-3 w-16 rounded", shimmerClass)} />
               <div className={cn("h-5 w-12 rounded", shimmerClass)} />
             </div>
-            <div className="p-2.5 rounded-xl bg-[#FAF9F6] border border-[#E7E4DE] space-y-1">
+            <div className="p-2.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-1">
               <div className={cn("h-3 w-20 rounded", shimmerClass)} />
               <div className={cn("h-5 w-14 rounded", shimmerClass)} />
             </div>
@@ -133,8 +133,8 @@ export function DashboardSkeleton({
       {/* ───────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Recent Activity Table Placeholder (8 cols) */}
-        <div className="lg:col-span-8 rounded-2xl border border-[#E7E4DE] bg-white p-5 sm:p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-[#E7E4DE]">
+        <div className="lg:col-span-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
             <div className={cn("h-4 w-32 rounded-md", shimmerClass)} />
             <div className={cn("h-4 w-20 rounded-md", shimmerClass)} />
           </div>
@@ -143,7 +143,7 @@ export function DashboardSkeleton({
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF9F6] border border-[#E7E4DE]"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)]"
               >
                 <div className="flex items-center gap-3">
                   <div className={cn("w-9 h-9 rounded-full", shimmerClass)} />
@@ -159,13 +159,13 @@ export function DashboardSkeleton({
         </div>
 
         {/* Quick Actions Placeholder (4 cols) */}
-        <div className="lg:col-span-4 rounded-2xl border border-[#E7E4DE] bg-white p-5 sm:p-6 shadow-2xs space-y-4">
+        <div className="lg:col-span-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xs space-y-4">
           <div className={cn("h-4 w-28 rounded-md", shimmerClass)} />
           <div className="space-y-2.5">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="p-3 rounded-xl border border-[#E7E4DE] flex items-center justify-between"
+                className="p-3 rounded-xl border border-[var(--border)] flex items-center justify-between"
               >
                 <div className="flex items-center gap-2.5">
                   <div className={cn("w-7 h-7 rounded-lg", shimmerClass)} />

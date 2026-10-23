@@ -36,6 +36,7 @@ class Payment(Base, TimestampMixin, TenantMixin):
 
     __table_args__ = (
         Index("ix_payments_ws_status_paid", "workspace_id", "status", "paid_at"),
+        Index("ix_payments_ws_created", "workspace_id", "created_at"),
     )
 
 

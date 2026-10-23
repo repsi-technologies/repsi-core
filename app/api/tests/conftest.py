@@ -9,6 +9,10 @@ os.environ["OTP_TEST_CODE"] = "123456"
 os.environ["GOOGLE_CLIENT_ID"] = "test-google-client-id"
 os.environ["SMTP_USER"] = ""
 os.environ["SMTP_PASSWORD"] = ""
+# Never reach a real WhatsApp provider from tests, whatever the developer .env holds.
+os.environ["AISENSY_API_KEY"] = ""
+# Caching is exercised in its own tests; elsewhere every read must see the latest writes.
+os.environ["CACHE_ENABLED"] = "false"
 os.environ["SECRET_KEY"] = "test-secret-key-that-is-long-enough-for-hs256-signing"
 
 import pytest

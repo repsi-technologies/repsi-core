@@ -20,9 +20,19 @@ from app.models.billing import (
 from app.models.member import Member, MemberStatus
 from app.models.trainer import Trainer
 from app.models.attendance import GymLocation
-from app.models.user import Workspace, WorkspaceMember
+from app.models.user import Workspace, WorkspaceMember, UserRole
+from app.core import cache
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Roles that consume the plan's staff quota.
+STAFF_LIMIT_ROLES = (UserRole.ADMIN, UserRole.MANAGER, UserRole.STAFF)
+
+
+def invalidate_entitlements(workspace_id: Optional[str] = None) -> None:
+    """Drop cached entitlement snapshots for one workspace (or all, e.g. after a plan catalog edit)."""
+    cache.invalidate(f"entitlements:{workspace_id}" if workspace_id else "entitlements:")
 
 
 class CashfreeUnavailableError(RuntimeError):
@@ -57,6 +67,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": False,
             # Feature gating defaults
             "trainer_management": False,
             "diet_plans": False,
@@ -91,6 +102,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": True,
             # Growth features
             "trainer_management": True,
             "trainer_assignment": True,
@@ -134,6 +146,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": True,
             "trainer_management": True,
             "trainer_assignment": True,
             "structured_workouts": True,
@@ -185,6 +198,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": True,
             "trainer_management": True,
             "trainer_assignment": True,
             "structured_workouts": True,
@@ -241,6 +255,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": True,
             "trainer_management": True,
             "trainer_assignment": True,
             "structured_workouts": True,
@@ -304,6 +319,7 @@ DEFAULT_PLANS = [
             "basic_workouts": True,
             "basic_dashboard": True,
             "membership_reminders": True,
+            "member_broadcasts": True,
             "trainer_management": True,
             "trainer_assignment": True,
             "structured_workouts": True,
@@ -405,11 +421,11 @@ class BillingService:
         Evaluates subscription status dynamically and transactionally against server UTC timestamp.
         Enforces repeat-trial anti-abuse checks.
         """
-        BillingService.ensure_default_plans(db)
         sub = db.query(GymSubscription).filter(GymSubscription.workspace_id == workspace_id).first()
         now = datetime.now(timezone.utc)
 
         if not sub:
+            BillingService.ensure_default_plans(db)
             # Check repeat trial eligibility for the business
             ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
             is_repeat = False
@@ -566,6 +582,25 @@ class BillingService:
         return features
 
     @staticmethod
+    def entitlement_snapshot(db: Session, workspace_id: str) -> Dict[str, Any]:
+        """
+        Subscription state + effective features for request gating, cached for
+        ENTITLEMENT_CACHE_SECONDS per worker. Admin changes invalidate it immediately.
+        """
+        def build() -> Dict[str, Any]:
+            sub = BillingService.get_or_create_workspace_subscription(db, workspace_id)
+            return {
+                "status": sub.status.value if hasattr(sub.status, "value") else str(sub.status),
+                "is_complimentary": bool(sub.is_complimentary),
+                "suspension_reason": sub.suspension_reason,
+                "plan_code": sub.plan.code,
+                "plan_name": sub.plan.name,
+                "features": BillingService.get_effective_features(db, workspace_id),
+            }
+
+        return cache.get_or_set(f"entitlements:{workspace_id}", settings.ENTITLEMENT_CACHE_SECONDS, build)
+
+    @staticmethod
     def check_feature_entitlement(db: Session, workspace_id: str, feature_key: str) -> bool:
         """Verifies if the workspace has access to a specific feature key."""
         effective_features = BillingService.get_effective_features(db, workspace_id)
@@ -588,23 +623,28 @@ class BillingService:
         # Active trainers
         trainers_count = (
             db.query(func.count(Trainer.id))
-            .filter(Trainer.workspace_id == workspace_id)
+            .filter(Trainer.workspace_id == workspace_id, Trainer.is_active == True)
             .scalar()
             or 0
         )
 
-        # Staff members
+        # Staff accounts: active admins, managers and front-desk staff. Owners, trainers (own quota)
+        # and gym members (USER) don't count against the staff limit.
         staff_count = (
             db.query(func.count(WorkspaceMember.id))
-            .filter(WorkspaceMember.workspace_id == workspace_id, WorkspaceMember.is_active == True)
+            .filter(
+                WorkspaceMember.workspace_id == workspace_id,
+                WorkspaceMember.is_active == True,
+                WorkspaceMember.role.in_(STAFF_LIMIT_ROLES),
+            )
             .scalar()
-            or 1
+            or 0
         )
 
-        # Branches / Locations
+        # Active branches / locations (a workspace always operates at least one)
         branches_count = (
             db.query(func.count(GymLocation.id))
-            .filter(GymLocation.workspace_id == workspace_id)
+            .filter(GymLocation.workspace_id == workspace_id, GymLocation.is_active == True)
             .scalar()
             or 1
         )
@@ -705,6 +745,7 @@ class BillingService:
         sub.current_period_end = new_end
         sub.status = SubscriptionStatus.TRIALING
         db.commit()
+        invalidate_entitlements(workspace_id)
         db.refresh(sub)
 
         new_str = f"status=trialing, trial_end={new_end.isoformat()}, extended_by={days}_days"
@@ -794,6 +835,7 @@ class BillingService:
         sub.current_period_start = now
         sub.current_period_end = now + timedelta(days=period_days)
         db.commit()
+        invalidate_entitlements(workspace_id)
         db.refresh(sub)
 
         new_val = f"plan={target_plan.code}, cycle={billing_cycle}, status=active"
@@ -832,6 +874,7 @@ class BillingService:
             sub.status = SubscriptionStatus.ACTIVE
 
         db.commit()
+        invalidate_entitlements(workspace_id)
         db.refresh(sub)
 
         new_val = f"is_comp=True, until={comp_until.isoformat() if comp_until else 'indefinite'}"
@@ -868,6 +911,7 @@ class BillingService:
             sub.custom_features = custom_features
 
         db.commit()
+        invalidate_entitlements(workspace_id)
         db.refresh(sub)
 
         new_val = f"m_lim={sub.custom_member_limit}, t_lim={sub.custom_trainer_limit}, feats={sub.custom_features}"
@@ -902,6 +946,7 @@ class BillingService:
             sub.canceled_at = now
 
         db.commit()
+        invalidate_entitlements(workspace_id)
         db.refresh(sub)
 
         new_val = f"status={new_status}"

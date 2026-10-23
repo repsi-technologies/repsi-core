@@ -38,6 +38,7 @@ PERMISSIONS: dict[str, str] = {
     "exercises.manage": "Create and edit gym exercises",
     "programs.manage": "Create and edit workout programs",
     "workouts.assign": "Assign and customize member workout plans",
+    "communications.manage": "Send broadcasts, manage message templates and view delivery logs",
 }
 
 ALL = frozenset(PERMISSIONS)
@@ -50,6 +51,7 @@ ROLE_DEFAULTS: dict[str, frozenset] = {
         "attendance.view", "attendance.record", "attendance.correct", "attendance.override", "attendance.export",
         "members.view", "members.manage", "trainers.assign", "schedules.manage", "payments.view",
         "records.export", "audit.view", "exercises.manage", "programs.manage", "workouts.assign",
+        "communications.manage",
     }),
     "STAFF": frozenset({"attendance.view", "attendance.record", "members.view", "members.manage", "payments.view"}),
     # Trainers only reach their own assigned clients; the relationship check lives in the fitness service.

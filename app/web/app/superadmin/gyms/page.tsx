@@ -185,15 +185,15 @@ export default function SuperAdminGymsPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* ── Header ────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Gyms & Tenant Management</h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+            <h1 className="text-2xl font-extrabold text-[var(--text)] tracking-tight">Gyms & Tenant Management</h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/20">
               {gyms.length} Tenants
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-[var(--text-muted)] mt-1">
             Global multi-tenant administration, database governance, and tenant lifecycle actions.
           </p>
         </div>
@@ -204,7 +204,7 @@ export default function SuperAdminGymsPage() {
             size="sm"
             onClick={loadGyms}
             disabled={loading}
-            className="gap-2 bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white"
+            className="gap-2 bg-[var(--surface)] border-[var(--border)] text-[var(--text)] hover:text-[var(--text)]"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -224,16 +224,16 @@ export default function SuperAdminGymsPage() {
       {/* ── Search & Filters Bar ───────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by gym name, slug, owner, email, city..."
-            className="pl-10 bg-zinc-900 border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 rounded-xl"
+            className="pl-10 bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)] placeholder-[var(--text-muted)] rounded-xl"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs">
           {(["all", "active", "trial", "suspended"] as const).map((filter) => (
             <button
               key={filter}
@@ -241,7 +241,7 @@ export default function SuperAdminGymsPage() {
               className={`px-3 py-1.5 rounded-lg font-semibold uppercase text-[10px] tracking-wider transition-all ${
                 statusFilter === filter
                   ? "bg-purple-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
               }`}
             >
               {filter}
@@ -251,10 +251,10 @@ export default function SuperAdminGymsPage() {
       </div>
 
       {/* ── Dense Gym Table ───────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-zinc-800 bg-[#0C1017] overflow-hidden shadow-xl">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 font-semibold uppercase text-[10px] tracking-wider sticky top-0">
+            <thead className="border-b border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] font-semibold uppercase text-[10px] tracking-wider sticky top-0">
               <tr>
                 <th className="py-3.5 px-4 text-left">Gym Organization</th>
                 <th className="py-3.5 px-4 text-left">Owner / Contact</th>
@@ -266,52 +266,52 @@ export default function SuperAdminGymsPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60">
+            <tbody className="divide-y divide-[var(--border)]">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-zinc-500">
+                  <td colSpan={8} className="py-12 text-center text-[var(--text-muted)]">
                     Loading gym tenant database...
                   </td>
                 </tr>
               ) : filteredGyms.length > 0 ? (
                 filteredGyms.map((g) => (
-                  <tr key={g.id} className="hover:bg-zinc-800/30 transition-colors">
+                  <tr key={g.id} className="hover:bg-[var(--surface-secondary)] transition-colors">
                     {/* Gym Org */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-lg bg-zinc-800 text-purple-400 flex items-center justify-center font-bold shrink-0">
+                        <div className="h-8 w-8 rounded-lg bg-[var(--surface-secondary)] text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold shrink-0">
                           <Building2 className="h-4 w-4" />
                         </div>
                         <div>
-                          <p className="font-bold text-white text-xs">{g.name}</p>
-                          <p className="font-mono text-[11px] text-zinc-500">/{g.slug}</p>
+                          <p className="font-bold text-[var(--text)] text-xs">{g.name}</p>
+                          <p className="font-mono text-[11px] text-[var(--text-muted)]">/{g.slug}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Owner / Contact */}
                     <td className="py-3.5 px-4">
-                      <p className="font-medium text-zinc-200">{g.owner_name || "Unassigned"}</p>
-                      <p className="text-[11px] text-zinc-400">{g.email || g.owner_email || "No email"}</p>
+                      <p className="font-medium text-[var(--text)]">{g.owner_name || "Unassigned"}</p>
+                      <p className="text-[11px] text-[var(--text-muted)]">{g.email || g.owner_email || "No email"}</p>
                     </td>
 
                     {/* Location */}
-                    <td className="py-3.5 px-4 text-zinc-300">{g.city || "India"}</td>
+                    <td className="py-3.5 px-4 text-[var(--text)]">{g.city || "India"}</td>
 
                     {/* Plan */}
                     <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 font-semibold text-zinc-300 text-[10px]">
+                      <span className="px-2 py-0.5 rounded-md bg-[var(--surface-secondary)] border border-[var(--border-strong)] font-semibold text-[var(--text)] text-[10px]">
                         {g.plan}
                       </span>
                     </td>
 
                     {/* Members */}
-                    <td className="py-3.5 px-4 font-mono font-bold text-zinc-200">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[var(--text)]">
                       {g.members_count}
                     </td>
 
                     {/* Trainers */}
-                    <td className="py-3.5 px-4 font-mono text-zinc-300">
+                    <td className="py-3.5 px-4 font-mono text-[var(--text)]">
                       {g.trainers_count}
                     </td>
 
@@ -320,8 +320,8 @@ export default function SuperAdminGymsPage() {
                       <span
                         className={`px-2 py-0.5 rounded-full font-bold uppercase text-[9px] tracking-wider ${
                           g.is_active
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
                         }`}
                       >
                         {g.is_active ? "Active" : "Suspended"}
@@ -336,7 +336,7 @@ export default function SuperAdminGymsPage() {
                           href={`/${g.slug}/dashboard`}
                           target="_blank"
                           title="Impersonate / Support Access"
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
+                          className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-400 hover:bg-[var(--surface-secondary)] transition-colors"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Link>
@@ -345,7 +345,7 @@ export default function SuperAdminGymsPage() {
                         <button
                           onClick={() => handleExport(g)}
                           title="Export Gym Tenant JSON"
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-blue-400 hover:bg-zinc-800 transition-colors"
+                          className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-blue-400 hover:bg-[var(--surface-secondary)] transition-colors"
                         >
                           <Download className="h-4 w-4" />
                         </button>
@@ -356,8 +356,8 @@ export default function SuperAdminGymsPage() {
                           title={g.is_active ? "Suspend Gym Tenant" : "Reactivate Gym Tenant"}
                           className={`p-1.5 rounded-lg transition-colors ${
                             g.is_active
-                              ? "text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
-                              : "text-emerald-400 hover:bg-[var(--primary-hover)]/10"
+                              ? "text-[var(--text-muted)] hover:text-amber-400 hover:bg-amber-500/10"
+                              : "text-emerald-600 dark:text-emerald-400 hover:bg-[var(--primary-hover)]/10"
                           }`}
                         >
                           {g.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -372,7 +372,7 @@ export default function SuperAdminGymsPage() {
                             setShowDangerDeleteModal(true);
                           }}
                           title="Danger Zone: Delete Gym Permanently"
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -382,7 +382,7 @@ export default function SuperAdminGymsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-zinc-500">
+                  <td colSpan={8} className="py-12 text-center text-[var(--text-muted)]">
                     No gym organizations match your query.
                   </td>
                 </tr>
@@ -395,30 +395,30 @@ export default function SuperAdminGymsPage() {
       {/* ── Danger Zone Delete Gym Modal ───────────────────────────────────── */}
       {showDangerDeleteModal && selectedGym && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#0E131C] border-2 border-rose-600/80 rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-lg bg-[var(--surface)] border-2 border-rose-600/80 rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150">
             {/* Header */}
             <div className="flex items-start gap-3.5 border-b border-rose-950/80 pb-4">
-              <div className="h-10 w-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">
+              <div className="h-10 w-10 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">
                 <Flame className="h-6 w-6" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-bold text-white tracking-tight">Danger Zone: Delete Gym Permanently</h2>
+                  <h2 className="text-base font-bold text-[var(--text)] tracking-tight">Danger Zone: Delete Gym Permanently</h2>
                   <button
                     onClick={() => setShowDangerDeleteModal(false)}
-                    className="p-1 rounded-lg text-zinc-400 hover:text-white"
+                    className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)]"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <p className="text-xs text-rose-300/80 mt-1 leading-relaxed">
-                  This will perform a controlled cascading deletion of <strong className="text-white">{selectedGym.name}</strong>, all member rosters, workouts, attendance, subscriptions, and CRM records.
+                <p className="text-xs text-rose-700 dark:text-rose-300/80 mt-1 leading-relaxed">
+                  This will perform a controlled cascading deletion of <strong className="text-[var(--text)]">{selectedGym.name}</strong>, all member rosters, workouts, attendance, subscriptions, and CRM records.
                 </p>
               </div>
             </div>
 
             {deleteError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
                 {deleteError}
               </div>
             )}
@@ -426,35 +426,35 @@ export default function SuperAdminGymsPage() {
             <form onSubmit={handlePermanentDelete} className="space-y-4 text-xs">
               {/* Step 1: Slug Confirmation */}
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
-                  1. Type gym slug <span className="font-mono text-purple-400 select-all">{selectedGym.slug}</span>
+                <label className="block text-[var(--text)] font-semibold mb-1">
+                  1. Type gym slug <span className="font-mono text-purple-600 dark:text-purple-400 select-all">{selectedGym.slug}</span>
                 </label>
                 <Input
                   value={deleteForm.typedSlug}
                   onChange={(e) => setDeleteForm({ ...deleteForm, typedSlug: e.target.value })}
                   placeholder={selectedGym.slug}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               {/* Step 2: Confirm Phrase */}
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
-                  2. Type <span className="font-mono text-rose-400 font-bold">DELETE GYM</span>
+                <label className="block text-[var(--text)] font-semibold mb-1">
+                  2. Type <span className="font-mono text-rose-600 dark:text-rose-400 font-bold">DELETE GYM</span>
                 </label>
                 <Input
                   value={deleteForm.typedConfirm}
                   onChange={(e) => setDeleteForm({ ...deleteForm, typedConfirm: e.target.value })}
                   placeholder="DELETE GYM"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               {/* Step 3: Super Admin Password */}
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
+                <label className="block text-[var(--text)] font-semibold mb-1">
                   3. Super Admin Password Re-Authentication
                 </label>
                 <Input
@@ -462,33 +462,33 @@ export default function SuperAdminGymsPage() {
                   value={deleteForm.adminPassword}
                   onChange={(e) => setDeleteForm({ ...deleteForm, adminPassword: e.target.value })}
                   placeholder="Enter your Super Admin password..."
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               {/* Step 4: Deletion Reason */}
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">
+                <label className="block text-[var(--text)] font-semibold mb-1">
                   4. Reason for Audit Log
                 </label>
                 <Input
                   value={deleteForm.reason}
                   onChange={(e) => setDeleteForm({ ...deleteForm, reason: e.target.value })}
                   placeholder="e.g. Owner requested tenant closure / Non-payment"
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white"
+                  className="bg-[var(--surface)] border-[var(--border)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setShowDangerDeleteModal(false)}
-                  className="bg-zinc-900 border-zinc-800 text-zinc-300"
+                  className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)]"
                 >
                   Cancel
                 </Button>
@@ -510,56 +510,56 @@ export default function SuperAdminGymsPage() {
       {/* ── Provision Gym Modal ────────────────────────────────────────────── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h2 className="text-base font-bold text-white">Provision New Gym Tenant</h2>
-              <button onClick={() => setShowCreateModal(false)} className="text-zinc-400 hover:text-white">
+          <div className="w-full max-w-lg bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h2 className="text-base font-bold text-[var(--text)]">Provision New Gym Tenant</h2>
+              <button onClick={() => setShowCreateModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text)]">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreateGym} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">Gym Name</label>
+                <label className="block text-[var(--text)] font-semibold mb-1">Gym Name</label>
                 <Input
                   value={createForm.name}
                   onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
                   placeholder="e.g. Titan Strength Arena"
-                  className="bg-zinc-800 border-zinc-700 text-xs text-white"
+                  className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-zinc-300 font-semibold mb-1">Workspace Slug (repsi.app/[slug])</label>
+                <label className="block text-[var(--text)] font-semibold mb-1">Workspace Slug (repsi.app/[slug])</label>
                 <Input
                   value={createForm.slug}
                   onChange={(e) => setCreateForm({ ...createForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })}
                   placeholder="e.g. titan-strength"
-                  className="bg-zinc-800 border-zinc-700 text-xs text-white font-mono"
+                  className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)] font-mono"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Owner Full Name</label>
+                  <label className="block text-[var(--text)] font-semibold mb-1">Owner Full Name</label>
                   <Input
                     value={createForm.owner_name}
                     onChange={(e) => setCreateForm({ ...createForm, owner_name: e.target.value })}
                     placeholder="e.g. Rohan Varma"
-                    className="bg-zinc-800 border-zinc-700 text-xs text-white"
+                    className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Owner Email</label>
+                  <label className="block text-[var(--text)] font-semibold mb-1">Owner Email</label>
                   <Input
                     type="email"
                     value={createForm.owner_email}
                     onChange={(e) => setCreateForm({ ...createForm, owner_email: e.target.value })}
                     placeholder="owner@titan.com"
-                    className="bg-zinc-800 border-zinc-700 text-xs text-white"
+                    className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)]"
                     required
                   />
                 </div>
@@ -567,26 +567,26 @@ export default function SuperAdminGymsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">Phone Number</label>
+                  <label className="block text-[var(--text)] font-semibold mb-1">Phone Number</label>
                   <Input
                     value={createForm.phone}
                     onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
                     placeholder="+91 98765 00000"
-                    className="bg-zinc-800 border-zinc-700 text-xs text-white"
+                    className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-300 font-semibold mb-1">City</label>
+                  <label className="block text-[var(--text)] font-semibold mb-1">City</label>
                   <Input
                     value={createForm.city}
                     onChange={(e) => setCreateForm({ ...createForm, city: e.target.value })}
                     placeholder="e.g. Bengaluru"
-                    className="bg-zinc-800 border-zinc-700 text-xs text-white"
+                    className="bg-[var(--surface-secondary)] border-[var(--border-strong)] text-xs text-[var(--text)]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowCreateModal(false)}>
                   Cancel
                 </Button>

@@ -83,3 +83,24 @@ def test_auth_and_registration():
         list_resp = client.get("/api/v1/members/", headers=headers)
         assert list_resp.status_code == 200
         assert list_resp.json()["total"] >= 1
+
+
+def test_request_id_and_secure_headers():
+    with TestClient(app) as client:
+        r = client.get("/health", headers={"X-Request-ID": "trace-abc-12345"})
+        assert r.headers["X-Request-ID"] == "trace-abc-12345"
+        assert r.headers["X-Content-Type-Options"] == "nosniff"
+        assert r.headers["X-Frame-Options"] == "DENY"
+        assert "frame-ancestors 'none'" in r.headers["Content-Security-Policy"]
+        # Unsafe ids are replaced, never echoed.
+        bad = client.get("/health", headers={"X-Request-ID": "<script>"})
+        assert bad.headers["X-Request-ID"] != "<script>" and len(bad.headers["X-Request-ID"]) == 32
+        assert r.json()["database"] == "connected"
+
+
+def test_oversized_body_is_rejected_before_routing():
+    from app.core.config import settings
+    with TestClient(app) as client:
+        r = client.post("/api/v1/auth/login", content=b"x" * 10,
+                        headers={"Content-Length": str(settings.MAX_REQUEST_BYTES + 1), "Content-Type": "application/json"})
+        assert r.status_code == 413

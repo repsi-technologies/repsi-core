@@ -1,0 +1,83 @@
+{
+  "base_url": "http://127.0.0.1:8010",
+  "users": 10,
+  "duration_s": 19.8,
+  "seed_members": 30,
+  "requests": 1660,
+  "throughput_rps": 83.9,
+  "error_rate_pct": 0.0,
+  "status_codes": {
+    "200": 1660
+  },
+  "overall_ms": {
+    "p50": 81.3,
+    "p95": 270.5,
+    "p99": 326.6,
+    "max": 406.6
+  },
+  "endpoints": {
+    "attendance_summary": {
+      "n": 174,
+      "p50": 53.1,
+      "p95": 89.5,
+      "p99": 116.2,
+      "mean": 57.5,
+      "errors": 0
+    },
+    "broadcasts": {
+      "n": 85,
+      "p50": 53.1,
+      "p95": 92.9,
+      "p99": 103.8,
+      "mean": 56.7,
+      "errors": 0
+    },
+    "dashboard": {
+      "n": 343,
+      "p50": 61.5,
+      "p95": 96.1,
+      "p99": 106.2,
+      "mean": 63.6,
+      "errors": 0
+    },
+    "entitlements": {
+      "n": 282,
+      "p50": 98.6,
+      "p95": 143.0,
+      "p99": 221.1,
+      "mean": 101.9,
+      "errors": 0
+    },
+    "members_page": {
+      "n": 313,
+      "p50": 225.3,
+      "p95": 323.6,
+      "p99": 371.6,
+      "mean": 228.0,
+      "errors": 0
+    },
+    "members_search": {
+      "n": 186,
+      "p50": 229.1,
+      "p95": 305.6,
+      "p99": 323.3,
+      "mean": 227.6,
+      "errors": 0
+    },
+    "notifications": {
+      "n": 277,
+      "p50": 49.9,
+      "p95": 85.6,
+      "p99": 127.1,
+      "mean": 53.8,
+      "errors": 0
+    }
+  },
+  "server": {
+    "rss_mb_start": 134.8,
+    "rss_mb_end": 147.6,
+    "rss_mb_peak": 147.6,
+    "cpu_seconds": 27.16,
+    "avg_cpu_pct_of_one_core": 137.2
+  }
+}

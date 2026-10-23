@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Text, ForeignKey, DateTime
+from sqlalchemy import Column, String, Boolean, Text, ForeignKey, DateTime, Index
 from datetime import datetime, timezone
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
@@ -6,6 +6,9 @@ from app.models.base import TimestampMixin, TenantMixin, generate_uuid
 
 class Notification(Base, TimestampMixin, TenantMixin):
     __tablename__ = "notifications"
+    __table_args__ = (
+        Index("ix_notifications_ws_user_read", "workspace_id", "user_id", "is_read", "created_at"),
+    )
 
     id = Column(String(64), primary_key=True, default=generate_uuid)
     user_id = Column(String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -28,6 +31,9 @@ class Activity(Base, TimestampMixin, TenantMixin):
 
 class AuditLog(Base, TimestampMixin, TenantMixin):
     __tablename__ = "audit_logs"
+    __table_args__ = (
+        Index("ix_audit_logs_ws_created", "workspace_id", "created_at"),
+    )
 
     id = Column(String(64), primary_key=True, default=generate_uuid)
     user_id = Column(String(64), nullable=True)

@@ -24,6 +24,18 @@ from app.schemas.billing import (
 
 router = APIRouter(prefix="/billing", tags=["Billing & Subscription"])
 
+
+def _workspace_of(tenant: TenantContext) -> str:
+    """Billing data always belongs to the caller's verified workspace, never a client-supplied id."""
+    if not tenant.workspace_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Workspace context required.")
+    return tenant.workspace_id
+
+
+def _require_billing_admin(tenant: TenantContext) -> None:
+    if tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only workspace administrators can manage billing.")
+
 @router.get("/plans", response_model=List[SubscriptionPlanSchema])
 def get_subscription_plans(db: Session = Depends(get_db)):
     """Returns all active Repsi subscription plans (Starter, Basic, Growth, Pro, Business)."""
@@ -51,23 +63,23 @@ def get_subscription_plans(db: Session = Depends(get_db)):
 
 @router.get("/trial-status", response_model=TrialStatusResponse)
 def get_trial_status_route(
-    x_workspace_id: Optional[str] = Header("apex-fitness", alias="X-Workspace-Id"),
+    tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
     """
     Returns authoritative 14-day trial countdown and subscription lifecycle status.
     Calculated in real-time from server UTC timestamps.
     """
-    workspace_id = x_workspace_id or "apex-fitness"
+    workspace_id = _workspace_of(tenant)
     return BillingService.get_trial_status(db, workspace_id)
 
 @router.get("/subscription", response_model=SubscriptionBillingOverviewSchema)
 def get_current_subscription(
-    x_workspace_id: Optional[str] = Header("apex-fitness", alias="X-Workspace-Id"),
+    tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
     """Retrieves current workspace subscription, trial days remaining, usage meters, and feature flags."""
-    workspace_id = x_workspace_id or "apex-fitness"
+    workspace_id = _workspace_of(tenant)
     sub = BillingService.get_or_create_workspace_subscription(db, workspace_id)
     usage = BillingService.get_workspace_usage(db, workspace_id)
     trial_data = BillingService.get_trial_status(db, workspace_id)
@@ -137,11 +149,12 @@ def reconcile_trials_endpoint(
 @router.post("/create-checkout-session", response_model=CheckoutSessionResponse)
 def create_checkout_session(
     payload: CheckoutSessionRequest,
-    x_workspace_id: Optional[str] = Header("apex-fitness", alias="X-Workspace-Id"),
+    tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
     """Creates a Cashfree payment session for plan checkout."""
-    workspace_id = x_workspace_id or "apex-fitness"
+    _require_billing_admin(tenant)
+    workspace_id = _workspace_of(tenant)
     try:
         data = BillingService.create_cashfree_checkout_session(
             db=db,
@@ -159,11 +172,12 @@ def create_checkout_session(
 @router.post("/verify-payment", response_model=PaymentVerifyResponse)
 def verify_payment(
     payload: PaymentVerifyRequest,
-    x_workspace_id: Optional[str] = Header("apex-fitness", alias="X-Workspace-Id"),
+    tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
     """Verifies Cashfree payment status and updates workspace subscription to Active."""
-    workspace_id = x_workspace_id or "apex-fitness"
+    _require_billing_admin(tenant)
+    workspace_id = _workspace_of(tenant)
     try:
         return BillingService.verify_and_activate_payment(
             db=db,
@@ -209,14 +223,33 @@ def change_plan(
         message="Plan change is eligible. Complete verified checkout before the subscription is updated.",
     )
 
+@router.get("/entitlements")
+def get_entitlements(
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Effective feature flags, limits and live usage for the caller's workspace (drives UI gating)."""
+    workspace_id = _workspace_of(tenant)
+    sub = BillingService.get_or_create_workspace_subscription(db, workspace_id)
+    status_value = sub.status.value if hasattr(sub.status, "value") else str(sub.status)
+    return {
+        "workspace_id": workspace_id,
+        "plan": {"code": sub.plan.code, "name": sub.plan.name},
+        "status": status_value,
+        "features": BillingService.get_effective_features(db, workspace_id),
+        "limits": BillingService.get_effective_limits(db, workspace_id),
+        "usage": BillingService.get_workspace_usage(db, workspace_id),
+    }
+
+
 @router.get("/entitlements/{feature_key}")
 def check_feature(
     feature_key: str,
-    x_workspace_id: Optional[str] = Header("apex-fitness", alias="X-Workspace-Id"),
+    tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
     """Server-side check if feature flag is active for workspace."""
-    workspace_id = x_workspace_id or "apex-fitness"
+    workspace_id = _workspace_of(tenant)
     has_access = BillingService.check_feature_entitlement(db, workspace_id, feature_key)
     return {"workspace_id": workspace_id, "feature_key": feature_key, "has_access": has_access}
 

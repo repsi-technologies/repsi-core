@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from app.core.audit import record_audit
 from app.core.phone import optional_phone, require_phone
 from app.middleware.tenant import TenantContext
+from app.middleware.entitlements import assert_capacity
 from app.models.attendance import BranchAssignment, GymLocation
 from app.models.trainer import Trainer, TrainerStatus
 from app.models.user import User, UserRole, Workspace, WorkspaceMember
@@ -437,6 +438,7 @@ class OrganizationService:
         ).first()
         if dup_name:
             raise HTTPException(status_code=409, detail="A branch with this name already exists.")
+        assert_capacity(self.db, ws.id, "branches")
         b = GymLocation(workspace_id=ws.id, code=code, is_active=True, is_primary=False, name=data.name)
         self.db.add(b)
         self._apply_branch(ws, b, data)
