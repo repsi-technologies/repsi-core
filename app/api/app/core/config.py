@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 _CURRENT_DIR = Path(__file__).resolve().parent
 _API_ENV = _CURRENT_DIR.parent.parent / ".env"
@@ -53,6 +53,14 @@ class Settings(BaseSettings):
 
     # Google OAuth: tokens are only accepted when issued to this client ID
     GOOGLE_CLIENT_ID: str = ""
+    # Comma-separated extra OAuth client IDs (Android / iOS apps) whose tokens are also accepted.
+    # A mobile app's Google access token is issued to its own platform client, not the web one.
+    GOOGLE_MOBILE_CLIENT_IDS: str = ""
+
+    @property
+    def google_allowed_client_ids(self) -> set[str]:
+        ids = {self.GOOGLE_CLIENT_ID.strip(), *(i.strip() for i in self.GOOGLE_MOBILE_CLIENT_IDS.split(","))}
+        return {i for i in ids if i}
 
     PASSWORD_RESET_EXPIRE_MINUTES: int = 30
     # Legacy owner sign-up without email verification (POST /auth/register). Off in production
@@ -144,7 +152,9 @@ class Settings(BaseSettings):
     CASHFREE_ENV: str = "TEST"
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = [
+    # NoDecode lets the validator below accept comma-separated values as well as JSON lists;
+    # without it pydantic-settings insists on JSON and refuses to start on a plain comma list.
+    BACKEND_CORS_ORIGINS: Annotated[list[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",

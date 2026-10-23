@@ -17,6 +17,7 @@ from app.models.base import TenantMixin, TimestampMixin
 from app.models.finance import CashReconciliation, Expense, Invoice, Payment, PaymentMethod, PaymentStatus, Refund, WorkspaceCounter
 from app.models.payment_settings import BusinessPaymentSettings, ManualPaymentSubmission, SubmissionStatus
 from app.models.invitation import GymInvitation, InvitationRole, InvitationStatus
+from app.models.health import HealthDailyActivity
 from app.models.machine import GymMachine
 from app.models.member import Member, Membership, MembershipPlan, MemberStatus
 from app.models.member_records import MemberDocument, MemberEvent, MemberNote, MembershipEvent, MembershipFreeze

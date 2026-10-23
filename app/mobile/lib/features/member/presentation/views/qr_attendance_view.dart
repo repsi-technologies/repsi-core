@@ -1,635 +1,665 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/api/api_error.dart';
+import '../../../../shared/models/member_attendance_model.dart';
+import '../../../../shared/models/user_model.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
+import '../../../../shared/widgets/repsi_error_state.dart';
+import '../../../attendance/providers/attendance_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
 
-class QrAttendanceView extends StatefulWidget {
+/// Check-in screen.
+///
+/// Members scan the gym's entrance QR (or show their pass at the desk). Staff scan a member's pass.
+/// The server decides whether anyone is admitted; this screen only transports the scan and shows
+/// the server's answer.
+class QrAttendanceView extends ConsumerStatefulWidget {
   const QrAttendanceView({super.key});
 
   @override
-  State<QrAttendanceView> createState() => _QrAttendanceViewState();
+  ConsumerState<QrAttendanceView> createState() => _QrAttendanceViewState();
 }
 
-class _QrAttendanceViewState extends State<QrAttendanceView> with SingleTickerProviderStateMixin {
-  int _modeIndex = 0; // 0 = Scan Gym QR (Camera), 1 = Show My Pass
-  late AnimationController _animController;
-  late Animation<double> _scanLineAnim;
+class _QrAttendanceViewState extends ConsumerState<QrAttendanceView> {
+  int _tab = 0; // 0 = scan, 1 = my pass (members only)
 
-  bool _isFlashOn = false;
-  bool _isFrontCamera = false;
-
-  bool _isCheckedIn = false;
-  String _checkInTime = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
-
-    _scanLineAnim = Tween<double>(begin: 0.05, end: 0.95).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  void _triggerCheckIn() {
-    HapticFeedback.heavyImpact();
-    setState(() {
-      _isCheckedIn = true;
-      final now = DateTime.now();
-      final minute = now.minute.toString().padLeft(2, '0');
-      final hour = now.hour > 12 ? (now.hour - 12) : (now.hour == 0 ? 12 : now.hour);
-      final ampm = now.hour >= 12 ? 'PM' : 'AM';
-      _checkInTime = '$hour:$minute $ampm';
-    });
+  bool get _isStaff {
+    final user = ref.read(authProvider).user;
+    if (user == null) return false;
+    if (user.isSuperadmin) return true;
+    final role = UserRole.fromString(user.role);
+    return role == UserRole.owner ||
+        role == UserRole.admin ||
+        role == UserRole.manager ||
+        role == UserRole.staff;
   }
 
   @override
   Widget build(BuildContext context) {
+    final isStaff = _isStaff;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
-          onPressed: () => context.pop(),
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              size: 20, color: AppColors.text),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
-        title: Text(
-          'Repsi QR Station',
-          style: AppTypography.heading.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        title: Text(isStaff ? 'Scan member pass' : 'Gym check-in',
+            style: AppTypography.heading
+                .copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pageHorizontalPadding,
-            vertical: 12,
-          ),
-          child: Column(
-            children: [
-              // Mode Switcher: Scan Gym QR vs Show My Pass
-              Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            _modeIndex = 0;
-                            _isCheckedIn = false;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          decoration: BoxDecoration(
-                            color: _modeIndex == 0 ? AppColors.primarySoft : Colors.transparent,
-                            borderRadius: BorderRadius.circular(9),
-                          ),
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.camera_alt_outlined,
-                                size: 16,
-                                color: _modeIndex == 0 ? AppColors.primaryDark : AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Scan Gym QR',
-                                style: AppTypography.caption.copyWith(
-                                  color: _modeIndex == 0 ? AppColors.primaryDark : AppColors.textSecondary,
-                                  fontWeight: _modeIndex == 0 ? FontWeight.w700 : FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            _modeIndex = 1;
-                            _isCheckedIn = false;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          decoration: BoxDecoration(
-                            color: _modeIndex == 1 ? AppColors.primarySoft : Colors.transparent,
-                            borderRadius: BorderRadius.circular(9),
-                          ),
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.qr_code_2_rounded,
-                                size: 16,
-                                color: _modeIndex == 1 ? AppColors.primaryDark : AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Show My Pass',
-                                style: AppTypography.caption.copyWith(
-                                  color: _modeIndex == 1 ? AppColors.primaryDark : AppColors.textSecondary,
-                                  fontWeight: _modeIndex == 1 ? FontWeight.w700 : FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Viewfinder / Pass Container
-              Expanded(
-                child: _isCheckedIn
-                    ? _buildSuccessView()
-                    : (_modeIndex == 0 ? _buildCameraScanView() : _buildMyPassView()),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Action Trigger Button
-              if (!_isCheckedIn)
-                RepsiButton(
-                  text: _modeIndex == 0 ? 'Simulate Scan Gym QR' : 'Simulate Scanner Read',
-                  leadingIcon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
-                  onPressed: _triggerCheckIn,
-                  isFullWidth: true,
-                  size: RepsiButtonSize.large,
-                )
-              else
-                RepsiButton(
-                  text: 'Back to Home',
-                  onPressed: () => context.pop(),
-                  isFullWidth: true,
-                  size: RepsiButtonSize.large,
-                ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCameraScanView() {
-    return Column(
-      children: [
-        Expanded(
-          child: RepsiCard(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Scan Repsi QR',
-                            style: AppTypography.headingSmall.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Point camera at the QR code at turnstile or hub',
-                            style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            _isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                            color: _isFlashOn ? AppColors.primary : AppColors.textSecondary,
-                            size: 20,
-                          ),
-                          onPressed: () => setState(() => _isFlashOn = !_isFlashOn),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.cameraswitch_rounded,
-                            color: _isFrontCamera ? AppColors.primary : AppColors.textSecondary,
-                            size: 20,
-                          ),
-                          onPressed: () => setState(() => _isFrontCamera = !_isFrontCamera),
-                        ),
+        child: isStaff
+            ? const _StaffScanner()
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.pageHorizontalPadding,
+                        vertical: 8),
+                    child: SegmentedButton<int>(
+                      showSelectedIcon: false,
+                      segments: const [
+                        ButtonSegment(
+                            value: 0,
+                            icon: Icon(Icons.qr_code_scanner_rounded, size: 18),
+                            label: Text('Scan gym QR')),
+                        ButtonSegment(
+                            value: 1,
+                            icon: Icon(Icons.badge_outlined, size: 18),
+                            label: Text('My pass')),
                       ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Viewfinder Box
-                GestureDetector(
-                  onTap: _triggerCheckIn,
-                  child: Container(
-                    width: 210,
-                    height: 210,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF101714),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _isFlashOn ? AppColors.primary.withValues(alpha: 0.8) : AppColors.primary.withValues(alpha: 0.4),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          blurRadius: 16,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Flashlight illumination overlay
-                        Positioned.fill(
-                          child: Opacity(
-                            opacity: _isFlashOn ? 0.3 : 0.08,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(18),
-                                gradient: RadialGradient(
-                                  colors: [
-                                    AppColors.primary,
-                                    Colors.transparent,
-                                  ],
-                                  radius: 1.1,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Viewfinder Corners
-                        ..._buildViewfinderCorners(),
-
-                        // Animated Laser
-                        AnimatedBuilder(
-                          animation: _animController,
-                          builder: (ctx, _) {
-                            return Positioned(
-                              top: 210 * _scanLineAnim.value,
-                              left: 16,
-                              right: 16,
-                              child: Container(
-                                height: 3,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.9),
-                                      blurRadius: 8,
-                                      spreadRadius: 1.5,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.qr_code_scanner_rounded, size: 48, color: Colors.white38),
-                            SizedBox(height: 8),
-                            Text(
-                              'Align QR inside frame',
-                              style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Tap frame to scan',
-                              style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                      ],
+                      selected: {_tab},
+                      onSelectionChanged: (s) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _tab = s.first);
+                      },
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Section 21 Feature List: "Scan to: ✓ Check in, ✓ Join class, ✓ Start PT, ✓ Access gym"
-        RepsiCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Scan to:',
-                style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, color: AppColors.text),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _checkFeatureItem('Check in'),
-                  _checkFeatureItem('Join class'),
-                  _checkFeatureItem('Start PT'),
-                  _checkFeatureItem('Access gym'),
+                  Expanded(
+                      child: _tab == 0
+                          ? const _MemberCheckIn()
+                          : const _MemberPass()),
                 ],
               ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _checkFeatureItem(String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 14),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildViewfinderCorners() {
-    const double size = 18;
-    const double border = 3.5;
-    const color = AppColors.primary;
-
-    return [
-      Positioned(
-        top: 10,
-        left: 10,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: color, width: border),
-              left: BorderSide(color: color, width: border),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        top: 10,
-        right: 10,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: color, width: border),
-              right: BorderSide(color: color, width: border),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        bottom: 10,
-        left: 10,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: color, width: border),
-              left: BorderSide(color: color, width: border),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        bottom: 10,
-        right: 10,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: color, width: border),
-              right: BorderSide(color: color, width: border),
-            ),
-          ),
-        ),
-      ),
-    ];
-  }
-
-  Widget _buildMyPassView() {
-    return RepsiCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Text(
-              'MEMBER PASS · INDIRANAGAR',
-              style: TextStyle(color: AppColors.primaryDark, fontSize: 11, fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Rahul Sharma',
-            style: AppTypography.headingSmall.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Gold Membership · #REP-9482',
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
-          ),
-          const SizedBox(height: 20),
-
-          // QR Box
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 1.5),
-            ),
-            child: const _CustomQrPainterWidget(size: 160),
-          ),
-          const SizedBox(height: 14),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.refresh_rounded, size: 14, color: AppColors.textSecondary),
-              SizedBox(width: 4),
-              Text(
-                'Auto-refreshes in 4:59 for security',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuccessView() {
-    return RepsiCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primary, width: 2),
-            ),
-            child: const Icon(Icons.check_rounded, color: AppColors.primaryDark, size: 40),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            "You're Checked In!",
-            style: AppTypography.heading.copyWith(fontSize: 22, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Turnstile unlocked. Have a fantastic session!',
-            textAlign: TextAlign.center,
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'Indiranagar Hub · $_checkInTime',
-              style: const TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _CustomQrPainterWidget extends StatelessWidget {
-  final double size;
-  const _CustomQrPainterWidget({required this.size});
+// ─── Scanner surface shared by member and staff flows ────────────────────
+
+class _CameraScanner extends StatefulWidget {
+  final bool paused;
+  final void Function(String value) onCode;
+
+  const _CameraScanner({required this.paused, required this.onCode});
+
+  @override
+  State<_CameraScanner> createState() => _CameraScannerState();
+}
+
+class _CameraScannerState extends State<_CameraScanner> {
+  final MobileScannerController _controller = MobileScannerController(
+    formats: const [BarcodeFormat.qrCode],
+    detectionSpeed: DetectionSpeed.noDuplicates,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        size: Size(size, size),
-        painter: _QrGridPainter(),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          MobileScanner(
+            controller: _controller,
+            onDetect: (capture) {
+              if (widget.paused) return;
+              final value = capture.barcodes
+                  .map((b) => b.rawValue)
+                  .whereType<String>()
+                  .firstOrNull;
+              if (value != null) widget.onCode(value);
+            },
+            errorBuilder: (context, error) => _CameraError(error: error),
+          ),
+          IgnorePointer(
+            child: Center(
+              child: Container(
+                width: 230,
+                height: 230,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.9), width: 3),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 8,
+            top: 8,
+            child: IconButton.filledTonal(
+              tooltip: 'Toggle flashlight',
+              onPressed: _controller.toggleTorch,
+              icon: const Icon(Icons.flashlight_on_outlined),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _QrGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.text
-      ..style = PaintingStyle.fill;
+class _CameraError extends StatelessWidget {
+  final MobileScannerException error;
 
-    void drawFinder(double x, double y) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(x, y, 38, 38), const Radius.circular(8)),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(x + 6, y + 6, 26, 26), const Radius.circular(5)),
-        Paint()..color = Colors.white,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(x + 11, y + 11, 16, 16), const Radius.circular(3)),
-        paint,
+  const _CameraError({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    final denied = error.errorCode == MobileScannerErrorCode.permissionDenied;
+    return Container(
+      color: AppColors.surfaceSecondary,
+      padding: const EdgeInsets.all(AppSpacing.xxl),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.no_photography_outlined,
+              size: 40, color: AppColors.textSecondary),
+          const SizedBox(height: 12),
+          Text(
+            denied ? 'Camera access is off' : 'Camera unavailable',
+            style: AppTypography.sectionHeading.copyWith(color: AppColors.text),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            denied
+                ? 'Allow camera access for REPSI in your phone settings to scan the gym QR, or ask the front desk to check you in.'
+                : 'We could not start the camera. Ask the front desk to check you in.',
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySecondary
+                .copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Member: scan the gym entrance QR ────────────────────────────────────
+
+class _MemberCheckIn extends ConsumerStatefulWidget {
+  const _MemberCheckIn();
+
+  @override
+  ConsumerState<_MemberCheckIn> createState() => _MemberCheckInState();
+}
+
+class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
+  bool _busy = false;
+  String? _message;
+  bool _messageIsError = false;
+
+  Future<void> _onCode(String raw) async {
+    if (_busy) return;
+    final token = gymQrToken(raw);
+    if (token == null) {
+      setState(() {
+        _message =
+            'That is not a REPSI gym QR code. Scan the code shown at your gym entrance.';
+        _messageIsError = true;
+      });
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    try {
+      await ref.read(attendanceServiceProvider).selfCheckIn(token);
+      HapticFeedback.heavyImpact();
+      ref.invalidate(myAttendanceProvider);
+      if (mounted) {
+        setState(() {
+          _message = 'Checked in. Have a great workout!';
+          _messageIsError = false;
+        });
+      }
+    } on ApiError catch (e) {
+      if (mounted) {
+        setState(() {
+          _message = e.message;
+          _messageIsError = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _checkOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Check out?'),
+        content: const Text('This ends your current gym visit.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Check out')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(attendanceServiceProvider).selfCheckOut();
+      ref.invalidate(myAttendanceProvider);
+      if (mounted) {
+        setState(() {
+          _message = 'Checked out. See you next time!';
+          _messageIsError = false;
+        });
+      }
+    } on ApiError catch (e) {
+      if (mounted) {
+        setState(() {
+          _message = e.message;
+          _messageIsError = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final attendance = ref.watch(myAttendanceProvider);
+    return RefreshIndicator(
+      onRefresh: () async => ref.refresh(myAttendanceProvider.future),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.pageHorizontalPadding, 4,
+            AppSpacing.pageHorizontalPadding, 24),
+        children: [
+          attendance.when(
+            loading: () => const SizedBox(
+                height: 96, child: Center(child: CircularProgressIndicator())),
+            error: (e, _) => SizedBox(
+              height: 220,
+              child: RepsiErrorState(
+                message: e is ApiError
+                    ? e.message
+                    : 'Could not load your attendance.',
+                onRetry: () => ref.invalidate(myAttendanceProvider),
+              ),
+            ),
+            data: (a) =>
+                _StatusCard(attendance: a, busy: _busy, onCheckOut: _checkOut),
+          ),
+          const SizedBox(height: 12),
+          if (attendance.valueOrNull?.isInside != true) ...[
+            AspectRatio(
+              aspectRatio: 1,
+              child: _CameraScanner(paused: _busy, onCode: _onCode),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Point your camera at the QR code at your gym entrance.',
+              textAlign: TextAlign.center,
+              style: AppTypography.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          if (_message != null) ...[
+            const SizedBox(height: 12),
+            Semantics(
+              liveRegion: true,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _messageIsError
+                      ? AppColors.errorSoft
+                      : AppColors.successSoft,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
+                ),
+                child: Text(
+                  _message!,
+                  style: AppTypography.body.copyWith(
+                      color: _messageIsError
+                          ? AppColors.errorDark
+                          : AppColors.successDark),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          if (attendance.valueOrNull case final a?)
+            _RecentVisits(visits: a.recentVisits),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusCard extends StatelessWidget {
+  final MemberAttendance attendance;
+  final bool busy;
+  final VoidCallback onCheckOut;
+
+  const _StatusCard(
+      {required this.attendance, required this.busy, required this.onCheckOut});
+
+  @override
+  Widget build(BuildContext context) {
+    final active = attendance.activeVisit;
+    return RepsiCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                  active != null
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  color: active != null
+                      ? AppColors.success
+                      : AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  active != null
+                      ? 'You are checked in'
+                      : 'You are not checked in',
+                  style: AppTypography.sectionHeading
+                      .copyWith(color: AppColors.text),
+                ),
+              ),
+            ],
+          ),
+          if (active != null) ...[
+            const SizedBox(height: 4),
+            Text('Since ${DateFormat.jm().format(active.checkInTime)}',
+                style: AppTypography.bodySecondary
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 12),
+            RepsiButton(
+              text: 'Check out',
+              variant: RepsiButtonVariant.outline,
+              isFullWidth: true,
+              isLoading: busy,
+              onPressed: busy ? null : onCheckOut,
+            ),
+          ],
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _Stat(value: '${attendance.streakDays}', label: 'Day streak'),
+              _Stat(value: '${attendance.thisWeekVisits}', label: 'This week'),
+              _Stat(
+                  value: '${attendance.thisMonthVisits}', label: 'This month'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _Stat({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value,
+              style: AppTypography.heading
+                  .copyWith(fontSize: 22, color: AppColors.text)),
+          Text(label,
+              style: AppTypography.caption
+                  .copyWith(color: AppColors.textSecondary)),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentVisits extends StatelessWidget {
+  final List<VisitModel> visits;
+
+  const _RecentVisits({required this.visits});
+
+  @override
+  Widget build(BuildContext context) {
+    if (visits.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text('No visits yet. Your check-ins will show up here.',
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySecondary
+                .copyWith(color: AppColors.textSecondary)),
       );
     }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Recent visits',
+            style:
+                AppTypography.sectionHeading.copyWith(color: AppColors.text)),
+        const SizedBox(height: 8),
+        for (final v in visits.take(10))
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            leading: const Icon(Icons.fitness_center_rounded,
+                size: 20, color: AppColors.primary),
+            title: Text(DateFormat('EEE, d MMM').format(v.checkInTime)),
+            subtitle: Text(v.isOpen
+                ? 'In at ${DateFormat.jm().format(v.checkInTime)}'
+                : '${DateFormat.jm().format(v.checkInTime)} – ${DateFormat.jm().format(v.checkOutTime!)}'),
+            trailing: v.durationLabel.isEmpty ? null : Text(v.durationLabel),
+          ),
+      ],
+    );
+  }
+}
 
-    drawFinder(4, 4);
-    drawFinder(size.width - 42, 4);
-    drawFinder(4, size.height - 42);
+// ─── Member: show my pass at the front desk ──────────────────────────────
 
-    final dotPositions = [
-      const Offset(50, 16), const Offset(64, 16), const Offset(78, 16), const Offset(92, 16),
-      const Offset(50, 30), const Offset(78, 30), const Offset(106, 30),
-      const Offset(16, 50), const Offset(30, 50), const Offset(50, 50), const Offset(64, 50), const Offset(92, 50),
-      const Offset(50, 78), const Offset(78, 78), const Offset(106, 78), const Offset(120, 78),
-      const Offset(30, 92), const Offset(64, 92), const Offset(92, 92), const Offset(120, 92),
-      const Offset(50, 106), const Offset(78, 106), const Offset(106, 106),
-      const Offset(50, 134), const Offset(64, 134), const Offset(92, 134), const Offset(120, 134),
-    ];
+class _MemberPass extends ConsumerStatefulWidget {
+  const _MemberPass();
 
-    for (final pos in dotPositions) {
-      if (pos.dx < size.width && pos.dy < size.height) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(Rect.fromLTWH(pos.dx, pos.dy, 8, 8), const Radius.circular(2)),
-          paint,
-        );
+  @override
+  ConsumerState<_MemberPass> createState() => _MemberPassState();
+}
+
+class _MemberPassState extends ConsumerState<_MemberPass> {
+  MemberPass? _pass;
+  String? _error;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    _timer?.cancel();
+    setState(() => _error = null);
+    try {
+      final pass = await ref.read(attendanceServiceProvider).getMyPass();
+      if (!mounted) return;
+      setState(() => _pass = pass);
+      // The pass is short-lived and single-purpose; renew it shortly before it lapses.
+      final wait = pass.expiresAt.difference(DateTime.now()) -
+          const Duration(seconds: 10);
+      _timer =
+          Timer(wait.isNegative ? const Duration(seconds: 5) : wait, _load);
+    } on ApiError catch (e) {
+      if (mounted) {
+        setState(() {
+          _pass = null;
+          _error = e.message;
+        });
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget build(BuildContext context) {
+    if (_error != null) {
+      return RepsiErrorState(message: _error!, onRetry: _load);
+    }
+    final pass = _pass;
+    if (pass == null) return const Center(child: CircularProgressIndicator());
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
+      children: [
+        RepsiCard(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Semantics(
+                label: 'Your REPSI member pass QR code',
+                child: QrImageView(
+                    data: pass.token, size: 240, backgroundColor: Colors.white),
+              ),
+              const SizedBox(height: 12),
+              Text('Show this to the front desk',
+                  style: AppTypography.sectionHeading
+                      .copyWith(color: AppColors.text)),
+              const SizedBox(height: 4),
+              Text(
+                'It refreshes automatically and only works at your gym. Do not share a screenshot.',
+                textAlign: TextAlign.center,
+                style: AppTypography.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Staff: scan a member's pass ─────────────────────────────────────────
+
+class _StaffScanner extends ConsumerStatefulWidget {
+  const _StaffScanner();
+
+  @override
+  ConsumerState<_StaffScanner> createState() => _StaffScannerState();
+}
+
+class _StaffScannerState extends ConsumerState<_StaffScanner> {
+  bool _busy = false;
+  String? _message;
+  bool _isError = false;
+
+  Future<void> _onCode(String raw) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    try {
+      final result = await ref.read(attendanceServiceProvider).staffScan(raw);
+      HapticFeedback.mediumImpact();
+      _show(result.message, error: false);
+    } on ApiError catch (e) {
+      _show(e.message, error: true);
+    }
+  }
+
+  void _show(String message, {required bool error}) {
+    if (!mounted) return;
+    setState(() {
+      _message = message;
+      _isError = error;
+    });
+    // Keep the result readable, then resume scanning for the next member.
+    Future<void>.delayed(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _busy = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
+      child: Column(
+        children: [
+          Expanded(child: _CameraScanner(paused: _busy, onCode: _onCode)),
+          const SizedBox(height: 12),
+          Semantics(
+            liveRegion: true,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _message == null
+                    ? AppColors.surfaceSecondary
+                    : (_isError ? AppColors.errorSoft : AppColors.successSoft),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
+              ),
+              child: Text(
+                _message ?? 'Scan a member\'s pass to check them in or out.',
+                textAlign: TextAlign.center,
+                style: AppTypography.body.copyWith(
+                  color: _message == null
+                      ? AppColors.textSecondary
+                      : (_isError
+                          ? AppColors.errorDark
+                          : AppColors.successDark),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

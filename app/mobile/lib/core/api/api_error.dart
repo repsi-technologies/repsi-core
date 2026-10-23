@@ -26,7 +26,8 @@ class ApiError implements Exception {
 
     if (error.type == DioExceptionType.connectionError) {
       return ApiError(
-        message: 'Unable to connect to REPSI. Check your internet connection or server status.',
+        message:
+            'Unable to connect to REPSI. Check your internet connection or server status.',
         statusCode: 0,
         code: 'CONNECTION_ERROR',
       );
@@ -35,7 +36,7 @@ class ApiError implements Exception {
     final response = error.response;
     if (response != null && response.data is Map<String, dynamic>) {
       final data = response.data as Map<String, dynamic>;
-      
+
       // Standard FastAPI detail
       if (data.containsKey('detail')) {
         final detail = data['detail'];
@@ -53,7 +54,8 @@ class ApiError implements Exception {
             return item.toString();
           }).join(', ');
           return ApiError(
-            message: messages.isNotEmpty ? messages : 'Validation error occurred.',
+            message:
+                messages.isNotEmpty ? messages : 'Validation error occurred.',
             statusCode: response.statusCode ?? 422,
             code: 'VALIDATION_ERROR',
             details: detail,
@@ -75,23 +77,40 @@ class ApiError implements Exception {
 
     switch (response?.statusCode) {
       case 400:
-        return ApiError(message: 'Invalid request parameters.', statusCode: 400);
+        return ApiError(
+            message: 'Invalid request parameters.', statusCode: 400);
       case 401:
-        return ApiError(message: 'Invalid email or password.', statusCode: 401);
+        final isSignIn = error.requestOptions.path.contains('/auth/login');
+        return ApiError(
+          message: isSignIn
+              ? 'Invalid email or password.'
+              : 'Your session has expired. Please sign in again.',
+          statusCode: 401,
+        );
       case 403:
-        return ApiError(message: "You don't have permission to access this gym.", statusCode: 403);
+        return ApiError(
+            message: "You don't have permission to access this gym.",
+            statusCode: 403);
       case 404:
         return ApiError(message: 'Account or gym not found.', statusCode: 404);
       case 408:
-        return ApiError(message: 'Request timed out. Please try again.', statusCode: 408);
+        return ApiError(
+            message: 'Request timed out. Please try again.', statusCode: 408);
       case 409:
-        return ApiError(message: 'Account with these details already exists.', statusCode: 409);
+        return ApiError(
+            message: 'Account with these details already exists.',
+            statusCode: 409);
       case 422:
-        return ApiError(message: 'Please check your inputs and try again.', statusCode: 422);
+        return ApiError(
+            message: 'Please check your inputs and try again.',
+            statusCode: 422);
       case 429:
-        return ApiError(message: 'Too many attempts. Please try again later.', statusCode: 429);
+        return ApiError(
+            message: 'Too many attempts. Please try again later.',
+            statusCode: 429);
       case 500:
-        return ApiError(message: 'REPSI is temporarily unavailable.', statusCode: 500);
+        return ApiError(
+            message: 'REPSI is temporarily unavailable.', statusCode: 500);
       default:
         return ApiError(
           message: 'Unable to process request. Please try again.',
@@ -100,7 +119,8 @@ class ApiError implements Exception {
     }
   }
 
-  factory ApiError.fromDioException(DioException error) => ApiError.fromDio(error);
+  factory ApiError.fromDioException(DioException error) =>
+      ApiError.fromDio(error);
 
   @override
   String toString() => message;

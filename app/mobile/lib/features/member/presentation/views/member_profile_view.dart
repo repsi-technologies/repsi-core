@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../app/routes/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_card.dart';
+import '../../../ai/views/ai_workout_coach_view.dart';
 import '../../../auth/providers/auth_provider.dart';
-import 'member_membership_view.dart';
+import '../../../auth/views/account_security_dialogs.dart';
+import '../../../notifications/views/notification_inbox_view.dart';
 import 'member_payments_view.dart';
-import 'member_trainer_view.dart';
 import 'qr_attendance_view.dart';
 
 class MemberProfileView extends ConsumerWidget {
@@ -18,17 +20,57 @@ class MemberProfileView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Only destinations backed by real data are listed.
     final menuItems = [
-      {'icon': Icons.person_outline_rounded, 'title': 'My Profile', 'route': 'profile'},
-      {'icon': Icons.card_membership_rounded, 'title': 'Membership', 'route': 'membership'},
-      {'icon': Icons.payment_rounded, 'title': 'Payments', 'route': 'payments'},
-      {'icon': Icons.calendar_today_outlined, 'title': 'Attendance', 'route': 'attendance'},
-      {'icon': Icons.fitness_center_rounded, 'title': 'My Trainer', 'route': 'trainer'},
-      {'icon': Icons.storefront_outlined, 'title': 'My Gym', 'route': 'gym'},
-      {'icon': Icons.notifications_none_rounded, 'title': 'Notifications', 'route': 'notifications'},
-      {'icon': Icons.help_outline_rounded, 'title': 'Help & Support', 'route': 'help'},
-      {'icon': Icons.settings_outlined, 'title': 'Settings', 'route': 'settings'},
+      {
+        'icon': LucideIcons.sparkles,
+        'title': 'AI Workout Coach',
+        'route': 'aiCoach',
+        'badge': 'AI'
+      },
+      {
+        'icon': LucideIcons.receipt,
+        'title': 'Payments & Invoices',
+        'route': 'payments',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.qrCode,
+        'title': 'Gym Check-in',
+        'route': 'attendance',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.bell,
+        'title': 'Notifications & Alerts',
+        'route': 'notifications',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.keyRound,
+        'title': 'Change Password',
+        'route': 'password',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.trash2,
+        'title': 'Delete Account',
+        'route': 'delete',
+        'badge': null
+      },
     ];
+
+    final user = ref.watch(authProvider).user;
+    final userName =
+        (user?.fullName.isNotEmpty == true) ? user!.fullName : 'Member';
+    final userEmail = user?.email ?? '';
+    final initials = userName
+        .trim()
+        .split(' ')
+        .map((p) => p.isNotEmpty ? p[0] : '')
+        .take(2)
+        .join()
+        .toUpperCase();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -37,7 +79,8 @@ class MemberProfileView extends ConsumerWidget {
         elevation: 0,
         title: Text(
           'More',
-          style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+          style: AppTypography.heading
+              .copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
       body: SafeArea(
@@ -59,9 +102,9 @@ class MemberProfileView extends ConsumerWidget {
                       CircleAvatar(
                         radius: 26,
                         backgroundColor: AppColors.primarySoft,
-                        child: const Text(
-                          'RK',
-                          style: TextStyle(
+                        child: Text(
+                          initials.isNotEmpty ? initials : 'M',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryDark,
@@ -74,7 +117,7 @@ class MemberProfileView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Rahul Kumar',
+                              userName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.headingSmall.copyWith(
@@ -85,7 +128,7 @@ class MemberProfileView extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'rahul@gmail.com',
+                              userEmail,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.caption.copyWith(
@@ -102,9 +145,11 @@ class MemberProfileView extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
 
-              // Menu Options (Mockup Screen 10)
+              // Menu Options
               ...List.generate(menuItems.length, (index) {
                 final item = menuItems[index];
+                final badge = item['badge'];
+
                 return RepsiStaggerItem(
                   index: index + 1,
                   child: Padding(
@@ -112,24 +157,39 @@ class MemberProfileView extends ConsumerWidget {
                     child: RepsiCard(
                       onTap: () {
                         final route = item['route'];
-                        if (route == 'membership') {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberMembershipView()));
+                        if (route == 'aiCoach') {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const AiWorkoutCoachView()));
+                        } else if (route == 'notifications') {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const NotificationInboxView()));
                         } else if (route == 'payments') {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberPaymentsView()));
-                        } else if (route == 'trainer') {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberTrainerView()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const MemberPaymentsView()));
                         } else if (route == 'attendance') {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const QrAttendanceView()));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${item['title']} section')),
-                          );
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const QrAttendanceView()));
+                        } else if (route == 'password') {
+                          showChangePasswordDialog(context, ref);
+                        } else if (route == 'delete') {
+                          showDeleteAccountDialog(context, ref);
                         }
                       },
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 15),
                       child: Row(
                         children: [
-                          Icon(item['icon'] as IconData, size: 20, color: AppColors.textSecondary),
+                          Icon(item['icon'] as IconData,
+                              size: 20, color: AppColors.textSecondary),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
@@ -141,7 +201,27 @@ class MemberProfileView extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textMuted),
+                          if (badge != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.primarySoft,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                badge as String,
+                                style: const TextStyle(
+                                  color: AppColors.primaryDark,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          const Icon(Icons.chevron_right_rounded,
+                              size: 20, color: AppColors.textMuted),
                         ],
                       ),
                     ),
@@ -150,7 +230,7 @@ class MemberProfileView extends ConsumerWidget {
               }),
               const SizedBox(height: 12),
 
-              // Sign Out button (Red text & icon)
+              // Sign Out button
               RepsiStaggerItem(
                 index: menuItems.length + 1,
                 child: RepsiCard(
@@ -160,10 +240,12 @@ class MemberProfileView extends ConsumerWidget {
                       context.go(RouteNames.login);
                     }
                   },
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded, size: 20, color: AppColors.error),
+                      const Icon(Icons.logout_rounded,
+                          size: 20, color: AppColors.error),
                       const SizedBox(width: 14),
                       Text(
                         'Sign Out',

@@ -7,6 +7,7 @@ import '../../../shared/models/workspace_model.dart';
 
 class AuthResponse {
   final String accessToken;
+  final String? refreshToken;
   final String? tokenType;
   final String? workspaceId;
   final String? workspaceSlug;
@@ -17,6 +18,7 @@ class AuthResponse {
 
   const AuthResponse({
     required this.accessToken,
+    this.refreshToken,
     this.tokenType,
     this.workspaceId,
     this.workspaceSlug,
@@ -29,13 +31,20 @@ class AuthResponse {
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       accessToken: json['access_token']?.toString() ?? '',
+      refreshToken: json['refresh_token']?.toString(),
       tokenType: json['token_type'] as String?,
       workspaceId: json['workspace_id']?.toString(),
       workspaceSlug: json['workspace_slug']?.toString(),
       gymName: json['gym_name']?.toString(),
-      role: json['role'] != null ? UserRole.fromString(json['role'] as String) : null,
-      user: json['user'] != null ? UserModel.fromJson(json['user'] as Map<String, dynamic>) : null,
-      workspace: json['workspace'] != null ? WorkspaceModel.fromJson(json['workspace'] as Map<String, dynamic>) : null,
+      role: json['role'] != null
+          ? UserRole.fromString(json['role'] as String)
+          : null,
+      user: json['user'] != null
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
+      workspace: json['workspace'] != null
+          ? WorkspaceModel.fromJson(json['workspace'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
@@ -56,7 +65,8 @@ class AuthService {
         data: {
           'email': email.trim(),
           'password': password,
-          if (workspaceSlug != null && workspaceSlug.isNotEmpty) 'workspace_slug': workspaceSlug.trim(),
+          if (workspaceSlug != null && workspaceSlug.isNotEmpty)
+            'workspace_slug': workspaceSlug.trim(),
         },
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
@@ -93,7 +103,8 @@ class AuthService {
           'email': email.trim(),
           'password': password,
           'gym_name': gymName.trim(),
-          if (gymPhone != null && gymPhone.isNotEmpty) 'gym_phone': gymPhone.trim(),
+          if (gymPhone != null && gymPhone.isNotEmpty)
+            'gym_phone': gymPhone.trim(),
           if (gymCity != null && gymCity.isNotEmpty) 'gym_city': gymCity.trim(),
         },
       );
@@ -145,6 +156,20 @@ class AuthService {
     } on DioException catch (e) {
       throw ApiError.fromDioException(e);
     }
+  }
+
+  Future<void> changePassword({required String current, required String next}) async {
+    await _apiClient.put(
+      ApiEndpoints.changePassword,
+      data: {'current_password': current, 'new_password': next},
+    );
+  }
+
+  Future<void> deleteAccount({String? password, required String confirm}) async {
+    await _apiClient.delete(
+      ApiEndpoints.deleteAccount,
+      data: {if (password != null) 'password': password, 'confirm': confirm},
+    );
   }
 
   Future<void> logout() async {

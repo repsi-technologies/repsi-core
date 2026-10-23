@@ -9,11 +9,13 @@ class SecureStorageService {
   final Map<String, Object> _memory = {};
 
   static const _tokenKey = 'repsi_access_token';
+  static const _refreshTokenKey = 'repsi_refresh_token';
   static const _workspaceKey = 'repsi_active_workspace_id';
   static const _workspaceSlugKey = 'repsi_active_workspace_slug';
   static const _userKey = 'repsi_current_user_json';
   static const _onboardingCompleteKey = 'repsi_onboarding_completed';
   static const _themeKey = 'repsi_theme_mode';
+  static const _healthSyncKey = 'repsi_health_sync_enabled';
 
   SecureStorageService({
     FlutterSecureStorage? secureStorage,
@@ -30,12 +32,19 @@ class SecureStorageService {
     return await _secureStorage.read(key: _tokenKey);
   }
 
+  Future<void> saveRefreshToken(String token) =>
+      _secureStorage.write(key: _refreshTokenKey, value: token);
+
+  Future<String?> getRefreshToken() =>
+      _secureStorage.read(key: _refreshTokenKey);
+
   Future<void> clearToken() async {
     await _secureStorage.delete(key: _tokenKey);
   }
 
   // Active Workspace
-  Future<void> saveActiveWorkspace({required String id, required String slug}) async {
+  Future<void> saveActiveWorkspace(
+      {required String id, required String slug}) async {
     await saveActiveWorkspaceId(id);
     await saveActiveWorkspaceSlug(slug);
   }
@@ -57,11 +66,13 @@ class SecureStorageService {
   }
 
   String? getActiveWorkspaceId() {
-    return _prefs?.getString(_workspaceKey) ?? _memory[_workspaceKey] as String?;
+    return _prefs?.getString(_workspaceKey) ??
+        _memory[_workspaceKey] as String?;
   }
 
   String? getActiveWorkspaceSlug() {
-    return _prefs?.getString(_workspaceSlugKey) ?? _memory[_workspaceSlugKey] as String?;
+    return _prefs?.getString(_workspaceSlugKey) ??
+        _memory[_workspaceSlugKey] as String?;
   }
 
   // User details cache
@@ -77,7 +88,8 @@ class SecureStorageService {
     return _prefs?.getString(_userKey) ?? _memory[_userKey] as String?;
   }
 
-  Future<void> saveUser(UserModel user) => saveUserJson(jsonEncode(user.toJson()));
+  Future<void> saveUser(UserModel user) =>
+      saveUserJson(jsonEncode(user.toJson()));
 
   UserModel? getCachedUser() {
     final json = getUserJson();
@@ -95,7 +107,9 @@ class SecureStorageService {
   }
 
   bool isOnboardingCompleted() {
-    return _prefs?.getBool(_onboardingCompleteKey) ?? _memory[_onboardingCompleteKey] as bool? ?? true;
+    return _prefs?.getBool(_onboardingCompleteKey) ??
+        _memory[_onboardingCompleteKey] as bool? ??
+        true;
   }
 
   // Theme
@@ -108,7 +122,24 @@ class SecureStorageService {
   }
 
   String getThemeMode() {
-    return _prefs?.getString(_themeKey) ?? _memory[_themeKey] as String? ?? 'system';
+    return _prefs?.getString(_themeKey) ??
+        _memory[_themeKey] as String? ??
+        'system';
+  }
+
+  // Health Connect consent (per device; the data itself lives on the server under the user)
+  Future<void> setHealthSyncEnabled(bool enabled) async {
+    if (_prefs != null) {
+      await _prefs.setBool(_healthSyncKey, enabled);
+    } else {
+      _memory[_healthSyncKey] = enabled;
+    }
+  }
+
+  bool isHealthSyncEnabled() {
+    return _prefs?.getBool(_healthSyncKey) ??
+        _memory[_healthSyncKey] as bool? ??
+        false;
   }
 
   // Clear all on logout
@@ -119,6 +150,7 @@ class SecureStorageService {
       await _prefs.remove(_workspaceKey);
       await _prefs.remove(_workspaceSlugKey);
       await _prefs.remove(_userKey);
+      await _prefs.remove(_healthSyncKey);
     }
     _memory.clear();
   }

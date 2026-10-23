@@ -60,4 +60,9 @@ class RouteNames {
   static const String analytics = '/analytics';
   static const String settings = '/settings';
   static const String notifications = '/notifications';
+
+  // AI & Advanced Features
+  static const String aiCoach = '/ai/coach';
+  static const String aiInsights = '/ai/insights';
+  static const String memberDocuments = '/member/documents';
 }

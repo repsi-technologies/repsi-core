@@ -27,6 +27,7 @@ class AppTheme {
         error: AppColors.error,
         onError: Colors.white,
         outline: AppColors.border,
+        outlineVariant: AppColors.borderStrong,
       ),
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
@@ -116,6 +117,31 @@ class AppTheme {
         selectedLabelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary),
         unselectedLabelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, color: AppColors.textSecondary),
       ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: AppColors.primaryDark,
+        unselectedLabelColor: AppColors.textSecondary,
+        indicatorColor: AppColors.primary,
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            AppTypography.caption.copyWith(fontWeight: FontWeight.w500),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surface,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+          side: const BorderSide(color: AppColors.border, width: 1),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.text,
+        contentTextStyle: AppTypography.bodySmall.copyWith(color: Colors.white),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        ),
+      ),
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
@@ -138,14 +164,15 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.darkPrimary,
-        onPrimary: AppColors.darkOnPrimary,
+        onPrimary: Colors.white,
         primaryContainer: AppColors.darkSurfaceElevated,
         onPrimaryContainer: AppColors.darkPrimaryLight,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkText,
         error: AppColors.darkError,
-        onError: AppColors.darkBackground,
+        onError: Colors.white,
         outline: AppColors.darkBorder,
+        outlineVariant: AppColors.darkBorderStrong,
       ),
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
@@ -196,11 +223,15 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
           borderSide: const BorderSide(color: AppColors.darkError, width: 1),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
+          borderSide: const BorderSide(color: AppColors.darkError, width: 1.5),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.darkPrimary,
-          foregroundColor: AppColors.darkOnPrimary,
+          foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, AppSpacing.buttonHeight),
           padding: AppSpacing.buttonPadding,
           elevation: 0,
@@ -220,6 +251,44 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
           ),
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: AppColors.darkSurface,
+        selectedItemColor: AppColors.darkPrimary,
+        unselectedItemColor: AppColors.darkTextSecondary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        selectedLabelStyle: AppTypography.caption.copyWith(
+            fontWeight: FontWeight.w600, color: AppColors.darkPrimary),
+        unselectedLabelStyle: AppTypography.caption.copyWith(
+            fontWeight: FontWeight.w500, color: AppColors.darkTextSecondary),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: AppColors.darkPrimary,
+        unselectedLabelColor: AppColors.darkTextSecondary,
+        indicatorColor: AppColors.darkPrimary,
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            AppTypography.caption.copyWith(fontWeight: FontWeight.w500),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.darkSurface,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+          side: const BorderSide(color: AppColors.darkBorder, width: 1),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.darkSurfaceElevated,
+        contentTextStyle:
+            AppTypography.bodySmall.copyWith(color: AppColors.darkText),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          side: const BorderSide(color: AppColors.darkBorder),
         ),
       ),
       dividerTheme: const DividerThemeData(

@@ -2,56 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// REPSI type system: Space Grotesk for headings and Inter for interface text.
+/// REPSI Typography System — IBM Plex Sans.
+/// Strictly follows REPSI DESIGN.md specifications:
+/// - Primary Family: IBM Plex Sans for headings, interface body, and labels.
+/// - Tabular numbers for financial and metric data.
 class AppTypography {
-  static const String fontFamily = 'Inter';
+  static const String fontFamily = 'IBM Plex Sans';
 
-  static TextStyle display = GoogleFonts.spaceGrotesk(
-    fontSize: 32,
-    fontWeight: FontWeight.w600,
+  static TextStyle display = GoogleFonts.ibmPlexSans(
+    fontSize: 30,
+    fontWeight: FontWeight.w700,
     color: AppColors.text,
-    letterSpacing: -0.64,
-    height: 1.08,
-  );
-
-  static TextStyle heading = GoogleFonts.spaceGrotesk(
-    fontSize: 24,
-    fontWeight: FontWeight.w600,
-    color: AppColors.text,
-    letterSpacing: -0.48,
-    height: 1.1,
-  );
-
-  static TextStyle sectionHeading = GoogleFonts.spaceGrotesk(
-    fontSize: 18,
-    fontWeight: FontWeight.w600,
-    color: AppColors.text,
-    letterSpacing: -0.36,
+    letterSpacing: -0.5,
     height: 1.15,
   );
 
-  static TextStyle body = GoogleFonts.inter(
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
+  static TextStyle heading = GoogleFonts.ibmPlexSans(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
     color: AppColors.text,
-    height: 1.55,
+    letterSpacing: -0.3,
+    height: 1.2,
   );
 
-  static TextStyle bodySecondary = GoogleFonts.inter(
+  static TextStyle sectionHeading = GoogleFonts.ibmPlexSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.text,
+    letterSpacing: -0.2,
+    height: 1.25,
+  );
+
+  static TextStyle body = GoogleFonts.ibmPlexSans(
     fontSize: 15,
     fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
-    height: 1.55,
+    color: AppColors.text,
+    height: 1.5,
   );
 
-  static TextStyle caption = GoogleFonts.inter(
+  static TextStyle bodySecondary = GoogleFonts.ibmPlexSans(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+    height: 1.5,
+  );
+
+  static TextStyle caption = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
     height: 1.4,
   );
 
-  static TextStyle button = GoogleFonts.inter(
+  static TextStyle button = GoogleFonts.ibmPlexSans(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.3,
@@ -59,119 +62,134 @@ class AppTypography {
 
   // Backward-compatible named styles
   static final TextStyle headingLarge = heading;
-  static final TextStyle headingMedium = GoogleFonts.spaceGrotesk(
+  static final TextStyle headingMedium = GoogleFonts.ibmPlexSans(
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: AppColors.text,
-    letterSpacing: -0.4,
-    height: 1.12,
+    letterSpacing: -0.25,
+    height: 1.2,
   );
   static final TextStyle headingSmall = sectionHeading;
-  static final TextStyle bodySmall = GoogleFonts.inter(
+  static final TextStyle bodySmall = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
     height: 1.4,
   );
   static final TextStyle bodyMedium = body;
-  static final TextStyle labelLarge = GoogleFonts.inter(
+  static final TextStyle labelLarge = GoogleFonts.ibmPlexSans(
     fontSize: 15,
     fontWeight: FontWeight.w600,
     color: AppColors.text,
   );
-  static final TextStyle labelMedium = GoogleFonts.inter(
+  static final TextStyle labelMedium = GoogleFonts.ibmPlexSans(
     fontSize: 13,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
   );
-  static final TextStyle buttonSmall = GoogleFonts.inter(
+  static final TextStyle buttonSmall = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w600,
   );
   static final TextStyle buttonMedium = button;
-  static final TextStyle buttonLarge = GoogleFonts.inter(
+  static final TextStyle buttonLarge = GoogleFonts.ibmPlexSans(
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );
 
-  static TextTheme textTheme(Color textColor, Color secondaryColor, Color mutedColor) {
-    return GoogleFonts.interTextTheme().copyWith(
-      displayLarge: GoogleFonts.spaceGrotesk(
-        fontSize: 32,
-        fontWeight: FontWeight.w600,
+  /// Tabular font style for metrics, currency, and KPI counters
+  static TextStyle tabularNumber({
+    double fontSize = 16,
+    FontWeight fontWeight = FontWeight.w600,
+    Color? color,
+  }) {
+    return GoogleFonts.ibmPlexSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? AppColors.text,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+  }
+
+  static TextTheme textTheme(
+      Color textColor, Color secondaryColor, Color mutedColor) {
+    return GoogleFonts.ibmPlexSansTextTheme().copyWith(
+      displayLarge: GoogleFonts.ibmPlexSans(
+        fontSize: 30,
+        fontWeight: FontWeight.w700,
         color: textColor,
-        letterSpacing: -0.64,
-        height: 1.08,
+        letterSpacing: -0.5,
+        height: 1.15,
       ),
-      displayMedium: GoogleFonts.spaceGrotesk(
-        fontSize: 28,
-        fontWeight: FontWeight.w600,
-        color: textColor,
-        letterSpacing: -0.56,
-        height: 1.08,
-      ),
-      headlineLarge: GoogleFonts.spaceGrotesk(
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
-        color: textColor,
-        letterSpacing: -0.48,
-        height: 1.1,
-      ),
-      headlineMedium: GoogleFonts.spaceGrotesk(
-        fontSize: 20,
+      displayMedium: GoogleFonts.ibmPlexSans(
+        fontSize: 26,
         fontWeight: FontWeight.w600,
         color: textColor,
         letterSpacing: -0.4,
-        height: 1.12,
+        height: 1.18,
       ),
-      titleLarge: GoogleFonts.spaceGrotesk(
+      headlineLarge: GoogleFonts.ibmPlexSans(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+        letterSpacing: -0.3,
+        height: 1.2,
+      ),
+      headlineMedium: GoogleFonts.ibmPlexSans(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+        letterSpacing: -0.25,
+        height: 1.2,
+      ),
+      titleLarge: GoogleFonts.ibmPlexSans(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textColor,
-        letterSpacing: -0.36,
-        height: 1.15,
+        letterSpacing: -0.2,
+        height: 1.25,
       ),
-      titleMedium: GoogleFonts.spaceGrotesk(
+      titleMedium: GoogleFonts.ibmPlexSans(
         fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: textColor,
-        height: 1.2,
-      ),
-      titleSmall: GoogleFonts.spaceGrotesk(
-        fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textColor,
         height: 1.25,
       ),
-      bodyLarge: GoogleFonts.inter(
+      titleSmall: GoogleFonts.ibmPlexSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+        height: 1.3,
+      ),
+      bodyLarge: GoogleFonts.ibmPlexSans(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: textColor,
-        height: 1.55,
+        height: 1.5,
       ),
-      bodyMedium: GoogleFonts.inter(
-        fontSize: 15,
+      bodyMedium: GoogleFonts.ibmPlexSans(
+        fontSize: 14,
         fontWeight: FontWeight.w400,
         color: secondaryColor,
-        height: 1.55,
+        height: 1.5,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: GoogleFonts.ibmPlexSans(
         fontSize: 13,
         fontWeight: FontWeight.w400,
         color: mutedColor,
         height: 1.4,
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: GoogleFonts.ibmPlexSans(
         fontSize: 15,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: GoogleFonts.ibmPlexSans(
         fontSize: 13,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         color: secondaryColor,
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: GoogleFonts.ibmPlexSans(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         color: mutedColor,

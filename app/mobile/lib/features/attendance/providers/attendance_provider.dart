@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_error.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../shared/models/attendance_model.dart';
+import '../../../shared/models/member_attendance_model.dart';
 import '../services/attendance_service.dart';
 
 class AttendanceState {
@@ -51,11 +52,13 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
     } on ApiError catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Failed to load attendance');
+      state = state.copyWith(
+          isLoading: false, errorMessage: 'Failed to load attendance');
     }
   }
 
-  Future<bool> checkInMember(String memberId, {String method = 'qr'}) async {
+  Future<bool> checkInMember(String memberId,
+      {String method = 'manual'}) async {
     try {
       final record = await _service.checkIn(memberId: memberId, method: method);
       final currentSummary = state.summary;
@@ -75,25 +78,17 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
       return false;
     }
   }
-
-  Future<Map<String, dynamic>> scanGymEntrance(String qrPayload) async {
-    state = state.copyWith(isLoading: true, clearError: true);
-    try {
-      final result = await _service.scanGymQr(qrPayload: qrPayload);
-      state = state.copyWith(isLoading: false);
-      await fetchSummary();
-      return result;
-    } on ApiError catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
-      rethrow;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Entrance scan failed');
-      rethrow;
-    }
-  }
 }
 
-final attendanceProvider = StateNotifierProvider<AttendanceNotifier, AttendanceState>((ref) {
+final attendanceProvider =
+    StateNotifierProvider<AttendanceNotifier, AttendanceState>((ref) {
   final service = ref.watch(attendanceServiceProvider);
   return AttendanceNotifier(service: service);
+});
+
+/// The signed-in member's own attendance. `autoDispose` so it reloads on each visit to the screen
+/// and never outlives the session that fetched it.
+final myAttendanceProvider =
+    FutureProvider.autoDispose<MemberAttendance>((ref) {
+  return ref.watch(attendanceServiceProvider).getMyAttendance();
 });

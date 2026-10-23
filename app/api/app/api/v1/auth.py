@@ -9,6 +9,7 @@ from app.core.rate_limit import client_ip, enforce_rate_limit
 from app.middleware.tenant import TenantContext, get_current_tenant, get_current_user
 from app.models.user import User, Workspace
 from app.schemas.auth import (
+    AccountDeleteRequest,
     EmailOtpRequest,
     EmailOtpRequestResponse,
     EmailOtpVerify,
@@ -320,6 +321,19 @@ def change_password(
 ):
     AuthService(db).change_password(user, req.current_password, req.new_password, keep_session_id=tenant.session_id)
     return {"status": "success", "message": "Your password has been updated. Other devices have been signed out."}
+
+
+@router.delete("/me")
+def delete_my_account(
+    req: AccountDeleteRequest,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Permanently deletes the signed-in user's login and personal data (see AuthService.delete_account)."""
+    _limit(request, "delete-account", 5, 3600, user.id)
+    AuthService(db).delete_account(user, req.password, req.confirm)
+    return {"status": "success", "message": "Your account has been deleted."}
 
 
 # ─── Password recovery ───────────────────────────────────────────────────

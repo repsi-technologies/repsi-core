@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../app/routes/route_names.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/notifications/providers/notification_provider.dart';
 import '../models/workspace_model.dart';
 import 'repsi_avatar.dart';
 
@@ -42,6 +45,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final unreadCount = ref.watch(notificationProvider).unreadCount;
 
     return Container(
       padding: EdgeInsets.only(
@@ -160,7 +164,9 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
               child: Text(
                 title!,
                 style: AppTypography.headingMedium.copyWith(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.textPrimary,
                 ),
               ),
             )
@@ -169,34 +175,37 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
           if (actions != null)
             ...actions!
           else ...[
-            if (onNotificationTap != null)
-              IconButton(
-                onPressed: onNotificationTap,
-                tooltip: 'Notifications',
-                icon: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Icon(
-                      LucideIcons.bell,
-                      size: 20,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                    ),
+            IconButton(
+              onPressed: onNotificationTap ??
+                  () => context.push(RouteNames.notifications),
+              tooltip: 'Notifications',
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    LucideIcons.bell,
+                    size: 20,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                  ),
+                  if (unreadCount > 0)
                     Positioned(
                       right: -4,
                       top: -4,
                       child: Container(
                         padding: const EdgeInsets.all(3),
                         decoration: const BoxDecoration(
-                          color: AppColors.error,
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                         constraints: const BoxConstraints(
                           minWidth: 14,
                           minHeight: 14,
                         ),
-                        child: const Text(
-                          '3',
-                          style: TextStyle(
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -205,9 +214,9 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
+            ),
             const SizedBox(width: AppSpacing.xs / 2),
             if (onProfileTap != null)
               GestureDetector(
@@ -232,7 +241,8 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   context: context,
                   builder: (ctx) => AlertDialog(
                     title: const Text('Logout'),
-                    content: const Text('Are you sure you want to log out of REPSI?'),
+                    content: const Text(
+                        'Are you sure you want to log out of REPSI?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
@@ -240,7 +250,8 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                        style: TextButton.styleFrom(
+                            foregroundColor: AppColors.error),
                         child: const Text('Logout'),
                       ),
                     ],
@@ -264,7 +275,8 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
       context: context,
       backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
       ),
       builder: (ctx) {
         return SafeArea(
@@ -291,7 +303,9 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 Text(
                   'Switch Workspace',
                   style: AppTypography.headingSmall.copyWith(
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -312,14 +326,20 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary
-                              : (isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSubtle),
+                              : (isDark
+                                  ? AppColors.darkSurfaceElevated
+                                  : AppColors.surfaceSubtle),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
                         child: Text(
                           ws.name.isNotEmpty ? ws.name[0].toUpperCase() : 'R',
                           style: TextStyle(
-                            color: isSelected ? Colors.white : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.textPrimary),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -327,18 +347,24 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       title: Text(
                         ws.name,
                         style: AppTypography.labelLarge.copyWith(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.textPrimary,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
                       subtitle: Text(
                         'repsi.app/${ws.slug}',
                         style: AppTypography.caption.copyWith(
-                          color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                          color: isDark
+                              ? AppColors.darkTextMuted
+                              : AppColors.textMuted,
                         ),
                       ),
                       trailing: isSelected
-                          ? const Icon(LucideIcons.check, color: AppColors.primary, size: 20)
+                          ? const Icon(LucideIcons.check,
+                              color: AppColors.primary, size: 20)
                           : null,
                       onTap: () {
                         Navigator.pop(ctx);

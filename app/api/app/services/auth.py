@@ -96,7 +96,7 @@ class GoogleProfile:
 def verify_google_access_token(access_token: str) -> GoogleProfile:
     """
     Validates a Google OAuth access token server-side and checks it was issued to
-    our client (aud/azp == GOOGLE_CLIENT_ID). Tokens minted for other apps are rejected.
+    one of our clients (aud/azp in GOOGLE_CLIENT_ID / GOOGLE_MOBILE_CLIENT_IDS). Tokens minted for other apps are rejected.
     """
     invalid = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google sign-in could not be verified.")
     try:
@@ -112,8 +112,9 @@ def verify_google_access_token(access_token: str) -> GoogleProfile:
     info = resp.json()
 
     audience = info.get("aud") or info.get("azp")
-    if settings.GOOGLE_CLIENT_ID:
-        if audience != settings.GOOGLE_CLIENT_ID:
+    allowed_clients = settings.google_allowed_client_ids
+    if allowed_clients:
+        if audience not in allowed_clients:
             raise invalid
     elif settings.is_production:
         raise HTTPException(status_code=503, detail="Google sign-in is not configured.")
@@ -627,6 +628,51 @@ class AuthService:
         self.db.commit()
         # Other devices are signed out; the device that changed the password stays signed in.
         self.revoke_all_sessions(user.id, "password_changed", keep_session_id=keep_session_id)
+
+    def delete_account(self, user: User, password: str | None, confirm: str) -> None:
+        """
+        Self-service account deletion (required by app stores). The sign-in identity is erased and
+        anonymised; gym business records (members, payments, attendance) stay with the gym,
+        unlinked from this login. Owners must close or hand over their gym first.
+        """
+        if confirm.strip().upper() != "DELETE":
+            raise HTTPException(status_code=400, detail='Type DELETE to confirm account deletion.')
+        if has_usable_password(user) and (not password or not verify_password(password, user.hashed_password)):
+            raise HTTPException(status_code=400, detail="Your password is incorrect.")
+        if user.is_superadmin:
+            raise HTTPException(status_code=403, detail="Platform administrator accounts can't be deleted here.")
+
+        memberships = self.db.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id).all()
+        owned = [m for m in memberships if m.is_active and m.role == UserRole.OWNER]
+        if owned:
+            raise HTTPException(
+                status_code=409,
+                detail="You own a gym on REPSI. Transfer or close it from the web dashboard before deleting your account.",
+            )
+
+        from app.core.audit import record_audit
+        from app.models.health import HealthDailyActivity
+
+        for m in memberships:
+            m.is_active = False
+            record_audit(self.db, m.workspace_id, user.id, "account.deleted", resource_type="user", resource_id=user.id)
+        self.db.query(HealthDailyActivity).filter(HealthDailyActivity.user_id == user.id).delete(synchronize_session=False)
+        self.db.query(Member).filter(Member.user_id == user.id).update({Member.user_id: None}, synchronize_session=False)
+        self.db.query(Trainer).filter(Trainer.user_id == user.id).update({Trainer.user_id: None}, synchronize_session=False)
+        for identity in list(user.identities):
+            self.db.delete(identity)
+
+        user.is_active = False
+        user.email = f"deleted-{user.id}@deleted.invalid"
+        user.full_name = "Deleted user"
+        user.phone = None
+        user.phone_e164 = None
+        user.phone_verified = False
+        user.email_verified = False
+        user.avatar_url = None
+        user.hashed_password = UNUSABLE_PASSWORD
+        self.db.commit()
+        self.revoke_all_sessions(user.id, "account_deleted")
 
     # ─── Owner-created Member / Trainer records ───────────────────────────
 

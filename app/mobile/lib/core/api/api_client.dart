@@ -8,7 +8,10 @@ import 'api_interceptors.dart';
 class ApiClient {
   late final Dio dio;
 
-  ApiClient({required SecureStorageService storage}) {
+  ApiClient({
+    required SecureStorageService storage,
+    Future<void> Function()? onSessionExpired,
+  }) {
     dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.baseUrl,
@@ -20,11 +23,16 @@ class ApiClient {
       ),
     );
 
-    dio.interceptors.add(AuthInterceptor(storage));
+    dio.interceptors
+        .add(AuthInterceptor(storage, dio, onSessionExpired: onSessionExpired));
     if (kDebugMode) {
+      // Headers and bodies carry tokens, passwords and member data, so only log the exchange itself.
       dio.interceptors.add(LogInterceptor(
-        requestBody: true,
-        responseBody: true,
+        request: true,
+        requestHeader: false,
+        requestBody: false,
+        responseHeader: false,
+        responseBody: false,
         error: true,
       ));
     }
@@ -36,7 +44,8 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      return await dio.get<T>(path, queryParameters: queryParameters, options: options);
+      return await dio.get<T>(path,
+          queryParameters: queryParameters, options: options);
     } on DioException catch (e) {
       throw ApiError.fromDio(e);
     }
@@ -49,7 +58,8 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      return await dio.post<T>(path, data: data, queryParameters: queryParameters, options: options);
+      return await dio.post<T>(path,
+          data: data, queryParameters: queryParameters, options: options);
     } on DioException catch (e) {
       throw ApiError.fromDio(e);
     }
@@ -62,7 +72,22 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      return await dio.put<T>(path, data: data, queryParameters: queryParameters, options: options);
+      return await dio.put<T>(path,
+          data: data, queryParameters: queryParameters, options: options);
+    } on DioException catch (e) {
+      throw ApiError.fromDio(e);
+    }
+  }
+
+  Future<Response<T>> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await dio.patch<T>(path,
+          data: data, queryParameters: queryParameters, options: options);
     } on DioException catch (e) {
       throw ApiError.fromDio(e);
     }
@@ -75,7 +100,8 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      return await dio.delete<T>(path, data: data, queryParameters: queryParameters, options: options);
+      return await dio.delete<T>(path,
+          data: data, queryParameters: queryParameters, options: options);
     } on DioException catch (e) {
       throw ApiError.fromDio(e);
     }

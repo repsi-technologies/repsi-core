@@ -7,6 +7,8 @@ class ApiEndpoints {
   static const String me = '/auth/me';
   static const String forgotPassword = '/auth/forgot-password';
   static const String logout = '/auth/logout';
+  static const String changePassword = '/auth/me/password';
+  static const String deleteAccount = '/auth/me';
 
   // Workspaces
   static const String workspaces = '/workspaces';
@@ -19,6 +21,7 @@ class ApiEndpoints {
   // Members
   static const String members = '/members';
   static String memberDetail(String id) => '/members/$id';
+  static String memberDocuments(String id) => '/members/$id/documents';
 
   // Memberships
   static const String memberships = '/memberships';
@@ -31,6 +34,13 @@ class ApiEndpoints {
   static const String attendanceCheckIn = checkIn;
   static const String attendanceCheckOut = checkOut;
   static const String attendanceSummary = '/attendance/summary';
+  static const String attendanceScanQr = '/attendance/scan-qr';
+  static const String myAttendance = '/attendance/member/me';
+  static const String myAttendancePass = '/attendance/member/me/pass';
+  static const String myMemberProfile = '/members/me';
+
+  // Health sync
+  static const String healthDaily = '/health/daily';
 
   // Payments & Expenses
   static const String payments = '/payments';
@@ -43,6 +53,20 @@ class ApiEndpoints {
   static const String classes = '/classes';
   static String classDetail(String id) => '/classes/$id';
   static const String workoutPlans = '/workouts/plans';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static String markNotificationRead(String id) => '/notifications/$id/read';
+  static const String notificationPreferences = '/notifications/preferences';
+  static const String registerDevice = '/notifications/devices';
+
+  // AI & Smart Engine
+  static const String aiStatus = '/ai/status';
+  static const String aiAssistant = '/ai/assistant';
+  static const String aiWorkoutQuestions = '/ai/workout/questions';
+  static const String aiWorkoutSuggest = '/ai/workout/suggest';
+  static const String aiInsights = '/ai/insights';
+  static const String aiReminders = '/ai/reminders';
 
   // Reports
   static const String reportsSummary = '/reports/summary';

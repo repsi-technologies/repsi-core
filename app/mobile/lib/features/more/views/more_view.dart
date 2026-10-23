@@ -27,7 +27,8 @@ class MoreView extends ConsumerWidget {
         elevation: 0,
         title: Text(
           'More',
-          style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+          style: AppTypography.heading
+              .copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
       body: SafeArea(
@@ -52,10 +53,12 @@ class MoreView extends ConsumerWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.primarySoft,
-                          border: Border.all(color: AppColors.primary, width: 1.5),
+                          border:
+                              Border.all(color: AppColors.primary, width: 1.5),
                         ),
                         child: const Center(
-                          child: Icon(Icons.storefront_rounded, color: AppColors.primaryDark, size: 24),
+                          child: Icon(Icons.storefront_rounded,
+                              color: AppColors.primaryDark, size: 24),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -94,11 +97,31 @@ class MoreView extends ConsumerWidget {
                 child: _buildSection(
                   title: 'Business',
                   items: [
-                    {'icon': Icons.account_tree_outlined, 'title': 'Branches', 'badge': '3 Active'},
-                    {'icon': Icons.badge_outlined, 'title': 'Staff Management', 'badge': '8 Staff'},
-                    {'icon': Icons.security_rounded, 'title': 'Roles & Permissions', 'badge': null},
-                    {'icon': Icons.card_membership_rounded, 'title': 'Membership Plans', 'badge': null},
-                    {'icon': Icons.sports_gymnastics_rounded, 'title': 'Classes & Schedules', 'badge': null},
+                    {
+                      'icon': Icons.account_tree_outlined,
+                      'title': 'Branches',
+                      'badge': '3 Active'
+                    },
+                    {
+                      'icon': Icons.badge_outlined,
+                      'title': 'Staff Management',
+                      'badge': '8 Staff'
+                    },
+                    {
+                      'icon': Icons.security_rounded,
+                      'title': 'Roles & Permissions',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.card_membership_rounded,
+                      'title': 'Membership Plans',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.sports_gymnastics_rounded,
+                      'title': 'Classes & Schedules',
+                      'badge': null
+                    },
                   ],
                   context: context,
                 ),
@@ -111,27 +134,68 @@ class MoreView extends ConsumerWidget {
                 child: _buildSection(
                   title: 'Finance',
                   items: [
-                    {'icon': Icons.currency_rupee_rounded, 'title': 'Payments & Collections', 'badge': '₹2.84L'},
-                    {'icon': Icons.receipt_long_outlined, 'title': 'GST Invoices', 'badge': null},
-                    {'icon': Icons.account_balance_wallet_outlined, 'title': 'Expenses & Payroll', 'badge': null},
-                    {'icon': Icons.bar_chart_rounded, 'title': 'Financial P&L Reports', 'badge': null},
+                    {
+                      'icon': Icons.currency_rupee_rounded,
+                      'title': 'Payments & Collections',
+                      'badge': '₹2.84L'
+                    },
+                    {
+                      'icon': Icons.receipt_long_outlined,
+                      'title': 'GST Invoices',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.account_balance_wallet_outlined,
+                      'title': 'Expenses & Payroll',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.bar_chart_rounded,
+                      'title': 'Financial P&L Reports',
+                      'badge': null
+                    },
                   ],
                   context: context,
                 ),
               ),
               const SizedBox(height: 18),
 
-              // SECTION 3: GROWTH
+              // SECTION 3: GROWTH & AI
               RepsiStaggerItem(
                 index: 3,
                 child: _buildSection(
-                  title: 'Growth',
+                  title: 'Growth & Intelligence',
                   items: [
-                    {'icon': Icons.filter_alt_outlined, 'title': 'CRM Lead Pipeline', 'badge': '23 Leads'},
-                    {'icon': Icons.campaign_outlined, 'title': 'Automated Campaigns', 'badge': '3 Active'},
-                    {'icon': Icons.card_giftcard_rounded, 'title': 'Referrals & Rewards', 'badge': null},
-                    {'icon': Icons.local_offer_outlined, 'title': 'Seasonal Offers', 'badge': null},
-                    {'icon': Icons.bolt_rounded, 'title': 'Automation Rules', 'badge': '3 Rules'},
+                    {
+                      'icon': Icons.auto_awesome_rounded,
+                      'title': 'AI Business Insights',
+                      'badge': 'AI'
+                    },
+                    {
+                      'icon': Icons.filter_alt_outlined,
+                      'title': 'CRM Lead Pipeline',
+                      'badge': '23 Leads'
+                    },
+                    {
+                      'icon': Icons.campaign_outlined,
+                      'title': 'Automated Campaigns',
+                      'badge': '3 Active'
+                    },
+                    {
+                      'icon': Icons.card_giftcard_rounded,
+                      'title': 'Referrals & Rewards',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.local_offer_outlined,
+                      'title': 'Seasonal Offers',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.bolt_rounded,
+                      'title': 'Automation Rules',
+                      'badge': '3 Rules'
+                    },
                   ],
                   context: context,
                 ),
@@ -144,9 +208,21 @@ class MoreView extends ConsumerWidget {
                 child: _buildSection(
                   title: 'Online',
                   items: [
-                    {'icon': Icons.language_rounded, 'title': 'Website Builder', 'badge': 'Published'},
-                    {'icon': Icons.perm_media_outlined, 'title': 'Content & Media CMS', 'badge': null},
-                    {'icon': Icons.qr_code_2_rounded, 'title': 'QR Codes Station', 'badge': null},
+                    {
+                      'icon': Icons.language_rounded,
+                      'title': 'Website Builder',
+                      'badge': 'Published'
+                    },
+                    {
+                      'icon': Icons.perm_media_outlined,
+                      'title': 'Content & Media CMS',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.qr_code_2_rounded,
+                      'title': 'QR Codes Station',
+                      'badge': null
+                    },
                   ],
                   context: context,
                 ),
@@ -159,10 +235,26 @@ class MoreView extends ConsumerWidget {
                 child: _buildSection(
                   title: 'System',
                   items: [
-                    {'icon': Icons.extension_outlined, 'title': 'Integrations (Health, Razorpay, WA)', 'badge': null},
-                    {'icon': Icons.notifications_none_rounded, 'title': 'Notifications Center', 'badge': null},
-                    {'icon': Icons.lock_outline_rounded, 'title': 'Security & Audit Logs', 'badge': null},
-                    {'icon': Icons.settings_outlined, 'title': 'Settings', 'badge': null},
+                    {
+                      'icon': Icons.extension_outlined,
+                      'title': 'Integrations (Health, Razorpay, WA)',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.notifications_none_rounded,
+                      'title': 'Notifications Center',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.lock_outline_rounded,
+                      'title': 'Security & Audit Logs',
+                      'badge': null
+                    },
+                    {
+                      'icon': Icons.settings_outlined,
+                      'title': 'Settings',
+                      'badge': null
+                    },
                   ],
                   context: context,
                 ),
@@ -178,12 +270,16 @@ class MoreView extends ConsumerWidget {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Sign Out'),
-                        content: const Text('Are you sure you want to sign out of Repsi?'),
+                        content: const Text(
+                            'Are you sure you want to sign out of Repsi?'),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                          TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel')),
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+                            child: const Text('Sign Out',
+                                style: TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
@@ -196,11 +292,13 @@ class MoreView extends ConsumerWidget {
                       }
                     }
                   },
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.logout_rounded, color: Color(0xFFDC2626), size: 20),
+                      Icon(Icons.logout_rounded,
+                          color: Color(0xFFDC2626), size: 20),
                       SizedBox(width: 8),
                       Text(
                         'Sign Out',
@@ -287,7 +385,8 @@ class MoreView extends ConsumerWidget {
                   children: [
                     if (item['badge'] != null) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceSubtle,
                           borderRadius: BorderRadius.circular(6),
@@ -295,7 +394,10 @@ class MoreView extends ConsumerWidget {
                         ),
                         child: Text(
                           item['badge'] as String,
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primaryDark),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryDark),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -318,6 +420,10 @@ class MoreView extends ConsumerWidget {
   void _handleMenuTap(BuildContext context, String title) {
     if (title.contains('Website Builder')) {
       context.push(RouteNames.websiteBuilder);
+    } else if (title.contains('AI') || title.contains('Insights')) {
+      context.push(RouteNames.aiInsights);
+    } else if (title.contains('Notification')) {
+      context.push(RouteNames.notifications);
     } else if (title.contains('Automation')) {
       _showAutomationsModal(context);
     } else if (title.contains('Roles') || title.contains('Staff')) {
@@ -349,24 +455,30 @@ class MoreView extends ConsumerWidget {
             children: [
               Text(
                 'Automation Workflows',
-                style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: AppTypography.heading
+                    .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
-              const Text('Automated actions based on triggers', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              const Text('Automated actions based on triggers',
+                  style:
+                      TextStyle(color: AppColors.textSecondary, fontSize: 12)),
               const SizedBox(height: 16),
               const _AutomationRuleTile(
                 trigger: 'WHEN Membership expires in 7 days',
-                action: 'THEN Send notification + WhatsApp renewal offer + Create task',
+                action:
+                    'THEN Send notification + WhatsApp renewal offer + Create task',
               ),
               const SizedBox(height: 10),
               const _AutomationRuleTile(
                 trigger: 'WHEN Member has not visited for 14 days',
-                action: 'THEN Notify assigned trainer + Create retention follow-up task',
+                action:
+                    'THEN Notify assigned trainer + Create retention follow-up task',
               ),
               const SizedBox(height: 10),
               const _AutomationRuleTile(
                 trigger: 'WHEN Payment fails',
-                action: 'THEN Notify member + Notify owner + Auto-retry payment in 24h',
+                action:
+                    'THEN Notify member + Notify owner + Auto-retry payment in 24h',
               ),
               const SizedBox(height: 20),
             ],
@@ -391,25 +503,33 @@ class MoreView extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text('My Businesses: Repsi Fitness', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              Text('My Businesses: Repsi Fitness',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               SizedBox(height: 14),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.location_on_rounded, color: AppColors.primary),
-                title: Text('Indiranagar Hub', style: TextStyle(fontWeight: FontWeight.w700)),
+                leading:
+                    Icon(Icons.location_on_rounded, color: AppColors.primary),
+                title: Text('Indiranagar Hub',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text('1,248 members · ₹84,200 today'),
-                trailing: Icon(Icons.check_circle_rounded, color: AppColors.primary),
+                trailing:
+                    Icon(Icons.check_circle_rounded, color: AppColors.primary),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.location_on_outlined, color: AppColors.textSecondary),
-                title: Text('Koramangala Center', style: TextStyle(fontWeight: FontWeight.w600)),
+                leading: Icon(Icons.location_on_outlined,
+                    color: AppColors.textSecondary),
+                title: Text('Koramangala Center',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text('842 members · ₹52,300 today'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.location_on_outlined, color: AppColors.textSecondary),
-                title: Text('Whitefield Arena', style: TextStyle(fontWeight: FontWeight.w600)),
+                leading: Icon(Icons.location_on_outlined,
+                    color: AppColors.textSecondary),
+                title: Text('Whitefield Arena',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text('531 members · ₹31,800 today'),
               ),
             ],
@@ -440,12 +560,16 @@ class _AutomationRuleTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.bolt_rounded, size: 16, color: Color(0xFFD97706)),
+              const Icon(Icons.bolt_rounded,
+                  size: 16, color: Color(0xFFD97706)),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   trigger,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.text),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      color: AppColors.text),
                 ),
               ),
             ],
@@ -453,7 +577,8 @@ class _AutomationRuleTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             action,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style:
+                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
         ],
       ),

@@ -25,6 +25,7 @@ from app.api.v1.crm import router as crm_router
 from app.api.v1.websites import router as websites_router
 from app.api.v1.notifications import router as notifications_router
 from app.api.v1.search import router as search_router
+from app.api.v1.health import router as health_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.organization import audit_router, branches_router, onboarding_router, organization_router, team_router
 
@@ -59,6 +60,7 @@ api_router.include_router(crm_router)
 api_router.include_router(websites_router)
 api_router.include_router(notifications_router)
 api_router.include_router(search_router)
+api_router.include_router(health_router)
 api_router.include_router(billing_router)
 api_router.include_router(onboarding_router)
 api_router.include_router(organization_router)

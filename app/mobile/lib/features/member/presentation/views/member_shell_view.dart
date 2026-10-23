@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../shared/navigation/repsi_bottom_nav.dart';
-import 'member_classes_view.dart';
+import 'member_activity_view.dart';
 import 'member_home_view.dart';
 import 'member_profile_view.dart';
-import 'progress_dashboard_view.dart';
-import 'workout_dashboard_view.dart';
+
+/// Only tabs backed by real data are shown. Workouts, classes and progress return once their
+/// screens read from the API instead of sample content.
+const memberNavItems = [
+  RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+  RepsiNavItem(icon: Icons.show_chart_rounded, activeIcon: Icons.show_chart_rounded, label: 'Activity'),
+  RepsiNavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: 'More'),
+];
 
 class MemberShellView extends StatefulWidget {
   const MemberShellView({super.key});
@@ -19,9 +25,7 @@ class _MemberShellViewState extends State<MemberShellView> {
 
   final List<Widget> _pages = const [
     MemberHomeView(),
-    WorkoutDashboardView(),
-    ProgressDashboardView(),
-    MemberClassesView(),
+    MemberActivityView(),
     MemberProfileView(),
   ];
 
@@ -36,6 +40,7 @@ class _MemberShellViewState extends State<MemberShellView> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         role: UserRole.user,
+        customItems: memberNavItems,
       ),
     );
   }

@@ -481,6 +481,16 @@ def test_google_token_for_other_client_rejected(google):
     assert r.status_code == 401
 
 
+def test_google_token_for_configured_mobile_client_is_accepted(google, monkeypatch):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "GOOGLE_MOBILE_CLIENT_IDS", "android-client-id, ios-client-id")
+    ok = client.post(f"{API}/auth/google", json={"token": google(f"m_{uid()}@example.com", aud="android-client-id")})
+    assert ok.status_code == 200, ok.text
+    other = client.post(f"{API}/auth/google", json={"token": google(f"n_{uid()}@example.com", aud="unlisted-client")})
+    assert other.status_code == 401
+
+
 def test_duplicate_email_or_phone_signup_rejected():
     s = phone_signup()
     # Same email, new phone.

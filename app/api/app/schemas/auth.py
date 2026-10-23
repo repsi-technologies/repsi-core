@@ -215,6 +215,12 @@ class ProfileUpdate(BaseModel):
     preferred_language: str | None = None
 
 
+class AccountDeleteRequest(BaseModel):
+    """`password` is required for accounts that have one; Google-only accounts confirm with the word."""
+    password: str | None = None
+    confirm: str = Field(min_length=1, max_length=20)
+
+
 class PasswordChange(BaseModel):
     current_password: str | None = None
     new_password: str
