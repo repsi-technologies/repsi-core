@@ -1,7 +1,8 @@
 # Production stack for the REPSI API on a single VPS (used by .github/workflows/deploy.yml).
 #
-#   cp app/api/.env.example /opt/repsi/.env.production   # fill in real values, never commit it
-#   docker compose -f docker-compose.production.yml up -d --build
+#   sudo install -d -m 750 /etc/repsi && sudo cp app/api/.env.example /etc/repsi/production.env   # fill in real values, never commit it
+#   sudo python3 app/api/scripts/check_production_env.py /etc/repsi/production.env              # must pass
+#   deploy/deploy.sh
 #
 # The database is an external managed PostgreSQL (DATABASE_URL in .env.production). Uploaded files
 # live in the `private_storage` volume unless STORAGE_BACKEND=s3. The `worker` service runs the
@@ -13,7 +14,7 @@ services:
     build:
       context: ./app/api
     image: repsi-api:${REPSI_RELEASE:-latest}
-    env_file: .env.production
+    env_file: ${REPSI_ENV_FILE:-/etc/repsi/production.env}
     environment:
       ENVIRONMENT: production
       SCHEDULER_ENABLED: "false"
@@ -23,6 +24,7 @@ services:
       - "127.0.0.1:8000:8000"  # behind the host's reverse proxy (TLS terminates there)
     volumes:
       - private_storage:/app/private_storage
+      - backups:/app/backups  # backups survive `run --rm`; copy them off the server (see RUNBOOK_OPERATIONS.md)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
@@ -36,7 +38,7 @@ services:
 
   worker:
     image: repsi-api:${REPSI_RELEASE:-latest}
-    env_file: .env.production
+    env_file: ${REPSI_ENV_FILE:-/etc/repsi/production.env}
     environment:
       ENVIRONMENT: production
     # Runs due jobs every minute; each time slot runs once (claimed in the job_runs table).
@@ -53,3 +55,4 @@ services:
 
 volumes:
   private_storage:
+  backups:

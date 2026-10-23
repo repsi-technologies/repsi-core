@@ -25,7 +25,7 @@ COPY . .
 
 # Run as an unprivileged user; uploads live on a mounted volume owned by this user.
 RUN useradd --create-home --uid 10001 repsi \
-    && mkdir -p /app/private_storage \
+    && mkdir -p /app/private_storage /app/backups \
     && chown -R repsi:repsi /app
 USER repsi
 

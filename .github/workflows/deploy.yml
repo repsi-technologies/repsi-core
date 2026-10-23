@@ -1,62 +1,61 @@
 name: Deploy API
 
-# Staging deploys automatically after CI passes on main; production needs a manual run with
-# approval (configure required reviewers on the "production" GitHub environment).
+# Push to master -> CI runs -> if CI passes, the API is deployed to the VPS automatically.
+# Manual runs (Actions tab -> Run workflow) can redeploy any branch, tag or commit.
 on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [main]
+    branches: [master, main]
   workflow_dispatch:
     inputs:
-      environment:
-        description: Target environment
-        type: choice
-        options: [staging, production]
-        default: staging
       ref:
-        description: Git ref to deploy (branch, tag or SHA)
-        default: main
+        description: Git ref to deploy (branch, tag or commit SHA)
+        default: master
 
 concurrency:
-  group: deploy-${{ github.event.inputs.environment || 'staging' }}
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: Deploy to production
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'staging' }}
+    environment: production
     steps:
-      - name: Deploy via SSH (build, migrate on start, health check, roll back on failure)
+      # Only deploy when API-side files changed in the pushed commit (web is deployed separately).
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.event.inputs.ref }}
+          fetch-depth: 2
+      - name: Did the API change?
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "api=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only HEAD~1 HEAD | grep -qE '^(app/api/|deploy/|docker-compose\.production\.yml|\.github/workflows/deploy\.yml)'; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=false" >> "$GITHUB_OUTPUT"; echo "No API changes in this push; skipping deploy."
+          fi
+
+      - name: Deploy over SSH (check env, back up, build, start, health check, roll back on failure)
+        if: steps.changed.outputs.api == 'true'
         uses: appleboy/ssh-action@v1.0.3
         env:
-          DEPLOY_REF: ${{ github.event.inputs.ref || github.event.workflow_run.head_sha }}
+          DEPLOY_REF: ${{ github.event.workflow_run.head_sha || github.event.inputs.ref }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT || 22 }}
           envs: DEPLOY_REF
           script_stop: true
           script: |
             set -euo pipefail
-            cd "${REPSI_DIR:-/opt/repsi}"
-            PREVIOUS=$(git rev-parse HEAD)
-            git fetch --tags origin
-            git checkout --force "$DEPLOY_REF"
-            export REPSI_RELEASE=$(git rev-parse --short HEAD)
-            # Back up the database before the new release runs its (additive) startup migrations.
-            docker compose -f docker-compose.production.yml run --rm --no-deps api \
-              uv run --no-sync python -m scripts.backup --label "pre-deploy-$REPSI_RELEASE" || echo "WARNING: pre-deploy backup failed"
-            docker compose -f docker-compose.production.yml up -d --build --remove-orphans
-            for i in $(seq 1 30); do
-              if curl -fsS http://127.0.0.1:8000/health >/dev/null; then echo "Healthy: $REPSI_RELEASE"; exit 0; fi
-              sleep 5
-            done
-            echo "Health check failed; rolling back to $PREVIOUS"
-            git checkout --force "$PREVIOUS"
-            export REPSI_RELEASE=$(git rev-parse --short HEAD)
-            docker compose -f docker-compose.production.yml up -d --build --remove-orphans
-            exit 1
+            cd "${REPSI_DIR:-/opt/repsi-core}"
+            git fetch --prune origin
+            # Run the deploy script from the commit being deployed. The checkout happens inside it,
+            # after it has recorded the current release, so a failed health check can roll back.
+            git show "$DEPLOY_REF:deploy/deploy.sh" > /tmp/repsi-deploy.sh
+            bash /tmp/repsi-deploy.sh "$DEPLOY_REF"
