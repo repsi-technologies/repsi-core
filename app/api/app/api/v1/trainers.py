@@ -491,6 +491,13 @@ def get_client_trainers(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
+    # Members may only look up their own trainers; staff need a member in this workspace.
+    member = db.query(Member).filter(Member.workspace_id == tenant.workspace_id, Member.id == client_id).first()
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found.")
+    if tenant.role not in ["OWNER", "SUPER_ADMIN", "ADMIN", "MANAGER", "STAFF", "TRAINER"] and member.user_id != tenant.user_id:
+        raise HTTPException(status_code=404, detail="Member not found.")
+
     # Retrieve active trainers for member
     relationships = db.query(TrainerClient, Trainer).join(
         Trainer, TrainerClient.trainer_id == Trainer.id
@@ -582,6 +589,25 @@ def create_client_workout(
     return workout
 
 
+def _managed_workout(db: Session, tenant: TenantContext, workout_id: str) -> Workout:
+    """Legacy workouts may only be changed by gym managers or the member's assigned trainer."""
+    workout = db.query(Workout).filter(
+        Workout.workspace_id == tenant.workspace_id,
+        Workout.id == workout_id
+    ).first()
+    if not workout:
+        raise HTTPException(status_code=404, detail="Workout not found.")
+    if tenant.role not in ["OWNER", "SUPER_ADMIN", "ADMIN", "MANAGER", "TRAINER"]:
+        raise HTTPException(status_code=403, detail="Only trainers and gym managers can change workouts.")
+    if workout.member_id:
+        TrainerService(db, tenant).verify_client_access(workout.member_id)
+    elif tenant.role == "TRAINER":
+        trainer = TrainerService(db, tenant).verify_trainer_access()
+        if workout.trainer_id != trainer.id:
+            raise HTTPException(status_code=403, detail="Access denied. This workout is not yours.")
+    return workout
+
+
 @router.patch("/workouts/{workout_id}", response_model=WorkoutResponse)
 def update_workout(
     workout_id: str,
@@ -589,12 +615,7 @@ def update_workout(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
-    workout = db.query(Workout).filter(
-        Workout.workspace_id == tenant.workspace_id,
-        Workout.id == workout_id
-    ).first()
-    if not workout:
-        raise HTTPException(status_code=404, detail="Workout not found.")
+    workout = _managed_workout(db, tenant, workout_id)
 
     update_dict = data.model_dump(exclude_unset=True)
     for k, v in update_dict.items():
@@ -617,12 +638,7 @@ def complete_workout(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
-    workout = db.query(Workout).filter(
-        Workout.workspace_id == tenant.workspace_id,
-        Workout.id == workout_id
-    ).first()
-    if not workout:
-        raise HTTPException(status_code=404, detail="Workout not found.")
+    workout = _managed_workout(db, tenant, workout_id)
 
     workout.status = WorkoutStatus.COMPLETED
     workout.completion_percentage = completion_percentage

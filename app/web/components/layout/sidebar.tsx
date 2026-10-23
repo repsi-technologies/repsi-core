@@ -119,7 +119,7 @@ const memberNavGroups: NavGroupDef[] = [
       { label: "Dashboard", path: "/member/dashboard", icon: LayoutDashboard },
       { label: "Workout", path: "/member/workout", icon: Dumbbell },
       { label: "Exercise Library", path: "/member/exercises", icon: BookOpen },
-      { label: "Progress", path: "/member/dashboard#progress", icon: TrendingUp },
+      { label: "Progress", path: "/member/progress", icon: TrendingUp },
       { label: "Activity / Running", path: "/member/running", icon: Navigation },
       { label: "Trainer", path: "/member/trainer", icon: Users },
       { label: "Trainer Chat", path: "/chat", icon: MessageSquare },

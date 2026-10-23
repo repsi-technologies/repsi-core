@@ -33,6 +33,20 @@ from app.models.trainer import (
 )
 from app.models.user import User, UserRole, Workspace, WorkspaceMember
 from app.models.workout import Workout, WorkoutPlan, WorkoutStatus
+from app.models.fitness import (
+    BodyMeasurement,
+    Exercise,
+    FitnessAssessment,
+    MeasurementType,
+    WorkoutAssignment,
+    WorkoutAssignmentEvent,
+    WorkoutDay,
+    WorkoutItem,
+    WorkoutProgram,
+    WorkoutProgramVersion,
+    WorkoutSession,
+    WorkoutSetLog,
+)
 from app.models.crm import Lead, LeadActivity, LeadFollowUp, LeadStatus, LeadPriority, FollowUpType, FollowUpStatus
 from app.models.website import Website
 from app.models.billing import (
@@ -92,6 +106,18 @@ __all__ = [
     "Workout",
     "WorkoutPlan",
     "WorkoutStatus",
+    "BodyMeasurement",
+    "Exercise",
+    "FitnessAssessment",
+    "MeasurementType",
+    "WorkoutAssignment",
+    "WorkoutAssignmentEvent",
+    "WorkoutDay",
+    "WorkoutItem",
+    "WorkoutProgram",
+    "WorkoutProgramVersion",
+    "WorkoutSession",
+    "WorkoutSetLog",
     "Workspace",
     "WorkspaceMember",
     "Lead",

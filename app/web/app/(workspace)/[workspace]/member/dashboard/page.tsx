@@ -328,7 +328,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
               <h3 className="font-bold text-base text-[var(--text)]">Your Progress Snapshot</h3>
             </div>
             <Link
-              href={`/${workspace}/member/dashboard#progress`}
+              href={`/${workspace}/member/progress`}
               className="text-xs font-semibold text-[var(--primary)] hover:underline flex items-center gap-1"
             >
               <span>Full Details</span>

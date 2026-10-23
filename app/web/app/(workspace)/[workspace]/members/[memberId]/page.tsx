@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate, getInitials } from "@/lib/utils";
 import { repsiApi, type ApiMembership, type ApiMemberPersonalAttendance } from "@/lib/api";
 import { getAuthUser } from "@/lib/auth";
+import { MemberTraining } from "@/features/fitness/member-training";
 import {
   ACCOUNT_STATUS_META,
   HistoryPanel,
@@ -35,6 +36,8 @@ import {
 } from "@/features/members/member-record-panels";
 
 const MODERATOR_ROLES = ["OWNER", "ADMIN", "SUPER_ADMIN"];
+// Gym-wide fitness access (the API applies the same rule; trainers use their client workspace).
+const TRAINING_ROLES = ["OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN"];
 
 function whatsappHref(phone: string): string {
   let digits = phone.replace(/\D/g, "");
@@ -151,11 +154,13 @@ export default function WorkspaceMemberProfilePage(props: {
     }
   };
 
+  const canViewTraining = TRAINING_ROLES.includes(authUser?.role || "");
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "membership", label: "Membership" },
     { id: "payments", label: "Payments" },
     { id: "attendance", label: "Attendance" },
+    ...(canViewTraining ? [{ id: "training", label: "Training" }] : []),
     { id: "notes", label: "Notes" },
     { id: "history", label: "History" },
   ];
@@ -373,6 +378,8 @@ export default function WorkspaceMemberProfilePage(props: {
           </CardContent>
         </Card>
       )}
+
+      {tab === "training" && canViewTraining && <MemberTraining memberId={memberId} />}
 
       {tab === "notes" && <NotesPanel memberId={memberId} currentUserId={authUser?.id} canModerate={canModerate} />}
 

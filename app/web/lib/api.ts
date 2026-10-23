@@ -399,7 +399,7 @@ export interface ApiAuditLog {
 }
 
 /** JSON request helper for member/membership endpoints; surfaces the backend's `detail` message. */
-async function memberRequest(path: string, method: string, body: unknown, fallbackError: string): Promise<any> {
+export async function memberRequest(path: string, method: string, body: unknown, fallbackError: string): Promise<any> {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {

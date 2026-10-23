@@ -5,10 +5,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.workout import Workout, WorkoutPlan
 from app.repositories.base import BaseTenantRepository
-from app.middleware.tenant import get_current_tenant, TenantContext
+from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
 from app.middleware.entitlements import require_feature
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
+
+# Legacy gym-wide workout list. Members and trainers use /fitness instead.
+_gym_managers = require_roles("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")
 
 
 class WorkoutCreate(BaseModel):
@@ -31,7 +34,7 @@ class WorkoutResponse(BaseModel):
 
 @router.get("/", response_model=List[WorkoutResponse])
 def get_workouts(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(_gym_managers),
     db: Session = Depends(get_db)
 ):
     repo = BaseTenantRepository[Workout](Workout, db, tenant.workspace_id)
@@ -42,7 +45,7 @@ def get_workouts(
 @router.post("/", response_model=WorkoutResponse, status_code=status.HTTP_201_CREATED)
 def create_workout(
     data: WorkoutCreate,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(_gym_managers),
     _feat: bool = Depends(require_feature("basic_workouts")),
     db: Session = Depends(get_db)
 ):

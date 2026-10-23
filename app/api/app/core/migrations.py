@@ -140,6 +140,23 @@ def run_database_migrations():
                     except Exception as e:
                         logger.warning(f"Could not add column {col_name} to invoices: {e}")
 
+    _seed_global_exercises()
+
+
+def _seed_global_exercises() -> None:
+    """Platform exercise library; idempotent by slug and never overwrites existing rows."""
+    from sqlalchemy.orm import Session as _Session
+    from app.core.exercise_seed import seed_global_exercises
+
+    try:
+        with _Session(bind=engine) as session:
+            added = seed_global_exercises(session)
+            if added:
+                logger.info(f"Seeded {added} global exercises.")
+    except Exception as e:
+        logger.warning(f"Could not seed global exercises: {e}")
+
+
 def _add_missing_columns(conn, inspector, table: str, columns: list[tuple[str, str]]) -> None:
     if not inspector.has_table(table):
         return

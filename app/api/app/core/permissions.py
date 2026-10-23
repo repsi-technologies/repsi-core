@@ -35,6 +35,9 @@ PERMISSIONS: dict[str, str] = {
     "staff.manage": "Manage staff accounts",
     "permissions.manage": "Change staff permissions",
     "audit.view": "View audit logs",
+    "exercises.manage": "Create and edit gym exercises",
+    "programs.manage": "Create and edit workout programs",
+    "workouts.assign": "Assign and customize member workout plans",
 }
 
 ALL = frozenset(PERMISSIONS)
@@ -46,10 +49,11 @@ ROLE_DEFAULTS: dict[str, frozenset] = {
     "MANAGER": frozenset({
         "attendance.view", "attendance.record", "attendance.correct", "attendance.override", "attendance.export",
         "members.view", "members.manage", "trainers.assign", "schedules.manage", "payments.view",
-        "records.export", "audit.view",
+        "records.export", "audit.view", "exercises.manage", "programs.manage", "workouts.assign",
     }),
     "STAFF": frozenset({"attendance.view", "attendance.record", "members.view", "members.manage", "payments.view"}),
-    "TRAINER": frozenset(),
+    # Trainers only reach their own assigned clients; the relationship check lives in the fitness service.
+    "TRAINER": frozenset({"exercises.manage", "programs.manage", "workouts.assign"}),
     "USER": frozenset(),
 }
 
