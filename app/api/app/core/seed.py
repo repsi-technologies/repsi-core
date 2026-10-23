@@ -2,14 +2,13 @@ import os
 import secrets
 from pathlib import Path
 import datetime
+from typing import Optional
 from sqlalchemy.orm import Session
-from app.core.database import SessionLocal, Base, engine
+from app.core.database import SessionLocal
 from app.core.security import get_password_hash
 from app.models.user import User, Workspace, WorkspaceMember, UserRole
-from app.models.member import Member, MembershipPlan, Membership, MemberStatus
-from app.models.attendance import Attendance, AttendanceMethod
-from app.models.finance import Payment, Expense, PaymentMethod, PaymentStatus
-from app.models.trainer import Trainer, GymClass
+from app.models.member import Member, MembershipPlan, MemberStatus
+from app.models.trainer import Trainer
 from app.services.billing import BillingService
 
 
@@ -36,14 +35,34 @@ def _seed_password() -> str:
     if _SEED_PASSWORD is None:
         _SEED_PASSWORD = os.getenv("SEED_PASSWORD") or secrets.token_urlsafe(12)
         if not os.getenv("SEED_PASSWORD"):
-            path = Path(__file__).resolve().parents[2] / ".seed-credentials.local"
-            path.write_text(f"Seeded demo accounts password: {_SEED_PASSWORD}
-", encoding="utf-8")
-            print(f"[SEED] Demo account password written to {path}")
+            try:
+                path = Path(__file__).resolve().parents[2] / ".seed-credentials.local"
+                path.write_text(f"Seeded demo accounts password: {_SEED_PASSWORD}\n", encoding="utf-8")
+                print(f"[SEED] Demo account password written to {path}")
+            except OSError as exc:
+                print(f"[SEED] Warning: Could not write credentials file ({exc}). Demo password: {_SEED_PASSWORD}")
     return _SEED_PASSWORD
 
 
-def seed_database(db: Session = None, seed_dummy_records: bool = False):
+def _ensure_workspace_member(db: Session, workspace_id: str, user_id: str, role: UserRole) -> WorkspaceMember:
+    """Ensure a user belongs to a workspace with at least the requested role."""
+    member = db.query(WorkspaceMember).filter(
+        WorkspaceMember.workspace_id == workspace_id,
+        WorkspaceMember.user_id == user_id,
+    ).first()
+    if not member:
+        member = WorkspaceMember(
+            workspace_id=workspace_id,
+            user_id=user_id,
+            role=role,
+            is_active=True,
+        )
+        db.add(member)
+        db.flush()
+    return member
+
+
+def seed_database(db: Optional[Session] = None, seed_dummy_records: bool = False):
     ensure_seed_allowed()
     close_db = False
     if db is None:
@@ -85,12 +104,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_admin)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_admin.id,
-                role=UserRole.OWNER,
-                is_active=True,
-            ))
+        _ensure_workspace_member(db, workspace.id, user_admin.id, UserRole.OWNER)
 
         user_nitheesh = db.query(User).filter(User.email == "nitheesh@repsi.app").first()
         if not user_nitheesh:
@@ -105,17 +119,12 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_nitheesh)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_nitheesh.id,
-                role=UserRole.OWNER,
-                is_active=True,
-            ))
         else:
             # Never reset an existing account's password from a seed run.
             user_nitheesh.is_superadmin = True
             user_nitheesh.is_active = True
             db.add(user_nitheesh)
+        _ensure_workspace_member(db, workspace.id, user_nitheesh.id, UserRole.OWNER)
 
         # 3. Seed Real Owner (owner@repsi.app & owner@apexfitness.in)
         user_owner = db.query(User).filter(User.email == "owner@repsi.app").first()
@@ -131,12 +140,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_owner)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_owner.id,
-                role=UserRole.OWNER,
-                is_active=True,
-            ))
+        _ensure_workspace_member(db, workspace.id, user_owner.id, UserRole.OWNER)
 
         user_apex_owner = db.query(User).filter(User.email == "owner@apexfitness.in").first()
         if not user_apex_owner:
@@ -151,12 +155,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_apex_owner)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_apex_owner.id,
-                role=UserRole.OWNER,
-                is_active=True,
-            ))
+        _ensure_workspace_member(db, workspace.id, user_apex_owner.id, UserRole.OWNER)
 
         # 4. Seed Real Trainer Account (trainer@repsi.app)
         user_trainer = db.query(User).filter(User.email == "trainer@repsi.app").first()
@@ -172,14 +171,13 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_trainer)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_trainer.id,
-                role=UserRole.TRAINER,
-                is_active=True,
-            ))
+        _ensure_workspace_member(db, workspace.id, user_trainer.id, UserRole.TRAINER)
 
-            # Add Trainer Profile in trainers table
+        # Add Trainer Profile in trainers table if not already present
+        trainer = db.query(Trainer).filter(
+            (Trainer.id == "tr_repsi_001") | (Trainer.user_id == user_trainer.id)
+        ).first()
+        if not trainer:
             db.add(Trainer(
                 id="tr_repsi_001",
                 workspace_id=workspace.id,
@@ -206,14 +204,13 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
             )
             db.add(user_user)
             db.flush()
-            db.add(WorkspaceMember(
-                workspace_id=workspace.id,
-                user_id=user_user.id,
-                role=UserRole.STAFF,
-                is_active=True,
-            ))
+        _ensure_workspace_member(db, workspace.id, user_user.id, UserRole.STAFF)
 
-            # Add Member Profile in members table
+        # Add Member Profile in members table if not already present
+        member = db.query(Member).filter(
+            (Member.id == "mem_user_001") | (Member.user_id == user_user.id)
+        ).first()
+        if not member:
             db.add(Member(
                 id="mem_user_001",
                 workspace_id=workspace.id,
@@ -235,8 +232,8 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
         ]
         for p in plans_data:
             plan = db.query(MembershipPlan).filter(
-                MembershipPlan.workspace_id == workspace.id,
-                MembershipPlan.name == p["name"]
+                (MembershipPlan.id == p["id"]) |
+                ((MembershipPlan.workspace_id == workspace.id) & (MembershipPlan.name == p["name"]))
             ).first()
             if not plan:
                 db.add(MembershipPlan(
@@ -259,6 +256,9 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
 
         db.commit()
         print("[SUCCESS] REPSI database successfully initialized with clean real accounts and SaaS subscription catalog.")
+    except Exception:
+        db.rollback()
+        raise
     finally:
         if close_db:
             db.close()

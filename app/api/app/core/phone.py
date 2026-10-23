@@ -25,7 +25,7 @@ def require_phone(raw: Optional[str], country: Optional[str] = None, field: str 
     normalized = normalize_phone(raw, country)
     if not normalized:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422),
             detail=f"Enter a valid {field} number for the selected country.",
         )
     return normalized
