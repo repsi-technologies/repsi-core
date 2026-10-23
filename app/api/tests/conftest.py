@@ -11,6 +11,7 @@ os.environ["SMTP_USER"] = ""
 os.environ["SMTP_PASSWORD"] = ""
 # Never reach a real WhatsApp provider from tests, whatever the developer .env holds.
 os.environ["AISENSY_API_KEY"] = ""
+os.environ["GEMINI_API_KEY"] = ""  # AI tests mock the HTTP boundary
 # Caching is exercised in its own tests; elsewhere every read must see the latest writes.
 os.environ["CACHE_ENABLED"] = "false"
 os.environ["SECRET_KEY"] = "test-secret-key-that-is-long-enough-for-hs256-signing"

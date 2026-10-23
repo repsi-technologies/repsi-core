@@ -32,6 +32,7 @@ import {
   Target,
   Globe,
   Megaphone,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -83,6 +84,7 @@ const ownerNavGroups: NavGroupDef[] = [
     title: "BUSINESS",
     items: [
       { label: "Reports", path: "/reports", icon: BarChart3 },
+      { label: "AI Insights", path: "/insights", icon: Sparkles },
       { label: "Broadcasts", path: "/broadcasts", icon: Megaphone },
       { label: "Notifications", path: "/notifications", icon: Bell },
       { label: "Activity", path: "/activity", icon: Activity },
@@ -120,6 +122,7 @@ const memberNavGroups: NavGroupDef[] = [
     items: [
       { label: "Dashboard", path: "/member/dashboard", icon: LayoutDashboard },
       { label: "Workout", path: "/member/workout", icon: Dumbbell },
+      { label: "AI Coach", path: "/member/ai-coach", icon: Sparkles },
       { label: "Exercise Library", path: "/member/exercises", icon: BookOpen },
       { label: "Progress", path: "/member/progress", icon: TrendingUp },
       { label: "Activity / Running", path: "/member/running", icon: Navigation },

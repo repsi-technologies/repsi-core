@@ -77,6 +77,21 @@ class Settings(BaseSettings):
     PLATFORM_OVERVIEW_CACHE_SECONDS: float = 60.0
     # Slow-request warning threshold for the request log
     SLOW_REQUEST_MS: int = 1000
+    # AI (Google Gemini, free tier by default). Without GEMINI_API_KEY every AI feature still works
+    # with deterministic answers and reports ai=false; nothing is faked. See app/services/ai_core.py.
+    AI_ENABLED: bool = True
+    GEMINI_API_KEY: str = ""
+    GEMINI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
+    GEMINI_FALLBACK_MODEL: str = "gemini-2.5-flash-lite"
+    GEMINI_TIMEOUT_SECONDS: float = 20.0
+    # Platform-wide Gemini calls (keep under the key's free-tier requests/day and requests/minute)
+    AI_GLOBAL_DAILY_CALLS: int = 800
+    AI_GLOBAL_CALLS_PER_MINUTE: int = 10
+    # Per-person daily Gemini calls (cache/knowledge-base answers are free and unlimited)
+    AI_MEMBER_DAILY_CALLS: int = 5
+    AI_STAFF_DAILY_CALLS: int = 20
+
     # Hard cap on request bodies (largest upload is a 10 MB payment proof)
     MAX_REQUEST_BYTES: int = 12 * 1024 * 1024
 

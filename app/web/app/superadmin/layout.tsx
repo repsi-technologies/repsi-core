@@ -37,6 +37,7 @@ const sidebarNavItems = [
   { name: "Payments", href: "/superadmin/payments", icon: Banknote },
   { name: "Support", href: "/superadmin/support", icon: HelpCircle },
   { name: "Notifications", href: "/superadmin/notifications", icon: Bell },
+  { name: "AI Usage", href: "/superadmin/ai", icon: Sparkles },
   { name: "Audit Logs", href: "/superadmin/audit-logs", icon: FileText },
   { name: "System Health", href: "/superadmin/health", icon: Activity },
   { name: "Settings", href: "/superadmin/settings", icon: Settings },

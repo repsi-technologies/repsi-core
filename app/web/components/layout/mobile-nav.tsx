@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
+  Megaphone,
+  Sparkles,
   LayoutDashboard,
   Users,
   CreditCard,
@@ -64,6 +66,8 @@ const navGroups: NavGroupDef[] = [
     items: [
       { label: "Reports", path: "/reports", icon: BarChart3 },
       { label: "Analytics", path: "/analytics", icon: TrendingUp },
+      { label: "AI Insights", path: "/insights", icon: Sparkles },
+      { label: "Broadcasts", path: "/broadcasts", icon: Megaphone },
     ],
   },
   {

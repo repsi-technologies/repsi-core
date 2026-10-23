@@ -58,18 +58,24 @@ export async function logoutSession(): Promise<void> {
     console.warn("Backend logout endpoint unavailable, proceeding with client purge", err);
   }
 
-  // 2. Clear all local authentication credentials and cached states
+  // 2. Clear all local authentication credentials, wipe storage, and reset theme to default (light)
   clearAuthCookie();
   if (typeof window !== "undefined") {
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("repsi_") || key.includes("user") || key.includes("token")) {
-        localStorage.removeItem(key);
-      }
-    });
-    localStorage.removeItem("repsi_auth_token");
-    localStorage.removeItem("repsi_user");
-    localStorage.removeItem("repsi_workspace_slug");
-    sessionStorage.clear();
+    try {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.removeAttribute("data-theme");
+      document.documentElement.style.colorScheme = "light";
+    } catch {
+      // Ignore DOM manipulation errors if any
+    }
+
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (err) {
+      console.warn("Failed to clear browser storage on logout", err);
+    }
+
     window.dispatchEvent(new Event("repsi_logout_event"));
   }
 

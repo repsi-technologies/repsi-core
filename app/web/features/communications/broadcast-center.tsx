@@ -334,7 +334,9 @@ function History({ refreshKey }: { refreshKey: number }) {
     setError(null);
     communicationsApi.listBroadcasts().then((r) => setItems(r.items)).catch((e: Error) => setError(e.message));
   }, []);
-  useEffect(load, [load, refreshKey]);
+  useEffect(() => {
+    load();
+  }, [load, refreshKey]);
   useEffect(() => {
     if (!open) return;
     setRows(null);

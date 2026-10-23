@@ -59,3 +59,6 @@ api_router.include_router(audit_router)
 api_router.include_router(broadcasts_router)
 api_router.include_router(templates_router)
 api_router.include_router(deliveries_router)
+from app.api.v1.ai import router as ai_router  # noqa: E402
+
+api_router.include_router(ai_router)

@@ -1,0 +1,600 @@
+"""
+REPSI AI features, built to be useful with zero model calls and cheap when Gemini is used.
+
+| Feature              | Free path (always available)                 | Gemini adds                          | Cache            |
+|----------------------|----------------------------------------------|--------------------------------------|------------------|
+| Assistant / support  | knowledge-base keyword match                 | answer for unclear questions         | global, 7 days   |
+| Business insights    | SQL metrics + rule-based highlights          | plain-language summary + actions     | gym, per day     |
+| Report summaries     | SQL report data + template summary           | plain-language summary               | gym+type, per day|
+| Smart reminders      | rule-based groups (no AI at all)             | -                                    | -                |
+| Workout suggestions  | rule-based weekly plan from the gym library  | personalised plan (opt-in per request)| gym+answers, 30d |
+
+Data sent to Gemini: aggregates, library exercise names and the user's scrubbed free text only.
+"""
+from __future__ import annotations
+
+import json
+import re
+from datetime import date, datetime, timedelta, timezone
+from typing import Optional
+
+from fastapi import HTTPException
+from sqlalchemy import and_, exists, extract, func, select
+from sqlalchemy.orm import Session
+
+from app.core import ai_knowledge as kb
+from app.models.attendance import Attendance
+from app.models.finance import Payment, PaymentStatus
+from app.models.fitness import Exercise
+from app.models.member import Member, MemberStatus, Membership
+from app.models.member_records import MembershipFreeze
+from app.models.user import Workspace
+from app.services import ai_core
+from app.services.ai_core import AiContext, AiResult, clean_list, clean_text, scrub_pii
+from app.services.communication import workspace_today
+
+WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+
+def _pct(now: float, before: float) -> Optional[float]:
+    return round((now - before) / before * 100, 1) if before else None
+
+
+def _naive(d: date) -> datetime:
+    return datetime(d.year, d.month, d.day)
+
+
+# ─── Assistant / support ───────────────────────────────────────────────
+
+
+def assistant(db: Session, ctx: AiContext, question: str) -> dict:
+    q = clean_text(scrub_pii(question), 500)
+    if len(q) < 2:
+        raise HTTPException(status_code=422, detail="Ask a question about REPSI.")
+    hits = kb.search(q, ctx.role)
+    paths = kb.allowed_paths(ctx.role)
+
+    def entry_answer(e: kb.KbEntry) -> dict:
+        return {"answer": e.answer, "links": [{"title": e.title, "path": e.path}] if e.path else [],
+                "related": [h.title for _, h in hits[1:4]]}
+
+    top_score = hits[0][0] if hits else 0
+    clear_winner = hits and (len(hits) == 1 or top_score - hits[1][0] >= 1.0)
+    if top_score >= kb.DIRECT_ANSWER_SCORE and clear_winner:
+        ai_core.log_usage(db, ctx, "assistant", "kb")
+        return {**entry_answer(hits[0][1]), "source": "kb", "notice": None}
+
+    def fallback() -> dict:
+        if hits:
+            return entry_answer(hits[0][1])
+        return {"answer": "I couldn't find that in REPSI's help. Try different words, or contact support from the help page.",
+                "links": [], "related": [e.title for e in kb.ENTRIES if kb.audience_for(ctx.role) in e.audience][:4]}
+
+    if not hits:
+        ai_core.log_usage(db, ctx, "assistant", "kb")
+        return {**fallback(), "source": "kb", "notice": None}
+
+    context = [{"title": e.title, "path": e.path, "help": e.answer} for _, e in hits]
+    by_path = {e.path: e.title for _, e in hits if e.path}
+
+    def validate(raw: dict) -> dict:
+        answer = clean_text(raw.get("answer"), 700)
+        if len(answer) < 5:
+            raise ValueError("empty answer")
+        links = [p for p in (raw.get("paths") or []) if isinstance(p, str) and p in paths and p in by_path][:3]
+        return {"answer": answer, "links": [{"title": by_path[p], "path": p} for p in links],
+                "related": [e.title for _, e in hits if e.path not in links][:3]}
+
+    result = ai_core.run(
+        db, ctx, "assistant",
+        system=("Answer the user's question about using REPSI using only the help entries provided. "
+                "If they don't cover it, say you're not sure and suggest contacting support. "
+                'Shape: {"answer": string (max 80 words), "paths": [up to 2 "path" values from the entries]}'),
+        prompt=json.dumps({"help_entries": context}) + f"\n<user_input>{q}</user_input>",
+        validate=validate, fallback=fallback, max_tokens=250, temperature=0.2,
+        key=ai_core.cache_key("assistant", kb.audience_for(ctx.role), sorted(set(kb.tokens(q)))),
+        ttl=timedelta(days=7),
+    )
+    return {**result.data, "source": result.source, "notice": result.notice}
+
+
+# ─── Business metrics (deterministic, tenant-scoped) ───────────────────
+
+
+def _balance_rows(db: Session, workspace_id: str):
+    paid = (
+        select(Payment.membership_id.label("mid"), func.coalesce(func.sum(Payment.amount), 0.0).label("paid"))
+        .where(Payment.workspace_id == workspace_id, Payment.status == PaymentStatus.SUCCESS, Payment.membership_id.isnot(None))
+        .group_by(Payment.membership_id).subquery()
+    )
+    due = Membership.price_paid - func.coalesce(paid.c.paid, 0.0)
+    return (
+        select(Membership.id, Membership.member_id, Membership.status, Membership.end_date, due.label("due"))
+        .outerjoin(paid, paid.c.mid == Membership.id)
+        .where(Membership.workspace_id == workspace_id,
+               Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.FROZEN]), due > 0.5)
+    )
+
+
+def business_metrics(db: Session, workspace_id: str) -> dict:
+    ws = db.get(Workspace, workspace_id)
+    today = workspace_today(ws)
+    d30, d60 = today - timedelta(days=30), today - timedelta(days=60)
+    W = Member.workspace_id == workspace_id
+    MS = Membership.workspace_id == workspace_id
+
+    def count(*where) -> int:
+        return db.scalar(select(func.count()).select_from(Member).where(W, *where)) or 0
+
+    live = and_(MS, Membership.member_id == Member.id, Membership.status == MemberStatus.ACTIVE,
+                Membership.start_date <= today, Membership.end_date >= today)
+    latest_end = (select(Membership.member_id, func.max(Membership.end_date).label("last_end"))
+                  .where(MS, Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.EXPIRED]))
+                  .group_by(Membership.member_id).subquery())
+    lapsed = db.scalar(select(func.count()).select_from(latest_end).where(
+        latest_end.c.last_end < today, latest_end.c.last_end >= d30)) or 0
+
+    def collected(start: date, end: date) -> float:
+        return float(db.scalar(select(func.coalesce(func.sum(Payment.amount), 0.0)).where(
+            Payment.workspace_id == workspace_id, Payment.status == PaymentStatus.SUCCESS,
+            Payment.paid_at >= _naive(start), Payment.paid_at < _naive(end))) or 0.0)
+
+    balances = db.execute(_balance_rows(db, workspace_id)).all()
+
+    A = Attendance.workspace_id == workspace_id
+
+    def visits(start: date, end: date) -> int:
+        return db.scalar(select(func.count(Attendance.id)).where(
+            A, Attendance.check_in_time >= _naive(start), Attendance.check_in_time < _naive(end))) or 0
+
+    recent = and_(A, Attendance.check_in_time >= _naive(d30))
+    by_dow = dict(db.execute(select(extract("dow", Attendance.check_in_time), func.count())
+                             .where(recent).group_by(extract("dow", Attendance.check_in_time))).all())
+    by_hour = dict(db.execute(select(extract("hour", Attendance.check_in_time), func.count())
+                              .where(recent).group_by(extract("hour", Attendance.check_in_time))).all())
+    visits_30 = visits(d30, today + timedelta(days=1))
+    busiest_dow = max(by_dow, key=by_dow.get) if by_dow else None
+    busiest_hour = max(by_hour, key=by_hour.get) if by_hour else None
+
+    return {
+        "period": f"last 30 days to {today.isoformat()}",
+        "currency": (ws.currency if ws and getattr(ws, "currency", None) else "INR"),
+        "members": {
+            "active_accounts": count(Member.status == MemberStatus.ACTIVE),
+            "with_active_membership": count(Member.status == MemberStatus.ACTIVE, exists().where(live)),
+            "new_last_30d": count(Member.joined_date >= d30),
+            "new_previous_30d": count(Member.joined_date >= d60, Member.joined_date < d30),
+            "expiring_next_7d": db.scalar(select(func.count(func.distinct(Membership.member_id))).where(
+                MS, Membership.status == MemberStatus.ACTIVE, Membership.end_date >= today,
+                Membership.end_date <= today + timedelta(days=7))) or 0,
+            "lapsed_last_30d": lapsed,
+            "frozen": db.scalar(select(func.count(Membership.id)).where(MS, Membership.status == MemberStatus.FROZEN)) or 0,
+        },
+        "revenue": {
+            "collected_last_30d": round(collected(d30, today + timedelta(days=1)), 2),
+            "collected_previous_30d": round(collected(d60, d30), 2),
+            "outstanding_dues": round(sum(float(r.due) for r in balances), 2),
+            "members_with_dues": len({r.member_id for r in balances}),
+        },
+        "attendance": {
+            "visits_last_30d": visits_30,
+            "visits_previous_30d": visits(d60, d30),
+            "average_daily_visits": round(visits_30 / 30, 1),
+            "busiest_weekday": WEEKDAYS[int(busiest_dow)] if busiest_dow is not None else None,
+            "busiest_hour_utc": int(busiest_hour) if busiest_hour is not None else None,
+        },
+    }
+
+
+def rule_highlights(m: dict) -> list[str]:
+    out = []
+    mem, rev, att = m["members"], m["revenue"], m["attendance"]
+    cur = m["currency"]
+    change = _pct(rev["collected_last_30d"], rev["collected_previous_30d"])
+    if change is not None:
+        out.append(f"Collections {'up' if change >= 0 else 'down'} {abs(change)}% vs the previous 30 days "
+                   f"({cur} {rev['collected_last_30d']:,.0f}).")
+    elif rev["collected_last_30d"]:
+        out.append(f"{cur} {rev['collected_last_30d']:,.0f} collected in the last 30 days.")
+    if rev["members_with_dues"]:
+        out.append(f"{rev['members_with_dues']} member(s) owe {cur} {rev['outstanding_dues']:,.0f} in total.")
+    out.append(f"{mem['new_last_30d']} new member(s) joined (previous 30 days: {mem['new_previous_30d']}).")
+    if mem["expiring_next_7d"]:
+        out.append(f"{mem['expiring_next_7d']} membership(s) end in the next 7 days.")
+    if mem["lapsed_last_30d"]:
+        out.append(f"{mem['lapsed_last_30d']} member(s) lapsed in the last 30 days without renewing.")
+    vchange = _pct(att["visits_last_30d"], att["visits_previous_30d"])
+    if att["visits_last_30d"]:
+        busiest = f" Busiest day: {att['busiest_weekday']}." if att["busiest_weekday"] else ""
+        trend = f" ({'+' if vchange >= 0 else ''}{vchange}% vs before)" if vchange is not None else ""
+        out.append(f"{att['visits_last_30d']} visits, about {att['average_daily_visits']} a day{trend}.{busiest}")
+    return out
+
+
+def rule_actions(m: dict) -> list[str]:
+    acts = []
+    if m["revenue"]["members_with_dues"]:
+        acts.append("Send a dues reminder to members with unpaid balances (Smart reminders).")
+    if m["members"]["expiring_next_7d"]:
+        acts.append("Message members whose membership ends this week about renewing.")
+    if m["members"]["lapsed_last_30d"]:
+        acts.append("Run a win-back offer for recently lapsed members.")
+    if m["members"]["new_last_30d"] < m["members"]["new_previous_30d"]:
+        acts.append("New sign-ups slowed: follow up on open leads in CRM.")
+    return acts[:3] or ["Keep tracking: no urgent actions this week."]
+
+
+def _summary_validator(max_points: int):
+    def validate(raw: dict) -> dict:
+        summary = clean_text(raw.get("summary"), 600)
+        if len(summary) < 10:
+            raise ValueError("summary too short")
+        return {"summary": summary, "highlights": clean_list(raw.get("highlights"), max_points, 200),
+                "actions": clean_list(raw.get("actions"), 3, 200)}
+    return validate
+
+
+def insights(db: Session, ctx: AiContext) -> dict:
+    m = business_metrics(db, ctx.workspace_id)
+    hl, acts = rule_highlights(m), rule_actions(m)
+
+    def fallback() -> dict:
+        return {"summary": " ".join(hl[:2]) or "Not enough activity yet to summarize.", "highlights": hl, "actions": acts}
+
+    result = ai_core.run(
+        db, ctx, "insights",
+        system=("Summarize this gym's last 30 days for the owner from the metrics JSON. Mention the most important "
+                "change first, compare with the previous period, and suggest concrete next steps that REPSI supports "
+                "(reminders, broadcasts, renewals, CRM follow-ups). "
+                'Shape: {"summary": string (max 70 words), "highlights": [max 4 short strings], "actions": [max 3 short strings]}'),
+        prompt=json.dumps({"metrics": m}),
+        validate=_summary_validator(4), fallback=fallback, max_tokens=350,
+        key=ai_core.cache_key("insights", ctx.workspace_id, [m["period"], m]), ttl=timedelta(hours=24),
+    )
+    return {**result.data, "metrics": m, "source": result.source, "notice": result.notice}
+
+
+# ─── Report summaries ──────────────────────────────────────────────────
+
+REPORT_TYPES = ("overview", "revenue", "attendance", "memberships")
+
+
+def report_data(db: Session, workspace_id: str, report_type: str) -> dict:
+    m = business_metrics(db, workspace_id)
+    if report_type == "overview":
+        return m
+    if report_type == "memberships":
+        return {"period": m["period"], "members": m["members"]}
+    if report_type == "attendance":
+        today = workspace_today(db.get(Workspace, workspace_id))
+        since = _naive(today - timedelta(days=30))
+        rows = db.execute(select(extract("dow", Attendance.check_in_time), func.count())
+                          .where(Attendance.workspace_id == workspace_id, Attendance.check_in_time >= since)
+                          .group_by(extract("dow", Attendance.check_in_time))).all()
+        return {"period": m["period"], "attendance": m["attendance"],
+                "visits_by_weekday": {WEEKDAYS[int(d)]: c for d, c in rows}}
+    if report_type == "revenue":
+        today = workspace_today(db.get(Workspace, workspace_id))
+        months = []
+        y, mo = today.year, today.month
+        for _ in range(6):
+            start = date(y, mo, 1)
+            end = date(y + (mo == 12), mo % 12 + 1, 1)
+            total = db.scalar(select(func.coalesce(func.sum(Payment.amount), 0.0)).where(
+                Payment.workspace_id == workspace_id, Payment.status == PaymentStatus.SUCCESS,
+                Payment.paid_at >= _naive(start), Payment.paid_at < _naive(end))) or 0.0
+            months.append({"month": start.strftime("%b %Y"), "collected": round(float(total), 2)})
+            y, mo = (y - 1, 12) if mo == 1 else (y, mo - 1)
+        return {"period": "last 6 months", "currency": m["currency"], "revenue": m["revenue"],
+                "collected_by_month": list(reversed(months))}
+    raise HTTPException(status_code=422, detail=f"Unknown report type. Use one of: {', '.join(REPORT_TYPES)}.")
+
+
+def report_summary(db: Session, ctx: AiContext, report_type: str) -> dict:
+    data = report_data(db, ctx.workspace_id, report_type)
+
+    def fallback() -> dict:
+        if report_type == "revenue":
+            months = data["collected_by_month"]
+            best = max(months, key=lambda x: x["collected"])
+            pts = [f"{x['month']}: {data['currency']} {x['collected']:,.0f}" for x in months]
+            lead = (f"Best month in the last 6 was {best['month']} ({data['currency']} {best['collected']:,.0f})."
+                    if best["collected"] > 0 else "No payments were recorded in the last 6 months.")
+            return {"summary": f"{lead} {data['revenue']['members_with_dues']} member(s) currently have dues.",
+                    "highlights": pts[-4:], "actions": []}
+        full = business_metrics(db, ctx.workspace_id) if report_type != "overview" else data
+        hl = rule_highlights(full)
+        keep = {"memberships": ("member", "joined", "lapsed", "end"), "attendance": ("visit",)}.get(report_type)
+        if keep:
+            hl = [h for h in hl if any(k in h for k in keep)] or hl
+        return {"summary": " ".join(hl[:2]) or "Not enough data yet.", "highlights": hl[:4], "actions": rule_actions(full)}
+
+    result = ai_core.run(
+        db, ctx, "report",
+        system=(f"Explain this gym {report_type} report in plain language for a busy owner with no analytics background. "
+                "Point out trends and anything unusual, using only the numbers given. "
+                'Shape: {"summary": string (max 60 words), "highlights": [max 4 short strings], "actions": [max 2 short strings]}'),
+        prompt=json.dumps({"report": report_type, "data": data}),
+        validate=_summary_validator(4), fallback=fallback, max_tokens=300,
+        key=ai_core.cache_key("report", ctx.workspace_id, [report_type, data]), ttl=timedelta(hours=24),
+    )
+    return {**result.data, "report_type": report_type, "data": data, "source": result.source, "notice": result.notice}
+
+
+# ─── Smart reminders (rules only, zero AI cost) ────────────────────────
+
+REMINDER_TEMPLATES = {
+    "unpaid_dues": ("Payment reminder from {{gym_name}}",
+                    "Hi {{first_name}}, a balance is pending on your membership at {{gym_name}}. Please clear it at the front desk or upload your payment proof in the app. Thank you!"),
+    "expiring_soon": ("Your membership ends soon",
+                      "Hi {{first_name}}, your {{gym_name}} membership ends this week. Renew now to keep your streak going!"),
+    "lapsed": ("We miss you at {{gym_name}}",
+               "Hi {{first_name}}, it's been a while! Come back to {{gym_name}} — ask the front desk about renewing your membership."),
+    "freeze_ending": ("Your membership freeze ends soon",
+                      "Hi {{first_name}}, your membership freeze at {{gym_name}} ends soon. We're looking forward to seeing you back!"),
+    "frozen_unpaid": ("Clear your dues before your freeze ends",
+                      "Hi {{first_name}}, your membership at {{gym_name}} is on freeze and has a pending balance. Please clear it so you can resume without interruption."),
+    "inactive": ("We haven't seen you in a while",
+                 "Hi {{first_name}}, your membership at {{gym_name}} is active but we haven't seen you for two weeks. Need a new plan? Talk to your trainer!"),
+}
+REMINDER_LABELS = {
+    "unpaid_dues": "Unpaid balances",
+    "expiring_soon": "Memberships ending in 7 days",
+    "lapsed": "Lapsed in the last 30 days (not renewed)",
+    "freeze_ending": "Freezes ending in 7 days",
+    "frozen_unpaid": "Frozen with unpaid balance",
+    "inactive": "Active but no visit in 14 days",
+}
+
+
+def smart_reminders(db: Session, workspace_id: str, limit: int = 50) -> dict:
+    ws = db.get(Workspace, workspace_id)
+    today = workspace_today(ws)
+    MS = Membership.workspace_id == workspace_id
+    groups: dict[str, dict[str, dict]] = {k: {} for k in REMINDER_TEMPLATES}
+
+    members = {m.id: m for m in db.scalars(select(Member).where(
+        Member.workspace_id == workspace_id, Member.status == MemberStatus.ACTIVE)).all()}
+
+    def add(group: str, member_id: str, detail: str) -> None:
+        m = members.get(member_id)
+        if m and member_id not in groups[group]:
+            groups[group][member_id] = {"member_id": m.id, "name": f"{m.first_name} {m.last_name or ''}".strip(),
+                                        "detail": detail}
+
+    for r in db.execute(_balance_rows(db, workspace_id)).all():
+        group = "frozen_unpaid" if r.status == MemberStatus.FROZEN else "unpaid_dues"
+        add(group, r.member_id, f"Due {r.due:,.0f}")
+
+    for ms in db.scalars(select(Membership).where(
+            MS, Membership.status == MemberStatus.ACTIVE, Membership.end_date >= today,
+            Membership.end_date <= today + timedelta(days=7))).all():
+        renewed = db.scalar(select(func.count(Membership.id)).where(
+            MS, Membership.member_id == ms.member_id, Membership.start_date > ms.end_date,
+            Membership.status == MemberStatus.ACTIVE)) or 0
+        if not renewed:
+            add("expiring_soon", ms.member_id, f"Ends {ms.end_date.isoformat()}")
+
+    latest = dict(db.execute(select(Membership.member_id, func.max(Membership.end_date)).where(
+        MS, Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.EXPIRED])).group_by(Membership.member_id)).all())
+    for member_id, last_end in latest.items():
+        if today - timedelta(days=30) <= last_end < today:
+            add("lapsed", member_id, f"Ended {last_end.isoformat()}")
+
+    for fz, ms in db.execute(select(MembershipFreeze, Membership).join(Membership, Membership.id == MembershipFreeze.membership_id).where(
+            MembershipFreeze.workspace_id == workspace_id, MembershipFreeze.resumed_at.is_(None),
+            MembershipFreeze.end_date >= today, MembershipFreeze.end_date <= today + timedelta(days=7))).all():
+        add("freeze_ending", ms.member_id, f"Freeze ends {fz.end_date.isoformat()}")
+
+    since = _naive(today - timedelta(days=14))
+    live = db.scalars(select(Membership.member_id).where(
+        MS, Membership.status == MemberStatus.ACTIVE, Membership.start_date <= today - timedelta(days=14),
+        Membership.end_date >= today)).all()
+    seen = set(db.scalars(select(Attendance.member_id).where(
+        Attendance.workspace_id == workspace_id, Attendance.check_in_time >= since, Attendance.member_id.isnot(None))).all())
+    for member_id in set(live) - seen:
+        add("inactive", member_id, "No check-in for 14+ days")
+
+    out = []
+    for key, rows in groups.items():
+        items = list(rows.values())
+        title, message = REMINDER_TEMPLATES[key]
+        out.append({"key": key, "label": REMINDER_LABELS[key], "count": len(items), "members": items[:limit],
+                    "suggested_title": title, "suggested_message": message})
+    return {"groups": [g for g in out if g["count"]], "generated_for": today.isoformat(), "source": "rules"}
+
+
+# ─── Workout suggestions ───────────────────────────────────────────────
+
+QUESTIONS = [
+    {"key": "goal", "label": "What's your main goal?", "type": "choice",
+     "options": [["fat_loss", "Lose fat"], ["muscle_gain", "Build muscle"], ["strength", "Get stronger"],
+                 ["endurance", "Improve stamina"], ["general_fitness", "General fitness"], ["mobility", "Move better / flexibility"]]},
+    {"key": "experience", "label": "How much have you trained before?", "type": "choice",
+     "options": [["beginner", "New or returning (under 6 months)"], ["intermediate", "6 months to 2 years"], ["advanced", "Over 2 years"]]},
+    {"key": "days_per_week", "label": "How many days a week can you train?", "type": "choice",
+     "options": [[2, "2"], [3, "3"], [4, "4"], [5, "5"], [6, "6"]]},
+    {"key": "session_minutes", "label": "How long is each session?", "type": "choice",
+     "options": [[20, "20 min"], [30, "30 min"], [45, "45 min"], [60, "60 min"], [90, "90 min"]]},
+    {"key": "equipment", "label": "Where will you train?", "type": "choice",
+     "options": [["full_gym", "In the gym (all equipment)"], ["home_dumbbells", "At home with dumbbells"], ["bodyweight", "No equipment"]]},
+    {"key": "limitations", "label": "Any area to go easy on?", "type": "multi",
+     "options": [["knees", "Knees"], ["lower_back", "Lower back"], ["shoulders", "Shoulders"], ["wrists", "Wrists"]]},
+    {"key": "health_flags", "label": "Do any of these apply to you right now?", "type": "multi",
+     "options": [["heart_condition", "Heart condition or high blood pressure"], ["pregnancy", "Pregnant or recently gave birth"],
+                 ["recent_surgery", "Surgery or serious injury in the last 6 months"], ["chest_pain_dizziness", "Chest pain or dizziness when active"]]},
+    {"key": "notes", "label": "Anything else? (optional, no personal details)", "type": "text"},
+]
+EQUIPMENT_ALLOWED = {
+    "bodyweight": {"bodyweight"},
+    "home_dumbbells": {"bodyweight", "dumbbell", "kettlebell", "bench"},
+    "full_gym": None,  # everything
+}
+LIMITATION_EXCLUDES = {
+    "knees": {"squat", "lunge", "plyometric"},
+    "lower_back": {"hinge"},
+    "shoulders": {"vertical_push"},
+    "wrists": set(),
+}
+DIFFICULTY_ALLOWED = {"beginner": {"beginner"}, "intermediate": {"beginner", "intermediate"},
+                      "advanced": {"beginner", "intermediate", "advanced"}}
+PRESCRIPTION = {
+    "strength": (4, "4-6", 150), "muscle_gain": (3, "8-12", 90), "fat_loss": (3, "12-15", 45),
+    "endurance": (3, "15-20", 30), "general_fitness": (3, "8-12", 60), "mobility": (2, "30-45s", 30),
+}
+EXERCISES_PER_SESSION = {20: 3, 30: 4, 45: 5, 60: 6, 90: 7}
+SPLITS = {
+    "full": [("Full body", ["squat", "horizontal_push", "horizontal_pull", "hinge", "anti_extension", "locomotion", "lunge"])],
+    "upper_lower": [("Upper body", ["horizontal_push", "horizontal_pull", "vertical_push", "vertical_pull", "isolation", "anti_extension"]),
+                    ("Lower body", ["squat", "hinge", "lunge", "isolation", "anti_extension", "locomotion"])],
+    "ppl": [("Push", ["horizontal_push", "vertical_push", "isolation", "anti_extension"]),
+            ("Pull", ["horizontal_pull", "vertical_pull", "isolation", "rotation"]),
+            ("Legs", ["squat", "hinge", "lunge", "isolation", "flexion"])],
+    "mobility": [("Mobility & core", ["mobility", "anti_extension", "rotation", "locomotion", "flexion"])],
+}
+DISCLAIMER = "Suggestions only, not medical advice. Warm up, start light, and stop if anything hurts. Check with a trainer before trying new lifts."
+HEALTH_STOP = ("Because of what you told us, please get clearance from a doctor before starting a new program, "
+               "and ask a trainer at your gym to build one with you. We haven't generated a workout for safety reasons.")
+
+
+def _validate_answers(a: dict) -> dict:
+    def choice(key, default):
+        opts = next(q["options"] for q in QUESTIONS if q["key"] == key)
+        v = a.get(key, default)
+        if v not in [o[0] for o in opts]:
+            raise HTTPException(status_code=422, detail=f"Invalid answer for {key}.")
+        return v
+
+    def multi(key):
+        opts = {o[0] for o in next(q["options"] for q in QUESTIONS if q["key"] == key)}
+        vals = a.get(key) or []
+        if not isinstance(vals, list) or any(v not in opts for v in vals):
+            raise HTTPException(status_code=422, detail=f"Invalid answer for {key}.")
+        return sorted(set(vals))
+
+    return {
+        "goal": choice("goal", "general_fitness"), "experience": choice("experience", "beginner"),
+        "days_per_week": choice("days_per_week", 3), "session_minutes": choice("session_minutes", 45),
+        "equipment": choice("equipment", "full_gym"), "limitations": multi("limitations"),
+        "health_flags": multi("health_flags"), "notes": clean_text(scrub_pii(a.get("notes") or ""), 200),
+    }
+
+
+def _candidates(db: Session, workspace_id: str, ans: dict) -> list[Exercise]:
+    rows = db.scalars(select(Exercise).where(
+        Exercise.status == "active",
+        (Exercise.workspace_id.is_(None)) | (Exercise.workspace_id == workspace_id),
+    ).order_by(Exercise.name)).all()
+    allowed_eq = EQUIPMENT_ALLOWED[ans["equipment"]]
+    excluded = set().union(*(LIMITATION_EXCLUDES[x] for x in ans["limitations"])) if ans["limitations"] else set()
+    out = []
+    for e in rows:
+        if e.difficulty not in DIFFICULTY_ALLOWED[ans["experience"]] or e.movement_pattern in excluded:
+            continue
+        eq = set(json.loads(e.equipment or "[]") or ["bodyweight"])
+        if allowed_eq is not None and not eq <= allowed_eq:
+            continue
+        out.append(e)
+    return out
+
+
+def _rule_plan(ans: dict, cands: list[Exercise]) -> dict:
+    goal, days = ans["goal"], ans["days_per_week"]
+    split = "mobility" if goal == "mobility" else "full" if days <= 3 else "upper_lower" if days == 4 else "ppl"
+    sets, reps, rest = PRESCRIPTION[goal]
+    if ans["experience"] == "beginner" and goal != "mobility":
+        sets = max(2, sets - 1)
+    per = EXERCISES_PER_SESSION[ans["session_minutes"]]
+    by_pattern: dict[str, list[Exercise]] = {}
+    for e in cands:
+        by_pattern.setdefault(e.movement_pattern or "other", []).append(e)
+
+    plan_days = []
+    for i in range(days):
+        name, slots = SPLITS[split][i % len(SPLITS[split])]
+        rotation = i // len(SPLITS[split])
+        chosen: list[Exercise] = []
+        for slot in slots + list(by_pattern):
+            pool = [e for e in by_pattern.get(slot, []) if e not in chosen]
+            if pool:
+                chosen.append(pool[rotation % len(pool)])
+            if len(chosen) >= per:
+                break
+        items = []
+        for e in chosen:
+            cardio = e.exercise_type == "cardio" or e.movement_pattern == "locomotion"
+            items.append({"exercise_id": e.id, "name": e.name,
+                          "sets": 1 if cardio else sets, "reps": "8-12 min" if cardio else reps,
+                          "rest_seconds": 0 if cardio else rest, "note": ""})
+        plan_days.append({"name": f"Day {i + 1}: {name}" + (f" ({'AB'[rotation % 2]})" if split == "full" and days > 1 else ""),
+                          "focus": name, "exercises": items})
+    titles = {"fat_loss": "Fat-loss", "muscle_gain": "Muscle-building", "strength": "Strength",
+              "endurance": "Stamina", "general_fitness": "General fitness", "mobility": "Mobility"}
+    return {
+        "title": f"{titles[goal]} plan · {days} days/week",
+        "overview": f"{days} sessions of about {ans['session_minutes']} minutes using exercises from your gym's library. "
+                    f"Add weight or reps when the last set feels easy.",
+        "days": plan_days,
+        "tips": ["Warm up for 5 minutes before each session.", "Leave at least one rest day between hard sessions for the same muscles.",
+                 "Track your sets in My Workout to see progress."],
+    }
+
+
+def workout_suggestion(db: Session, ctx: AiContext, answers: dict, use_ai: bool) -> dict:
+    ans = _validate_answers(answers)
+    if ans["health_flags"]:
+        ai_core.log_usage(db, ctx, "workout", "rules")
+        return {"plan": None, "safety_message": HEALTH_STOP, "disclaimer": DISCLAIMER, "source": "rules", "notice": None}
+    cands = _candidates(db, ctx.workspace_id, ans)
+    if len(cands) < 3:
+        raise HTTPException(status_code=422, detail="Your gym's exercise library doesn't have enough exercises for these answers yet.")
+    plan = _rule_plan(ans, cands)
+    if not use_ai:
+        ai_core.log_usage(db, ctx, "workout", "rules")
+        return {"plan": plan, "safety_message": None, "disclaimer": DISCLAIMER, "source": "rules", "notice": None}
+
+    alias = {f"e{i + 1}": e for i, e in enumerate(cands[:45])}
+    library = [{"id": k, "name": e.name, "pattern": e.movement_pattern, "type": e.exercise_type, "level": e.difficulty}
+               for k, e in alias.items()]
+    per = EXERCISES_PER_SESSION[ans["session_minutes"]]
+
+    def validate(raw: dict) -> dict:
+        days = raw.get("days")
+        if not isinstance(days, list) or len(days) != ans["days_per_week"]:
+            raise ValueError("wrong number of days")
+        out_days = []
+        for i, d in enumerate(days):
+            exs = []
+            for x in (d.get("exercises") or [])[: per + 1]:
+                e = alias.get(str(x.get("id")))
+                if e is None:
+                    raise ValueError("unknown exercise id")
+                sets = int(x.get("sets", 3))
+                rest = int(x.get("rest_seconds", 60))
+                reps = clean_text(x.get("reps", "8-12"), 12)
+                if not (1 <= sets <= 6 and 0 <= rest <= 300 and re.fullmatch(r"[0-9]{1,3}(-[0-9]{1,3})?\s?(s|sec|min)?", reps)):
+                    raise ValueError("prescription out of range")
+                exs.append({"exercise_id": e.id, "name": e.name, "sets": sets, "reps": reps, "rest_seconds": rest,
+                            "note": clean_text(x.get("note"), 120)})
+            if len(exs) < 2:
+                raise ValueError("day too short")
+            focus = clean_text(d.get("focus"), 40) or "Training"
+            out_days.append({"name": f"Day {i + 1}: {focus}", "focus": focus, "exercises": exs})
+        return {"title": clean_text(raw.get("title"), 80) or plan["title"],
+                "overview": clean_text(raw.get("overview"), 300) or plan["overview"],
+                "days": out_days, "tips": clean_list(raw.get("tips"), 3, 160) or plan["tips"]}
+
+    result = ai_core.run(
+        db, ctx, "workout",
+        system=("You are a careful strength coach. Build a weekly plan using ONLY exercise ids from the library. "
+                f"Exactly {ans['days_per_week']} days, {max(2, per - 1)}-{per} exercises per day, balanced muscle groups, "
+                "sensible progression for the experience level, avoid the listed limitations. reps is like \"8-12\" or \"30s\". "
+                'Shape: {"title": str, "overview": str (max 40 words), "days": [{"focus": str, "exercises": '
+                '[{"id": "e1", "sets": int, "reps": str, "rest_seconds": int, "note": str (max 12 words)}]}], "tips": [max 3 short str]}'),
+        prompt=json.dumps({"answers": {k: v for k, v in ans.items() if k not in ("notes", "health_flags")}, "library": library})
+        + (f"\n<user_input>{ans['notes']}</user_input>" if ans["notes"] else ""),
+        validate=validate, fallback=lambda: plan, max_tokens=1100, temperature=0.4,
+        key=ai_core.cache_key("workout", ctx.workspace_id, [ans, sorted(e.id for e in alias.values())]),
+        ttl=timedelta(days=30),
+    )
+    return {"plan": result.data, "safety_message": None, "disclaimer": DISCLAIMER, "source": result.source, "notice": result.notice}

@@ -61,9 +61,12 @@ from app.models.billing import (
     PaymentStatus as BillingPaymentStatus,
 )
 from app.models.biometric import BiometricDevice, BiometricDeviceStatus
+from app.models.ai import AiResponseCache, AiUsageLog
 from app.models.communication import Broadcast, MessageTemplate, NotificationDelivery, NotificationPreference
 
 __all__ = [
+    "AiResponseCache",
+    "AiUsageLog",
     "Broadcast",
     "MessageTemplate",
     "NotificationDelivery",

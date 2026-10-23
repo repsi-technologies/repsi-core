@@ -86,7 +86,14 @@ function UserMenu({ workspace }: { workspace?: string }) {
       await logoutSession();
     } catch (err) {
       console.error("Sign out error:", err);
-      // Fallback redirect
+      // Fallback redirect & client storage reset
+      try {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.removeAttribute("data-theme");
+        document.documentElement.style.colorScheme = "light";
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
       window.location.href = "/login";
     }
   };
