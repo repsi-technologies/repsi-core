@@ -272,12 +272,13 @@ def create_member(
         existing_user = db.query(User).filter(or_(*filters)).first()
         if existing_user:
             linked_user_id = existing_user.id
-        else:
-            raw_pwd = (data.password.strip() if data.password and data.password.strip() else None) or "MemberPass123!"
+        elif data.password and data.password.strip():
+            # Staff chose a password to hand to the member. Without one, no login is created: the
+            # member claims this record later by verified sign-up or invitation (never a shared default).
             existing_user = User(
                 email=clean_email or f"{clean_phone}@repsi.internal",
                 full_name=f"{data.first_name} {data.last_name or ''}".strip(),
-                hashed_password=get_password_hash(raw_pwd),
+                hashed_password=get_password_hash(data.password.strip()),
                 phone=clean_phone,
                 is_active=True
             )
@@ -334,20 +335,15 @@ def create_member(
                 func.lower(MembershipPlan.name).in_(["yearly", "annual"])
             ).first()
 
+    from app.services import membership_lifecycle
+    from app.services.notify import safe_notify
+
+    safe_notify(db, member, "welcome", member.id)
     if plan:
-        start = data.start_date or date.today()
-        end = start + timedelta(days=plan.duration_months * 30)
-        membership = Membership(
-            workspace_id=tenant.workspace_id,
-            member_id=member.id,
-            plan_id=plan.id,
-            start_date=start,
-            end_date=end,
-            status=MemberStatus.ACTIVE,
-            price_paid=plan.price,
-            auto_renew=False
+        # Same path as every other assignment: calendar-month end date, history event, confirmation.
+        membership_lifecycle.assign_membership(
+            db, member, plan, data.start_date or date.today(), plan.price, tenant.user_id
         )
-        db.add(membership)
 
     db.commit()
     db.refresh(member)
@@ -644,6 +640,21 @@ def delete_member(
     if not member:
         raise HTTPException(status_code=404, detail="Member not found in this workspace")
 
+    # Deleting cascades to memberships, payments and attendance. Members with any of that history are
+    # archived instead (POST /members/{id}/status) so financial and visit records are preserved.
+    from app.models.attendance import Attendance
+    from app.models.finance import Payment
+    has_history = (
+        db.query(Payment.id).filter(Payment.workspace_id == tenant.workspace_id, Payment.member_id == member.id).first()
+        or db.query(Membership.id).filter(Membership.workspace_id == tenant.workspace_id, Membership.member_id == member.id).first()
+        or db.query(Attendance.id).filter(Attendance.workspace_id == tenant.workspace_id, Attendance.member_id == member.id).first()
+    )
+    if has_history:
+        raise HTTPException(
+            status_code=409,
+            detail="This member has membership, payment or attendance history. Archive the member instead of deleting.",
+        )
+
     linked_user_id = member.user_id
 
     # If linked to a user account, clean up workspace association and user account
@@ -743,53 +754,40 @@ def _process_imported_rows(rows: List[Dict[str, Any]], tenant: TenantContext, db
             notes="Imported via CSV/Bulk Onboarding"
         )
 
-        # Ensure user account
-        user = db.query(User).filter(
-            (func.lower(User.email) == clean_email) | (User.phone == clean_phone)
-        ).first()
+        # Imports never create logins (no phone-number passwords). An existing account with a
+        # verified email is linked so the member gets in-app notifications; anyone else claims
+        # the record later through verified sign-up or an invitation.
+        user = None
+        if clean_email:
+            user = db.query(User).filter(
+                func.lower(User.email) == clean_email, User.email_verified.is_(True)
+            ).first()
+        if user:
+            new_member.user_id = user.id
+            ws_link = db.query(WorkspaceMember).filter(
+                WorkspaceMember.workspace_id == tenant.workspace_id,
+                WorkspaceMember.user_id == user.id
+            ).first()
+            if not ws_link:
+                db.add(WorkspaceMember(
+                    workspace_id=tenant.workspace_id,
+                    user_id=user.id,
+                    role=UserRole.USER,
+                    is_active=True
+                ))
 
-        if not user:
-            user = User(
-                email=clean_email,
-                full_name=f"{first_name} {last_name}".strip(),
-                hashed_password=get_password_hash(clean_phone or "Password123!"),
-                phone=clean_phone,
-                is_active=True,
-            )
-            db.add(user)
-            db.flush()
-
-        # Link to workspace
-        ws_link = db.query(WorkspaceMember).filter(
-            WorkspaceMember.workspace_id == tenant.workspace_id,
-            WorkspaceMember.user_id == user.id
-        ).first()
-
-        if not ws_link:
-            db.add(WorkspaceMember(
-                workspace_id=tenant.workspace_id,
-                user_id=user.id,
-                role=UserRole.USER,
-                is_active=True
-            ))
-
-        # If a plan was specified, link/create membership
+        # A plan named in the file must already exist; prices are never guessed.
+        plan = None
         if plan_name:
             plan = db.query(MembershipPlan).filter(
                 MembershipPlan.workspace_id == tenant.workspace_id,
                 func.lower(MembershipPlan.name) == plan_name.lower()
             ).first()
             if not plan:
-                plan = MembershipPlan(
-                    workspace_id=tenant.workspace_id,
-                    name=plan_name.title(),
-                    price=1499.0,
-                    duration_months=1,
-                    is_active=True
-                )
-                db.add(plan)
-                db.flush()
+                details.append({"row": idx, "status": "warning", "name": f"{first_name} {last_name}",
+                                "message": f"Plan '{plan_name}' not found; imported without a membership."})
 
+        if plan:
             membership = Membership(
                 workspace_id=tenant.workspace_id,
                 member_id=new_member.id,

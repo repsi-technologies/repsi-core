@@ -53,3 +53,15 @@ class Report(Base, TimestampMixin, TenantMixin):
     period = Column(String(50), nullable=False)
     generated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     data_json = Column(Text, nullable=True)
+
+
+class SavedReport(Base, TimestampMixin, TenantMixin):
+    """A named, reusable report view: report type plus its filters (date range, branch, plan, …)."""
+    __tablename__ = "saved_reports"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    name = Column(String(150), nullable=False)
+    report_type = Column(String(50), nullable=False)
+    filters = Column(Text, nullable=True)  # JSON
+    created_by = Column(String(64), nullable=True)
+    is_shared = Column(Boolean, nullable=False, default=True)

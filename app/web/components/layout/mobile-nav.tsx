@@ -1,84 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  Megaphone,
-  Sparkles,
-  LayoutDashboard,
-  Users,
-  CreditCard,
-  CalendarCheck,
-  Banknote,
-  BarChart3,
-  Settings,
-  X,
-  Building2,
-  Dumbbell,
-  Calendar,
-  Receipt,
-  TrendingUp,
-  Bell,
-  Activity,
-  Menu,
-} from "lucide-react";
+import { navGroupsForRole } from "./sidebar";
+import { getAuthUser } from "@/lib/auth";
+import { apiUrl } from "@/lib/auth-client";
+import { X, Building2, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
-
-interface NavItemDef {
-  label: string;
-  path: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface NavGroupDef {
-  title: string;
-  items: NavItemDef[];
-}
-
-const navGroups: NavGroupDef[] = [
-  {
-    title: "Overview",
-    items: [{ label: "Dashboard", path: "/dashboard", icon: LayoutDashboard }],
-  },
-  {
-    title: "Management",
-    items: [
-      { label: "Members", path: "/members", icon: Users },
-      { label: "Memberships", path: "/memberships", icon: CreditCard },
-      { label: "Attendance", path: "/attendance", icon: CalendarCheck },
-      { label: "Trainers", path: "/trainers", icon: Dumbbell },
-      { label: "Classes", path: "/classes", icon: Calendar },
-      { label: "Workouts", path: "/workouts", icon: Dumbbell },
-    ],
-  },
-  {
-    title: "Finance",
-    items: [
-      { label: "Payments", path: "/payments", icon: Banknote },
-      { label: "Expenses", path: "/expenses", icon: Receipt },
-    ],
-  },
-  {
-    title: "Insights",
-    items: [
-      { label: "Reports", path: "/reports", icon: BarChart3 },
-      { label: "Analytics", path: "/analytics", icon: TrendingUp },
-      { label: "AI Insights", path: "/insights", icon: Sparkles },
-      { label: "Broadcasts", path: "/broadcasts", icon: Megaphone },
-    ],
-  },
-  {
-    title: "System",
-    items: [
-      { label: "Notifications", path: "/notifications", icon: Bell },
-      { label: "Activity", path: "/activity", icon: Activity },
-      { label: "Settings", path: "/settings", icon: Settings },
-    ],
-  },
-];
 
 interface MobileNavProps {
   open: boolean;
@@ -88,7 +19,42 @@ interface MobileNavProps {
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
   const workspace = getWorkspaceFromPath(pathname);
-  const gymName = slugToGymName(workspace);
+  // Same role-based menus as the desktop sidebar; resolved after mount (auth lives in the browser).
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => setRole(getAuthUser()?.role || "OWNER"), []);
+  const [gymLogo, setGymLogo] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("repsi_gym_logo");
+      if (stored) return stored;
+      const user = getAuthUser();
+      if (user?.gymLogoUrl) return user.gymLogoUrl;
+    }
+    return null;
+  });
+  const [gymName, setGymName] = useState(() => {
+    const user = typeof window !== "undefined" ? getAuthUser() : null;
+    return user?.gymName || slugToGymName(workspace);
+  });
+
+  useEffect(() => {
+    const handleLogoUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<string | null>;
+      setGymLogo(customEvent.detail);
+    };
+    window.addEventListener("repsi_logo_updated", handleLogoUpdate);
+
+    const user = getAuthUser();
+    if (user?.gymName) setGymName(user.gymName);
+    if (user?.gymLogoUrl) setGymLogo(user.gymLogoUrl);
+    else if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("repsi_gym_logo");
+      if (stored) setGymLogo(stored);
+    }
+
+    return () => {
+      window.removeEventListener("repsi_logo_updated", handleLogoUpdate);
+    };
+  }, [workspace]);
 
   // Close on route change
   useEffect(() => {
@@ -138,15 +104,28 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)]">
-          <Link href={`/${workspace}/dashboard`} className="flex items-center gap-2.5">
-            <Image
-              src="/logos/logo-dark.png"
-              alt="REPSI"
-              width={34}
-              height={34}
-              className="rounded-md object-contain"
-            />
-            <span className="font-bold text-[var(--text)] tracking-tight">REPSI</span>
+          <Link href={`/${workspace}/dashboard`} className="flex items-center gap-2.5 overflow-hidden">
+            {gymLogo ? (
+              <div className="w-8 h-8 rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--surface)] p-0.5 shrink-0 flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={apiUrl(gymLogo)}
+                  alt={gymName}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <Image
+                src="/logos/logo-dark.png"
+                alt="REPSI"
+                width={32}
+                height={32}
+                className="rounded-md object-contain shrink-0"
+              />
+            )}
+            <span className="font-bold text-sm text-[var(--text)] tracking-tight truncate max-w-[170px]">
+              {gymName}
+            </span>
           </Link>
 
           <button
@@ -174,8 +153,8 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
-          {navGroups.map((group) => (
+        <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+          {(role ? navGroupsForRole(role) : []).map((group) => (
             <div key={group.title}>
               <div className="px-3 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">

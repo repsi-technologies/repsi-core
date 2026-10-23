@@ -41,8 +41,10 @@ def test_direct_add_member_no_invitation():
     member_data = add_resp.json()
     assert member_data["first_name"] == "Rahul"
     assert member_data["status"] == "active"
-    assert member_data["user_id"] is not None
-    assert member_data["repsi_access"] == "Connected"
+    # No login is created without a password chosen by staff: the member claims the record later
+    # (verified sign-up or invitation). A shared default password would let anyone sign in as them.
+    assert member_data["user_id"] is None
+    assert member_data["repsi_access"] != "Connected"
 
     # 4. Edit contact info (typo fix e.g. email update)
     member_id = member_data["id"]

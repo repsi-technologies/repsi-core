@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional
 from datetime import date, timedelta
 from urllib.parse import quote
@@ -27,11 +28,21 @@ from app.models.member_records import MembershipEvent, MembershipFreeze
 from app.repositories.base import BaseTenantRepository
 from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
 from app.services import membership_lifecycle as lifecycle
+from app.services import offers
 
 STAFF_ROLES = ("OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN")
 require_staff = require_roles(*STAFF_ROLES)
 
 router = APIRouter(prefix="/memberships", tags=["Memberships"])
+
+
+def _plan_fields(values: dict) -> dict:
+    """Stores structured access rules as JSON text (see MembershipPlan.access_rules)."""
+    if "access_rules" in values:
+        rules = values["access_rules"]
+        rules = {k: v for k, v in (rules or {}).items() if v is not None}
+        values["access_rules"] = json.dumps(rules) if rules else None
+    return values
 
 
 @router.get("/plans", response_model=List[MembershipPlanResponse])
@@ -50,10 +61,10 @@ def create_plan(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
-    if tenant.role not in ["OWNER", "ADMIN", "STAFF", "SUPER_ADMIN"]:
+    if tenant.role not in ["OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN"]:
         raise HTTPException(status_code=403, detail="Forbidden. Only staff/owners can create membership plans.")
     repo = BaseTenantRepository[MembershipPlan](MembershipPlan, db, tenant.workspace_id)
-    return repo.create(**data.model_dump())
+    return repo.create(**_plan_fields(data.model_dump()))
 
 
 @router.put("/plans/{id}", response_model=MembershipPlanResponse)
@@ -69,7 +80,7 @@ def update_plan(
     plan = repo.get(id)
     if not plan:
         raise HTTPException(status_code=404, detail="Membership plan not found")
-    return repo.update(plan, **data.model_dump(exclude_unset=True))
+    return repo.update(plan, **_plan_fields(data.model_dump(exclude_unset=True)))
 
 
 @router.delete("/plans/{id}")
@@ -84,11 +95,12 @@ def delete_plan(
     plan = repo.get(id)
     if not plan:
         raise HTTPException(status_code=404, detail="Membership plan not found")
-    active_mems = db.query(Membership).filter(Membership.plan_id == id, Membership.status == MemberStatus.ACTIVE).count()
-    if active_mems > 0:
+    # Any membership (current or past) keeps a reference to its plan, so used plans are deactivated, never deleted.
+    used = db.query(Membership).filter(Membership.plan_id == id, Membership.workspace_id == tenant.workspace_id).count()
+    if used > 0:
         plan.is_active = False
         db.commit()
-        return {"status": "success", "message": "Plan has active members; deactivated successfully"}
+        return {"status": "success", "message": "Plan has membership history; deactivated successfully"}
     db.delete(plan)
     db.commit()
     return {"status": "success", "message": "Membership plan deleted successfully"}
@@ -112,7 +124,7 @@ def create_membership(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
-    if tenant.role not in ["OWNER", "ADMIN", "STAFF", "SUPER_ADMIN"]:
+    if tenant.role not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Forbidden. Only staff/owners can assign memberships.")
 
     plan = db.query(MembershipPlan).filter(
@@ -129,9 +141,18 @@ def create_membership(
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
 
+    price = data.price_paid if data.price_paid is not None else plan.price
+    coupon_quote = None
+    if data.coupon_code:
+        coupon_quote = offers.quote(db, offers.find_coupon(db, tenant.workspace_id, data.coupon_code), plan, member,
+                                    data.start_date, list_price=price)
+        price = coupon_quote.final_price
     membership = lifecycle.assign_membership(
-        db, member, plan, data.start_date, data.price_paid, tenant.user_id, auto_renew=data.auto_renew
+        db, member, plan, data.start_date, price, tenant.user_id, auto_renew=data.auto_renew,
+        details={"coupon": coupon_quote.as_dict()} if coupon_quote else None,
     )
+    if coupon_quote:
+        offers.redeem(db, coupon_quote, member, membership, tenant.user_id)
 
     # Assignment restores members whose account status was a legacy membership value (expired/frozen/...),
     # but never overrides a deliberate account status such as suspended, inactive or archived.

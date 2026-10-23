@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE } from "@/lib/api-base";
 import { useState, useEffect, use, useCallback } from "react";
 import { Users, CalendarCheck, CheckCircle2, XCircle, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ export default function TrainerClassesPage(props: { params: Promise<{ workspace:
 
   const fetchParticipants = useCallback(async (classId: string) => {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+      const apiBase = API_BASE;
       const res = await fetch(`${apiBase}/classes/${classId}/participants`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("repsi_auth_token")}`,
@@ -68,7 +69,7 @@ export default function TrainerClassesPage(props: { params: Promise<{ workspace:
     if (!selectedClass || !selectedMemberId) return;
     setMarking(true);
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+      const apiBase = API_BASE;
       const res = await fetch(`${apiBase}/classes/${selectedClass.id}/attendance`, {
         method: "POST",
         headers: {

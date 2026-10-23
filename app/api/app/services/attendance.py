@@ -391,7 +391,7 @@ class AttendanceService:
                 return AccessDecision(False, "TRAINER_INACTIVE", "Trainer account is suspended or inactive.")
             return AccessDecision(True, "OK", "Access permitted.")
         rules = self.get_or_create_settings(gym_location_id)
-        return evaluate_member_access(self.db, person["obj"], rules)
+        return evaluate_member_access(self.db, person["obj"], rules, branch_id=gym_location_id)
 
     def _validate_eligibility(self, person: dict, gym_location_id: Optional[str] = None,
                               override_reason: Optional[str] = None, can_override: bool = False,

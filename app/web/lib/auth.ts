@@ -5,7 +5,7 @@
  * Integrated with Next.js middleware and FastAPI backend.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+import { API_BASE } from "@/lib/api-base";
 
 export interface AuthUser {
   id: string;
@@ -14,6 +14,7 @@ export interface AuthUser {
   role: "OWNER" | "ADMIN" | "MANAGER" | "TRAINER" | "STAFF" | "SUPER_ADMIN" | "USER" | "MEMBER";
   workspaceSlug?: string;
   gymName?: string;
+  gymLogoUrl?: string;
   onboardingRequired?: boolean;
 }
 
@@ -34,13 +35,47 @@ export function getAuthCookie(): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
-export function loginSession(token: string, user: AuthUser, workspaceSlug = ""): void {
+export function loginSession(token: string, user: AuthUser, workspaceSlug = "", refreshToken?: string | null): void {
   if (typeof window === "undefined") return;
   setAuthCookie(token);
   localStorage.setItem("repsi_auth_token", token);
+  if (refreshToken) localStorage.setItem("repsi_refresh_token", refreshToken);
   localStorage.setItem("repsi_user", JSON.stringify(user));
   if (workspaceSlug) localStorage.setItem("repsi_workspace_slug", workspaceSlug);
   else localStorage.removeItem("repsi_workspace_slug");
+}
+
+let refreshing: Promise<boolean> | null = null;
+
+/**
+ * Exchanges the stored refresh token for a new access token (the server rotates both).
+ * Concurrent callers share one request. Returns false when the session can't be renewed.
+ */
+export function refreshAccessToken(): Promise<boolean> {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  const refreshToken = localStorage.getItem("repsi_refresh_token");
+  if (!refreshToken) return Promise.resolve(false);
+  refreshing ??= fetch(`${API_BASE}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken, workspace: localStorage.getItem("repsi_workspace_slug") || undefined }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        localStorage.removeItem("repsi_refresh_token");
+        return false;
+      }
+      const data = await res.json();
+      setAuthCookie(data.access_token);
+      localStorage.setItem("repsi_auth_token", data.access_token);
+      if (data.refresh_token) localStorage.setItem("repsi_refresh_token", data.refresh_token);
+      return true;
+    })
+    .catch(() => false)
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
 }
 
 export async function logoutSession(): Promise<void> {

@@ -39,6 +39,15 @@ PERMISSIONS: dict[str, str] = {
     "programs.manage": "Create and edit workout programs",
     "workouts.assign": "Assign and customize member workout plans",
     "communications.manage": "Send broadcasts, manage message templates and view delivery logs",
+    "dashboard.view": "View the business dashboard and key indicators",
+    "reports.view": "View business reports and analytics",
+    "classes.manage": "Create, edit and schedule group classes",
+    "bookings.manage": "Manage class bookings and appointments for members",
+    "equipment.manage": "Add, edit and remove gym equipment",
+    "website.manage": "Edit and publish the gym website",
+    "payments.manage": "Record payments, refunds and day-end reconciliation",
+    "documents.manage": "Upload and manage member documents",
+    "support.manage": "Raise and follow support requests with REPSI",
 }
 
 ALL = frozenset(PERMISSIONS)
@@ -51,11 +60,15 @@ ROLE_DEFAULTS: dict[str, frozenset] = {
         "attendance.view", "attendance.record", "attendance.correct", "attendance.override", "attendance.export",
         "members.view", "members.manage", "trainers.assign", "schedules.manage", "payments.view",
         "records.export", "audit.view", "exercises.manage", "programs.manage", "workouts.assign",
-        "communications.manage",
+        "communications.manage", "dashboard.view", "reports.view", "classes.manage", "bookings.manage",
+        "equipment.manage", "payments.manage", "documents.manage",
     }),
-    "STAFF": frozenset({"attendance.view", "attendance.record", "members.view", "members.manage", "payments.view"}),
+    "STAFF": frozenset({
+        "attendance.view", "attendance.record", "members.view", "members.manage", "payments.view",
+        "dashboard.view", "bookings.manage", "documents.manage",
+    }),
     # Trainers only reach their own assigned clients; the relationship check lives in the fitness service.
-    "TRAINER": frozenset({"exercises.manage", "programs.manage", "workouts.assign"}),
+    "TRAINER": frozenset({"exercises.manage", "programs.manage", "workouts.assign", "bookings.manage"}),
     "USER": frozenset(),
 }
 

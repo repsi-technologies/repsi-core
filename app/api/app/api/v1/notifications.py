@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, desc
-from typing import Optional
+from typing import Literal, Optional
+
+from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.middleware.tenant import get_current_tenant, TenantContext
@@ -34,6 +36,43 @@ def update_my_preferences(
 ):
     """Opt in/out per channel. Turning WhatsApp on records the consent timestamp; off clears it immediately."""
     return comms.update_preferences(db, tenant.workspace_id, tenant.user_id, data.model_dump(exclude_unset=True))
+
+
+class DeviceRegistration(BaseModel):
+    token: str = Field(min_length=20, max_length=512)
+    platform: Literal["android", "ios", "web", "desktop"]
+
+
+@router.post("/devices", status_code=status.HTTP_201_CREATED)
+def register_device(data: DeviceRegistration, tenant: TenantContext = Depends(get_current_tenant),
+                    db: Session = Depends(get_db)):
+    """Registers this app install for push notifications (FCM token). Re-registering moves the token to this user."""
+    from datetime import datetime, timezone
+    from app.models.communication import DeviceToken
+
+    now = datetime.now(timezone.utc)
+    row = db.scalar(select(DeviceToken).where(DeviceToken.token == data.token))
+    if row is None:
+        row = DeviceToken(workspace_id=tenant.workspace_id, user_id=tenant.user_id, token=data.token, platform=data.platform)
+        db.add(row)
+    row.user_id, row.workspace_id, row.platform = tenant.user_id, tenant.workspace_id, data.platform
+    row.last_seen_at, row.revoked_at = now, None
+    db.commit()
+    return {"status": "registered", "platform": row.platform}
+
+
+@router.delete("/devices")
+def unregister_device(data: DeviceRegistration, tenant: TenantContext = Depends(get_current_tenant),
+                      db: Session = Depends(get_db)):
+    """Call on sign-out so the device stops receiving this user's notifications."""
+    from datetime import datetime, timezone
+    from app.models.communication import DeviceToken
+
+    row = db.scalar(select(DeviceToken).where(DeviceToken.token == data.token, DeviceToken.user_id == tenant.user_id))
+    if row is not None and row.revoked_at is None:
+        row.revoked_at = datetime.now(timezone.utc)
+        db.commit()
+    return {"status": "unregistered"}
 
 
 @router.get("", response_model=NotificationListResponse)

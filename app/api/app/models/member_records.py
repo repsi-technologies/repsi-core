@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey, Text, Index
+from sqlalchemy import Boolean, Column, String, Integer, Date, DateTime, ForeignKey, Text, Index
 from app.core.database import Base
 from app.models.base import TimestampMixin, TenantMixin, generate_uuid
 
@@ -60,3 +60,31 @@ class MembershipFreeze(Base, TimestampMixin, TenantMixin):
     created_by_user_id = Column(String(64), nullable=True)
     resumed_at = Column(DateTime, nullable=True)
     days_frozen = Column(Integer, nullable=True)  # set on resume: days actually added to the membership
+
+
+class MemberDocument(Base, TimestampMixin, TenantMixin):
+    """
+    Agreements, waivers, ID proofs and medical forms. Files live in private storage (never a
+    public URL); archiving keeps the row and file for the history instead of deleting them.
+    """
+    __tablename__ = "member_documents"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
+    category = Column(String(30), nullable=False, default="other")  # agreement | waiver | id_proof | medical | other
+    title = Column(String(200), nullable=False)
+    storage_key = Column(String(255), nullable=False)
+    original_filename = Column(String(255), nullable=True)
+    content_type = Column(String(100), nullable=False)
+    size_bytes = Column(Integer, nullable=False)
+    sha256 = Column(String(64), nullable=False)
+    uploaded_by_user_id = Column(String(64), nullable=True)
+    # Members can see documents shared with them and acknowledge (sign) agreements and waivers.
+    visible_to_member = Column(Boolean, nullable=False, default=True)
+    requires_acknowledgement = Column(Boolean, nullable=False, default=False)
+    acknowledged_at = Column(DateTime(timezone=True), nullable=True)
+    acknowledged_by_user_id = Column(String(64), nullable=True)
+    acknowledged_name = Column(String(200), nullable=True)
+    acknowledged_ip = Column(String(64), nullable=True)
+    expires_on = Column(Date, nullable=True)
+    archived_at = Column(DateTime(timezone=True), nullable=True)

@@ -34,8 +34,11 @@ import {
   NotesPanel,
   PaymentsPanel,
 } from "@/features/members/member-record-panels";
+import { MemberDocuments } from "@/features/members/member-documents";
 
 const MODERATOR_ROLES = ["OWNER", "ADMIN", "SUPER_ADMIN"];
+// Roles holding documents.manage by default (the API enforces the real permission).
+const DOCUMENT_ROLES = ["OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN"];
 // Gym-wide fitness access (the API applies the same rule; trainers use their client workspace).
 const TRAINING_ROLES = ["OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN"];
 
@@ -162,6 +165,7 @@ export default function WorkspaceMemberProfilePage(props: {
     { id: "attendance", label: "Attendance" },
     ...(canViewTraining ? [{ id: "training", label: "Training" }] : []),
     { id: "notes", label: "Notes" },
+    { id: "documents", label: "Documents" },
     { id: "history", label: "History" },
   ];
 
@@ -382,6 +386,10 @@ export default function WorkspaceMemberProfilePage(props: {
       {tab === "training" && canViewTraining && <MemberTraining memberId={memberId} />}
 
       {tab === "notes" && <NotesPanel memberId={memberId} currentUserId={authUser?.id} canModerate={canModerate} />}
+
+      {tab === "documents" && (
+        <MemberDocuments memberId={memberId} canManage={DOCUMENT_ROLES.includes(authUser?.role || "")} />
+      )}
 
       {tab === "history" && <HistoryPanel memberId={memberId} />}
 

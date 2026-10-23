@@ -1,0 +1,16 @@
+# Never bake local data, secrets or caches into the image.
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+private_storage/
+.seed-credentials.local
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+backups/
+.git/

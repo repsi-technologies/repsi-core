@@ -13,8 +13,20 @@ export function cn(...inputs: ClassValue[]) {
  * Formats a number as Indian currency (INR).
  * e.g. 482500 → "₹4,82,500"
  */
+const LOCALES: Record<string, string> = { en: "en-IN", ta: "ta-IN", ml: "ml-IN", kn: "kn-IN", te: "te-IN" };
+
+/** Intl locale for the language the user picked (stored by the language switcher); en-IN by default. */
+export function appLocale(): string {
+  if (typeof window === "undefined") return "en-IN";
+  try {
+    return LOCALES[localStorage.getItem("repsi_preferred_locale") || "en"] || "en-IN";
+  } catch {
+    return "en-IN";
+  }
+}
+
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat(appLocale(), {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
@@ -26,7 +38,7 @@ export function formatCurrency(value: number): string {
  * e.g. 1284 → "1,284"
  */
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat("en-IN").format(value);
+  return new Intl.NumberFormat(appLocale()).format(value);
 }
 
 /**
@@ -34,7 +46,7 @@ export function formatNumber(value: number): string {
  * e.g. "13 Sep 2026"
  */
 export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat("en-IN", {
+  return new Intl.DateTimeFormat(appLocale(), {
     day: "numeric",
     month: "short",
     year: "numeric",

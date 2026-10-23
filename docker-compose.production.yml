@@ -1,0 +1,55 @@
+# Production stack for the REPSI API on a single VPS (used by .github/workflows/deploy.yml).
+#
+#   cp app/api/.env.example /opt/repsi/.env.production   # fill in real values, never commit it
+#   docker compose -f docker-compose.production.yml up -d --build
+#
+# The database is an external managed PostgreSQL (DATABASE_URL in .env.production). Uploaded files
+# live in the `private_storage` volume unless STORAGE_BACKEND=s3. The `worker` service runs the
+# background jobs; the API containers keep SCHEDULER_ENABLED=false so jobs run in one place only.
+name: repsi
+
+services:
+  api:
+    build:
+      context: ./app/api
+    image: repsi-api:${REPSI_RELEASE:-latest}
+    env_file: .env.production
+    environment:
+      ENVIRONMENT: production
+      SCHEDULER_ENABLED: "false"
+      TRUST_FORWARDED_FOR: "true"  # the host's reverse proxy appends the client IP
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    ports:
+      - "127.0.0.1:8000:8000"  # behind the host's reverse proxy (TLS terminates there)
+    volumes:
+      - private_storage:/app/private_storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "5"}
+
+  worker:
+    image: repsi-api:${REPSI_RELEASE:-latest}
+    env_file: .env.production
+    environment:
+      ENVIRONMENT: production
+    # Runs due jobs every minute; each time slot runs once (claimed in the job_runs table).
+    command: ["sh", "-c", "while true; do uv run --no-sync python -m scripts.run_jobs || true; sleep 60; done"]
+    volumes:
+      - private_storage:/app/private_storage
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "5"}
+
+volumes:
+  private_storage:

@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE } from "@/lib/api-base";
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, CheckCircle2, RefreshCw, ArrowRight } from "lucide-react";
@@ -18,7 +19,7 @@ export default function VerifyEmailPage() {
     setResending(true);
     setError("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+      const apiBase = API_BASE;
       const response = await fetch(`${apiBase}/auth/register/resend-otp`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: userEmail }),
       });
@@ -42,7 +43,7 @@ export default function VerifyEmailPage() {
     setVerifying(true);
     setError("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+      const apiBase = API_BASE;
       const response = await fetch(`${apiBase}/auth/register/verify-otp`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: userEmail, otp }),
       });

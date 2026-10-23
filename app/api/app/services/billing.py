@@ -509,15 +509,26 @@ class BillingService:
                     )
                     db.add(audit)
                     db.commit()
-        elif sub.status == SubscriptionStatus.ACTIVE and sub.current_period_end:
+        elif sub.status in (SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE_PERIOD) and sub.current_period_end:
             p_end = sub.current_period_end if sub.current_period_end.tzinfo else sub.current_period_end.replace(tzinfo=timezone.utc)
             if now > p_end and not sub.is_complimentary:
-                # 3-day grace period before full expiry
-                if now <= p_end + timedelta(days=3):
-                    sub.status = SubscriptionStatus.GRACE_PERIOD
-                else:
-                    sub.status = SubscriptionStatus.EXPIRED
-                db.commit()
+                # Grace period (per gym, else BILLING_GRACE_DAYS) before paid features lock.
+                grace_days = sub.custom_grace_days if sub.custom_grace_days is not None else settings.BILLING_GRACE_DAYS
+                new_status = (
+                    SubscriptionStatus.GRACE_PERIOD if now <= p_end + timedelta(days=grace_days)
+                    else SubscriptionStatus.EXPIRED
+                )
+                if new_status != sub.status:
+                    db.add(SubscriptionAuditLog(
+                        id=str(uuid.uuid4()),
+                        workspace_id=workspace_id,
+                        action="grace_started" if new_status == SubscriptionStatus.GRACE_PERIOD else "subscription_expired",
+                        old_value=getattr(sub.status, "value", sub.status),
+                        new_value=new_status.value,
+                        reason=f"Billing period ended {p_end.date().isoformat()}; grace {grace_days} day(s).",
+                    ))
+                    sub.status = new_status.value
+                    db.commit()
 
         return sub
 

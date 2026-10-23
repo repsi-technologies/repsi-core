@@ -29,6 +29,12 @@ class MembershipPlan(Base, TimestampMixin, TenantMixin):
     price = Column(Float, nullable=False)
     features = Column(Text, nullable=True)  # JSON or comma-separated list of amenities
     is_active = Column(Boolean, default=True, nullable=False)
+    # Structured access rules checked at check-in (JSON): {"branch_ids": [...], "weekdays": [0-6],
+    # "start_time": "06:00", "end_time": "11:00", "max_visits_per_week": 3}. NULL = unrestricted.
+    access_rules = Column(Text, nullable=True)
+    # Group-class bookings included per membership period; NULL = unlimited, 0 = none.
+    class_credits = Column(Integer, nullable=True)
+    guest_passes = Column(Integer, nullable=True)
 
     # Relationships
     memberships = relationship("Membership", back_populates="plan")

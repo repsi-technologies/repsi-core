@@ -36,6 +36,7 @@ from app.schemas.organization import (
 )
 from app.services.auth import RESERVED_SLUGS, AuthService
 from app.services.billing import BillingService
+from app.core.storage import get_storage
 from app.services.manual_payment import UPLOADS_BASE_DIR, _detect_mime_type
 from app.services.workspace_moderation import WorkspaceModerationService
 
@@ -43,6 +44,14 @@ ORG_WIDE_ROLES = {"OWNER", "ADMIN", "SUPER_ADMIN"}
 ONBOARDING_STEPS = ("business", "preferences", "branches", "team", "launch")
 LOGO_MAX_BYTES = 2 * 1024 * 1024
 LOGO_DIR = os.path.join(UPLOADS_BASE_DIR, "logos")
+
+
+def _logo_filename(logo_url: Optional[str]) -> Optional[str]:
+    """The stored file name inside a logo URL we issued (/api/v1/organization/<ws>/logo/<name>)."""
+    if not logo_url or "/logo/" not in logo_url:
+        return None
+    name = logo_url.rsplit("/", 1)[-1]
+    return name if re.fullmatch(r"[0-9a-f]{32}\.(png|jpg|webp)", name) else None
 _EXT = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}
 
 
@@ -282,16 +291,14 @@ class OrganizationService:
         mime = _detect_mime_type(data)
         if mime not in _EXT:
             raise HTTPException(status_code=415, detail="Logo must be a PNG, JPG or WebP image.")
-        folder = os.path.join(LOGO_DIR, ws.id)
-        os.makedirs(folder, exist_ok=True)
-        for old in os.listdir(folder):
-            try:
-                os.remove(os.path.join(folder, old))
-            except OSError:
-                pass
+        previous = _logo_filename(ws.logo_url)
         name = f"{uuid.uuid4().hex}.{_EXT[mime]}"
-        with open(os.path.join(folder, name), "wb") as fh:
-            fh.write(data)
+        get_storage().put(f"logos/{ws.id}/{name}", data, mime)
+        if previous:
+            try:
+                get_storage().delete(f"logos/{ws.id}/{previous}")
+            except Exception:
+                pass
         ws.logo_url = f"/api/v1/organization/{ws.id}/logo/{name}"
         self.db.commit()
         self.db.refresh(ws)
@@ -300,26 +307,25 @@ class OrganizationService:
     def remove_logo(self, ws: Workspace, role: str) -> Workspace:
         if role not in ORG_WIDE_ROLES:
             raise HTTPException(status_code=403, detail="Only owners and admins can change the logo.")
-        folder = os.path.join(LOGO_DIR, ws.id)
-        if os.path.isdir(folder):
-            for old in os.listdir(folder):
-                try:
-                    os.remove(os.path.join(folder, old))
-                except OSError:
-                    pass
+        previous = _logo_filename(ws.logo_url)
+        if previous:
+            try:
+                get_storage().delete(f"logos/{ws.id}/{previous}")
+            except Exception:
+                pass
         ws.logo_url = None
         self.db.commit()
         return ws
 
     @staticmethod
-    def logo_path(workspace_id: str, filename: str) -> Optional[tuple[str, str]]:
+    def logo_bytes(workspace_id: str, filename: str) -> Optional[tuple[bytes, str]]:
         if not re.fullmatch(r"[0-9a-f]{32}\.(png|jpg|webp)", filename) or not re.fullmatch(r"[0-9a-zA-Z-]{1,64}", workspace_id):
             return None
-        path = os.path.join(LOGO_DIR, workspace_id, filename)
-        if not os.path.isfile(path):
+        data = get_storage().get(f"logos/{workspace_id}/{filename}")
+        if data is None:
             return None
         mime = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp"}[filename.rsplit(".", 1)[1]]
-        return path, mime
+        return data, mime
 
     # ─── Branches ─────────────────────────────────────────────────────────
 

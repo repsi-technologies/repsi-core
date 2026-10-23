@@ -124,6 +124,7 @@ def run_database_migrations():
                         logger.warning(f"Could not add column {col_name} to members: {e}")
 
         _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name)
+        _apply_operations_module_migrations(conn, inspector, dialect_name)
 
         # Check invoices columns (amount_paid, membership_id)
         if inspector.has_table("invoices"):
@@ -140,6 +141,9 @@ def run_database_migrations():
                     except Exception as e:
                         logger.warning(f"Could not add column {col_name} to invoices: {e}")
 
+    # Outside the migration transaction: the catalog sync uses its own session (a second
+    # connection would wait on the open transaction's lock on SQLite files).
+    sync_plan_catalog()
     _seed_global_exercises()
 
 
@@ -169,6 +173,63 @@ def _add_missing_columns(conn, inspector, table: str, columns: list[tuple[str, s
             logger.info(f"Added column {col_name} to {table}.")
         except Exception as e:
             logger.warning(f"Could not add column {col_name} to {table}: {e}")
+
+
+def _apply_operations_module_migrations(conn, inspector, dialect_name: str) -> None:
+    """
+    Columns for bookings, appointments, plan benefits, receipts/refunds and lifecycle messages
+    (2026-10). New tables (class_sessions, coupons, refunds, …) come from create_all. Additive only.
+    """
+    is_pg = "postgres" in dialect_name
+    json_type = "JSONB" if is_pg else "TEXT"
+    tz_ts = "TIMESTAMP WITH TIME ZONE" if is_pg else "TIMESTAMP"
+    _add_missing_columns(conn, inspector, "membership_plans", [
+        ("access_rules", "TEXT"),
+        ("class_credits", "INTEGER"),
+        ("guest_passes", "INTEGER"),
+    ])
+    _add_missing_columns(conn, inspector, "classes", [
+        ("description", "TEXT"),
+        ("branch_id", "VARCHAR(64)"),
+        ("booking_open_hours", "INTEGER NOT NULL DEFAULT 168"),
+        ("cancel_cutoff_hours", "INTEGER NOT NULL DEFAULT 2"),
+        ("waitlist_enabled", "BOOLEAN NOT NULL DEFAULT TRUE"),
+    ])
+    _add_missing_columns(conn, inspector, "training_sessions", [
+        ("source", "VARCHAR(20)"),
+        ("booked_by_user_id", "VARCHAR(64)"),
+        ("location", "VARCHAR(150)"),
+        ("cancelled_at", tz_ts),
+        ("cancelled_by_user_id", "VARCHAR(64)"),
+        ("cancel_reason", "VARCHAR(255)"),
+    ])
+    _add_missing_columns(conn, inspector, "payments", [
+        ("receipt_number", "VARCHAR(40)"),
+        ("refunded_amount", "FLOAT NOT NULL DEFAULT 0"),
+        ("recorded_by_user_id", "VARCHAR(64)"),
+        ("notes", "TEXT"),
+    ])
+    _add_missing_columns(conn, inspector, "notification_deliveries", [
+        ("subject", "VARCHAR(255)"),
+        ("body", "TEXT"),
+        ("provider_template_name", "VARCHAR(150)"),
+        ("template_params", json_type),
+    ])
+    _add_missing_columns(conn, inspector, "gym_subscriptions", [
+        ("custom_grace_days", "INTEGER"),
+        ("custom_ai_daily_calls", "INTEGER"),
+    ])
+    for statement in (
+        "CREATE INDEX IF NOT EXISTS ix_payments_receipt_number ON payments (receipt_number)",
+    ):
+        try:
+            if is_pg:
+                with conn.begin_nested():
+                    conn.execute(text(statement))
+            else:
+                conn.execute(text(statement))
+        except Exception as e:
+            logger.warning(f"Index statement skipped ({statement}): {e}")
 
 
 def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str) -> None:
@@ -311,8 +372,6 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
                     conn.execute(text(f"ALTER TYPE memberstatus ADD VALUE IF NOT EXISTS '{value}'"))
             except Exception as e:
                 logger.warning(f"Could not extend memberstatus enum with {value}: {e}")
-
-    sync_plan_catalog()
 
 
 def sync_plan_catalog() -> None:

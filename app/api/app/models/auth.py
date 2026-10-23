@@ -97,3 +97,22 @@ class PasswordResetToken(Base, TimestampMixin):
     token_hash = Column(String(128), nullable=False, unique=True, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     used_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class AuthSession(Base, TimestampMixin):
+    """
+    One signed-in device. Access tokens carry its id (`sid`) so logout and password
+    changes revoke them server-side; the refresh token is stored only as a hash and
+    rotates on every refresh.
+    """
+    __tablename__ = "auth_sessions"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    user_id = Column(String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    refresh_token_hash = Column(String(128), nullable=False, unique=True, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    revoked_at = Column(DateTime(timezone=True), nullable=True)
+    revoked_reason = Column(String(64), nullable=True)
+    last_used_at = Column(DateTime(timezone=True), nullable=True)
+    user_agent = Column(String(255), nullable=True)
+    ip_address = Column(String(64), nullable=True)

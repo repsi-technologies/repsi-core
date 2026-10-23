@@ -163,111 +163,73 @@ def get_workspace_billing(
     db: Session = Depends(get_db)
 ):
     """
-    Returns owner SaaS subscription billing information, usage metrics, and invoice history with Repsi.
+    The gym's REPSI subscription: plan, status, real usage against effective limits, and platform
+    invoices/payments. Nothing here is invented; fields with no data are null or empty.
     """
+    if tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
+        raise HTTPException(status_code=403, detail="Only owners and admins can view billing.")
     ws = db.query(Workspace).filter(Workspace.id == tenant.workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace not found")
 
-    plan = getattr(ws, "plan", "growth") or "growth"
-    member_count = db.query(Member).filter(Member.workspace_id == ws.id).count()
-    trainer_count = db.query(Trainer).filter(Trainer.workspace_id == ws.id).count()
+    from app.models.billing import BillingInvoice, SubscriptionPayment
+    from app.services.billing import BillingService
 
-    from app.models.finance import Invoice
-    invoices = db.query(Invoice).filter(Invoice.workspace_id == ws.id).order_by(Invoice.created_at.desc()).all()
-    inv_list = []
-    for inv in invoices:
-        inv_list.append({
-            "id": inv.invoice_number,
-            "date": inv.created_at.strftime("%b %d, %Y") if inv.created_at else "Sep 14, 2026",
-            "amount": f"₹{inv.total_amount:,.0f}",
-            "amount_num": inv.total_amount,
-            "status": inv.status,
-            "plan": f"{plan.capitalize()} Tier",
-            "txRef": inv.notes or "Cashfree Subscriptions",
-        })
+    sub = BillingService.get_or_create_workspace_subscription(db, ws.id)
+    plan = sub.plan
+    limits = BillingService.get_effective_limits(db, ws.id)
+    usage = BillingService.get_workspace_usage(db, ws.id)
+    status_value = sub.status.value if hasattr(sub.status, "value") else str(sub.status)
+    annual = str(getattr(sub.billing_cycle, "value", sub.billing_cycle)).lower() == "annual"
 
-    if not inv_list:
-        inv_list = [
-            {
-                "id": "INV-2026-001",
-                "date": "Sep 14, 2026",
-                "amount": "₹1,499",
-                "amount_num": 1499,
-                "status": "paid",
-                "plan": "Growth Tier",
-                "pdf_url": "/api/v1/workspaces/billing/invoice/INV-2026-001.pdf"
-            },
-            {
-                "id": "INV-2026-002",
-                "date": "Aug 14, 2026",
-                "amount": "₹1,499",
-                "amount_num": 1499,
-                "status": "paid",
-                "plan": "Growth Tier",
-                "pdf_url": "/api/v1/workspaces/billing/invoice/INV-2026-002.pdf"
-            },
-            {
-                "id": "INV-2026-003",
-                "date": "Jul 14, 2026",
-                "amount": "₹1,499",
-                "amount_num": 1499,
-                "status": "paid",
-                "plan": "Growth Tier",
-                "pdf_url": "/api/v1/workspaces/billing/invoice/INV-2026-003.pdf"
-            }
-        ]
+    def meter(current: int, limit: Optional[int]) -> dict:
+        unlimited = limit is None or limit < 0
+        pct = 0.0 if unlimited or not limit else round(current / limit * 100, 1)
+        return {"current": current, "limit": None if unlimited else limit, "percentage": pct,
+                "limit_reached": (not unlimited) and current >= (limit or 0),
+                "warning_triggered": (not unlimited) and pct >= 80, "unlimited": unlimited}
 
+    def count(key: str) -> int:
+        v = usage.get(key)
+        return v.get("current", v.get("used", 0)) if isinstance(v, dict) else int(v or 0)
+
+    invoices = db.query(BillingInvoice).filter(BillingInvoice.workspace_id == ws.id).order_by(BillingInvoice.created_at.desc()).limit(50).all()
+    payments = db.query(SubscriptionPayment).filter(SubscriptionPayment.workspace_id == ws.id).order_by(SubscriptionPayment.created_at.desc()).limit(50).all()
+    pay_status = lambda p: p.status.value if hasattr(p.status, "value") else str(p.status)  # noqa: E731
     return {
         "plan": {
-            "id": plan.lower(),
-            "name": f"{plan.capitalize()} Tier",
-            "price_inr": 1499 if plan.lower() == "growth" else 2499 if plan.lower() == "pro" else 699,
-            "currency": "INR",
-            "interval": "month",
-            "status": "active",
-            "next_billing_date": "2026-10-14",
-            "is_founding_offer": True,
-            "founding_offer_label": "Founding Gym — 3 Months Free",
+            "id": plan.code,
+            "name": plan.name,
+            "price_inr": plan.annual_price_inr if annual else plan.monthly_price_inr,
+            "currency": sub.currency or "INR",
+            "interval": "year" if annual else "month",
+            "status": status_value,
+            "next_billing_date": sub.current_period_end.date().isoformat() if sub.current_period_end else None,
+            "trial_ends_at": (sub.trial_ends_at or sub.trial_end).isoformat() if (sub.trial_ends_at or sub.trial_end) else None,
+            "is_complimentary": bool(sub.is_complimentary),
+            "cancel_at_period_end": bool(sub.cancel_at_period_end),
         },
         "usage": {
-            "members": {
-                "current": member_count,
-                "limit": 300,
-                "percentage": round((member_count / 300) * 100, 1) if 300 else 0,
-                "limit_reached": member_count >= 300,
-                "warning_triggered": member_count >= 240,
-                "unlimited": False,
-            },
-            "trainers": {
-                "current": trainer_count,
-                "limit": 10,
-                "percentage": round((trainer_count / 10) * 100, 1) if 10 else 0,
-                "limit_reached": trainer_count >= 10,
-                "warning_triggered": trainer_count >= 8,
-                "unlimited": False,
-            },
-            "staff": {"current": trainer_count, "limit": 10},
-            "branches": {
-                "current": 1,
-                "limit": 1,
-                "percentage": 100.0,
-                "limit_reached": True,
-                "warning_triggered": False,
-                "unlimited": False,
-            },
-            "websites": {"current": 1, "limit": 1},
-            "custom_domains": {"current": 0, "limit": 1},
+            "members": meter(count("members"), limits.get("max_members")),
+            "trainers": meter(count("trainers"), limits.get("max_trainers")),
+            "staff": meter(count("staff"), limits.get("max_staff")),
+            "branches": meter(count("branches"), limits.get("max_branches")),
         },
-        "payment_method": {
-            "brand": "Visa",
-            "last4": "4242",
-            "exp_month": 12,
-            "exp_year": 2028,
-            "type": "Credit Card",
-            "gateway": "Cashfree Subscriptions",
-        },
-        "invoices": inv_list
+        # Card details are held by the payment gateway; REPSI never stores them.
+        "payment_method": None,
+        "invoices": [{
+            "id": inv.invoice_number,
+            "date": inv.created_at.strftime("%b %d, %Y") if inv.created_at else None,
+            "amount": f"₹{(inv.amount or 0) + (inv.tax_amount or 0):,.0f}",
+            "amount_num": (inv.amount or 0) + (inv.tax_amount or 0),
+            "status": inv.status,
+            "plan": plan.name,
+            "pdf_url": inv.pdf_url,
+        } for inv in invoices],
+        "payments": [{
+            "id": p.id, "amount": p.amount, "currency": p.currency, "status": pay_status(p),
+            "method": p.payment_method, "failure_reason": p.failure_reason, "created_at": p.created_at,
+        } for p in payments],
     }
 
 

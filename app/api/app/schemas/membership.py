@@ -1,24 +1,47 @@
+import json
 from typing import Optional, List, Literal
 from datetime import date, datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.models.member import MemberStatus
 
 
+class PlanAccessRules(BaseModel):
+    """Checked at every check-in. Omit a field for no restriction."""
+    branch_ids: Optional[List[str]] = None
+    weekdays: Optional[List[int]] = Field(default=None, description="0 = Monday … 6 = Sunday")
+    start_time: Optional[str] = Field(default=None, pattern=r"^\d{2}:\d{2}$")
+    end_time: Optional[str] = Field(default=None, pattern=r"^\d{2}:\d{2}$")
+    max_visits_per_week: Optional[int] = Field(default=None, ge=1, le=50)
+
+    @field_validator("weekdays")
+    @classmethod
+    def _weekdays(cls, v):
+        if v is not None and any(d < 0 or d > 6 for d in v):
+            raise ValueError("weekdays must be between 0 (Monday) and 6 (Sunday)")
+        return v
+
+
 class MembershipPlanCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=150)
     description: Optional[str] = None
-    duration_months: int = 1
-    price: float
+    duration_months: int = Field(default=1, ge=1, le=60)
+    price: float = Field(ge=0)
     features: Optional[str] = None
+    access_rules: Optional[PlanAccessRules] = None
+    class_credits: Optional[int] = Field(default=None, ge=0, le=1000)
+    guest_passes: Optional[int] = Field(default=None, ge=0, le=100)
 
 
 class MembershipPlanUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(default=None, min_length=1, max_length=150)
     description: Optional[str] = None
-    duration_months: Optional[int] = None
-    price: Optional[float] = None
+    duration_months: Optional[int] = Field(default=None, ge=1, le=60)
+    price: Optional[float] = Field(default=None, ge=0)
     features: Optional[str] = None
     is_active: Optional[bool] = None
+    access_rules: Optional[PlanAccessRules] = None
+    class_credits: Optional[int] = Field(default=None, ge=0, le=1000)
+    guest_passes: Optional[int] = Field(default=None, ge=0, le=100)
 
 
 class MembershipPlanResponse(BaseModel):
@@ -30,16 +53,30 @@ class MembershipPlanResponse(BaseModel):
     price: float
     features: Optional[str] = None
     is_active: bool
+    access_rules: Optional[dict] = None
+    class_credits: Optional[int] = None
+    guest_passes: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("access_rules", mode="before")
+    @classmethod
+    def _parse_rules(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v) or None
+            except ValueError:
+                return None
+        return v
 
 
 class MembershipCreate(BaseModel):
     member_id: str
     plan_id: str
     start_date: date
-    price_paid: float
+    price_paid: Optional[float] = Field(default=None, ge=0)  # defaults to the plan price (after any coupon)
     auto_renew: bool = False
+    coupon_code: Optional[str] = Field(default=None, max_length=40)
 
 
 class MembershipResponse(BaseModel):

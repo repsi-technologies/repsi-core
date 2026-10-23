@@ -60,7 +60,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       if (role === "USER" || role === "MEMBER") {
         // Members are restricted to member portal, chat, and profile
         const allowedMemberPrefixes = ["member", "chat", "profile"];
-        const isAllowed = allowedMemberPrefixes.some((prefix) => subRoute === prefix || subRoute.startsWith(prefix));
+        // Exact segment match: a prefix check let "/members" (staff directory) through as "member".
+        const isAllowed = allowedMemberPrefixes.includes(subRoute);
         if (!isAllowed) {
           console.warn(`Member role blocked from owner/trainer route: /${requestedSlug}/${subRoute}`);
           setAuthorized(false);
@@ -77,6 +78,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           router.replace(`/${authorizedSlug || requestedSlug}/trainer/dashboard`);
           return;
         }
+      } else if (role === "STAFF" && ["settings", "website", "reports", "insights", "broadcasts", "superadmin"].includes(subRoute)) {
+        // Front-desk staff: owner/manager areas are hidden (the API enforces permissions regardless).
+        setAuthorized(false);
+        router.replace(`/${authorizedSlug || requestedSlug}/dashboard`);
+        return;
       } else if (role !== "SUPER_ADMIN" && subRoute === "superadmin") {
         setAuthorized(false);
         router.replace(`/${authorizedSlug || requestedSlug}/dashboard`);

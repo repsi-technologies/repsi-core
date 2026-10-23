@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.models.machine import GymMachine
 from app.repositories.base import BaseTenantRepository
 from app.middleware.tenant import get_current_tenant, TenantContext
+from app.core.permissions import require_permission
 
 router = APIRouter(prefix="/machines", tags=["Machines"])
 
@@ -74,7 +75,7 @@ def get_machine(
 @router.post("/", response_model=MachineResponse, status_code=status.HTTP_201_CREATED)
 def create_machine(
     data: MachineCreate,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("equipment.manage")),
     db: Session = Depends(get_db)
 ):
     repo = BaseTenantRepository[GymMachine](GymMachine, db, tenant.workspace_id)
@@ -85,7 +86,7 @@ def create_machine(
 def update_machine(
     id: str,
     data: MachineUpdate,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("equipment.manage")),
     db: Session = Depends(get_db)
 ):
     repo = BaseTenantRepository[GymMachine](GymMachine, db, tenant.workspace_id)
@@ -98,7 +99,7 @@ def update_machine(
 @router.delete("/{id}")
 def delete_machine(
     id: str,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("equipment.manage")),
     db: Session = Depends(get_db)
 ):
     repo = BaseTenantRepository[GymMachine](GymMachine, db, tenant.workspace_id)

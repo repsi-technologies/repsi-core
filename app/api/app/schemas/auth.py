@@ -24,6 +24,7 @@ class UserResponse(BaseModel):
     workspace_id: str | None = None
     workspace_slug: str | None = None
     gym_name: str | None = None
+    gym_logo_url: str | None = None
     preferred_language: str = "en"
     email_verified: bool = False
     phone_verified: bool = False
@@ -38,12 +39,16 @@ class Token(BaseModel):
     workspace_id: str | None = None
     workspace_slug: str | None = None
     gym_name: str | None = None
+    gym_logo_url: str | None = None
     role: str | None = None
     user: UserResponse | None = None
     # Where the client should go next, derived from the user's real memberships and
     # onboarding state (e.g. "/onboarding", "/acme/dashboard", "/superadmin/dashboard").
     next_path: str | None = None
     onboarding_required: bool = False
+    # Opaque, single-use refresh token for POST /auth/refresh (rotates on every use).
+    refresh_token: str | None = None
+    expires_in: int | None = None
 
 
 class TokenPayload(BaseModel):
@@ -215,3 +220,13 @@ class PasswordChange(BaseModel):
     new_password: str
 
     _pw = field_validator("new_password")(_check_password)
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(min_length=20, max_length=200)
+    workspace: str | None = None
+
+
+class LogoutRequest(BaseModel):
+    refresh_token: str | None = None
+    all_devices: bool = False

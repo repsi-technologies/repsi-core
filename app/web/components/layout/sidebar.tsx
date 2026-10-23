@@ -33,11 +33,15 @@ import {
   Globe,
   Megaphone,
   Sparkles,
+  TicketPercent,
+  LifeBuoy,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
 import { getAuthUser, AuthUser } from "@/lib/auth";
+import { apiUrl, orgApi } from "@/lib/auth-client";
 import { useEffect } from "react";
 
 // ─── Navigation Structure ─────────────────────────────────────────────────────
@@ -52,6 +56,8 @@ interface NavGroupDef {
   title: string;
   items: NavItemDef[];
 }
+
+export type { NavGroupDef };
 
 const ownerNavGroups: NavGroupDef[] = [
   {
@@ -76,6 +82,9 @@ const ownerNavGroups: NavGroupDef[] = [
       { label: "Attendance", path: "/attendance", icon: CalendarCheck },
       { label: "Trainers", path: "/trainers", icon: Dumbbell },
       { label: "Classes", path: "/classes", icon: Calendar },
+      { label: "Payments", path: "/payments", icon: Banknote },
+      { label: "Receipts & Day Close", path: "/payments/finance", icon: Receipt },
+      { label: "Offers & Coupons", path: "/memberships/offers", icon: TicketPercent },
       { label: "Workouts", path: "/workouts", icon: Dumbbell },
       { label: "Equipment", path: "/machines", icon: Wrench },
     ],
@@ -96,6 +105,7 @@ const ownerNavGroups: NavGroupDef[] = [
       { label: "Gym Settings", path: "/settings", icon: Settings },
       { label: "Subscription & Billing", path: "/settings/billing", icon: CreditCard },
       { label: "Team & Roles", path: "/settings/team", icon: Users },
+      { label: "Help & Support", path: "/settings/support", icon: LifeBuoy },
     ],
   },
 ];
@@ -129,6 +139,7 @@ const memberNavGroups: NavGroupDef[] = [
       { label: "Trainer", path: "/member/trainer", icon: Users },
       { label: "Trainer Chat", path: "/chat", icon: MessageSquare },
       { label: "Digital QR Pass", path: "/member/qr", icon: QrCode },
+      { label: "Book Classes", path: "/member/classes", icon: Calendar },
     ],
   },
   {
@@ -137,6 +148,23 @@ const memberNavGroups: NavGroupDef[] = [
       { label: "My Membership", path: "/member/membership", icon: CreditCard },
       { label: "My Attendance", path: "/member/attendance", icon: CalendarCheck },
       { label: "My Payments", path: "/member/payments", icon: Banknote },
+      { label: "My Documents", path: "/member/documents", icon: FileText },
+    ],
+  },
+];
+
+// Front-desk staff: day-to-day operations only (the API enforces each permission).
+const staffNavGroups: NavGroupDef[] = [
+  {
+    title: "FRONT DESK",
+    items: [
+      { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+      { label: "Check-in", path: "/attendance", icon: CalendarCheck },
+      { label: "Members", path: "/members", icon: Users },
+      { label: "Memberships", path: "/memberships", icon: CreditCard },
+      { label: "Classes", path: "/classes", icon: Calendar },
+      { label: "Payments", path: "/payments", icon: Banknote },
+      { label: "Receipts & Dues", path: "/payments/finance", icon: Receipt },
     ],
   },
 ];
@@ -154,51 +182,103 @@ const superAdminNavGroups: NavGroupDef[] = [
   },
 ];
 
-// ─── REPSI Logo ───────────────────────────────────────────────────────────────
+// ─── Gym Brand Header (Top Left Dashboard Logo) ───────────────────────────────
 
-function RepsiLogo({ collapsed, workspace }: { collapsed: boolean; workspace: string }) {
+function GymBrandHeader({ collapsed, workspace }: { collapsed: boolean; workspace: string }) {
+  const [gymLogo, setGymLogo] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("repsi_gym_logo");
+      if (stored) return stored;
+      const user = getAuthUser();
+      if (user?.gymLogoUrl) return user.gymLogoUrl;
+    }
+    return null;
+  });
+
+  const [gymName, setGymName] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const user = getAuthUser();
+      if (user?.gymName) return user.gymName;
+      if (workspace && !/^[0-9a-f]{8}-[0-9a-f]{4}/i.test(workspace)) return slugToGymName(workspace);
+    }
+    return "Apex Fitness";
+  });
+
+  useEffect(() => {
+    const handleLogoUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<string | null>;
+      setGymLogo(customEvent.detail);
+    };
+
+    window.addEventListener("repsi_logo_updated", handleLogoUpdate);
+
+    const user = getAuthUser();
+    if (user?.gymName) setGymName(user.gymName);
+    if (user?.gymLogoUrl) {
+      setGymLogo(user.gymLogoUrl);
+      localStorage.setItem("repsi_gym_logo", user.gymLogoUrl);
+    } else {
+      orgApi.profile().then((p) => {
+        if (p?.logo_url) {
+          setGymLogo(p.logo_url);
+          localStorage.setItem("repsi_gym_logo", p.logo_url);
+        }
+        if (p?.name) {
+          setGymName(p.name);
+        }
+      }).catch(() => {});
+    }
+
+    return () => {
+      window.removeEventListener("repsi_logo_updated", handleLogoUpdate);
+    };
+  }, [workspace]);
+
   return (
     <Link 
       href={`/${workspace}/dashboard`} 
-      className="flex items-center gap-2.5 px-4 h-16 border-b border-[var(--border)] transition-opacity hover:opacity-90"
+      className="flex items-center gap-3 px-4 h-16 border-b border-[var(--border)] transition-opacity hover:opacity-90 overflow-hidden"
+      title={gymName}
     >
       {collapsed ? (
-        /* Collapsed: app icon only */
-        <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
-          <Image
-            src="/logos/logo-dark.png"
-            alt="REPSI"
-            width={36}
-            height={36}
-            className="object-contain dark:hidden"
-          />
-          <Image
-            src="/logos/white_logo.png"
-            alt="REPSI"
-            width={36}
-            height={36}
-            className="object-contain hidden dark:block"
-          />
+        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-2xs p-1">
+          {gymLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={apiUrl(gymLogo)}
+              alt={gymName}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="w-full h-full rounded-lg bg-[var(--primary-soft)] text-[var(--primary-dark)] font-black text-xs flex items-center justify-center">
+              {gymName.slice(0, 2).toUpperCase()}
+            </div>
+          )}
         </div>
       ) : (
-        /* Expanded: horizontal logo */
-        <div className="flex items-center h-10 w-full">
-          <Image
-            src="/logos/logo-dark.png"
-            alt="REPSI"
-            width={160}
-            height={48}
-            className="h-9 w-auto object-contain object-left dark:hidden"
-            priority
-          />
-          <Image
-            src="/logos/white_logo.png"
-            alt="REPSI"
-            width={160}
-            height={48}
-            className="h-9 w-auto object-contain object-left hidden dark:block"
-            priority
-          />
+        <div className="flex items-center gap-3 h-10 w-full overflow-hidden">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-2xs p-1">
+            {gymLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={apiUrl(gymLogo)}
+                alt={gymName}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <div className="w-full h-full rounded-lg bg-[var(--primary-soft)] text-[var(--primary-dark)] font-black text-xs flex items-center justify-center">
+                {gymName.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-bold text-[var(--text)] truncate leading-tight tracking-tight">
+              {gymName}
+            </div>
+            <div className="text-[10px] font-semibold text-[var(--primary-dark)] uppercase tracking-wider leading-tight mt-0.5">
+              Gym Workspace
+            </div>
+          </div>
         </div>
       )}
     </Link>
@@ -312,6 +392,15 @@ function NavLink({
   return linkContent;
 }
 
+/** Primary navigation for a role (shared by the desktop sidebar and the mobile drawer). */
+export function navGroupsForRole(role: string | null | undefined): NavGroupDef[] {
+  if (role === "SUPER_ADMIN") return superAdminNavGroups;
+  if (role === "TRAINER") return trainerNavGroups;
+  if (role === "STAFF") return staffNavGroups;
+  if (role === "USER") return memberNavGroups;
+  return ownerNavGroups;
+}
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 export function Sidebar() {
@@ -325,14 +414,7 @@ export function Sidebar() {
   }, []);
 
   const role = user?.role || "OWNER";
-  let activeNavGroups = ownerNavGroups;
-  if (role === "SUPER_ADMIN") {
-    activeNavGroups = superAdminNavGroups;
-  } else if (role === "TRAINER") {
-    activeNavGroups = trainerNavGroups;
-  } else if (role === "USER" || role === "STAFF") {
-    activeNavGroups = memberNavGroups;
-  }
+  const activeNavGroups = navGroupsForRole(role);
 
   const secondaryNav: NavItemDef[] = role === "SUPER_ADMIN"
     ? [
@@ -343,7 +425,7 @@ export function Sidebar() {
         { label: "Notifications", path: "/notifications", icon: Bell },
         { label: "My Profile", path: "/trainer/profile", icon: Settings },
       ]
-    : role === "USER" || role === "STAFF"
+    : role === "USER"
     ? [
         { label: "Notifications", path: "/notifications", icon: Bell },
         { label: "My Profile", path: "/member/profile", icon: Settings },
@@ -364,8 +446,8 @@ export function Sidebar() {
           collapsed ? "w-[72px]" : "w-[240px]"
         )}
       >
-        {/* Logo */}
-        <RepsiLogo collapsed={collapsed} workspace={workspace} />
+        {/* Gym Brand Logo (Top Left) */}
+        <GymBrandHeader collapsed={collapsed} workspace={workspace} />
 
         {/* Gym Selector */}
         <GymSelector collapsed={collapsed} workspace={workspace} />

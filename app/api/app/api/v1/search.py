@@ -183,6 +183,10 @@ def global_search(
                 any(query_lower in kw or kw in query_lower for kw in f["keywords"])):
                 matched_features.append(f)
 
+    # Members (USER role) only get feature shortcuts; other people's records are staff-only.
+    if role_str == "USER":
+        return {"query": query_str, "role": role_str, "members": [], "trainers": [], "features": []}
+
     # 2. Member & Trainer search
     if query_str:
         like_pattern = f"%{query_str}%"

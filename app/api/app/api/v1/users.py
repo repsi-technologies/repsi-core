@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User, WorkspaceMember
 from app.schemas.auth import UserResponse
-from app.middleware.tenant import get_current_tenant, TenantContext
+from app.middleware.tenant import TenantContext, require_roles
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/", response_model=List[UserResponse])
 def get_workspace_users(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_roles("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")),
     db: Session = Depends(get_db)
 ):
     members = (

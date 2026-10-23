@@ -1,3 +1,4 @@
+import math
 import uuid
 import logging
 from datetime import datetime, timedelta, timezone
@@ -105,7 +106,8 @@ class TrialLifecycleService:
                 continue
             t_end_utc = t_end if t_end.tzinfo else t_end.replace(tzinfo=timezone.utc)
             delta = t_end_utc - now
-            days_left = max(0, int(delta.total_seconds() // 86400))
+            # Round up: 2 days minus a few seconds is still "2 days left", not 1.
+            days_left = max(0, math.ceil(delta.total_seconds() / 86400))
 
             flags = dict(sub.reminder_sent_flags or {})
             should_update = False

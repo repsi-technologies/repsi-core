@@ -206,7 +206,23 @@ def assign_membership(
             **(details or {}),
         },
     )
+    _notify(db, member, "membership_renewed" if event_type == "renewed" else "membership_assigned", membership, plan)
     return membership
+
+
+def _notify(db: Session, member: Optional[Member], event: str, membership: Membership,
+            plan: Optional[MembershipPlan] = None, **extra) -> None:
+    from app.services.notify import safe_notify
+
+    if member is None:
+        member = db.get(Member, membership.member_id)
+    plan = plan or db.get(MembershipPlan, membership.plan_id)
+    safe_notify(db, member, event, f"{membership.id}:{membership.end_date.isoformat()}", variables={
+        "plan_name": plan.name if plan else "membership",
+        "start_date": membership.start_date.strftime("%d %b %Y"),
+        "end_date": membership.end_date.strftime("%d %b %Y"),
+        **extra,
+    })
 
 
 def renew_membership(
@@ -296,6 +312,9 @@ def freeze_membership(
         details={"freeze_start": start.isoformat(), "freeze_end": end.isoformat()},
     )
     db.flush()
+    from app.services.notify import safe_notify
+    safe_notify(db, db.get(Member, membership.member_id), "membership_frozen", freeze.id,
+                variables={"start_date": start.strftime("%d %b %Y"), "end_date": end.strftime("%d %b %Y")})
     return freeze
 
 
@@ -336,6 +355,7 @@ def unfreeze_membership(
         details={"freeze_id": freeze.id, "days_frozen": days},
     )
     db.flush()
+    _notify(db, None, "membership_unfrozen", membership)
     return membership
 
 
@@ -372,6 +392,7 @@ def extend_membership(
         details={"days": days},
     )
     db.flush()
+    _notify(db, None, "membership_extended", membership)
     return membership
 
 

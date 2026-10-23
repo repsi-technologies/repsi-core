@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from app.core.database import engine, Base, SessionLocal
-from app.core.seed import seed_database
+from app.core.seed import ensure_seed_allowed, seed_database
 
 def reset_and_seed():
+    ensure_seed_allowed()
     print("[RESET] Resetting database: Dropping all tables...")
     try:
         Base.metadata.drop_all(bind=engine)

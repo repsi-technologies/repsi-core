@@ -25,8 +25,11 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.email import send_notification_email
 from app.core.phone import mask_phone, normalize_phone
+from app.core.push import push_configured, send_push
+from app.core.sms import send_sms
 from app.models.communication import (
     Broadcast,
+    DeviceToken,
     MessageTemplate,
     NotificationDelivery,
     NotificationPreference,
@@ -336,6 +339,29 @@ def send_whatsapp_template(phone_e164: str, campaign_name: str, params: list[str
     return "sent", provider_id, None
 
 
+def _send_push_to_user(db: Session, user_id: Optional[str], title: str, body: str) -> tuple[str, Optional[str], Optional[str]]:
+    """Push to every active device of the user; 'sent' if at least one device accepted it."""
+    if not user_id:
+        return "skipped_no_contact", None, "Member has no app account"
+    if not push_configured():
+        return "skipped_not_configured", None, "Push notifications are not configured"
+    tokens = db.scalars(select(DeviceToken).where(DeviceToken.user_id == user_id, DeviceToken.revoked_at.is_(None))).all()
+    if not tokens:
+        return "skipped_no_contact", None, "No registered devices"
+    sent_id, last_error = None, None
+    for t in tokens:
+        st, provider_id, error = send_push(t.token, title, body)
+        if st == "sent":
+            sent_id = sent_id or provider_id or "sent"
+        elif st == "unregistered":
+            t.revoked_at = datetime.now(timezone.utc)
+        else:
+            last_error = error
+    if sent_id:
+        return "sent", sent_id if sent_id != "sent" else None, None
+    return "failed", None, last_error or "No device accepted the notification"
+
+
 def dispatch_queued_deliveries(db: Session, broadcast_id: Optional[str] = None, limit: int = DISPATCH_BATCH) -> int:
     """Sends queued email/WhatsApp deliveries. Idempotent: only `queued` rows are touched."""
     q = select(NotificationDelivery).where(NotificationDelivery.status == "queued")
@@ -367,25 +393,41 @@ def dispatch_queued_deliveries(db: Session, broadcast_id: Optional[str] = None, 
             email=(m.email if m else u.email if u else None), phone=(m.phone if m else u.phone if u else None),
         )
         d.attempts = (d.attempts or 0) + 1
-        if b is None:
+        if d.broadcast_id and b is None:
             d.status, d.error = "failed", "Broadcast no longer exists"
-        elif d.channel == "email":
+            continue
+        # Broadcast rows render the broadcast; lifecycle rows (no broadcast) carry their own content.
+        subject = render(b.title, r, gym_name) if b else (d.subject or "")
+        body = render(b.message, r, gym_name) if b else (d.body or "")
+        phone = normalize_phone(r.phone, (ws.country_code if ws else None) or "IN") if r.phone else None
+        if d.channel == "email":
             if not r.email:
                 d.status, d.error = "skipped_no_contact", "No email address"
             else:
-                d.status, d.error = send_notification_email(r.email, render(b.title, r, gym_name), render(b.message, r, gym_name))
+                d.status, d.error = send_notification_email(r.email, subject, body)
                 d.provider = "smtp"
         elif d.channel == "whatsapp":
-            t = templates.get(b.template_id)
-            phone = normalize_phone(r.phone, (ws.country_code if ws else None) or "IN") if r.phone else None
-            if not t or not t.provider_template_name:
+            t = templates.get(b.template_id) if b else None
+            template_name = t.provider_template_name if t else d.provider_template_name
+            params = [r.first_name or "there", gym_name] if b else list(d.template_params or [])
+            if not template_name:
                 d.status, d.error = "failed", "Approved WhatsApp template missing"
             elif not phone:
                 d.status, d.error = "skipped_no_contact", "No valid phone number"
             else:
-                d.status, d.provider_message_id, d.error = send_whatsapp_template(
-                    phone, t.provider_template_name, [r.first_name or "there", gym_name], r.name)
+                d.status, d.provider_message_id, d.error = send_whatsapp_template(phone, template_name, params, r.name)
                 d.provider = "aisensy"
+        elif d.channel == "sms":
+            if not phone:
+                d.status, d.error = "skipped_no_contact", "No valid phone number"
+            else:
+                params = d.template_params if isinstance(d.template_params, dict) else {}
+                d.status, d.provider_message_id, d.error = send_sms(
+                    phone, f"{subject}: {body}" if subject else body, d.provider_template_name, params)
+                d.provider = (settings.SMS_PROVIDER or "none").lower()
+        elif d.channel == "push":
+            d.status, d.provider_message_id, d.error = _send_push_to_user(db, d.recipient_user_id, subject, body)
+            d.provider = "fcm"
         else:
             d.status, d.error = "failed", f"Channel {d.channel} is not dispatchable"
         if d.status == "sent":

@@ -12,6 +12,8 @@ member self check-in at the entrance QR). Evaluation order, first failure wins:
                       expired, not-yet-started and missing memberships are denied.
   3. Overdue invoice  when `block_on_overdue_invoice` is on, a past-due unpaid invoice denies entry.
   4. Daily limit      `max_visits_per_day` (0 = unlimited) counted in the workspace's local day.
+  5. Plan rules       the covering membership's plan `access_rules`: allowed weekdays, a daily
+                      time window, allowed branches and a weekly visit limit.
 
 A payment record never grants access by itself; only membership state does.
 Rules 2–4 can be overridden by staff holding `attendance.override`, with a recorded reason.
@@ -64,6 +66,10 @@ MEMBER_FACING = {
     "OVERDUE_INVOICE": "There is an outstanding payment on your account. Please contact the front desk.",
     "PAYMENT_PENDING_REVIEW": "Your payment is awaiting confirmation by the gym.",
     "DAILY_LIMIT_REACHED": "You've reached today's visit limit.",
+    "PLAN_DAY_NOT_ALLOWED": "Your plan doesn't include visits on this day.",
+    "PLAN_TIME_NOT_ALLOWED": "Your plan doesn't include visits at this time.",
+    "PLAN_BRANCH_NOT_ALLOWED": "Your plan doesn't include this branch.",
+    "WEEKLY_LIMIT_REACHED": "You've reached this week's visit limit for your plan.",
     "TRAINER_INACTIVE": "Your trainer account isn't active.",
 }
 
@@ -93,6 +99,7 @@ def evaluate_member_access(
     member: Member,
     rules: AttendanceSettings,
     now: Optional[datetime] = None,
+    branch_id: Optional[str] = None,
 ) -> AccessDecision:
     tz = workspace_tz(db, member.workspace_id)
     now = now or datetime.now(timezone.utc)
@@ -187,4 +194,53 @@ def evaluate_member_access(
             return _deny("DAILY_LIMIT_REACHED", f"Daily limit of {rules.max_visits_per_day} visit(s) reached.", True,
                          membership_id=decision.membership_id, valid_until=decision.valid_until)
 
+    # 5. Plan access rules
+    plan_denial = _plan_rule_denial(db, member, decision, tz, now, branch_id)
+    if plan_denial is not None:
+        return plan_denial
+
     return decision
+
+
+def _plan_rule_denial(db: Session, member: Member, decision: AccessDecision, tz: ZoneInfo, now: datetime,
+                      branch_id: Optional[str]) -> Optional[AccessDecision]:
+    import json
+
+    from app.models.member import MembershipPlan
+
+    if not decision.membership_id:
+        return None
+    membership = db.get(Membership, decision.membership_id)
+    plan = db.get(MembershipPlan, membership.plan_id) if membership else None
+    if plan is None or not plan.access_rules:
+        return None
+    try:
+        rules = json.loads(plan.access_rules) or {}
+    except ValueError:
+        return None
+    local = now.astimezone(tz)
+    extra = {"membership_id": decision.membership_id, "valid_until": decision.valid_until}
+    weekdays = rules.get("weekdays")
+    if weekdays and local.weekday() not in weekdays:
+        names = ", ".join(("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")[d] for d in sorted(weekdays))
+        return _deny("PLAN_DAY_NOT_ALLOWED", f"The {plan.name} plan allows visits on {names} only.", True, **extra)
+    start, end = rules.get("start_time"), rules.get("end_time")
+    hhmm = local.strftime("%H:%M")
+    if (start and hhmm < start) or (end and hhmm >= end):
+        return _deny("PLAN_TIME_NOT_ALLOWED",
+                     f"The {plan.name} plan allows visits {start or '00:00'}–{end or '24:00'} only.", True, **extra)
+    branches = rules.get("branch_ids")
+    if branches and branch_id and branch_id not in branches:
+        return _deny("PLAN_BRANCH_NOT_ALLOWED", f"The {plan.name} plan doesn't include this branch.", True, **extra)
+    weekly = rules.get("max_visits_per_week")
+    if weekly:
+        week_start_day = local.date() - timedelta(days=local.weekday())
+        start_utc, _ = local_day_bounds_utc(tz, week_start_day)
+        visits = db.query(Attendance).filter(
+            Attendance.workspace_id == member.workspace_id,
+            Attendance.member_id == member.id,
+            Attendance.check_in_time >= start_utc,
+        ).count()
+        if visits >= weekly:
+            return _deny("WEEKLY_LIMIT_REACHED", f"The {plan.name} plan allows {weekly} visit(s) per week.", True, **extra)
+    return None

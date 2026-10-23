@@ -45,61 +45,6 @@ export function FlexCarouselFeatures() {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
 
-  // Scroll to move on laptop/desktop: only advance once the content below the image is fully visible
-  useEffect(() => {
-    let lastStepTime = 0;
-    let accumulatedDelta = 0;
-
-    const handleWheel = (e: WheelEvent) => {
-      const el = carouselBoxRef.current;
-      if (!el) return;
-
-      // Only on laptop/desktop screens (non-mobile)
-      if (window.innerWidth < 768) return;
-
-      const rect = el.getBoundingClientRect();
-      // "Don't start the scroll until the content below the image is visible"
-      // Content below image (the lower drawer) must be within the viewport
-      const isContentBelowImageVisible = rect.bottom <= window.innerHeight + 15 && rect.top >= -80;
-
-      if (!isContentBelowImageVisible) {
-        accumulatedDelta = 0;
-        return;
-      }
-
-      const currentIdx = activeIndexRef.current;
-
-      if (e.deltaY > 0) {
-        // Scrolling DOWN
-        if (currentIdx < featureDetails.length - 1) {
-          e.preventDefault();
-          accumulatedDelta += e.deltaY;
-          const now = performance.now();
-          if (accumulatedDelta > 40 && now - lastStepTime > 300) {
-            lastStepTime = now;
-            accumulatedDelta = 0;
-            carouselRef.current?.step(1);
-          }
-        }
-      } else if (e.deltaY < 0) {
-        // Scrolling UP
-        if (currentIdx > 0) {
-          e.preventDefault();
-          accumulatedDelta += e.deltaY;
-          const now = performance.now();
-          if (accumulatedDelta < -40 && now - lastStepTime > 300) {
-            lastStepTime = now;
-            accumulatedDelta = 0;
-            carouselRef.current?.step(-1);
-          }
-        }
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
-
   const featureDetails: FeatureDetail[] = [
     {
       id: "members",
@@ -210,6 +155,62 @@ export function FlexCarouselFeatures() {
       ],
     },
   ];
+
+  // Scroll to move on laptop/desktop: only advance once the content below the image is fully visible
+  useEffect(() => {
+    let lastStepTime = 0;
+    let accumulatedDelta = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      const el = carouselBoxRef.current;
+      if (!el) return;
+
+      // Only on laptop/desktop screens (non-mobile)
+      if (window.innerWidth < 768) return;
+
+      const rect = el.getBoundingClientRect();
+      // "Don't start the scroll until the content below the image is visible"
+      // Content below image (the lower drawer) must be within the viewport
+      const isContentBelowImageVisible = rect.bottom <= window.innerHeight + 15 && rect.top >= -80;
+
+      if (!isContentBelowImageVisible) {
+        accumulatedDelta = 0;
+        return;
+      }
+
+      const currentIdx = activeIndexRef.current;
+
+      if (e.deltaY > 0) {
+        // Scrolling DOWN
+        if (currentIdx < featureDetails.length - 1) {
+          e.preventDefault();
+          accumulatedDelta += e.deltaY;
+          const now = performance.now();
+          if (accumulatedDelta > 40 && now - lastStepTime > 300) {
+            lastStepTime = now;
+            accumulatedDelta = 0;
+            carouselRef.current?.step(1);
+          }
+        }
+      } else if (e.deltaY < 0) {
+        // Scrolling UP
+        if (currentIdx > 0) {
+          e.preventDefault();
+          accumulatedDelta += e.deltaY;
+          const now = performance.now();
+          if (accumulatedDelta < -40 && now - lastStepTime > 300) {
+            lastStepTime = now;
+            accumulatedDelta = 0;
+            carouselRef.current?.step(-1);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
+
 
   // Official React Bits FlexCarousel items
   const carouselItems: FlexCarouselItem[] = [

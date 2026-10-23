@@ -1,28 +1,62 @@
-name: Deploy API to Bluehost VPS
+name: Deploy API
 
+# Staging deploys automatically after CI passes on main; production needs a manual run with
+# approval (configure required reviewers on the "production" GitHub environment).
 on:
-  push:
-    branches: [main, master]
-    paths:
-      - 'app/api/**'
-      - 'docker/**'
-      - 'docker-compose.production.yml'
-      - '.github/workflows/deploy.yml'
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [staging, production]
+        default: staging
+      ref:
+        description: Git ref to deploy (branch, tag or SHA)
+        default: main
+
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || 'staging' }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy API Service
+    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
     steps:
-      - name: Deploy via SSH
+      - name: Deploy via SSH (build, migrate on start, health check, roll back on failure)
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_REF: ${{ github.event.inputs.ref || github.event.workflow_run.head_sha }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          envs: DEPLOY_REF
+          script_stop: true
           script: |
-            cd /opt/repsi
-            git pull origin main
+            set -euo pipefail
+            cd "${REPSI_DIR:-/opt/repsi}"
+            PREVIOUS=$(git rev-parse HEAD)
+            git fetch --tags origin
+            git checkout --force "$DEPLOY_REF"
+            export REPSI_RELEASE=$(git rev-parse --short HEAD)
+            # Back up the database before the new release runs its (additive) startup migrations.
+            docker compose -f docker-compose.production.yml run --rm --no-deps api \
+              uv run --no-sync python -m scripts.backup --label "pre-deploy-$REPSI_RELEASE" || echo "WARNING: pre-deploy backup failed"
             docker compose -f docker-compose.production.yml up -d --build --remove-orphans
-            docker compose -f docker-compose.production.yml exec -T api uv run alembic upgrade head
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8000/health >/dev/null; then echo "Healthy: $REPSI_RELEASE"; exit 0; fi
+              sleep 5
+            done
+            echo "Health check failed; rolling back to $PREVIOUS"
+            git checkout --force "$PREVIOUS"
+            export REPSI_RELEASE=$(git rev-parse --short HEAD)
+            docker compose -f docker-compose.production.yml up -d --build --remove-orphans
+            exit 1

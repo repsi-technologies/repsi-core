@@ -17,6 +17,24 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Release builds must use the real upload keystore. The debug key is allowed only for local
+    // dry runs with -PALLOW_DEBUG_SIGNING=true (or ALLOW_DEBUG_SIGNING=true); such APKs can't be published.
+    fun useDebugSigningOrFail(config: com.android.build.api.dsl.ApkSigningConfig) {
+        val allowDebug = (project.findProperty("ALLOW_DEBUG_SIGNING") as String? ?: System.getenv("ALLOW_DEBUG_SIGNING")) == "true"
+        val releaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+        if (releaseTask && !allowDebug) {
+            throw GradleException(
+                "No release keystore found. Provide key.properties or KEYSTORE_PATH/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD, " +
+                    "or pass -PALLOW_DEBUG_SIGNING=true for a local, unpublishable build."
+            )
+        }
+        val debugConfig = signingConfigs.getByName("debug")
+        config.storeFile = debugConfig.storeFile
+        config.storePassword = debugConfig.storePassword
+        config.keyAlias = debugConfig.keyAlias
+        config.keyPassword = debugConfig.keyPassword
+    }
+
     signingConfigs {
         create("release") {
             val keyPropsFile = rootProject.file("key.properties")
@@ -36,11 +54,7 @@ android {
                     keyAlias = properties.getProperty("keyAlias")
                     keyPassword = properties.getProperty("keyPassword")
                 } else {
-                    val debugConfig = signingConfigs.getByName("debug")
-                    storeFile = debugConfig.storeFile
-                    storePassword = debugConfig.storePassword
-                    keyAlias = debugConfig.keyAlias
-                    keyPassword = debugConfig.keyPassword
+                    useDebugSigningOrFail(this)
                 }
             } else {
                 val keystoreFile = project.findProperty("KEYSTORE_PATH") as String? ?: System.getenv("KEYSTORE_PATH")
@@ -50,12 +64,7 @@ android {
                     keyAlias = project.findProperty("KEY_ALIAS") as String? ?: System.getenv("KEY_ALIAS")
                     keyPassword = project.findProperty("KEY_PASSWORD") as String? ?: System.getenv("KEY_PASSWORD")
                 } else {
-                    // Fallback to debug keystore for development / dry-run builds
-                    val debugConfig = signingConfigs.getByName("debug")
-                    storeFile = debugConfig.storeFile
-                    storePassword = debugConfig.storePassword
-                    keyAlias = debugConfig.keyAlias
-                    keyPassword = debugConfig.keyPassword
+                    useDebugSigningOrFail(this)
                 }
             }
         }

@@ -5,11 +5,7 @@
  */
 import { getAuthCookie, loginSession, type AuthUser } from "@/lib/auth";
 
-const API_BASE =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "/api/v1"
-    : process.env.NEXT_PUBLIC_API_URL || "https://api.repsi.app/api/v1";
+import { API_BASE } from "@/lib/api-base";
 
 export class ApiError extends Error {
   status: number;
@@ -95,6 +91,7 @@ export interface SessionUser {
   workspace_id?: string | null;
   workspace_slug?: string | null;
   gym_name?: string | null;
+  gym_logo_url?: string | null;
   email_verified: boolean;
   phone_verified: boolean;
   onboarding_required: boolean;
@@ -103,10 +100,12 @@ export interface SessionUser {
 
 export interface SessionToken {
   access_token: string;
+  refresh_token?: string | null;
   role?: string | null;
   workspace_id?: string | null;
   workspace_slug?: string | null;
   gym_name?: string | null;
+  gym_logo_url?: string | null;
   user?: SessionUser | null;
   next_path?: string | null;
   onboarding_required?: boolean;
@@ -252,6 +251,14 @@ export const SIGNUP_TICKET_KEY = "repsi_signup_ticket";
 export function applySession(token: SessionToken): string {
   const u = token.user;
   const slug = token.workspace_slug || u?.workspace_slug || "";
+  const logoUrl = token.gym_logo_url || u?.gym_logo_url || "";
+  if (typeof window !== "undefined") {
+    if (logoUrl) {
+      localStorage.setItem("repsi_gym_logo", logoUrl);
+    } else {
+      localStorage.removeItem("repsi_gym_logo");
+    }
+  }
   const authUser: AuthUser = {
     id: u?.id || "",
     name: u?.full_name || u?.email || "",
@@ -259,9 +266,10 @@ export function applySession(token: SessionToken): string {
     role: ((token.role || u?.role || "USER") as AuthUser["role"]),
     workspaceSlug: slug || undefined,
     gymName: token.gym_name || u?.gym_name || undefined,
+    gymLogoUrl: logoUrl || undefined,
     onboardingRequired: Boolean(token.onboarding_required),
   };
-  loginSession(token.access_token, authUser, slug);
+  loginSession(token.access_token, authUser, slug, token.refresh_token);
   return token.next_path || (slug ? `/${slug}/dashboard` : "/onboarding");
 }
 
@@ -368,12 +376,24 @@ export const orgApi = {
   profile: () => apiRequest<OrganizationProfile>("/organization"),
   updateProfile: (data: BusinessProfileInput) => apiRequest<OrganizationProfile>("/organization/profile", { method: "PUT", body: data }),
   updatePreferences: (data: PreferencesInput) => apiRequest<OrganizationProfile>("/organization/preferences", { method: "PUT", body: data }),
-  uploadLogo: (file: File) => {
+  uploadLogo: async (file: File) => {
     const form = new FormData();
     form.append("file", file);
-    return apiRequest<OrganizationProfile>("/organization/logo", { method: "POST", form });
+    const res = await apiRequest<OrganizationProfile>("/organization/logo", { method: "POST", form });
+    if (typeof window !== "undefined" && res?.logo_url) {
+      localStorage.setItem("repsi_gym_logo", res.logo_url);
+      window.dispatchEvent(new CustomEvent("repsi_logo_updated", { detail: res.logo_url }));
+    }
+    return res;
   },
-  removeLogo: () => apiRequest<OrganizationProfile>("/organization/logo", { method: "DELETE" }),
+  removeLogo: async () => {
+    const res = await apiRequest<OrganizationProfile>("/organization/logo", { method: "DELETE" });
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("repsi_gym_logo");
+      window.dispatchEvent(new CustomEvent("repsi_logo_updated", { detail: null }));
+    }
+    return res;
+  },
 
   branches: (includeInactive = false) => apiRequest<Branch[]>(`/branches${includeInactive ? "?include_inactive=true" : ""}`),
   createBranch: (data: BranchInput) => apiRequest<Branch>("/branches", { method: "POST", body: data }),

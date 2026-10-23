@@ -46,7 +46,7 @@ def test_razorpay_and_crm_and_website_builder():
 
     # Verify payment
     verify_res = client.post("/api/v1/payments/cashfree/verify", headers=headers_1, json={
-        "cashfree_order_id": order_data["order_id"],
+        "cashfree_order_id": "order_mock_123456",
         "cashfree_payment_id": "pay_mock_123456",
         "amount": 2999.0,
         "notes": {"plan": "Annual Growth"}

@@ -5,11 +5,8 @@
  * Uses Bearer JWT authentication for all protected workspace queries.
  */
 
-const API_BASE =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "/api/v1"
-    : (process.env.NEXT_PUBLIC_API_URL || "https://api.repsi.app/api/v1");
+import { API_BASE } from "@/lib/api-base";
+import { refreshAccessToken } from "@/lib/auth";
 
 export interface ApiMember {
   id: string;
@@ -400,7 +397,7 @@ export interface ApiAuditLog {
 
 /** JSON request helper for member/membership endpoints; surfaces the backend's `detail` message. */
 export async function memberRequest(path: string, method: string, body: unknown, fallbackError: string): Promise<any> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const send = () => fetch(`${API_BASE}${path}`, {
     method,
     headers: {
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
@@ -409,6 +406,11 @@ export async function memberRequest(path: string, method: string, body: unknown,
     body: body !== undefined ? JSON.stringify(body) : undefined,
     cache: "no-store",
   });
+  let res = await send();
+  // An expired access token is renewed once with the refresh token, then the request is retried.
+  if (res.status === 401 && (await refreshAccessToken())) {
+    res = await send();
+  }
   if (!res.ok) {
     checkAuthResponse(res);
     const err = await res.json().catch(() => ({}));
@@ -3255,3 +3257,33 @@ export const repsiApi = {
 export const api = repsiApi;
 export default repsiApi;
 
+
+/** Downloads an authenticated file (PDF receipts, report exports, member documents) and saves it. */
+export async function downloadAuthorized(path: string, filename: string, fallbackError = "Download failed"): Promise<void> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: { ...getAuthHeader() }, cache: "no-store" });
+  if (!res.ok) {
+    checkAuthResponse(res);
+    const err = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(err, fallbackError));
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Multipart upload with the session token; surfaces the backend `detail` on errors. */
+export async function uploadAuthorized(path: string, form: FormData, fallbackError = "Upload failed"): Promise<any> {
+  const res = await fetch(`${API_BASE}${path}`, { method: "POST", headers: { ...getAuthHeader() }, body: form });
+  if (!res.ok) {
+    checkAuthResponse(res);
+    const err = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(err, fallbackError));
+  }
+  return await res.json();
+}

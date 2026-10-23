@@ -22,6 +22,9 @@ dependencies = [
     "google-auth>=2.58.0",
     "phonenumbers>=8.13.0",
     "tzdata>=2024.1",
+    # Report export (Excel) and PDF receipts/reports; both pure Python.
+    "openpyxl==3.1.5",
+    "reportlab==5.0.1",
 ]
 
 [build-system]

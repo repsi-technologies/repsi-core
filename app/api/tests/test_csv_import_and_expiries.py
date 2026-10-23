@@ -20,6 +20,12 @@ def test_csv_import_expiries_and_security():
     ws_id = reg.json()["workspace_id"]
     headers = {"Authorization": f"Bearer {token}"}
 
+    # Plans named in an import must exist; the importer never invents a price.
+    for name, months, price in (("Monthly", 1, 1500), ("Quarterly", 3, 4000)):
+        plan_res = client.post("/api/v1/memberships/plans", headers=headers,
+                               json={"name": name, "duration_months": months, "price": price})
+        assert plan_res.status_code == 201, plan_res.text
+
     # 2. Test CSV Import
     csv_content = (
         "Name,Phone,Email,Gender,Plan\n"

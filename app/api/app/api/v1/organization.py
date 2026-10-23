@@ -3,7 +3,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -185,11 +185,11 @@ def delete_logo(
 @organization_router.get("/{workspace_id}/logo/{filename}", include_in_schema=False)
 def get_logo(workspace_id: str, filename: str):
     """Public: logos appear on public gym sites and invitation pages."""
-    found = OrganizationService.logo_path(workspace_id, filename)
+    found = OrganizationService.logo_bytes(workspace_id, filename)
     if not found:
         raise HTTPException(status_code=404, detail="Logo not found.")
-    path, mime = found
-    return FileResponse(path, media_type=mime, headers={"Cache-Control": "public, max-age=31536000, immutable"})
+    data, mime = found
+    return Response(content=data, media_type=mime, headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
 
 # ─── Branches ────────────────────────────────────────────────────────────

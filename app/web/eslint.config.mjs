@@ -12,7 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "playwright-report/**",
+    "test-results/**",
+    "e2e/.tmp/**",
   ]),
+  {
+    // Node build scripts (icons, OG images) are CommonJS.
+    files: ["scripts/**/*.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   {
     rules: {
       "react-hooks/set-state-in-effect": "off",

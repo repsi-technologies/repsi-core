@@ -10,8 +10,10 @@ from app.services.platform_metrics import database_health
 import app.models  # Registers all models with Base
 from app.api.v1.router import api_router
 from app.middleware import request_context
+from app.core import error_monitoring
 
 request_context.configure_logging()
+error_monitoring.init()
 
 
 @asynccontextmanager
@@ -22,7 +24,12 @@ async def lifespan(app: FastAPI):
         run_database_migrations()
     except Exception:
         logging.getLogger("repsi.startup").exception("Database initialization failed")
-    yield
+    from app.core import scheduler
+    scheduler.start()
+    try:
+        yield
+    finally:
+        scheduler.stop()
 
 
 app = FastAPI(

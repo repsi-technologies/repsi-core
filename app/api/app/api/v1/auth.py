@@ -15,6 +15,7 @@ from app.schemas.auth import (
     GoogleLoginRequest,
     IdentitySummary,
     LoginRequest,
+    LogoutRequest,
     MemberRegisterRequest,
     PasswordChange,
     PasswordResetConfirm,
@@ -25,6 +26,7 @@ from app.schemas.auth import (
     PhoneVerifyResponse,
     ProfileUpdate,
     RegisterOtpRequest,
+    RefreshRequest,
     RegisterRequest,
     ResendRegisterOtpRequest,
     SignupOtpsRequest,
@@ -94,7 +96,9 @@ def login(req: LoginRequest, request: Request, db: Session = Depends(get_db)):
     _limit(request, "login-id", 8, 300, req.email.strip().lower())
     auth_service = AuthService(db)
     user = auth_service.authenticate(req)
-    return auth_service.issue_session(user, req.workspace_slug)
+    return auth_service.issue_session(
+        user, req.workspace_slug, user_agent=request.headers.get("user-agent"), ip_address=client_ip(request)
+    )
 
 
 @router.post("/google", response_model=Token)
@@ -203,11 +207,15 @@ def get_current_user_profile(
 @router.get("/session", response_model=Token)
 def refresh_session(
     workspace: str | None = None,
+    tenant: TenantContext = Depends(get_current_tenant),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Re-issues a token scoped to `workspace` (id or slug) or to the user's default workspace."""
-    return AuthService(db).issue_session(user, workspace)
+    from app.models.auth import AuthSession
+
+    current = db.get(AuthSession, tenant.session_id) if tenant.session_id else None
+    return AuthService(db).issue_session(user, workspace, session=current)
 
 
 @router.put("/me", response_model=UserResponse)
@@ -304,9 +312,14 @@ def verify_link_phone(
 
 
 @router.put("/me/password")
-def change_password(req: PasswordChange, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    AuthService(db).change_password(user, req.current_password, req.new_password)
-    return {"status": "success", "message": "Your password has been updated."}
+def change_password(
+    req: PasswordChange,
+    tenant: TenantContext = Depends(get_current_tenant),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    AuthService(db).change_password(user, req.current_password, req.new_password, keep_session_id=tenant.session_id)
+    return {"status": "success", "message": "Your password has been updated. Other devices have been signed out."}
 
 
 # ─── Password recovery ───────────────────────────────────────────────────
@@ -326,10 +339,60 @@ def reset_password(req: PasswordResetConfirm, request: Request, db: Session = De
     return auth_service.issue_session(user)
 
 
+# ─── Sessions ────────────────────────────────────────────────────────────
+
+@router.post("/refresh", response_model=Token)
+def refresh_tokens(req: RefreshRequest, request: Request, db: Session = Depends(get_db)):
+    """Exchanges a refresh token for a new access token and a new refresh token (rotation)."""
+    _limit(request, "refresh", 60, 300)
+    return AuthService(db).refresh_session(req.refresh_token, req.workspace)
+
+
 @router.post("/logout")
-def logout():
-    # Tokens are stateless JWTs; the client discards its copy.
+def logout(
+    req: LogoutRequest | None = None,
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Revokes this device's session (or every session with `all_devices`); its tokens stop working."""
+    service = AuthService(db)
+    if req is not None and req.all_devices:
+        service.revoke_all_sessions(tenant.user_id, "logout_all")
+    else:
+        service.revoke_session(tenant.session_id, tenant.user_id)
     return {"status": "success", "message": "Successfully logged out"}
+
+
+@router.get("/sessions")
+def list_sessions(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    from app.models.auth import AuthSession
+
+    rows = (
+        db.query(AuthSession)
+        .filter(AuthSession.user_id == tenant.user_id, AuthSession.revoked_at.is_(None))
+        .order_by(AuthSession.last_used_at.desc())
+        .limit(50)
+        .all()
+    )
+    return [
+        {
+            "id": r.id,
+            "current": r.id == tenant.session_id,
+            "user_agent": r.user_agent,
+            "created_at": r.created_at,
+            "last_used_at": r.last_used_at,
+            "expires_at": r.expires_at,
+        }
+        for r in rows
+    ]
+
+
+@router.delete("/sessions/{session_id}")
+def revoke_device_session(
+    session_id: str, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)
+):
+    AuthService(db).revoke_session(session_id, tenant.user_id, reason="revoked_by_user")
+    return {"status": "success"}
 
 
 @router.get("/check-availability")

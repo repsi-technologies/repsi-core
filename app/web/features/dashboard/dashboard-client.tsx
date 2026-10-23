@@ -18,7 +18,7 @@ import { getAuthUser } from "@/lib/auth";
 import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { slugToGymName } from "@/lib/workspace";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+import { API_BASE } from "@/lib/api-base";
 
 interface DashboardMetrics {
   active_members: number;

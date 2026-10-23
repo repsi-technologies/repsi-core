@@ -68,6 +68,8 @@ class PublicLeadSubmit(BaseModel):
     preferred_date: Optional[str] = None
     preferred_time: Optional[str] = None
     source: Optional[str] = "Website"
+    # Honeypot: hidden from people, so any value means an automated submission.
+    website: Optional[str] = None
 
 
 class WebsiteResponse(BaseModel):

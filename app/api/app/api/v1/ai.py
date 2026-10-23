@@ -133,3 +133,31 @@ def platform_ai_usage(
         "by_feature": by_feature,
         "top_workspaces": [{"workspace_id": w, "name": names.get(w, w), "model_calls": int(c or 0), "requests": r} for w, c, r in top],
     }
+
+
+class AiBudgetUpdate(BaseModel):
+    daily_calls: Optional[int] = Field(default=None, ge=0, le=100_000)  # null = back to the plan default
+
+
+@router.put("/admin/workspaces/{workspace_id}/budget")
+def set_workspace_ai_budget(
+    workspace_id: str,
+    data: AiBudgetUpdate,
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """Super admin: cap (or raise) one gym's daily AI model calls; 0 turns model calls off for that gym."""
+    from app.api.v1.superadmin import check_superadmin
+    from app.core.audit import record_audit
+    admin = check_superadmin(tenant, db)
+    if db.get(Workspace, workspace_id) is None:
+        raise HTTPException(status_code=404, detail="Workspace not found.")
+    sub = BillingService.get_or_create_workspace_subscription(db, workspace_id)
+    previous = sub.custom_ai_daily_calls
+    sub.custom_ai_daily_calls = data.daily_calls
+    record_audit(db, workspace_id, admin.id, "ai_budget_changed", resource_type="workspace", resource_id=workspace_id,
+                 details={"previous": previous, "daily_calls": data.daily_calls})
+    db.commit()
+    plan_code = BillingService.entitlement_snapshot(db, workspace_id)["plan_code"]
+    return {"workspace_id": workspace_id, "daily_calls": data.daily_calls,
+            "effective_limit": ai_core.workspace_daily_limit(plan_code, data.daily_calls)}

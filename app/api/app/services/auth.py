@@ -33,7 +33,7 @@ from app.core.config import settings
 from app.core.email import send_password_reset_email, send_registration_otp
 from app.core.phone import normalize_phone
 from app.core.security import create_access_token, get_password_hash, verify_password
-from app.models.auth import AuthIdentity, PasswordResetToken, PendingRegistration
+from app.models.auth import AuthIdentity, AuthSession, PasswordResetToken, PendingRegistration
 from app.models.member import Member
 from app.models.trainer import Trainer
 from app.models.user import User, UserRole, Workspace, WorkspaceMember
@@ -176,32 +176,33 @@ class AuthService:
         workspace = membership.workspace if membership else None
         if user.is_superadmin:
             role = "SUPER_ADMIN"
+        elif membership:
+            role = membership.role.value if hasattr(membership.role, "value") else str(membership.role)
         else:
-            role = membership.role.value if membership else "USER"
+            role = "USER"
 
         onboarding_required = False
         if user.is_superadmin:
             next_path = "/superadmin/dashboard"
-        elif membership is None:
-            onboarding_required = True
-            next_path = "/onboarding"
-        elif membership.role == UserRole.OWNER and not workspace.onboarding_completed:
+        elif not workspace or (role == UserRole.OWNER.value and not workspace.onboarding_completed):
             onboarding_required = True
             next_path = "/onboarding"
         else:
             next_path = role_home_path(workspace.slug, role)
 
+        phone_val = str(user.phone_e164 or user.phone) if (user.phone_e164 or user.phone) else None
         response = UserResponse(
-            id=user.id,
-            email=user.email,
-            full_name=user.full_name,
-            phone=user.phone_e164 or user.phone,
-            is_superadmin=user.is_superadmin,
-            is_active=user.is_active,
+            id=str(user.id),
+            email=str(user.email),
+            full_name=str(user.full_name),
+            phone=phone_val,
+            is_superadmin=bool(user.is_superadmin),
+            is_active=bool(user.is_active),
             role=role,
-            workspace_id=workspace.id if workspace else None,
-            workspace_slug=workspace.slug if workspace else None,
-            gym_name=workspace.name if workspace else None,
+            workspace_id=str(workspace.id) if workspace and workspace.id else None,
+            workspace_slug=str(workspace.slug) if workspace and workspace.slug else None,
+            gym_name=str(workspace.name) if workspace and workspace.name else None,
+            gym_logo_url=str(workspace.logo_url) if workspace and workspace.logo_url else None,
             preferred_language=getattr(user, "preferred_language", "en") or "en",
             email_verified=bool(user.email_verified),
             phone_verified=bool(user.phone_verified),
@@ -209,23 +210,88 @@ class AuthService:
         )
         return response, next_path, onboarding_required
 
-    def issue_session(self, user: User, workspace_hint: str | None = None) -> Token:
+    def issue_session(
+        self,
+        user: User,
+        workspace_hint: str | None = None,
+        session: AuthSession | None = None,
+        user_agent: str | None = None,
+        ip_address: str | None = None,
+    ) -> Token:
+        """Issues an access token bound to a server-side session (new, or `session` on refresh)."""
         if not user.is_active:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account has been deactivated.")
         user_response, next_path, onboarding_required = self.describe_user(user, workspace_hint)
+        now = datetime.now(timezone.utc)
+        raw_refresh = secrets.token_urlsafe(48)
+        if session is None:
+            session = AuthSession(
+                user_id=user.id,
+                user_agent=(user_agent or "")[:255] or None,
+                ip_address=(ip_address or "")[:64] or None,
+            )
+            self.db.add(session)
+        session.refresh_token_hash = hashlib.sha256(raw_refresh.encode()).hexdigest()
+        session.expires_at = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        session.last_used_at = now
+        self.db.flush()
         token = create_access_token(
-            subject=user.id, workspace_id=user_response.workspace_id, role=user_response.role
+            subject=user.id, workspace_id=user_response.workspace_id, role=user_response.role, session_id=session.id
         )
+        self.db.commit()
         return Token(
+            refresh_token=raw_refresh,
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             access_token=token,
             workspace_id=user_response.workspace_id,
             workspace_slug=user_response.workspace_slug,
             gym_name=user_response.gym_name,
+            gym_logo_url=user_response.gym_logo_url,
             role=user_response.role,
             user=user_response,
             next_path=next_path,
             onboarding_required=onboarding_required,
         )
+
+    def refresh_session(self, raw_refresh: str, workspace_hint: str | None = None) -> Token:
+        """Rotates a refresh token. Reusing an already-rotated token revokes that session."""
+        invalid = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Your session has expired. Please sign in again.")
+        token_hash = hashlib.sha256(raw_refresh.strip().encode()).hexdigest()
+        session = self.db.query(AuthSession).filter(AuthSession.refresh_token_hash == token_hash).first()
+        if session is None or session.revoked_at is not None:
+            raise invalid
+        expires = session.expires_at if session.expires_at.tzinfo else session.expires_at.replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) > expires:
+            session.revoked_at = datetime.now(timezone.utc)
+            session.revoked_reason = "expired"
+            self.db.commit()
+            raise invalid
+        user = self.db.query(User).filter(User.id == session.user_id).first()
+        if user is None or not user.is_active:
+            raise invalid
+        return self.issue_session(user, workspace_hint, session=session)
+
+    def revoke_session(self, session_id: str | None, user_id: str, reason: str = "logout") -> None:
+        if not session_id:
+            return
+        session = self.db.query(AuthSession).filter(AuthSession.id == session_id, AuthSession.user_id == user_id).first()
+        if session and session.revoked_at is None:
+            session.revoked_at = datetime.now(timezone.utc)
+            session.revoked_reason = reason
+            self.db.commit()
+
+    def revoke_all_sessions(self, user_id: str, reason: str, keep_session_id: str | None = None) -> int:
+        q = self.db.query(AuthSession).filter(AuthSession.user_id == user_id, AuthSession.revoked_at.is_(None))
+        if keep_session_id:
+            q = q.filter(AuthSession.id != keep_session_id)
+        now = datetime.now(timezone.utc)
+        count = 0
+        for session in q.all():
+            session.revoked_at = now
+            session.revoked_reason = reason
+            count += 1
+        self.db.commit()
+        return count
 
     # ─── Lookups ───────────────────────────────────────────────────────────
 
@@ -547,14 +613,20 @@ class AuthService:
         record.used_at = datetime.now(timezone.utc)
         self.attach_verified_records(user)
         self.db.commit()
+        # Whoever knew the old password is signed out everywhere.
+        self.revoke_all_sessions(user.id, "password_reset")
         return user
 
-    def change_password(self, user: User, current_password: str | None, new_password: str) -> None:
+    def change_password(
+        self, user: User, current_password: str | None, new_password: str, keep_session_id: str | None = None
+    ) -> None:
         if has_usable_password(user):
             if not current_password or not verify_password(current_password, user.hashed_password):
                 raise HTTPException(status_code=400, detail="Your current password is incorrect.")
         user.hashed_password = get_password_hash(new_password)
         self.db.commit()
+        # Other devices are signed out; the device that changed the password stays signed in.
+        self.revoke_all_sessions(user.id, "password_changed", keep_session_id=keep_session_id)
 
     # ─── Owner-created Member / Trainer records ───────────────────────────
 
@@ -615,6 +687,14 @@ class AuthService:
         email ownership, so the account is created with email_verified=False and is never
         auto-linked to Google or to owner-created records by email.
         """
+        enabled = settings.LEGACY_REGISTRATION_ENABLED
+        if enabled is None:
+            enabled = settings.ENVIRONMENT.lower() != "production"
+        if not enabled:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Please sign up with email verification instead.",
+            )
         normalized_email = normalize_email(req.email)
         if self.get_by_email(normalized_email):
             raise HTTPException(
@@ -798,6 +878,22 @@ class AuthService:
         workspace = self.db.query(Workspace).filter(Workspace.slug == req.workspace_slug).first()
         if not workspace or not workspace.is_active:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gym workspace not found.")
+        # Self sign-up only claims a member record the gym already created for this email.
+        # Anyone else needs an invitation, so a public gym slug is not an open door.
+        member_record = (
+            self.db.query(Member)
+            .filter(
+                Member.workspace_id == workspace.id,
+                func.lower(Member.email) == normalized_email,
+                Member.user_id.is_(None),
+            )
+            .first()
+        )
+        if not member_record:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Ask your gym to add you as a member or send you an invitation before signing up.",
+            )
         user = User(
             email=normalized_email,
             full_name=req.full_name,
@@ -809,6 +905,7 @@ class AuthService:
         self.db.add(user)
         self.db.flush()
         self.db.add(WorkspaceMember(workspace_id=workspace.id, user_id=user.id, role=UserRole.USER, is_active=True))
+        member_record.user_id = user.id
         self.db.commit()
         self.db.refresh(user)
         token = create_access_token(subject=user.id, workspace_id=workspace.id, role=UserRole.USER.value)

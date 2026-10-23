@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.dashboard import DashboardMetricsResponse
 from app.services.dashboard import DashboardService
-from app.middleware.tenant import get_current_tenant, TenantContext
+from app.middleware.tenant import TenantContext
+from app.core.permissions import require_permission
 
 router = APIRouter(prefix="", tags=["Dashboard"])
 
@@ -13,7 +14,7 @@ router = APIRouter(prefix="", tags=["Dashboard"])
 @router.get("/owner/dashboard", response_model=DashboardMetricsResponse)
 def get_dashboard_metrics(
     response: Response,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("dashboard.view")),
     db: Session = Depends(get_db),
 ):
     t0 = time.perf_counter()

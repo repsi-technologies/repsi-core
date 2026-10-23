@@ -33,10 +33,37 @@ def _refuse_if_suspended(ws, request: Optional[Request]) -> None:
 
 
 class TenantContext:
-    def __init__(self, workspace_id: str, user_id: str, role: Optional[str] = None):
+    def __init__(self, workspace_id: str, user_id: str, role: Optional[str] = None, session_id: Optional[str] = None):
         self.workspace_id = workspace_id
         self.user_id = user_id
         self.role = role
+        self.session_id = session_id
+
+
+def _require_live_session(db: Session, payload: dict) -> Optional[str]:
+    """Tokens bound to a server-side session stop working once it is revoked (logout, password change)."""
+    sid = payload.get("sid")
+    if not sid:
+        return None  # issued before server-side sessions existed; valid until it expires
+    from datetime import datetime, timezone
+    from app.models.auth import AuthSession
+
+    session = db.get(AuthSession, sid)
+    expires = None
+    if session is not None and session.expires_at is not None:
+        expires = session.expires_at if session.expires_at.tzinfo else session.expires_at.replace(tzinfo=timezone.utc)
+    if (
+        session is None
+        or session.user_id != payload.get("sub")
+        or session.revoked_at is not None
+        or (expires is not None and expires < datetime.now(timezone.utc))
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Your session has ended. Please sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return sid
 
 
 def get_current_tenant(
@@ -60,12 +87,25 @@ def get_current_tenant(
         jwt_workspace_id = payload.get("workspace_id")
         role = payload.get("role")
 
-        workspace_id = x_workspace_id or jwt_workspace_id
+        session_id = _require_live_session(db, payload)
+        from app.models.user import User, Workspace, WorkspaceMember
 
         if role == "SUPER_ADMIN":
-            return TenantContext(workspace_id=workspace_id or "platform", user_id=user_id, role="SUPER_ADMIN")
+            # The role claim alone is not trusted: the account must still be an active super admin.
+            account = db.get(User, user_id)
+            if account is None or not account.is_active or not account.is_superadmin:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Your session is no longer valid.",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            workspace_id = x_workspace_id or jwt_workspace_id
+            return TenantContext(
+                workspace_id=workspace_id or "platform", user_id=user_id, role="SUPER_ADMIN", session_id=session_id
+            )
 
-        from app.models.user import Workspace, WorkspaceMember
+        # A header may switch workspace, but membership in that workspace is verified below.
+        workspace_id = x_workspace_id or jwt_workspace_id
 
         if workspace_id:
             # Strictly verify tenant isolation and active membership in the workspace
@@ -85,7 +125,7 @@ def get_current_tenant(
                 )
             _refuse_if_suspended(ws, request)
             role = member.role.value if hasattr(member.role, "value") else str(member.role)
-            return TenantContext(workspace_id=actual_ws_id, user_id=user_id, role=role)
+            return TenantContext(workspace_id=actual_ws_id, user_id=user_id, role=role, session_id=session_id)
 
         # Fallback to user's first active workspace membership if no workspace_id was passed
         first_member = db.query(WorkspaceMember).filter(
@@ -95,10 +135,12 @@ def get_current_tenant(
         if first_member:
             _refuse_if_suspended(db.get(Workspace, first_member.workspace_id), request)
             resolved_role = first_member.role.value if hasattr(first_member.role, "value") else str(first_member.role)
-            return TenantContext(workspace_id=first_member.workspace_id, user_id=user_id, role=resolved_role)
+            return TenantContext(
+                workspace_id=first_member.workspace_id, user_id=user_id, role=resolved_role, session_id=session_id
+            )
 
         # User has no active workspaces (e.g. freshly created user before workspace assignment)
-        return TenantContext(workspace_id="", user_id=user_id, role=role or "USER")
+        return TenantContext(workspace_id="", user_id=user_id, role=role or "USER", session_id=session_id)
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

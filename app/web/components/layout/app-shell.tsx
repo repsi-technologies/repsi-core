@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileNav, MobileMenuButton } from "./mobile-nav";
-import { AskRepsi } from "@/components/ai/ask-repsi";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -40,8 +39,6 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </main>
       </div>
-
-      <AskRepsi />
     </div>
   );
 }

@@ -12,15 +12,15 @@ from app.models.attendance import (
     AttendanceCorrection,
     MemberPassRedemption,
 )
-from app.models.auth import AuthIdentity, EmailOtpChallenge, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
+from app.models.auth import AuthIdentity, AuthSession, EmailOtpChallenge, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
 from app.models.base import TenantMixin, TimestampMixin
-from app.models.finance import Expense, Invoice, Payment, PaymentMethod, PaymentStatus
+from app.models.finance import CashReconciliation, Expense, Invoice, Payment, PaymentMethod, PaymentStatus, Refund, WorkspaceCounter
 from app.models.payment_settings import BusinessPaymentSettings, ManualPaymentSubmission, SubmissionStatus
 from app.models.invitation import GymInvitation, InvitationRole, InvitationStatus
 from app.models.machine import GymMachine
 from app.models.member import Member, Membership, MembershipPlan, MemberStatus
-from app.models.member_records import MemberEvent, MemberNote, MembershipEvent, MembershipFreeze
-from app.models.system import Activity, AuditLog, Notification, Report
+from app.models.member_records import MemberDocument, MemberEvent, MemberNote, MembershipEvent, MembershipFreeze
+from app.models.system import Activity, AuditLog, Notification, Report, SavedReport
 from app.models.trainer import (
     GymClass,
     Trainer,
@@ -62,7 +62,7 @@ from app.models.billing import (
 )
 from app.models.biometric import BiometricDevice, BiometricDeviceStatus
 from app.models.ai import AiResponseCache, AiUsageLog
-from app.models.communication import Broadcast, MessageTemplate, NotificationDelivery, NotificationPreference
+from app.models.communication import Broadcast, DeviceToken, MessageTemplate, NotificationDelivery, NotificationPreference
 
 __all__ = [
     "AiResponseCache",
@@ -152,3 +152,8 @@ __all__ = [
 ]
 
 
+
+from app.models.booking import ClassBooking, ClassSession, TrainerAvailability, TrainerTimeOff
+from app.models.offers import Coupon, CouponRedemption
+from app.models.support import SupportMessage, SupportTicket
+from app.models.jobs import JobRun

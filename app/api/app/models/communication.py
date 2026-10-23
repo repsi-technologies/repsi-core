@@ -11,7 +11,7 @@ from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Index, Integ
 from app.core.database import Base
 from app.models.base import TenantMixin, TimestampMixin, generate_uuid
 
-CHANNELS = ("in_app", "email", "whatsapp")
+CHANNELS = ("in_app", "email", "whatsapp", "sms", "push")
 DELIVERY_STATUSES = (
     "queued", "sent", "failed",
     "skipped_not_configured", "skipped_opt_out", "skipped_no_contact", "skipped_no_consent",
@@ -91,3 +91,21 @@ class NotificationDelivery(Base, TimestampMixin, TenantMixin):
     attempts = Column(Integer, nullable=False, default=0)
     idempotency_key = Column(String(255), nullable=False)
     sent_at = Column(DateTime, nullable=True)
+    # Lifecycle (non-broadcast) messages carry their own rendered content.
+    subject = Column(String(255), nullable=True)
+    body = Column(Text, nullable=True)
+    provider_template_name = Column(String(150), nullable=True)
+    template_params = Column(JSON, nullable=True)
+
+
+class DeviceToken(Base, TimestampMixin, TenantMixin):
+    """Push-notification token for one app install (FCM). Revoked tokens are kept with `revoked_at`."""
+    __tablename__ = "device_tokens"
+    __table_args__ = (UniqueConstraint("token", name="uq_device_token"),)
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    user_id = Column(String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token = Column(String(512), nullable=False)
+    platform = Column(String(20), nullable=False)  # android | ios | web | desktop
+    last_seen_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)

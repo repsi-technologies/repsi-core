@@ -1,13 +1,20 @@
 from typing import List, Optional
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timedelta, timezone
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form, status
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
+from urllib.parse import quote
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.models.finance import Payment, PaymentStatus, Invoice
+from app.models.finance import CashReconciliation, Payment, PaymentStatus, Invoice, Refund
+from app.core.permissions import has_permission, require_permission
 from app.models.user import User
-from app.schemas.finance import PaymentCreate, PaymentResponse, FinancialMetrics, InvoiceResponse
+from app.models.member import Member, Membership
+from app.services import finance_ops
+from app.schemas.finance import (
+    FinancialMetrics, InvoiceResponse, PaymentCreate, PaymentResponse, ReconciliationClose, ReconciliationReopen,
+    ReconciliationResponse, RefundCreate, RefundResponse,
+)
 from app.schemas.payment_settings import (
     PaymentSettingsSchema,
     PaymentSettingsUpdate,
@@ -23,6 +30,16 @@ from app.middleware.tenant import get_current_tenant, TenantContext
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
 
+def _attachment_headers(filename: str, inline: bool = False) -> dict:
+    """Content-Disposition that is safe for any filename (RFC 5987) and never cached by shared caches."""
+    disposition = "inline" if inline else "attachment"
+    return {
+        "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(filename or 'file')}",
+        "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+    }
+
+
 @router.get("/", response_model=List[PaymentResponse])
 def get_payments(
     member_id: Optional[str] = None,
@@ -31,20 +48,18 @@ def get_payments(
 ):
     repo = BaseTenantRepository[Payment](Payment, db, tenant.workspace_id)
     if tenant.role == "USER":
-        from app.models.user import User
-        from app.models.member import Member
-        user = db.query(User).filter(User.id == tenant.user_id).first()
-        if user:
-            m = db.query(Member).filter(
-                Member.workspace_id == tenant.workspace_id,
-                (Member.email == user.email) | (Member.phone == user.phone)
-            ).first()
-            if m:
-                return db.query(Payment).filter(
-                    Payment.workspace_id == tenant.workspace_id,
-                    Payment.member_id == m.id
-                ).order_by(Payment.paid_at.desc()).all()
+        # Members see only their own payments, matched by the account linked to their member record.
+        m = db.query(Member).filter(
+            Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id
+        ).first()
+        if not m:
             return []
+        return db.query(Payment).filter(
+            Payment.workspace_id == tenant.workspace_id,
+            Payment.member_id == m.id
+        ).order_by(Payment.paid_at.desc()).limit(200).all()
+    if tenant.role == "TRAINER":
+        raise HTTPException(status_code=403, detail="Trainers can't view payment records.")
     if member_id:
         return repo.scoped_query().filter(Payment.member_id == member_id).order_by(Payment.paid_at.desc()).limit(200).all()
     payments = repo.get_multi(limit=50)
@@ -57,8 +72,19 @@ def record_payment(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
-    if tenant.role not in ["OWNER", "ADMIN", "STAFF", "SUPER_ADMIN"]:
+    if tenant.role not in ["OWNER", "ADMIN", "MANAGER", "STAFF", "SUPER_ADMIN"]:
         raise HTTPException(status_code=403, detail="Only gym staff or owners can record payments")
+    member = db.query(Member).filter(
+        Member.workspace_id == tenant.workspace_id, Member.id == data.member_id
+    ).first()
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    if data.membership_id and not db.query(Membership).filter(
+        Membership.workspace_id == tenant.workspace_id,
+        Membership.id == data.membership_id,
+        Membership.member_id == member.id,
+    ).first():
+        raise HTTPException(status_code=404, detail="Membership not found for this member")
 
     # Generate sequential/unique invoice number
     now = datetime.now(timezone.utc)
@@ -88,8 +114,14 @@ def record_payment(
         status=PaymentStatus.SUCCESS,
         transaction_ref=data.transaction_ref,
         invoice_id=invoice.id,
-        paid_at=now
+        paid_at=now,
+        notes=data.notes,
+        recorded_by_user_id=tenant.user_id,
     )
+    invoice.amount_paid = data.amount
+    finance_ops.on_payment_recorded(db, payment)
+    db.commit()
+    db.refresh(payment)
     return payment
 
 
@@ -104,11 +136,12 @@ def get_financial_summary(
     repo = FinanceRepository(db, tenant.workspace_id)
     rev = repo.get_monthly_revenue()
     exp = repo.get_monthly_expenses()
+    dues = finance_ops.outstanding_dues(db, tenant.workspace_id, date.today())
     return FinancialMetrics(
         monthly_revenue=rev,
         monthly_expenses=exp,
         net_profit=rev - exp,
-        pending_dues=0.0
+        pending_dues=round(sum(d["balance"] for d in dues), 2)
     )
 
 
@@ -354,8 +387,8 @@ def get_merchant_qr_image(
     Authenticated retrieval of the gym's merchant QR image.
     """
     svc = ManualPaymentService(db, tenant.workspace_id)
-    file_path, filename, media_type = svc.get_qr_file()
-    return FileResponse(file_path, media_type=media_type, filename=filename)
+    data, filename, media_type = svc.get_qr_file()
+    return Response(content=data, media_type=media_type, headers=_attachment_headers(filename, inline=True))
 
 
 # ─── MEMBER PAYMENT INSTRUCTIONS & SUBMISSIONS ────────────────────────────
@@ -461,12 +494,12 @@ def get_submission_receipt_file(
     Access restricted to the submitting member or authorized gym staff.
     """
     svc = ManualPaymentService(db, tenant.workspace_id)
-    file_path, filename, media_type = svc.get_receipt_file(
+    data, filename, media_type = svc.get_receipt_file(
         submission_id,
         tenant.user_id,
         tenant.role or "USER",
     )
-    return FileResponse(file_path, media_type=media_type, filename=filename)
+    return Response(content=data, media_type=media_type, headers=_attachment_headers(filename, inline=True))
 
 
 @router.post("/submissions/{submission_id}/approve", response_model=PaymentSubmissionResponse)
@@ -525,3 +558,131 @@ def reject_payment_submission(
     return svc.get_submission(submission_id, tenant.user_id, tenant.role or "STAFF")
 
 
+
+
+# ─── Receipts, refunds, dues and day-end reconciliation ────────────────
+
+
+def _payment_for_caller(db: Session, tenant: TenantContext, payment_id: str) -> Payment:
+    payment = db.query(Payment).filter(Payment.workspace_id == tenant.workspace_id, Payment.id == payment_id).first()
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    if tenant.role == "USER":
+        mine = db.query(Member.id).filter(Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id).first()
+        if not mine or payment.member_id != mine[0]:
+            raise HTTPException(status_code=404, detail="Payment not found")
+    elif not has_permission(db, tenant, "payments.view"):
+        raise HTTPException(status_code=403, detail="You don't have permission to view payments.")
+    return payment
+
+
+@router.get("/{payment_id}/receipt.pdf")
+def download_receipt(payment_id: str, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    """Printable PDF receipt (members get their own; staff with payments.view any)."""
+    payment = _payment_for_caller(db, tenant, payment_id)
+    if payment.status not in (PaymentStatus.SUCCESS, PaymentStatus.REFUNDED):
+        raise HTTPException(status_code=409, detail="Receipts exist only for completed payments.")
+    if not payment.receipt_number:
+        finance_ops.assign_receipt_number(db, payment)
+        db.commit()
+    pdf = finance_ops.receipt_pdf(db, payment)
+    return Response(content=pdf, media_type="application/pdf",
+                    headers=_attachment_headers(f"{payment.receipt_number}.pdf"))
+
+
+@router.get("/{payment_id}/refunds", response_model=List[RefundResponse])
+def list_payment_refunds(payment_id: str, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    payment = _payment_for_caller(db, tenant, payment_id)
+    return db.query(Refund).filter(Refund.payment_id == payment.id).order_by(Refund.processed_at).all()
+
+
+@router.post("/{payment_id}/refunds", response_model=RefundResponse, status_code=status.HTTP_201_CREATED)
+def create_refund(
+    payment_id: str,
+    data: RefundCreate,
+    tenant: TenantContext = Depends(require_permission("payments.manage")),
+    db: Session = Depends(get_db),
+):
+    payment = db.query(Payment).filter(Payment.workspace_id == tenant.workspace_id, Payment.id == payment_id).first()
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    method = payment.method.value if data.method == "original_method" and hasattr(payment.method, "value") else data.method
+    refund = finance_ops.refund_payment(db, payment, data.amount, data.reason, method, tenant.user_id, data.reference)
+    db.commit()
+    db.refresh(refund)
+    return refund
+
+
+@router.get("/refunds/all", response_model=List[RefundResponse])
+def list_refunds(
+    start: Optional[date] = None,
+    end: Optional[date] = None,
+    tenant: TenantContext = Depends(require_permission("payments.view")),
+    db: Session = Depends(get_db),
+):
+    q = db.query(Refund).filter(Refund.workspace_id == tenant.workspace_id)
+    if start:
+        q = q.filter(Refund.processed_at >= datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc))
+    if end:
+        q = q.filter(Refund.processed_at < datetime.combine(end + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc))
+    return q.order_by(Refund.processed_at.desc()).limit(500).all()
+
+
+@router.get("/dues/outstanding")
+def list_outstanding_dues(tenant: TenantContext = Depends(require_permission("payments.view")), db: Session = Depends(get_db)):
+    items = finance_ops.outstanding_dues(db, tenant.workspace_id, date.today())
+    buckets: dict[str, float] = {}
+    for d in items:
+        buckets[d["age_bucket"]] = round(buckets.get(d["age_bucket"], 0) + d["balance"], 2)
+    return {"total": round(sum(d["balance"] for d in items), 2), "by_age": buckets, "items": items}
+
+
+@router.get("/reconciliation/expected")
+def reconciliation_expected(
+    business_date: date,
+    tenant: TenantContext = Depends(require_permission("payments.manage")),
+    db: Session = Depends(get_db),
+):
+    expected = finance_ops.expected_collections(db, tenant.workspace_id, business_date)
+    return {"business_date": business_date, "expected": expected, "total": round(sum(expected.values()), 2)}
+
+
+@router.post("/reconciliation/close", response_model=ReconciliationResponse, status_code=status.HTTP_201_CREATED)
+def reconciliation_close(
+    data: ReconciliationClose,
+    tenant: TenantContext = Depends(require_permission("payments.manage")),
+    db: Session = Depends(get_db),
+):
+    if data.business_date > date.today():
+        raise HTTPException(status_code=422, detail="You can't close a future day.")
+    rec = finance_ops.close_day(db, tenant.workspace_id, data.business_date, data.counted, tenant.user_id, data.notes)
+    db.commit()
+    db.refresh(rec)
+    return rec
+
+
+@router.post("/reconciliation/reopen", response_model=ReconciliationResponse)
+def reconciliation_reopen(
+    data: ReconciliationReopen,
+    tenant: TenantContext = Depends(require_permission("payments.manage")),
+    db: Session = Depends(get_db),
+):
+    rec = finance_ops.reopen_day(db, tenant.workspace_id, data.business_date, tenant.user_id, data.reason)
+    db.commit()
+    db.refresh(rec)
+    return rec
+
+
+@router.get("/reconciliation/history", response_model=List[ReconciliationResponse])
+def reconciliation_history(
+    start: Optional[date] = None,
+    end: Optional[date] = None,
+    tenant: TenantContext = Depends(require_permission("payments.view")),
+    db: Session = Depends(get_db),
+):
+    q = db.query(CashReconciliation).filter(CashReconciliation.workspace_id == tenant.workspace_id)
+    if start:
+        q = q.filter(CashReconciliation.business_date >= start)
+    if end:
+        q = q.filter(CashReconciliation.business_date <= end)
+    return q.order_by(CashReconciliation.business_date.desc(), CashReconciliation.closed_at.desc()).limit(400).all()

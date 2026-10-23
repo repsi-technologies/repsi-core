@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE } from "@/lib/api-base";
 import { useEffect, useState } from "react";
 import { Building2, Plus, Search, MoreVertical } from "lucide-react";
 import { getAuthCookie } from "@/lib/auth";
@@ -22,7 +23,7 @@ export default function SuperAdminWorkspaces() {
       const token = getAuthCookie();
       if (!token) return;
 
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://repsi.fastapicloud.dev/api/v1";
+      const apiBase = API_BASE;
       try {
         const res = await fetch(`${apiBase}/superadmin/workspaces`, {
           headers: { Authorization: `Bearer ${token}` }

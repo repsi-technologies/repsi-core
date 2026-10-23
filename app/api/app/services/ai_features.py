@@ -148,13 +148,27 @@ def business_metrics(db: Session, workspace_id: str) -> dict:
             A, Attendance.check_in_time >= _naive(start), Attendance.check_in_time < _naive(end))) or 0
 
     recent = and_(A, Attendance.check_in_time >= _naive(d30))
-    by_dow = dict(db.execute(select(extract("dow", Attendance.check_in_time), func.count())
-                             .where(recent).group_by(extract("dow", Attendance.check_in_time))).all())
-    by_hour = dict(db.execute(select(extract("hour", Attendance.check_in_time), func.count())
-                              .where(recent).group_by(extract("hour", Attendance.check_in_time))).all())
+    by_dow = {
+        int(row[0]): int(row[1])
+        for row in db.execute(
+            select(extract("dow", Attendance.check_in_time), func.count())
+            .where(recent)
+            .group_by(extract("dow", Attendance.check_in_time))
+        ).all()
+        if row[0] is not None
+    }
+    by_hour = {
+        int(row[0]): int(row[1])
+        for row in db.execute(
+            select(extract("hour", Attendance.check_in_time), func.count())
+            .where(recent)
+            .group_by(extract("hour", Attendance.check_in_time))
+        ).all()
+        if row[0] is not None
+    }
     visits_30 = visits(d30, today + timedelta(days=1))
-    busiest_dow = max(by_dow, key=by_dow.get) if by_dow else None
-    busiest_hour = max(by_hour, key=by_hour.get) if by_hour else None
+    busiest_dow = max(by_dow, key=lambda k: by_dow[k]) if by_dow else None
+    busiest_hour = max(by_hour, key=lambda k: by_hour[k]) if by_hour else None
 
     return {
         "period": f"last 30 days to {today.isoformat()}",
@@ -235,6 +249,8 @@ def _summary_validator(max_points: int):
 
 
 def insights(db: Session, ctx: AiContext) -> dict:
+    if not ctx.workspace_id:
+        raise HTTPException(status_code=400, detail="Workspace context required.")
     m = business_metrics(db, ctx.workspace_id)
     hl, acts = rule_highlights(m), rule_actions(m)
 
@@ -291,7 +307,10 @@ def report_data(db: Session, workspace_id: str, report_type: str) -> dict:
 
 
 def report_summary(db: Session, ctx: AiContext, report_type: str) -> dict:
-    data = report_data(db, ctx.workspace_id, report_type)
+    ws_id = ctx.workspace_id
+    if not ws_id:
+        raise HTTPException(status_code=400, detail="Workspace context required.")
+    data = report_data(db, ws_id, report_type)
 
     def fallback() -> dict:
         if report_type == "revenue":
@@ -302,7 +321,7 @@ def report_summary(db: Session, ctx: AiContext, report_type: str) -> dict:
                     if best["collected"] > 0 else "No payments were recorded in the last 6 months.")
             return {"summary": f"{lead} {data['revenue']['members_with_dues']} member(s) currently have dues.",
                     "highlights": pts[-4:], "actions": []}
-        full = business_metrics(db, ctx.workspace_id) if report_type != "overview" else data
+        full = business_metrics(db, ws_id) if report_type != "overview" else data
         hl = rule_highlights(full)
         keep = {"memberships": ("member", "joined", "lapsed", "end"), "attendance": ("visit",)}.get(report_type)
         if keep:
@@ -353,18 +372,19 @@ def smart_reminders(db: Session, workspace_id: str, limit: int = 50) -> dict:
     MS = Membership.workspace_id == workspace_id
     groups: dict[str, dict[str, dict]] = {k: {} for k in REMINDER_TEMPLATES}
 
-    members = {m.id: m for m in db.scalars(select(Member).where(
+    members = {str(m.id): m for m in db.scalars(select(Member).where(
         Member.workspace_id == workspace_id, Member.status == MemberStatus.ACTIVE)).all()}
 
     def add(group: str, member_id: str, detail: str) -> None:
-        m = members.get(member_id)
-        if m and member_id not in groups[group]:
-            groups[group][member_id] = {"member_id": m.id, "name": f"{m.first_name} {m.last_name or ''}".strip(),
-                                        "detail": detail}
+        mid = str(member_id)
+        m = members.get(mid)
+        if m and mid not in groups[group]:
+            groups[group][mid] = {"member_id": str(m.id), "name": f"{m.first_name} {m.last_name or ''}".strip(),
+                                  "detail": detail}
 
     for r in db.execute(_balance_rows(db, workspace_id)).all():
         group = "frozen_unpaid" if r.status == MemberStatus.FROZEN else "unpaid_dues"
-        add(group, r.member_id, f"Due {r.due:,.0f}")
+        add(group, str(r.member_id), f"Due {r.due:,.0f}")
 
     for ms in db.scalars(select(Membership).where(
             MS, Membership.status == MemberStatus.ACTIVE, Membership.end_date >= today,
@@ -373,13 +393,17 @@ def smart_reminders(db: Session, workspace_id: str, limit: int = 50) -> dict:
             MS, Membership.member_id == ms.member_id, Membership.start_date > ms.end_date,
             Membership.status == MemberStatus.ACTIVE)) or 0
         if not renewed:
-            add("expiring_soon", ms.member_id, f"Ends {ms.end_date.isoformat()}")
+            add("expiring_soon", str(ms.member_id), f"Ends {ms.end_date.isoformat()}")
 
-    latest = dict(db.execute(select(Membership.member_id, func.max(Membership.end_date)).where(
-        MS, Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.EXPIRED])).group_by(Membership.member_id)).all())
+    latest = {
+        str(row[0]): row[1]
+        for row in db.execute(select(Membership.member_id, func.max(Membership.end_date)).where(
+            MS, Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.EXPIRED])).group_by(Membership.member_id)).all()
+        if row[0] is not None and row[1] is not None
+    }
     for member_id, last_end in latest.items():
         if today - timedelta(days=30) <= last_end < today:
-            add("lapsed", member_id, f"Ended {last_end.isoformat()}")
+            add("lapsed", str(member_id), f"Ended {last_end.isoformat()}")
 
     for fz, ms in db.execute(select(MembershipFreeze, Membership).join(Membership, Membership.id == MembershipFreeze.membership_id).where(
             MembershipFreeze.workspace_id == workspace_id, MembershipFreeze.resumed_at.is_(None),
@@ -491,7 +515,9 @@ def _candidates(db: Session, workspace_id: str, ans: dict) -> list[Exercise]:
     for e in rows:
         if e.difficulty not in DIFFICULTY_ALLOWED[ans["experience"]] or e.movement_pattern in excluded:
             continue
-        eq = set(json.loads(e.equipment or "[]") or ["bodyweight"])
+        raw_eq = getattr(e, "equipment", None)
+        eq_raw = str(raw_eq) if raw_eq is not None and str(raw_eq).strip() != "" else "[]"
+        eq = set(json.loads(eq_raw) or ["bodyweight"])
         if allowed_eq is not None and not eq <= allowed_eq:
             continue
         out.append(e)
@@ -507,7 +533,9 @@ def _rule_plan(ans: dict, cands: list[Exercise]) -> dict:
     per = EXERCISES_PER_SESSION[ans["session_minutes"]]
     by_pattern: dict[str, list[Exercise]] = {}
     for e in cands:
-        by_pattern.setdefault(e.movement_pattern or "other", []).append(e)
+        raw_mp = getattr(e, "movement_pattern", None)
+        pattern = str(raw_mp) if raw_mp is not None and str(raw_mp).strip() != "" else "other"
+        by_pattern.setdefault(pattern, []).append(e)
 
     plan_days = []
     for i in range(days):
@@ -522,8 +550,8 @@ def _rule_plan(ans: dict, cands: list[Exercise]) -> dict:
                 break
         items = []
         for e in chosen:
-            cardio = e.exercise_type == "cardio" or e.movement_pattern == "locomotion"
-            items.append({"exercise_id": e.id, "name": e.name,
+            cardio = (str(e.exercise_type or "") == "cardio") or (str(e.movement_pattern or "") == "locomotion")
+            items.append({"exercise_id": str(e.id), "name": str(e.name),
                           "sets": 1 if cardio else sets, "reps": "8-12 min" if cardio else reps,
                           "rest_seconds": 0 if cardio else rest, "note": ""})
         plan_days.append({"name": f"Day {i + 1}: {name}" + (f" ({'AB'[rotation % 2]})" if split == "full" and days > 1 else ""),
@@ -541,6 +569,8 @@ def _rule_plan(ans: dict, cands: list[Exercise]) -> dict:
 
 
 def workout_suggestion(db: Session, ctx: AiContext, answers: dict, use_ai: bool) -> dict:
+    if not ctx.workspace_id:
+        raise HTTPException(status_code=400, detail="Workspace context required.")
     ans = _validate_answers(answers)
     if ans["health_flags"]:
         ai_core.log_usage(db, ctx, "workout", "rules")

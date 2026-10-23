@@ -729,9 +729,12 @@ class GlobalTrainerItem(BaseModel):
 
 @router.get("/trainers", response_model=List[GlobalTrainerItem])
 def get_global_trainers(
+    response: Response,
     q: Optional[str] = None,
     gym_filter: Optional[str] = None,
     status_filter: Optional[str] = None,
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
@@ -755,15 +758,19 @@ def get_global_trainers(
     if status_filter and status_filter.lower() != "all":
         query = query.filter(Trainer.status == status_filter.lower())
 
-    trainers = query.order_by(Trainer.created_at.desc()).all()
+    response.headers["X-Total-Count"] = str(query.count())
+    trainers = query.order_by(Trainer.created_at.desc()).offset(offset).limit(limit).all()
     results = []
+    # Batched lookups (no per-row queries).
+    workspaces = {w.id: w for w in db.query(Workspace).filter(Workspace.id.in_({t.workspace_id for t in trainers})).all()} if trainers else {}
+    client_counts = dict(db.query(TrainerClient.trainer_id, func.count(TrainerClient.id)).filter(
+        TrainerClient.trainer_id.in_([t.id for t in trainers]),
+        TrainerClient.status == TrainerClientStatus.ACTIVE,
+    ).group_by(TrainerClient.trainer_id).all()) if trainers else {}
 
     for t in trainers:
-        ws = db.query(Workspace).filter(Workspace.id == t.workspace_id).first()
-        client_count = db.query(TrainerClient).filter(
-            TrainerClient.trainer_id == t.id,
-            TrainerClient.status == TrainerClientStatus.ACTIVE
-        ).count()
+        ws = workspaces.get(t.workspace_id)
+        client_count = client_counts.get(t.id, 0)
 
         results.append(GlobalTrainerItem(
             id=t.id,
@@ -825,21 +832,42 @@ class GlobalUserResponse(BaseModel):
 
 @router.get("/users", response_model=List[GlobalUserResponse])
 def get_all_global_users(
+    response: Response,
     role_filter: Optional[str] = None,
+    q: Optional[str] = None,
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db)
 ):
     check_superadmin(tenant, db)
-    users = db.query(User).order_by(User.created_at.desc()).all()
+    query = db.query(User)
+    if q:
+        like = f"%{q.strip().lower()}%"
+        query = query.filter(or_(func.lower(User.email).like(like), func.lower(User.full_name).like(like)))
+    if role_filter and role_filter.upper() == "SUPER_ADMIN":
+        query = query.filter(User.is_superadmin.is_(True))
+    elif role_filter:
+        try:
+            wanted = UserRole(role_filter.upper())
+        except ValueError:
+            raise HTTPException(status_code=422, detail="Unknown role filter.")
+        query = query.filter(User.is_superadmin.is_(False), User.id.in_(
+            db.query(WorkspaceMember.user_id).filter(WorkspaceMember.role == wanted)))
+    response.headers["X-Total-Count"] = str(query.count())
+    users = query.order_by(User.created_at.desc()).offset(offset).limit(limit).all()
+    memberships = {}
+    for wm in db.query(WorkspaceMember).filter(WorkspaceMember.user_id.in_([u.id for u in users])).order_by(
+            WorkspaceMember.created_at).all() if users else []:
+        memberships.setdefault(wm.user_id, wm)
+    workspaces = {w.id: w for w in db.query(Workspace).filter(
+        Workspace.id.in_({wm.workspace_id for wm in memberships.values()})).all()} if memberships else {}
     results = []
 
     for u in users:
-        ws_mem = db.query(WorkspaceMember).filter(WorkspaceMember.user_id == u.id).first()
+        ws_mem = memberships.get(u.id)
         role = "SUPER_ADMIN" if u.is_superadmin else (ws_mem.role.value if ws_mem else "USER")
-        ws = ws_mem.workspace if ws_mem else None
-
-        if role_filter and role.lower() != role_filter.lower():
-            continue
+        ws = workspaces.get(ws_mem.workspace_id) if ws_mem else None
 
         results.append(GlobalUserResponse(
             id=u.id,
@@ -982,6 +1010,36 @@ def get_system_health(
             details=f"{cache_stats['entries']} entries, {cache_stats['hits']} hits / {cache_stats['misses']} misses (this worker)",
         ),
     ]
+    from app.core.error_monitoring import status as error_status
+    from app.core.push import push_configured
+    from app.core.sms import sms_configured
+    from app.core.storage import storage_health
+    from app.models.jobs import JobRun
+
+    store = storage_health()
+    metrics.append(SystemHealthMetric(component=f"File storage ({store['backend']})", status=store["status"],
+                                      details=store.get("error") or "Private uploads, receipts and documents"))
+    metrics.append(configured("SMS", sms_configured(), f"Provider {settings.SMS_PROVIDER}",
+                              "SMS alerts are not sent (no provider configured)"))
+    metrics.append(configured("Push (FCM)", push_configured(), f"Project {settings.FCM_PROJECT_ID}",
+                              "Push deliveries are recorded as skipped_not_configured"))
+    err = error_status()
+    metrics.append(SystemHealthMetric(component="Error monitoring (Sentry)",
+                                      status="CONFIGURED" if err["enabled"] else "NOT_CONFIGURED",
+                                      details="Capturing unhandled errors" if err["enabled"] else
+                                      "Errors are logged with request ids only (set SENTRY_DSN and install sentry-sdk)"))
+    last_run = db.query(JobRun).order_by(JobRun.started_at.desc()).first()
+    failed_jobs = db.query(func.count(JobRun.id)).filter(
+        JobRun.status == "failed",
+        JobRun.started_at >= datetime.now(timezone.utc) - timedelta(days=1)).scalar() or 0
+    if last_run is None:
+        job_status, job_details = "NOT_CONFIGURED", "No job has run. Enable SCHEDULER_ENABLED or schedule scripts/run_jobs.py."
+    else:
+        started = last_run.started_at if last_run.started_at.tzinfo else last_run.started_at.replace(tzinfo=timezone.utc)
+        stale = datetime.now(timezone.utc) - started > timedelta(minutes=10)
+        job_status = "DEGRADED" if stale or failed_jobs else "HEALTHY"
+        job_details = f"Last run {started:%Y-%m-%d %H:%M} UTC ({last_run.job_name}); {failed_jobs} failed in 24h"
+    metrics.append(SystemHealthMetric(component="Background jobs", status=job_status, details=job_details))
     overall = "OPERATIONAL" if database["status"] == "HEALTHY" else "DEGRADED"
     return SystemHealthResponse(overall_status=overall, timestamp=datetime.now(timezone.utc), metrics=metrics)
 
@@ -1522,3 +1580,47 @@ def admin_set_gym_subscription_status(
         "status": sub.status.value if hasattr(sub.status, "value") else str(sub.status),
     }
 
+
+
+
+# ─── Background jobs ────────────────────────────────────────────────────
+
+
+@router.get("/jobs")
+def list_jobs(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    check_superadmin(tenant, db)
+    from app.services.jobs import JOBS, recent_runs
+
+    runs = recent_runs(db, 200)
+    last = {}
+    for r in runs:
+        last.setdefault(r.job_name, r)
+    return {
+        "scheduler_enabled": settings.SCHEDULER_ENABLED,
+        "jobs": [{"name": j.name, "every_minutes": j.every_minutes, "description": j.description,
+                  "last_status": last[j.name].status if j.name in last else None,
+                  "last_started_at": last[j.name].started_at if j.name in last else None,
+                  "last_error": last[j.name].error if j.name in last else None} for j in JOBS.values()],
+        "recent_runs": [{"id": r.id, "job": r.job_name, "status": r.status, "trigger": r.trigger,
+                         "started_at": r.started_at, "duration_ms": r.duration_ms, "result": r.result,
+                         "error": r.error} for r in runs[:50]],
+    }
+
+
+@router.post("/jobs/{job_name}/run")
+def run_job_now(job_name: str, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    user = check_superadmin(tenant, db)
+    from app.core.audit import record_audit
+    from app.core.database import SessionLocal
+    from app.services.jobs import JOBS, run_job
+
+    job = JOBS.get(job_name)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Unknown job.")
+    bind = db.get_bind()
+    factory = (lambda: Session(bind=bind)) if bind is not None else SessionLocal
+    run = run_job(factory, job, "manual", f"manual-{datetime.now(timezone.utc):%Y%m%dT%H%M%S%f}")
+    record_audit(db, "platform", user.id, "job_run_manual", resource_type="job", resource_id=job_name,
+                 details={"status": run.status if run else None})
+    db.commit()
+    return {"job": job_name, "status": run.status, "duration_ms": run.duration_ms, "result": run.result, "error": run.error}

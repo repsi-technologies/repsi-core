@@ -95,3 +95,12 @@ tmp/
 temp/
 app/api/private_storage/*
 !app/api/private_storage/**/.gitkeep
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+
+# Local seed credentials and e2e scratch data
+app/api/.seed-credentials.local
+app/web/e2e/.tmp/
+app/web/playwright-report/
+app/web/test-results/
+app/api/backups/

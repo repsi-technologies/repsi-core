@@ -21,37 +21,27 @@ from app.schemas.payment_settings import (
     PaymentSubmissionResponse,
 )
 
-# Base directory for private uploads
-UPLOADS_BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "private_storage"))
+from app.core.storage import LOCAL_ROOT, detect_mime_type, get_storage
+
+# Base directory for private uploads (local storage backend)
+UPLOADS_BASE_DIR = LOCAL_ROOT
 
 
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
 
 
-def _detect_mime_type(data: bytes) -> Optional[str]:
-    """
-    Verifies file magic bytes to prevent forged file extensions or executable uploads.
-    """
-    if data.startswith(b"\x89PNG\r\n\x1a\n"):
-        return "image/png"
-    elif data.startswith(b"\xff\xd8\xff"):
-        return "image/jpeg"
-    elif len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
-        return "image/webp"
-    elif data.startswith(b"%PDF-"):
-        return "application/pdf"
-    return None
+# Magic-byte check shared with every other upload (prevents forged extensions / executables).
+_detect_mime_type = detect_mime_type
 
 
 class ManualPaymentService:
     def __init__(self, db: Session, workspace_id: str):
         self.db = db
         self.workspace_id = workspace_id
-        self.qr_storage_dir = os.path.join(UPLOADS_BASE_DIR, "payment_qrs", workspace_id)
-        self.receipt_storage_dir = os.path.join(UPLOADS_BASE_DIR, "receipts", workspace_id)
-        _ensure_dir(self.qr_storage_dir)
-        _ensure_dir(self.receipt_storage_dir)
+        # Storage keys (app/core/storage.py); on the local backend these are folders under private_storage.
+        self.qr_prefix = f"payment_qrs/{workspace_id}"
+        self.receipt_prefix = f"receipts/{workspace_id}"
 
     # ─── OWNER PAYMENT SETTINGS ──────────────────────────────────────────
 
@@ -167,19 +157,14 @@ class ManualPaymentService:
 
         ext = mime.split("/")[1]
         storage_filename = f"qr_{uuid.uuid4().hex[:12]}.{ext}"
-        storage_path = os.path.join(self.qr_storage_dir, storage_filename)
-
-        with open(storage_path, "wb") as f:
-            f.write(file_bytes)
+        get_storage().put(f"{self.qr_prefix}/{storage_filename}", file_bytes, mime)
 
         # Delete previous QR file if existed
         if settings.qr_image_url:
-            old_path = os.path.join(self.qr_storage_dir, settings.qr_image_url)
-            if os.path.exists(old_path):
-                try:
-                    os.remove(old_path)
-                except Exception:
-                    pass
+            try:
+                get_storage().delete(f"{self.qr_prefix}/{settings.qr_image_url}")
+            except Exception:
+                pass
 
         settings.qr_image_url = storage_filename
         settings.qr_filename = original_filename
@@ -202,12 +187,10 @@ class ManualPaymentService:
     def remove_merchant_qr(self, actor_user: User) -> BusinessPaymentSettings:
         settings = self.get_or_create_settings()
         if settings.qr_image_url:
-            old_path = os.path.join(self.qr_storage_dir, settings.qr_image_url)
-            if os.path.exists(old_path):
-                try:
-                    os.remove(old_path)
-                except Exception:
-                    pass
+            try:
+                get_storage().delete(f"{self.qr_prefix}/{settings.qr_image_url}")
+            except Exception:
+                pass
 
         settings.qr_image_url = None
         settings.qr_filename = None
@@ -462,10 +445,7 @@ class ManualPaymentService:
         ext = "pdf" if mime == "application/pdf" else mime.split("/")[1]
         storage_id = f"rcpt_{uuid.uuid4().hex}"
         storage_filename = f"{storage_id}.{ext}"
-        storage_path = os.path.join(self.receipt_storage_dir, storage_filename)
-
-        with open(storage_path, "wb") as f:
-            f.write(file_bytes)
+        get_storage().put(f"{self.receipt_prefix}/{storage_filename}", file_bytes, mime)
 
         ref_code = f"PAY-{invoice.invoice_number[-6:]}-{member.id[:4].upper()}"
 
@@ -828,8 +808,15 @@ class ManualPaymentService:
                     duration = (membership.end_date - membership.start_date).days
                     if duration <= 0:
                         duration = 30
+                    previous_start, previous_end = membership.start_date, membership.end_date
                     membership.start_date = today
                     membership.end_date = today + timedelta(days=duration)
+                    from app.services.membership_lifecycle import record_event
+                    record_event(
+                        self.db, membership, "reactivated_on_payment", reviewer_user.id,
+                        to_status=MemberStatus.ACTIVE, previous_end_date=previous_end, new_end_date=membership.end_date,
+                        details={"previous_start_date": previous_start.isoformat(), "payment_id": payment.id},
+                    )
 
         # 5. Record AuditLog
         audit = AuditLog(
@@ -840,16 +827,9 @@ class ManualPaymentService:
         )
         self.db.add(audit)
 
-        # 6. Notify Member
-        if member and member.user_id:
-            notif = Notification(
-                workspace_id=self.workspace_id,
-                user_id=member.user_id,
-                title="Payment Verified & Approved",
-                message=f"Your payment of ₹{sub.amount:,.2f} for #{invoice.invoice_number} has been approved. Your gym access is active!",
-                action_url="/member/payments",
-            )
-            self.db.add(notif)
+        # 6. Receipt number and member confirmation (in-app, email, and WhatsApp/SMS where configured)
+        from app.services import finance_ops
+        finance_ops.on_payment_recorded(self.db, payment)
 
         self.db.commit()
         self.db.refresh(sub)
@@ -968,14 +948,14 @@ class ManualPaymentService:
                     detail="Access denied to this private payment receipt.",
                 )
 
-        file_path = os.path.join(self.receipt_storage_dir, sub.receipt_storage_key)
-        if not os.path.exists(file_path):
+        data = get_storage().get(f"{self.receipt_prefix}/{sub.receipt_storage_key}")
+        if data is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Receipt file not found on storage server.",
             )
 
-        return file_path, sub.receipt_filename or "receipt", sub.receipt_content_type or "application/octet-stream"
+        return data, sub.receipt_filename or "receipt", sub.receipt_content_type or "application/octet-stream"
 
     def get_qr_file(self) -> Tuple[str, str, str]:
         settings = self.get_or_create_settings()
@@ -985,12 +965,12 @@ class ManualPaymentService:
                 detail="No merchant payment QR code has been configured for this gym.",
             )
 
-        file_path = os.path.join(self.qr_storage_dir, settings.qr_image_url)
-        if not os.path.exists(file_path):
+        data = get_storage().get(f"{self.qr_prefix}/{settings.qr_image_url}")
+        if data is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Merchant QR image file is missing.",
             )
 
-        mime = _detect_mime_type(open(file_path, "rb").read(32)) or "image/png"
-        return file_path, settings.qr_filename or "merchant_qr", mime
+        mime = _detect_mime_type(data[:32]) or "image/png"
+        return data, settings.qr_filename or "merchant_qr", mime

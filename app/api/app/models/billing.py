@@ -85,6 +85,10 @@ class GymSubscription(Base, TimestampMixin):
     custom_staff_limit = Column(Integer, nullable=True)
     custom_branch_limit = Column(Integer, nullable=True)
     custom_features = Column(JSON, nullable=True, default=dict)
+    # Days of grace after a missed renewal before paid features lock (NULL = BILLING_GRACE_DAYS).
+    custom_grace_days = Column(Integer, nullable=True)
+    # Daily AI model-call budget for this gym (NULL = the plan's default in services/ai_core.py).
+    custom_ai_daily_calls = Column(Integer, nullable=True)
 
     # Complimentary Access
     is_complimentary = Column(Boolean, default=False)

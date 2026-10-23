@@ -143,13 +143,23 @@ def _billable_count(db: Session, *where) -> int:
         AiUsageLog.created_at >= _day_start(), AiUsageLog.status.in_(BILLABLE_STATUSES), *where)) or 0
 
 
-def workspace_daily_limit(plan_code: Optional[str]) -> int:
+def workspace_daily_limit(plan_code: Optional[str], override: Optional[int] = None) -> int:
+    if override is not None:
+        return max(0, override)
     return PLAN_DAILY_AI_CALLS.get(plan_code or "", DEFAULT_DAILY_AI_CALLS)
+
+
+def _workspace_override(db: Session, workspace_id: Optional[str]) -> Optional[int]:
+    if not workspace_id:
+        return None
+    from app.models.billing import GymSubscription
+
+    return db.scalar(select(GymSubscription.custom_ai_daily_calls).where(GymSubscription.workspace_id == workspace_id))
 
 
 def quota_status(db: Session, ctx: AiContext) -> dict:
     person_limit = settings.AI_MEMBER_DAILY_CALLS if ctx.role in MEMBER_ROLES else settings.AI_STAFF_DAILY_CALLS
-    ws_limit = workspace_daily_limit(ctx.plan_code)
+    ws_limit = workspace_daily_limit(ctx.plan_code, _workspace_override(db, ctx.workspace_id))
     return {
         "configured": ai_configured(),
         "model": settings.GEMINI_MODEL,

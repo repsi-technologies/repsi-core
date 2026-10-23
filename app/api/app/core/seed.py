@@ -1,3 +1,6 @@
+import os
+import secrets
+from pathlib import Path
 import datetime
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal, Base, engine
@@ -10,7 +13,38 @@ from app.models.trainer import Trainer, GymClass
 from app.services.billing import BillingService
 
 
+def ensure_seed_allowed() -> None:
+    """Seeding and resets are for local SQLite databases only, never production."""
+    from app.core.config import settings
+
+    url = settings.DATABASE_URL.lower()
+    if settings.ENVIRONMENT.lower() in ("production", "prod", "staging"):
+        raise SystemExit(f"Refusing to seed or reset: ENVIRONMENT={settings.ENVIRONMENT}.")
+    if not url.startswith("sqlite") and os.getenv("SEED_ALLOW_NON_SQLITE") != "1":
+        raise SystemExit("Refusing to seed or reset a non-SQLite database. Set SEED_ALLOW_NON_SQLITE=1 for a disposable one.")
+
+
+_SEED_PASSWORD: str | None = None
+
+
+def _seed_password() -> str:
+    """
+    One password for every seeded demo account: SEED_PASSWORD if set, otherwise a random one
+    written to app/api/.seed-credentials.local (gitignored). Nothing is hard-coded in git.
+    """
+    global _SEED_PASSWORD
+    if _SEED_PASSWORD is None:
+        _SEED_PASSWORD = os.getenv("SEED_PASSWORD") or secrets.token_urlsafe(12)
+        if not os.getenv("SEED_PASSWORD"):
+            path = Path(__file__).resolve().parents[2] / ".seed-credentials.local"
+            path.write_text(f"Seeded demo accounts password: {_SEED_PASSWORD}
+", encoding="utf-8")
+            print(f"[SEED] Demo account password written to {path}")
+    return _SEED_PASSWORD
+
+
 def seed_database(db: Session = None, seed_dummy_records: bool = False):
+    ensure_seed_allowed()
     close_db = False
     if db is None:
         from app.core.migrations import run_database_migrations
@@ -44,7 +78,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_admin_001",
                 email="admin@repsi.app",
                 full_name="Super Admin",
-                hashed_password=get_password_hash("admin567"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 99999 00000",
                 is_superadmin=True,
                 is_active=True,
@@ -64,7 +98,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_nitheesh_001",
                 email="nitheesh@repsi.app",
                 full_name="Nitheesh",
-                hashed_password=get_password_hash("admin@567"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 99999 88888",
                 is_superadmin=True,
                 is_active=True,
@@ -78,7 +112,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 is_active=True,
             ))
         else:
-            user_nitheesh.hashed_password = get_password_hash("admin@567")
+            # Never reset an existing account's password from a seed run.
             user_nitheesh.is_superadmin = True
             user_nitheesh.is_active = True
             db.add(user_nitheesh)
@@ -90,7 +124,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_owner_001",
                 email="owner@repsi.app",
                 full_name="Apex Owner",
-                hashed_password=get_password_hash("12345678"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 98450 11223",
                 is_superadmin=False,
                 is_active=True,
@@ -110,7 +144,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_rajesh_001",
                 email="owner@apexfitness.in",
                 full_name="Rajesh Kumar",
-                hashed_password=get_password_hash("ApexFitness2026!"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 98450 11223",
                 is_superadmin=False,
                 is_active=True,
@@ -131,7 +165,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_trainer_001",
                 email="trainer@repsi.app",
                 full_name="REPSI Trainer",
-                hashed_password=get_password_hash("12345678"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 99999 66666",
                 is_superadmin=False,
                 is_active=True,
@@ -165,7 +199,7 @@ def seed_database(db: Session = None, seed_dummy_records: bool = False):
                 id="usr_user_001",
                 email="user@repsi.app",
                 full_name="REPSI Member User",
-                hashed_password=get_password_hash("12345678"),
+                hashed_password=get_password_hash(_seed_password()),
                 phone="+91 99999 55555",
                 is_superadmin=False,
                 is_active=True,

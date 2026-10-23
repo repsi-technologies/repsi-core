@@ -40,7 +40,9 @@ def test_full_e2e_multi_tenancy_isolation():
 
     # 3. Create Records for Owner A
     member_a = client.post("/api/v1/members/", headers=headers_a, json={
-        "first_name": "Member", "last_name": "Alpha", "email": "mem.alpha@test.com", "phone": "+91 91000 00001"
+        "first_name": "Member", "last_name": "Alpha", "email": "mem.alpha@test.com", "phone": "+91 91000 00001",
+        # Staff set the member's first password explicitly; there is no shared default password.
+        "password": "MemberPass123!",
     }).json()
     trainer_a = client.post("/api/v1/trainers/", headers=headers_a, json={
         "name": "Trainer Alpha", "phone": "+91 91000 00002"

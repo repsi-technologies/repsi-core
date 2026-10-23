@@ -82,6 +82,13 @@ class TrainingSession(Base, TimestampMixin, TenantMixin):
     duration_minutes = Column(Integer, default=60, nullable=False)
     status = Column(Enum(SessionStatus), default=SessionStatus.SCHEDULED, nullable=False, index=True)
     notes = Column(Text, nullable=True)
+    # Appointment booking (personal training): who booked it, and cancellation history.
+    source = Column(String(20), nullable=True)  # trainer | member | staff
+    booked_by_user_id = Column(String(64), nullable=True)
+    location = Column(String(150), nullable=True)
+    cancelled_at = Column(DateTime(timezone=True), nullable=True)
+    cancelled_by_user_id = Column(String(64), nullable=True)
+    cancel_reason = Column(String(255), nullable=True)
 
 
 class ClientNote(Base, TimestampMixin, TenantMixin):
@@ -105,4 +112,10 @@ class GymClass(Base, TimestampMixin, TenantMixin):
     capacity = Column(Integer, default=20, nullable=False)
     room = Column(String(100), default="Main Studio")
     is_active = Column(Boolean, default=True, nullable=False)
+    description = Column(Text, nullable=True)
+    branch_id = Column(String(64), nullable=True)
+    # Booking rules: bookings open this many hours ahead; cancelling later than the cutoff is a late cancel.
+    booking_open_hours = Column(Integer, nullable=False, default=168)
+    cancel_cutoff_hours = Column(Integer, nullable=False, default=2)
+    waitlist_enabled = Column(Boolean, nullable=False, default=True)
 

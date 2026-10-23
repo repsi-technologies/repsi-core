@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE } from "@/lib/api-base";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -115,7 +116,7 @@ export function RepsiChatbot() {
     }
     setSubmittingDemo(true);
     try {
-      await fetch("https://repsi.fastapicloud.dev/api/v1/websites/public/apex-fitness/lead", {
+      await fetch(`${API_BASE}/websites/public/${process.env.NEXT_PUBLIC_DEMO_LEADS_SLUG || "apex-fitness"}/lead`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

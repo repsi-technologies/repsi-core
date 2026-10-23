@@ -15,15 +15,27 @@ _hits: dict[str, deque] = defaultdict(deque)
 
 
 def client_ip(request: Request | None) -> str:
+    """
+    The caller's IP. X-Forwarded-For is client-controlled, so it is only used when
+    TRUST_FORWARDED_FOR is on (the API sits behind our own reverse proxy), and then only the
+    rightmost entry, which that proxy appended and a client cannot forge.
+    """
+    from app.core.config import settings
+
     if request is None:
         return "unknown"
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    if settings.TRUST_FORWARDED_FOR:
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            return forwarded.split(",")[-1].strip()
     return request.client.host if request.client else "unknown"
 
 
 def enforce_rate_limit(key: str, limit: int, window_seconds: int) -> None:
+    from app.core.config import settings
+
+    if not settings.RATE_LIMITS_ENABLED:
+        return
     now = time.monotonic()
     with _lock:
         bucket = _hits[key]

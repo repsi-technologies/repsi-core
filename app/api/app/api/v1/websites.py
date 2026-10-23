@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -18,6 +18,8 @@ from app.schemas.website import (
     PublicWebsiteData,
 )
 from app.middleware.tenant import get_current_tenant, TenantContext
+from app.core.permissions import require_permission
+from app.core.rate_limit import client_ip, enforce_rate_limit
 
 router = APIRouter(prefix="/websites", tags=["Website Builder"])
 
@@ -116,7 +118,7 @@ def check_slug_availability(
 
 @router.get("/my-website", response_model=WebsiteResponse)
 def get_my_website(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     return _get_or_create_website(db, tenant.workspace_id)
@@ -126,7 +128,7 @@ def get_my_website(
 @router.patch("/my-website", response_model=WebsiteResponse)
 def update_my_website(
     data: WebsiteUpdate,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     site = _get_or_create_website(db, tenant.workspace_id)
@@ -178,7 +180,7 @@ def update_my_website(
 
 @router.post("/my-website/publish", response_model=WebsiteResponse)
 def publish_my_website(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     site = _get_or_create_website(db, tenant.workspace_id)
@@ -191,7 +193,7 @@ def publish_my_website(
 
 @router.post("/my-website/unpublish", response_model=WebsiteResponse)
 def unpublish_my_website(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     site = _get_or_create_website(db, tenant.workspace_id)
@@ -204,7 +206,7 @@ def unpublish_my_website(
 @router.post("/my-website/domain")
 def connect_custom_domain(
     data: CustomDomainRequest,
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     clean_domain = data.custom_domain.strip().lower()
@@ -250,7 +252,7 @@ def connect_custom_domain(
 
 @router.post("/my-website/verify-domain")
 def verify_custom_domain(
-    tenant: TenantContext = Depends(get_current_tenant),
+    tenant: TenantContext = Depends(require_permission("website.manage")),
     db: Session = Depends(get_db),
 ):
     site = _get_or_create_website(db, tenant.workspace_id)
@@ -290,15 +292,9 @@ def get_public_website(
         .first()
     )
 
-    if not site:
-        # Check if matching workspace exists, fallback create site
-        ws = db.query(Workspace).filter(func.lower(Workspace.slug) == clean_slug).first()
-        if ws:
-            site = _get_or_create_website(db, ws.id)
-            site.is_published = True
-            db.commit()
-        else:
-            raise HTTPException(status_code=404, detail="Gym website not found")
+    # A public read never creates or publishes a site: only the owner's publish action does.
+    if not site or not site.is_published:
+        raise HTTPException(status_code=404, detail="Gym website not found")
 
     # Increment view counter
     site.views_count += 1
@@ -321,19 +317,19 @@ def get_public_website(
     # Pull active trainers
     trainers = (
         db.query(Trainer)
-        .filter(Trainer.workspace_id == site.workspace_id)
+        .filter(Trainer.workspace_id == site.workspace_id, Trainer.is_active.is_(True))
         .limit(10)
         .all()
     )
     trainers_data = [
-        {"id": t.id, "name": t.full_name, "specialty": t.specialty, "bio": t.bio}
+        {"id": t.id, "name": t.name, "specialty": t.specialization, "bio": t.bio}
         for t in trainers
     ]
 
     # Pull active classes
     classes = (
         db.query(GymClass)
-        .filter(GymClass.workspace_id == site.workspace_id)
+        .filter(GymClass.workspace_id == site.workspace_id, GymClass.is_active.is_(True))
         .limit(10)
         .all()
     )
@@ -355,9 +351,15 @@ def get_public_website(
 def submit_public_website_lead(
     slug: str,
     data: PublicLeadSubmit,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     clean_slug = slug.strip().lower()
+    # Spam control: per-IP and per-site rate limits, plus a hidden honeypot field bots tend to fill.
+    enforce_rate_limit(f"public-lead:{client_ip(request)}", 10, 3600)
+    enforce_rate_limit(f"public-lead-site:{clean_slug}", 200, 3600)
+    if data.website:
+        return {"status": "success", "message": "Thanks! We'll be in touch soon."}
 
     site = (
         db.query(Website)
@@ -368,12 +370,8 @@ def submit_public_website_lead(
         .first()
     )
 
-    if not site:
-        ws = db.query(Workspace).filter(func.lower(Workspace.slug) == clean_slug).first()
-        if ws:
-            site = _get_or_create_website(db, ws.id)
-        else:
-            raise HTTPException(status_code=404, detail="Gym not found")
+    if not site or not site.is_published:
+        raise HTTPException(status_code=404, detail="Gym not found")
 
     parts = data.name.strip().split(None, 1)
     first_name = parts[0]

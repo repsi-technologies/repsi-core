@@ -55,6 +55,49 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
 
     PASSWORD_RESET_EXPIRE_MINUTES: int = 30
+    # Legacy owner sign-up without email verification (POST /auth/register). Off in production
+    # unless explicitly enabled; the verified sign-up flows replace it.
+    LEGACY_REGISTRATION_ENABLED: bool | None = None
+    # Server-side sessions: refresh tokens are opaque, stored hashed, and rotate on every use.
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+    # Days after a missed SaaS renewal before paid features lock (per-gym override on the subscription).
+    BILLING_GRACE_DAYS: int = 3
+    # Use the X-Forwarded-For hop added by our own reverse proxy as the client IP (rate limits, audit).
+    TRUST_FORWARDED_FOR: bool = False
+    # Only for local end-to-end test stacks; refused when ENVIRONMENT=production.
+    RATE_LIMITS_ENABLED: bool = True
+
+    # Private file storage: "local" (app/api/private_storage) or "s3" (any S3-compatible bucket; needs boto3)
+    STORAGE_BACKEND: str = "local"
+    STORAGE_S3_BUCKET: str = ""
+    STORAGE_S3_PREFIX: str = "repsi"
+    STORAGE_S3_REGION: str = ""
+    STORAGE_S3_ENDPOINT_URL: str = ""
+    STORAGE_S3_ACCESS_KEY_ID: str = ""
+    STORAGE_S3_SECRET_ACCESS_KEY: str = ""
+    MEMBER_DOCUMENT_MAX_BYTES: int = 10 * 1024 * 1024
+
+    # SMS for essential alerts: "none", "msg91" (India, DLT template ids) or "twilio"
+    SMS_PROVIDER: str = "none"
+    SMS_TIMEOUT_SECONDS: float = 10.0
+    MSG91_AUTH_KEY: str = ""
+    MSG91_SENDER_ID: str = ""
+    TWILIO_ACCOUNT_SID: str = ""
+    TWILIO_AUTH_TOKEN: str = ""
+    TWILIO_FROM_NUMBER: str = ""
+
+    # Push notifications through Firebase Cloud Messaging HTTP v1 (service-account JSON file path)
+    FCM_PROJECT_ID: str = ""
+    FCM_SERVICE_ACCOUNT_FILE: str = ""
+
+    # Error monitoring (Sentry). Needs the optional sentry-sdk package and a DSN; off otherwise.
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.0
+
+    # In-process scheduler for reminders, expiries, auto-checkout and queued messages. Enable it on
+    # exactly one API process, or leave it off and run `python -m scripts.run_jobs` from cron.
+    SCHEDULER_ENABLED: bool = False
+    SCHEDULER_TICK_SECONDS: int = 60
 
     # Membership lifecycle defaults (used when a workspace has no override)
     DEFAULT_TIMEZONE: str = "Asia/Kolkata"
@@ -111,7 +154,6 @@ class Settings(BaseSettings):
         "https://repsi.app",
         "https://www.repsi.app",
         "https://repsi.vercel.app",
-        "https://repsi.fastapicloud.dev",
     ]
 
     @field_validator("SMTP_PORT", mode="before")
@@ -153,6 +195,8 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":
         if self.ENVIRONMENT.lower() == "production":
+            if not self.RATE_LIMITS_ENABLED:
+                raise ValueError("RATE_LIMITS_ENABLED cannot be turned off in production!")
             if self.SECRET_KEY == "repsi-super-secret-key-change-in-production-min-32-chars-long":
                 raise ValueError("SECRET_KEY must be changed from the default value in production!")
             if len(self.SECRET_KEY) < 32:
