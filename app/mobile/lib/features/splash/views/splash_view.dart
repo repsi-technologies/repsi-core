@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
+import '../../../shared/widgets/repsi_white_logo.dart';
 import '../../auth/providers/auth_provider.dart';
 
+/// Brand splash shown while the saved session is restored. It never blocks: a minimum display
+/// time keeps the animation from flashing, and a safety timer guarantees we move on.
 class SplashView extends ConsumerStatefulWidget {
   const SplashView({super.key});
 
@@ -15,252 +18,157 @@ class SplashView extends ConsumerStatefulWidget {
 }
 
 class _SplashViewState extends ConsumerState<SplashView> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeIn;
+  static const _backdrop = Color(0xFF111214);
 
-  bool _minAnimationElapsed = false;
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
+  late final Animation<double> _taglineFade;
+
+  bool _minTimeElapsed = false;
   bool _hasNavigated = false;
-  bool _showSlowFallback = false;
+  bool _showSlowHint = false;
 
   Timer? _minTimer;
   Timer? _slowTimer;
-  Timer? _safetyTimeout;
+  Timer? _safetyTimer;
 
   @override
   void initState() {
     super.initState();
-
-    // Fast 450ms smooth entrance animation
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 450),
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fade = CurvedAnimation(parent: _controller, curve: const Interval(0, 0.55, curve: Curves.easeOut));
+    _scale = Tween<double>(begin: 0.92, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.7, curve: Curves.easeOutCubic)),
     );
-
-    _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutQuad,
-      ),
-    );
-
+    _taglineFade = CurvedAnimation(parent: _controller, curve: const Interval(0.45, 1, curve: Curves.easeOut));
     _controller.forward();
 
-    // 1. Minimum brand display threshold (450ms) to ensure smooth visuals
-    _minTimer = Timer(const Duration(milliseconds: 450), () {
-      if (!mounted) return;
-      _minAnimationElapsed = true;
-      _checkAndNavigate();
+    _minTimer = Timer(const Duration(milliseconds: 1100), () {
+      _minTimeElapsed = true;
+      _navigateIfReady();
     });
-
-    // 2. Slow connection indicator (2.2s)
-    _slowTimer = Timer(const Duration(milliseconds: 2200), () {
-      if (!mounted || _hasNavigated) return;
-      setState(() {
-        _showSlowFallback = true;
-      });
+    _slowTimer = Timer(const Duration(milliseconds: 3000), () {
+      if (mounted && !_hasNavigated) setState(() => _showSlowHint = true);
     });
-
-    // 3. Absolute safety net (3.5s) to guarantee the screen never hangs indefinitely
-    _safetyTimeout = Timer(const Duration(milliseconds: 3500), () {
-      if (!mounted || _hasNavigated) return;
-      _forceBypass();
-    });
+    _safetyTimer = Timer(const Duration(milliseconds: 5000), _navigate);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache primary branding asset on the very first frame
-    precacheImage(const AssetImage('assets/logos/primary_logo.png'), context).catchError((_) {});
+    precacheImage(const AssetImage('assets/logos/repsi_reverse_white.png'), context).catchError((_) {});
   }
 
-  void _checkAndNavigate() {
-    if (_hasNavigated || !_minAnimationElapsed || !mounted) return;
-
-    final authState = ref.read(authProvider);
-
-    // If still initializing from storage/network, wait for the state listener
-    if (authState.status == AuthStatus.initial || authState.status == AuthStatus.loading) {
-      return;
-    }
-
-    _executeNavigation(authState);
+  void _navigateIfReady() {
+    if (!mounted || !_minTimeElapsed) return;
+    if (ref.read(authProvider).status == AuthStatus.initial) return;
+    _navigate();
   }
 
-  void _executeNavigation(AuthState authState) {
+  void _navigate() {
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
+    _minTimer?.cancel();
+    _slowTimer?.cancel();
+    _safetyTimer?.cancel();
 
-    _cleanupTimers();
-
-    if (authState.isAuthenticated) {
-      context.go(RouteNames.roleDashboard(authState.user?.role));
+    final auth = ref.read(authProvider);
+    if (auth.isAuthenticated) {
+      context.go(RouteNames.roleDashboard(auth.user?.role));
     } else {
       context.go(RouteNames.onboarding);
     }
   }
 
-  void _forceBypass() {
-    if (_hasNavigated || !mounted) return;
-    final authState = ref.read(authProvider);
-    _executeNavigation(authState);
-  }
-
-  void _cleanupTimers() {
-    _minTimer?.cancel();
-    _slowTimer?.cancel();
-    _safetyTimeout?.cancel();
-  }
-
   @override
   void dispose() {
-    _cleanupTimers();
+    _minTimer?.cancel();
+    _slowTimer?.cancel();
+    _safetyTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  String _getLoadingStatusText(AuthState auth) {
-    if (_showSlowFallback) {
-      return 'Finalizing your Repsi workspace...';
-    }
-    switch (auth.status) {
-      case AuthStatus.loading:
-        return 'Verifying your Repsi session...';
-      case AuthStatus.authenticated:
-        return 'Loading your Repsi dashboard...';
-      case AuthStatus.error:
-        return 'Connecting to available offline data...';
-      case AuthStatus.initial:
-      case AuthStatus.unauthenticated:
-        return 'Setting up your Repsi workspace...';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Reactively listen to auth state updates so navigation happens the exact instant auth resolves
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (_minAnimationElapsed && !_hasNavigated) {
-        if (next.status != AuthStatus.initial && next.status != AuthStatus.loading) {
-          _checkAndNavigate();
-        }
-      }
-    });
-
-    final authState = ref.watch(authProvider);
-    final statusText = _getLoadingStatusText(authState);
+    ref.listen<AuthState>(authProvider, (_, __) => _navigateIfReady());
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeIn,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
-
-                  // 1. Repsi Logo Image & Wordmark
-                  Image.asset(
-                    'assets/logos/primary_logo.png',
-                    height: 48,
-                    fit: BoxFit.contain,
-                    cacheWidth: 384,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      'assets/logos/app_icon.png',
-                      height: 44,
-                      fit: BoxFit.contain,
-                      cacheWidth: 256,
-                    ),
+      backgroundColor: _backdrop,
+      body: Stack(
+        children: [
+          // Soft brand glow behind the mark
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, -0.15),
+                    radius: 0.9,
+                    colors: [AppColors.primary.withValues(alpha: 0.22), _backdrop],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Repsi',
-                    style: AppTypography.display.copyWith(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // 2. Animated Circular Progress Indicator
-                  const SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                      backgroundColor: AppColors.primarySoft,
-                    ),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  // 3. Dynamic Context-Aware Status Subtitle
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: Text(
-                      statusText,
-                      key: ValueKey<String>(statusText),
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  // 4. Stuck Loading Recovery / Manual Fallback Bypass
-                  if (_showSlowFallback) ...[
-                    GestureDetector(
-                      onTap: _forceBypass,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSubtle,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 14,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Tap to continue directly',
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.text,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ] else ...[
-                    const SizedBox(height: 32),
-                  ],
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          SafeArea(
+            child: Column(
+              children: [
+                const Spacer(flex: 5),
+                Semantics(
+                  label: 'Repsi',
+                  child: FadeTransition(
+                    opacity: _fade,
+                    child: ScaleTransition(
+                      scale: _scale,
+                      // The artwork is white on pure black; screen-blending a backdrop-coloured tint
+                      // turns its black into the backdrop so the mark appears to sit directly on it.
+                      child: const RepsiWhiteLogo(width: 240),
+                    ),
+                  ),
+                ),
+                const Spacer(flex: 4),
+                SizedBox(
+                  width: 120,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: LinearProgressIndicator(
+                      minHeight: 3,
+                      color: AppColors.primary,
+                      backgroundColor: Colors.white.withValues(alpha: 0.12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 44,
+                  child: _showSlowHint
+                      ? TextButton(
+                          onPressed: _navigate,
+                          child: Text(
+                            'Taking longer than usual · Tap to continue',
+                            style: AppTypography.caption.copyWith(color: Colors.white70),
+                          ),
+                        )
+                      : FadeTransition(
+                          opacity: _taglineFade,
+                          child: Center(
+                            child: Text(
+                              'Your gym. Your progress.',
+                              style: AppTypography.caption.copyWith(
+                                color: Colors.white54,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 28),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

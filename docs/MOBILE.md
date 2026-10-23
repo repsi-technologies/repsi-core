@@ -109,3 +109,19 @@ Nothing here has been uploaded or published.
   `app_typography.dart`, `dashboard_view.dart`, `member_profile_view.dart`, `more_view.dart` and
   `repsi_app_bar.dart` (which already had uncommitted changes) kept formatter-only diffs.
 - Web build and Playwright suite were not re-run (no web files changed).
+
+## 8. Running on a phone (USB debugging)
+
+This repo's machine has no Android SDK, so `flutter devices` lists only Windows/Chrome/Edge. To debug over USB:
+
+1. Install Android Studio (installs the SDK + platform-tools), then `flutter config --android-sdk <path>` and
+   `flutter doctor --android-licenses`.
+2. On the phone: Settings → About → tap *Build number* 7× → Developer options → enable *USB debugging*; plug in and accept the prompt.
+3. `flutter devices` should list the phone, then `cd app/mobile && flutter run` (uses the production API by default,
+   i.e. the same database as web).
+
+Do not test the production API from Flutter **web** in Chrome: the API's CORS list allows only the website origin,
+so every request fails with "Unable to connect". A phone or emulator is not subject to CORS.
+For local web debugging run the API with `BACKEND_CORS_ORIGINS=http://localhost:3000` and
+`flutter run -d web-server --web-port 3000 --dart-define=API_BASE_URL=http://localhost:8000/api/v1`
+(needs `flutter create . --platforms=web` first; the `web/` folder is not committed).

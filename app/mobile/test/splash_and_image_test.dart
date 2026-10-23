@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/features/splash/views/splash_view.dart';
 import 'package:mobile/shared/widgets/repsi_avatar.dart';
 import 'package:mobile/shared/widgets/repsi_network_image.dart';
+import 'package:mobile/shared/widgets/repsi_white_logo.dart';
 
 void main() {
   group('Splash View & Performance Tests', () {
@@ -17,13 +18,14 @@ void main() {
       );
 
       // Verify fast first frame renders immediately
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
       expect(find.byType(SplashView), findsOneWidget);
-      expect(find.textContaining('Repsi'), findsWidgets);
+      expect(find.byType(RepsiWhiteLogo), findsOneWidget);
 
       // Advance animation smoothly
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+      await tester.pumpWidget(const SizedBox()); // dispose before the splash timers fire
     });
 
     testWidgets('RepsiAvatar gracefully renders initials placeholder on empty URL', (WidgetTester tester) async {

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/api/api_error.dart';
@@ -207,7 +209,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _storage.clearAll();
       state = AuthState(status: AuthStatus.error, errorMessage: e.message);
       return false;
-    } catch (_) {
+    } catch (e) {
+      // Type only: the exception text can carry account details.
+      debugPrint('Google sign-in failed: ${e.runtimeType}');
       await _storage.clearAll();
       state = const AuthState(
         status: AuthStatus.error,

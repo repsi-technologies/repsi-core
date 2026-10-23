@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +9,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: MyApp()));
     await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.textContaining('Repsi'), findsWidgets);
+    expect(find.text('Your gym. Your progress.'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox()); // dispose before the splash timers fire
   });
 }

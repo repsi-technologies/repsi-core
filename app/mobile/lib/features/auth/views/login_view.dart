@@ -11,6 +11,7 @@ import '../../../shared/widgets/google_logo_icon.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_error_banner.dart';
 import '../../../shared/widgets/repsi_screen_background.dart';
+import '../../../shared/widgets/repsi_white_logo.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/auth_provider.dart';
 
@@ -25,6 +26,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
   final _formKey = GlobalKey<FormState>();
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  static const _ink = Color(0xFF111214);
+  bool _lastMethodWasGoogle = false;
 
   @override
   void dispose() {
@@ -188,6 +191,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
+    _lastMethodWasGoogle = false;
     FocusScope.of(context).unfocus();
     HapticFeedback.lightImpact();
 
@@ -223,6 +227,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
   }
 
   Future<void> _handleGoogleLogin() async {
+    _lastMethodWasGoogle = true;
     FocusScope.of(context).unfocus();
     HapticFeedback.lightImpact();
     final success = await ref.read(authProvider.notifier).loginWithGoogle();
@@ -253,7 +258,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isLoading = authState.status == AuthStatus.loading;
-    final isError = authState.status == AuthStatus.error && authState.errorMessage != null;
+    // Also shown after an expired session, where the status is `unauthenticated` with a message.
+    final isError = authState.errorMessage != null &&
+        (authState.status == AuthStatus.error || authState.status == AuthStatus.unauthenticated);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -276,73 +283,54 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Stagger 0: Repsi Logo
+                      // Brand header
                       RepsiStaggerItem(
                         index: 0,
-                        child: Center(
-                          child: Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 4),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
+                          decoration: BoxDecoration(
+                            color: _ink,
+                            borderRadius: BorderRadius.circular(28),
+                            gradient: RadialGradient(
+                              center: const Alignment(0.9, -1.1),
+                              radius: 1.3,
+                              colors: [Color.alphaBlend(AppColors.primary.withValues(alpha: 0.4), _ink), _ink],
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              const RepsiWhiteLogo(height: 54),
+                              const SizedBox(height: 22),
+                              Text(
+                                'Welcome back',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.heading.copyWith(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
                                 ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Image.asset(
-                              'assets/logos/primary_logo.png',
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.fitness_center_rounded,
-                                size: 36,
-                                color: AppColors.primary,
                               ),
-                            ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Sign in to check in, track your activity and manage your membership.',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.body.copyWith(
+                                  fontSize: 14,
+                                  height: 1.4,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      // Stagger 1: Heading & Subtitle
-                      RepsiStaggerItem(
-                        index: 1,
-                        child: Column(
-                          children: [
-                            Text(
-                              'Welcome back',
-                              textAlign: TextAlign.center,
-                              style: AppTypography.heading.copyWith(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.text,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Sign in to your Repsi account',
-                              textAlign: TextAlign.center,
-                              style: AppTypography.body.copyWith(
-                                fontSize: 15,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
                       if (isError) ...[
                         RepsiErrorBanner(
                           title: 'Notice',
                           message: authState.errorMessage!,
-                          onRetry: isLoading ? null : _handleLogin,
+                          onRetry: isLoading || _lastMethodWasGoogle ? null : _handleLogin,
                         ),
                         const SizedBox(height: 16),
                       ],
