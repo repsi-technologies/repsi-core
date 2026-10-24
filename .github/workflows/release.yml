@@ -132,19 +132,16 @@ jobs:
           mkdir -p release-assets
           TAG="${{ github.event.inputs.tag_name || github.ref_name }}"
 
-          # Copy installers (.deb, .AppImage, .exe, .msi, .dmg, .zip)
-          find app/desktop/src-tauri/target/release -type f \( -name "*.deb" -o -name "*.AppImage" -o -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.zip" \) -exec cp {} release-assets/ \; || true
-
-          # If on macOS, package any .app directories into tar.gz
-          if [ "${{ matrix.platform }}" = "macos" ]; then
-            for appdir in $(find app/desktop/src-tauri/target/release -name "*.app" -type d); do
-              appname=$(basename "$appdir" .app)
-              tar -czvf "release-assets/${appname}-${TAG}-macos.app.tar.gz" -C "$(dirname "$appdir")" "${appname}.app"
-            done
-          fi
-
-          # Ensure Windows has an .exe available
           if [ "${{ matrix.platform }}" = "windows" ]; then
+            # Copy NSIS setup .exe
+            for f in $(find app/desktop/src-tauri/target/release/bundle/nsis -type f -name "*.exe" 2>/dev/null); do
+              cp "$f" "release-assets/Repsi-${TAG}-windows-setup.exe"
+            done
+            # Copy MSI installer
+            for f in $(find app/desktop/src-tauri/target/release/bundle/msi -type f -name "*.msi" 2>/dev/null); do
+              cp "$f" "release-assets/Repsi-${TAG}-windows.msi"
+            done
+            # Fallback if bundle/nsis wasn't found:
             if ! ls release-assets/*.exe 1> /dev/null 2>&1; then
               if [ -f "app/desktop/src-tauri/target/release/app.exe" ]; then
                 cp "app/desktop/src-tauri/target/release/app.exe" "release-assets/Repsi-${TAG}-windows.exe"
@@ -152,14 +149,29 @@ jobs:
             fi
           fi
 
-          # Ensure Linux has a standalone executable if needed
           if [ "${{ matrix.platform }}" = "linux" ]; then
-            if [ -f "app/desktop/src-tauri/target/release/app" ]; then
-              cp "app/desktop/src-tauri/target/release/app" "release-assets/Repsi-${TAG}-linux-x86_64"
-            fi
+            # Copy AppImage
+            for f in $(find app/desktop/src-tauri/target/release/bundle/appimage -type f -name "*.AppImage" 2>/dev/null); do
+              cp "$f" "release-assets/Repsi-${TAG}-linux.AppImage"
+            done
+            # Copy Debian package
+            for f in $(find app/desktop/src-tauri/target/release/bundle/deb -type f -name "*.deb" 2>/dev/null); do
+              cp "$f" "release-assets/Repsi-${TAG}-linux.deb"
+            done
           fi
 
-          echo "Collected artifacts for ${{ matrix.platform }}:"
+          if [ "${{ matrix.platform }}" = "macos" ]; then
+            # Copy DMG
+            for f in $(find app/desktop/src-tauri/target/release/bundle/dmg -type f -name "*.dmg" 2>/dev/null); do
+              cp "$f" "release-assets/Repsi-${TAG}-macos.dmg"
+            done
+            # Package .app bundle
+            for appdir in $(find app/desktop/src-tauri/target/release/bundle/macos -name "*.app" -type d 2>/dev/null); do
+              tar -czvf "release-assets/Repsi-${TAG}-macos.app.tar.gz" -C "$(dirname "$appdir")" "$(basename "$appdir")"
+            done
+          fi
+
+          echo "Cleaned consumer artifacts for ${{ matrix.platform }}:"
           ls -la release-assets/
 
       - name: Upload Desktop Artifacts
@@ -185,8 +197,38 @@ jobs:
         run: |
           mkdir -p final-release
           find all-assets -type f -exec cp {} final-release/ \;
-          echo "Release binaries prepared for GitHub Release:"
+          echo "Final release binaries (clean list):"
           ls -la final-release/
+
+      - name: Purge old assets from release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ github.event.inputs.tag_name || github.ref_name }}';
+            try {
+              const release = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tag
+              });
+              if (release && release.data && release.data.assets && release.data.assets.length > 0) {
+                console.log(`Found ${release.data.assets.length} existing assets. Cleaning up old build scripts and duplicates...`);
+                for (const asset of release.data.assets) {
+                  console.log(`Deleting old asset: ${asset.name} (id: ${asset.id})`);
+                  try {
+                    await github.rest.repos.deleteReleaseAsset({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      asset_id: asset.id
+                    });
+                  } catch (e) {
+                    console.log(`Could not delete asset ${asset.name}:`, e.message);
+                  }
+                }
+              }
+            } catch (err) {
+              console.log('No prior release to clean:', err.message);
+            }
 
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
