@@ -5,7 +5,6 @@ import { useTranslation } from "@/lib/i18n";
 
 export default function MemberWorkoutPage() {
   const { t } = useTranslation();
-
   return (
     <div className="space-y-4">
       <div>
@@ -20,4 +19,3 @@ export default function MemberWorkoutPage() {
     </div>
   );
 }
-
