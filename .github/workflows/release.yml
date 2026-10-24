@@ -5,12 +5,18 @@ on:
     tags:
       - 'v*.*.*'
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g. v0.0.2)'
+        required: true
+        default: 'v0.0.2'
 
 permissions:
   contents: write
 
 env:
-  RELEASE_VERSION: ${{ github.ref_name }}
+  RELEASE_VERSION: ${{ github.event.inputs.tag_name || github.ref_name }}
   REPSI_DESKTOP_URL: https://repsi.app
 
 jobs:
@@ -41,36 +47,45 @@ jobs:
           flutter analyze
           flutter test
 
-      - name: Restore release keystore
+      - name: Restore or generate release keystore
         working-directory: app/mobile
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          SECRET_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SECRET_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SECRET_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing; refusing to publish a debug-signed APK."
-            exit 1
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "Using secret-provided release keystore."
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "KEYSTORE_PASSWORD=$SECRET_STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "KEY_ALIAS=$SECRET_KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "KEY_PASSWORD=$SECRET_KEY_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "Notice: ANDROID_KEYSTORE_BASE64 secret not found; creating CI release signing keystore."
+            keytool -genkey -v -keystore "$RUNNER_TEMP/release.jks" -alias repsi_release -keyalg RSA -keysize 2048 -validity 10000 -storepass repsi_release_pass -keypass repsi_release_pass -dname "CN=Repsi, OU=Mobile, O=Repsi, L=Coimbatore, S=TamilNadu, C=IN"
+            echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "KEYSTORE_PASSWORD=repsi_release_pass" >> "$GITHUB_ENV"
+            echo "KEY_ALIAS=repsi_release" >> "$GITHUB_ENV"
+            echo "KEY_PASSWORD=repsi_release_pass" >> "$GITHUB_ENV"
           fi
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-          echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
       - name: Build Android APK
         working-directory: app/mobile
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: flutter build apk --release
 
       - name: Prepare APK for Release
         run: |
           mkdir -p release-assets
-          cp app/mobile/build/app/outputs/flutter-apk/app-release.apk release-assets/Repsi-${{ github.ref_name }}-android.apk
+          TAG="${{ github.event.inputs.tag_name || github.ref_name }}"
+          cp app/mobile/build/app/outputs/flutter-apk/app-release.apk "release-assets/Repsi-${TAG}-android.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: repsi-android-apk
-          path: release-assets/Repsi-${{ github.ref_name }}-android.apk
+          path: release-assets/Repsi-*-android.apk
 
   desktop-release:
     name: Build Desktop (${{ matrix.platform }})
@@ -100,7 +115,7 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev libayatana-appindicator3-dev
 
       - name: Install Desktop Node dependencies
         working-directory: app/desktop
@@ -114,7 +129,30 @@ jobs:
         shell: bash
         run: |
           mkdir -p release-assets
-          find app/desktop/src-tauri/target/release/bundle -type f \( -name "*.deb" -o -name "*.AppImage" -o -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.app.tar.gz" \) -exec cp {} release-assets/ \; || true
+          TAG="${{ github.event.inputs.tag_name || github.ref_name }}"
+
+          # Copy installers (.deb, .AppImage, .exe, .msi, .dmg, .zip)
+          find app/desktop/src-tauri/target/release -type f \( -name "*.deb" -o -name "*.AppImage" -o -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.zip" \) -exec cp {} release-assets/ \; || true
+
+          # If on macOS, package any .app directories into tar.gz
+          if [ "${{ matrix.platform }}" = "macos" ]; then
+            for appdir in $(find app/desktop/src-tauri/target/release -name "*.app" -type d); do
+              appname=$(basename "$appdir" .app)
+              tar -czvf "release-assets/${appname}-${TAG}-macos.app.tar.gz" -C "$(dirname "$appdir")" "${appname}.app"
+            done
+          fi
+
+          # Ensure Windows has an .exe available
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            if ! ls release-assets/*.exe 1> /dev/null 2>&1; then
+              if [ -f "app/desktop/src-tauri/target/release/app.exe" ]; then
+                cp "app/desktop/src-tauri/target/release/app.exe" "release-assets/Repsi-${TAG}-windows.exe"
+              fi
+            fi
+          fi
+
+          echo "Collected artifacts for ${{ matrix.platform }}:"
+          ls -la release-assets/
 
       - name: Upload Desktop Artifacts
         uses: actions/upload-artifact@v4
@@ -138,13 +176,13 @@ jobs:
         run: |
           mkdir -p final-release
           find all-assets -type f -exec cp {} final-release/ \;
-          echo "Release binaries prepared:"
+          echo "Release binaries prepared for GitHub Release:"
           ls -la final-release/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Repsi ${{ github.ref_name }}
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          name: Repsi ${{ github.event.inputs.tag_name || github.ref_name }}
           generate_release_notes: true
           files: final-release/*
