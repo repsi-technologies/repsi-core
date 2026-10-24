@@ -6,6 +6,7 @@ import '../../../core/storage/secure_storage_service.dart';
 import '../../../shared/models/workspace_model.dart';
 import '../services/workspace_service.dart';
 
+import '../../../l10n/l10n.dart';
 class WorkspaceState {
   final bool isLoading;
   final List<WorkspaceModel> workspaces;
@@ -82,7 +83,7 @@ class WorkspaceNotifier extends StateNotifier<WorkspaceState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to load workspaces.',
+        errorMessage: L10n.current.errorLoadWorkspaces,
       );
     }
   }
@@ -108,7 +109,7 @@ class WorkspaceNotifier extends StateNotifier<WorkspaceState> {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Failed to complete onboarding');
+      state = state.copyWith(isLoading: false, errorMessage: L10n.current.errorOnboarding);
       return false;
     }
   }

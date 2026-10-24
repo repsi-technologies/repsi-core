@@ -11,6 +11,7 @@ import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_layout.dart';
 
+import '../../../l10n/l10n.dart';
 /// Requests a password reset email. The link in that email opens the website, where the new
 /// password is set; the server answers the same way whether or not the address has an account.
 class ForgotPasswordView extends ConsumerStatefulWidget {
@@ -46,7 +47,7 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
     } on ApiError catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (_) {
-      if (mounted) setState(() => _error = "We couldn't send the email. Please try again.");
+      if (mounted) setState(() => _error = context.l10n.emailSendFailed);
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -76,22 +77,16 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
             ),
             const SizedBox(height: AppSpacing.xl),
             AuthHeading(
-              title: 'Check your email',
-              subtitle: Text.rich(TextSpan(children: [
-                const TextSpan(text: 'If '),
-                TextSpan(text: _email.text.trim(), style: TextStyle(color: text, fontWeight: FontWeight.w600)),
-                const TextSpan(
-                  text: ' has a REPSI account, a reset link is on its way. Open it on this phone or a computer to choose a new password.',
-                ),
-              ])),
+              title: context.l10n.checkYourEmail,
+              subtitle: Text(context.l10n.resetLinkSent(_email.text.trim())),
             ),
             const SizedBox(height: AppSpacing.xxxl),
-            RepsiButton(text: 'Back to sign in', isFullWidth: true, onPressed: () => context.pop()),
+            RepsiButton(text: context.l10n.backToSignIn, isFullWidth: true, onPressed: () => context.pop()),
             const SizedBox(height: AppSpacing.sm),
             TextButton(
               onPressed: () => setState(() => _sent = false),
               style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: text),
-              child: Text('Use a different email', style: AppTypography.button.copyWith(color: text)),
+              child: Text(context.l10n.useDifferentEmail, style: AppTypography.button.copyWith(color: text)),
             ),
           ],
         ),
@@ -104,9 +99,9 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AuthHeading(
-              title: 'Reset your password',
-              subtitle: Text("Enter the email on your account and we'll send you a link to set a new password."),
+            AuthHeading(
+              title: context.l10n.resetPasswordTitle,
+              subtitle: Text(context.l10n.resetPasswordSubtitle),
             ),
             const SizedBox(height: AppSpacing.xxxl),
             if (_error != null) ...[
@@ -114,8 +109,8 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
               const SizedBox(height: AppSpacing.lg),
             ],
             RepsiTextField(
-              label: 'Email',
-              hintText: 'name@example.com',
+              label: context.l10n.commonEmail,
+              hintText: context.l10n.commonEmailHint,
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.send,
@@ -125,7 +120,7 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
               validator: (v) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch((v ?? '').trim()) ? null : 'Enter a valid email address',
             ),
             const SizedBox(height: AppSpacing.xxl),
-            RepsiButton(text: 'Send reset link', isFullWidth: true, isLoading: _sending, onPressed: _sending ? null : _send),
+            RepsiButton(text: context.l10n.sendResetLink, isFullWidth: true, isLoading: _sending, onPressed: _sending ? null : _send),
           ],
         ),
       ),

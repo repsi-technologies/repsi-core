@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
@@ -17,17 +18,23 @@ class ProgressDashboardView extends StatefulWidget {
 
 class _ProgressDashboardViewState extends State<ProgressDashboardView> {
   int _selectedMetricTab = 0;
-  final List<String> _metricTabs = ['Weight', 'Measurements', 'Attendance', 'PRs'];
 
   @override
   Widget build(BuildContext context) {
+    final metricTabs = [
+      context.l10n.tabWeight,
+      context.l10n.tabMeasurements,
+      context.l10n.tabAttendance,
+      context.l10n.tabPRs,
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'My Progress',
+          context.l10n.myProgress,
           style: AppTypography.heading.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -55,7 +62,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                   ),
                   padding: const EdgeInsets.all(3),
                   child: Row(
-                    children: List.generate(_metricTabs.length, (index) {
+                    children: List.generate(metricTabs.length, (index) {
                       final isSelected = _selectedMetricTab == index;
                       return Expanded(
                         child: GestureDetector(
@@ -71,12 +78,14 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              _metricTabs[index],
+                              metricTabs[index],
                               style: AppTypography.caption.copyWith(
                                 color: isSelected ? AppColors.primaryDark : AppColors.textSecondary,
                                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 12,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -100,7 +109,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Weight',
+                              context.l10n.tabWeight,
                               style: AppTypography.caption.copyWith(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
@@ -133,7 +142,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'From 82.1 kg (Started Aug 2025)',
+                              context.l10n.startedWeightSubtitle('82.1', 'Aug 2025'),
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
@@ -152,7 +161,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'BMI',
+                              context.l10n.bmiTitle,
                               style: AppTypography.caption.copyWith(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
@@ -169,7 +178,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Calculated (178 cm)',
+                              context.l10n.calculatedHeight('178'),
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
@@ -200,7 +209,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'BMI is an epidemiological estimate based on height & weight. Strength and body composition are your primary health indicators.',
+                          context.l10n.bmiHealthNote,
                           style: AppTypography.caption.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 10,
@@ -225,7 +234,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
               RepsiStaggerItem(
                 index: 5,
                 child: RepsiButton(
-                  text: 'Log Weight & Body Metrics',
+                  text: context.l10n.logMetricsButton,
                   leadingIcon: const Icon(Icons.add_rounded, size: 20),
                   onPressed: () {
                     _showLogMetricModal();
@@ -252,11 +261,11 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Weight Trajectory',
+                context.l10n.weightProgressTitle,
                 style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               Text(
-                'Last 60 Days',
+                '60 Days',
                 style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
               ),
             ],
@@ -316,26 +325,26 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Body Measurements',
+            context.l10n.tabMeasurements,
             style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
-            children: const [
-              Expanded(child: _MeasurementTile(label: 'Chest', value: '102 cm', change: '+2 cm')),
-              SizedBox(width: 8),
-              Expanded(child: _MeasurementTile(label: 'Waist', value: '84 cm', change: '-4 cm')),
-              SizedBox(width: 8),
-              Expanded(child: _MeasurementTile(label: 'Arms', value: '35 cm', change: '+1.5 cm')),
+            children: [
+              Expanded(child: _MeasurementTile(label: context.l10n.measureChest, value: '102 cm', change: '+2 cm')),
+              const SizedBox(width: 8),
+              Expanded(child: _MeasurementTile(label: context.l10n.measureWaist, value: '84 cm', change: '-4 cm')),
+              const SizedBox(width: 8),
+              Expanded(child: _MeasurementTile(label: context.l10n.measureArms, value: '35 cm', change: '+1.5 cm')),
             ],
           ),
           const SizedBox(height: 10),
           Row(
-            children: const [
-              Expanded(child: _MeasurementTile(label: 'Thighs', value: '58 cm', change: '+1 cm')),
-              SizedBox(width: 8),
-              Expanded(child: _MeasurementTile(label: 'Shoulders', value: '116 cm', change: '+3 cm')),
-              SizedBox(width: 8),
+            children: [
+              Expanded(child: _MeasurementTile(label: context.l10n.measureThighs, value: '58 cm', change: '+1 cm')),
+              const SizedBox(width: 8),
+              Expanded(child: _MeasurementTile(label: context.l10n.exCatShoulders, value: '116 cm', change: '+3 cm')),
+              const SizedBox(width: 8),
               Expanded(child: _MeasurementTile(label: 'Body Fat %', value: '16.8%', change: '-2.4%')),
             ],
           ),
@@ -351,16 +360,16 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Attendance & Frequency',
+            context.l10n.tabAttendance,
             style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildAttendanceMetric('18 / 20', 'Sessions Completed'),
-              _buildAttendanceMetric('90%', 'Monthly Consistency'),
-              _buildAttendanceMetric('4.2', 'Avg workouts / week'),
+              _buildAttendanceMetric('18 / 20', 'Sessions'),
+              _buildAttendanceMetric('90%', context.l10n.commonAttendance),
+              _buildAttendanceMetric('4.2', context.l10n.commonThisWeek),
             ],
           ),
         ],
@@ -380,9 +389,9 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
 
   Widget _buildPersonalRecordsSection() {
     final prs = [
-      {'lift': 'Barbell Bench Press', 'weight': '75 kg × 6 reps', 'date': 'Today'},
-      {'lift': 'Barbell Deadlift', 'weight': '125 kg × 3 reps', 'date': 'Last week'},
-      {'lift': 'Barbell Back Squat', 'weight': '100 kg × 5 reps', 'date': '2 weeks ago'},
+      {'lift': context.l10n.benchPressExercise, 'weight': '75 kg × 6 reps', 'date': context.l10n.commonToday},
+      {'lift': context.l10n.deadliftExercise, 'weight': '125 kg × 3 reps', 'date': context.l10n.timeYesterday},
+      {'lift': context.l10n.squatExercise, 'weight': '100 kg × 5 reps', 'date': '2 weeks ago'},
       {'lift': 'Overhead Press', 'weight': '45 kg × 8 reps', 'date': 'Aug 2025'},
     ];
 
@@ -392,7 +401,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Personal Records (PRs)',
+            context.l10n.tabPRs,
             style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
@@ -439,34 +448,34 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Log Measurements',
+                  context.l10n.tabMeasurements,
                   style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 14),
                 TextField(
                   controller: wCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Body Weight (kg)'),
+                  decoration: InputDecoration(labelText: '${context.l10n.tabWeight} (kg)'),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: cCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Chest (cm)'),
+                  decoration: InputDecoration(labelText: '${context.l10n.measureChest} (cm)'),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: waistCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Waist (cm)'),
+                  decoration: InputDecoration(labelText: '${context.l10n.measureWaist} (cm)'),
                 ),
                 const SizedBox(height: 18),
                 RepsiButton(
-                  text: 'Save Progress',
+                  text: context.l10n.commonSave,
                   onPressed: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Measurements recorded!'), backgroundColor: AppColors.primary),
+                      SnackBar(content: Text(context.l10n.commonSaved), backgroundColor: AppColors.primary),
                     );
                   },
                 ),
@@ -498,7 +507,7 @@ class _MeasurementTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.text)),
           const SizedBox(height: 2),
@@ -508,3 +517,4 @@ class _MeasurementTile extends StatelessWidget {
     );
   }
 }
+

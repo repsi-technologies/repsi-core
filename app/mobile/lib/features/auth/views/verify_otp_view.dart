@@ -18,6 +18,7 @@ import '../services/auth_service.dart';
 import '../widgets/auth_layout.dart';
 import 'complete_profile_view.dart';
 
+import '../../../l10n/l10n.dart';
 class VerifyOtpArgs {
   final PhoneOtpChallenge challenge;
 
@@ -100,7 +101,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
       setState(() => _error = e.message);
       _code.clear();
     } catch (_) {
-      if (mounted) setState(() => _error = "We couldn't verify the code. Please try again.");
+      if (mounted) setState(() => _error = context.l10n.codeVerifyFailed);
     } finally {
       if (mounted) setState(() => _verifying = false);
     }
@@ -118,7 +119,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
       _challenge = next;
       _code.clear();
       _startCountdown(next.resendIn);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('A new code is on its way to WhatsApp.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.newCodeSent)));
     } on ApiError catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -144,14 +145,8 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
           ),
           const SizedBox(height: AppSpacing.xl),
           AuthHeading(
-            title: 'Verify your number',
-            subtitle: Text.rich(
-              TextSpan(children: [
-                const TextSpan(text: 'Enter the 6-digit code we sent on WhatsApp to '),
-                TextSpan(text: _displayNumber, style: TextStyle(color: text, fontWeight: FontWeight.w600)),
-                const TextSpan(text: '.'),
-              ]),
-            ),
+            title: context.l10n.verifyNumberTitle,
+            subtitle: Text(context.l10n.otpSentTo(_displayNumber)),
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -159,7 +154,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
               onPressed: _verifying ? null : () => context.pop(),
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(44, 40)),
               child: Text(
-                'Change number',
+                context.l10n.changeNumber,
                 style: AppTypography.bodySmall.copyWith(
                   color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
                   fontWeight: FontWeight.w600,
@@ -194,10 +189,10 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              Text("Didn't get it?", style: AppTypography.bodySmall.copyWith(color: secondary)),
+              Text(context.l10n.didntGetCode, style: AppTypography.bodySmall.copyWith(color: secondary)),
               if (_resendIn > 0)
                 Text(
-                  'Resend in $minutes:$seconds',
+                  context.l10n.resendIn('$minutes:$seconds'),
                   style: AppTypography.tabularNumber(fontSize: 13, fontWeight: FontWeight.w600, color: text),
                 )
               else
@@ -205,7 +200,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
                   onPressed: _resending ? null : _resend,
                   style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 4), minimumSize: const Size(44, 40)),
                   child: Text(
-                    _resending ? 'Sending…' : 'Resend code',
+                    _resending ? context.l10n.commonSending : context.l10n.resendCode,
                     style: AppTypography.bodySmall.copyWith(
                       color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
                       fontWeight: FontWeight.w600,
@@ -217,7 +212,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
           if (_challenge.testMode) ...[
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Test server: WhatsApp is not connected, so use the server\'s test code.',
+              context.l10n.otpTestServerNotice,
               style: AppTypography.caption.copyWith(color: secondary),
             ),
           ],
@@ -225,7 +220,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
           ListenableBuilder(
             listenable: _code,
             builder: (context, _) => RepsiButton(
-              text: 'Verify',
+              text: context.l10n.verify,
               isFullWidth: true,
               isLoading: _verifying,
               onPressed: _code.text.length == 6 && !_verifying ? _verify : null,

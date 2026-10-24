@@ -152,7 +152,7 @@ void main() {
       profile: () => Future<MemberSelf>.error(Exception('boom')),
     );
 
-    expect(find.text('Could not load your membership.'), findsOneWidget);
+    expect(find.text("Couldn't load your membership."), findsOneWidget);
     expect(find.text('Retry'), findsWidgets);
   });
 

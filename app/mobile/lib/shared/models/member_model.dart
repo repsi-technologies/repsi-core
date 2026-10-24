@@ -1,4 +1,5 @@
-/// What staff need to see at a glance: membership state for active accounts (from the real end
+
+import '../../l10n/l10n.dart';/// What staff need to see at a glance: membership state for active accounts (from the real end
 /// date), or the account state when the account itself is blocked.
 enum MemberStatus { active, expiring, expired, frozen, cancelled, inactive, suspended }
 
@@ -6,19 +7,19 @@ extension MemberStatusLabels on MemberStatus {
   String get displayName {
     switch (this) {
       case MemberStatus.active:
-        return 'Active';
+        return L10n.current.commonActive;
       case MemberStatus.expiring:
-        return 'Expiring';
+        return L10n.current.statusExpiring;
       case MemberStatus.expired:
-        return 'Expired';
+        return L10n.current.commonExpired;
       case MemberStatus.frozen:
-        return 'Frozen';
+        return L10n.current.statusFrozen;
       case MemberStatus.cancelled:
-        return 'Cancelled';
+        return L10n.current.statusCancelled;
       case MemberStatus.inactive:
-        return 'Inactive';
+        return L10n.current.commonInactive;
       case MemberStatus.suspended:
-        return 'Suspended';
+        return L10n.current.commonSuspended;
     }
   }
 }

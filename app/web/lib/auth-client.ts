@@ -273,7 +273,9 @@ export function applySession(token: SessionToken): string {
     onboardingRequired: Boolean(token.onboarding_required),
   };
   loginSession(token.access_token, authUser, slug, token.refresh_token);
-  applyAccountLanguage(u?.preferred_language);
+  const localChoice = applyAccountLanguage(u?.preferred_language);
+  // This browser's explicit choice wins; keep the account in step with it.
+  if (localChoice) import("@/lib/api").then((m) => m.repsiApi.updateUserLanguage(localChoice)).catch(() => {});
   return token.next_path || (slug ? `/${slug}/dashboard` : "/onboarding");
 }
 

@@ -15,18 +15,20 @@ import { ApiError, applySession, getToken, orgApi, type Branch, type OnboardingS
 import { logoutSession } from "@/lib/auth";
 import { formatPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 type StepId = "business" | "preferences" | "branches" | "team" | "launch";
 
 const STEPS: { id: StepId; label: string; title: string; description: string; icon: typeof Building2 }[] = [
-  { id: "business", label: "Business", title: "Tell us about your business", description: "This appears on invoices, member apps and your public page.", icon: Building2 },
-  { id: "preferences", label: "Hours & region", title: "Opening hours and regional settings", description: "Used for attendance, reminders, billing and reports.", icon: Clock },
-  { id: "branches", label: "Branches", title: "Your locations", description: "We created your main branch from your business address. Add more if you have them.", icon: MapPin },
-  { id: "team", label: "Team", title: "Invite your team", description: "Trainers and staff get their own sign-in and only see the branches you choose. You can skip this for now.", icon: Users },
-  { id: "launch", label: "Launch", title: "You're ready to launch", description: "Review your setup and open your workspace.", icon: Rocket },
+  { id: "business", get label() { return tr("onboarding.business"); }, get title() { return tr("onboarding.tell_us_about_your_business"); }, get description() { return tr("onboarding.this_appears_on_invoices_member_apps"); }, icon: Building2 },
+  { id: "preferences", get label() { return tr("onboarding.hours_region"); }, get title() { return tr("onboarding.opening_hours_and_regional_settings"); }, get description() { return tr("onboarding.used_for_attendance_reminders_billing_and"); }, icon: Clock },
+  { id: "branches", get label() { return tr("onboarding.branches"); }, get title() { return tr("onboarding.your_locations"); }, get description() { return tr("onboarding.we_created_your_main_branch_from"); }, icon: MapPin },
+  { id: "team", get label() { return tr("onboarding.team"); }, get title() { return tr("onboarding.invite_your_team"); }, get description() { return tr("onboarding.trainers_and_staff_get_their_own"); }, icon: Users },
+  { id: "launch", get label() { return tr("onboarding.launch"); }, get title() { return tr("onboarding.you_re_ready_to_launch"); }, get description() { return tr("onboarding.review_your_setup_and_open_your"); }, icon: Rocket },
 ];
 
 export default function OnboardingPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [state, setState] = useState<OnboardingState | null>(null);
   const [step, setStep] = useState<StepId>("business");
@@ -60,7 +62,7 @@ export default function OnboardingPage() {
       })
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) router.replace("/login?redirect=/onboarding");
-        else setLoadError(err instanceof ApiError ? err.message : "We couldn't load your setup.");
+        else setLoadError(err instanceof ApiError ? err.message : t("onboarding.we_couldn_t_load_your_setup"));
       });
   }, [refresh, router]);
 
@@ -74,7 +76,7 @@ export default function OnboardingPage() {
       <Shell>
         <div className="mx-auto max-w-md space-y-4 py-16 text-center">
           <FormAlert>{loadError}</FormAlert>
-          <SecondaryButton onClick={() => window.location.reload()}>Try again</SecondaryButton>
+          <SecondaryButton onClick={() => window.location.reload()}>{t("onboarding.try_again")}</SecondaryButton>
         </div>
       </Shell>
     );
@@ -99,7 +101,7 @@ export default function OnboardingPage() {
       setState(await orgApi.advance(target));
       go(next);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't continue. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("onboarding.couldn_t_continue_please_try_again"));
     } finally {
       setBusy(false);
     }
@@ -112,7 +114,7 @@ export default function OnboardingPage() {
       const res = await orgApi.complete();
       router.replace(applySession(res.session));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't launch your workspace.");
+      setError(err instanceof ApiError ? err.message : t("onboarding.couldn_t_launch_your_workspace"));
       setBusy(false);
     }
   }
@@ -121,10 +123,9 @@ export default function OnboardingPage() {
     <Shell email={state.user.email}>
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 lg:py-10">
         {/* Progress */}
-        <nav aria-label="Setup progress" className="lg:sticky lg:top-6 lg:self-start">
+        <nav aria-label={t("onboarding.setup_progress")} className="lg:sticky lg:top-6 lg:self-start">
           <p className="mb-2 text-xs font-medium text-[var(--text-muted)] lg:mb-4">
-            Step {index + 1} of {STEPS.length}
-          </p>
+            {t("onboarding.step_valueof_count", undefined, { value: index + 1, count: STEPS.length })}</p>
           <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-[var(--border)] lg:hidden" aria-hidden>
             <div className="h-full rounded-full bg-[var(--primary)] transition-all" style={{ width: `${((index + 1) / STEPS.length) * 100}%` }} />
           </div>
@@ -144,7 +145,7 @@ export default function OnboardingPage() {
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                       done ? "bg-[var(--primary)] text-white" : active ? "border-2 border-[var(--primary)] text-[var(--primary-dark)]" : "border border-[var(--border-strong,#C9C7C1)]"
                     )}>
-                      {done ? <Check className="h-3.5 w-3.5" aria-label="Completed" /> : i + 1}
+                      {done ? <Check className="h-3.5 w-3.5" aria-label={t("onboarding.completed")} /> : i + 1}
                     </span>
                     <span className="whitespace-nowrap">{s.label}</span>
                   </button>
@@ -191,7 +192,7 @@ export default function OnboardingPage() {
                       await orgApi.uploadLogo(pendingLogo);
                       setPendingLogo(null);
                     } catch (err) {
-                      setError(err instanceof ApiError ? `Business saved, but the logo failed: ${err.message}` : "Logo upload failed.");
+                      setError(err instanceof ApiError ? t("onboarding.business_saved_but_the_logo_failed", undefined, { message: err.message }) : t("onboarding.logo_upload_failed"));
                     }
                   }
                   await refresh();
@@ -216,8 +217,7 @@ export default function OnboardingPage() {
                 <BranchesManager canEdit defaultCountry={state.profile?.country_code} businessHours={state.profile?.opening_hours} onChange={setBranches} />
                 <StepNav onBack={() => go("preferences")}>
                   <PrimaryButton type="button" loading={busy} disabled={branches.length === 0} onClick={() => advance("branches", "team")}>
-                    Continue <ArrowRight className="h-4 w-4" aria-hidden />
-                  </PrimaryButton>
+                    {richText(t("onboarding.continue_arrowright"), { arrowright: <ArrowRight className="h-4 w-4" aria-hidden /> })}</PrimaryButton>
                 </StepNav>
               </div>
             )}
@@ -227,8 +227,7 @@ export default function OnboardingPage() {
                 <TeamManager myRole="OWNER" branches={branches} showMembers={false} defaultCountry={state.profile?.country_code} />
                 <StepNav onBack={() => go("branches")}>
                   <PrimaryButton type="button" loading={busy} onClick={() => advance("team", "launch")}>
-                    Continue <ArrowRight className="h-4 w-4" aria-hidden />
-                  </PrimaryButton>
+                    {richText(t("onboarding.continue_arrowright"), { arrowright: <ArrowRight className="h-4 w-4" aria-hidden /> })}</PrimaryButton>
                 </StepNav>
               </div>
             )}
@@ -236,21 +235,20 @@ export default function OnboardingPage() {
             {step === "launch" && state.profile && (
               <div className="space-y-6">
                 <dl className="grid gap-4 sm:grid-cols-2">
-                  <Summary label="Business" value={state.profile.name} sub={`repsi.app/${state.profile.slug}`} onEdit={() => go("business")} />
-                  <Summary label="Contact" value={formatPhone(state.profile.phone) || "—"} sub={state.profile.business_email || undefined} onEdit={() => go("business")} />
-                  <Summary label="Address" value={[state.profile.address_line1, state.profile.city].filter(Boolean).join(", ")}
+                  <Summary label={t("onboarding.business")} value={state.profile.name} sub={`repsi.app/${state.profile.slug}`} onEdit={() => go("business")} />
+                  <Summary label={t("onboarding.contact")} value={formatPhone(state.profile.phone) || "—"} sub={state.profile.business_email || undefined} onEdit={() => go("business")} />
+                  <Summary label={t("onboarding.address")} value={[state.profile.address_line1, state.profile.city].filter(Boolean).join(", ")}
                     sub={[state.profile.state, state.profile.postal_code, state.profile.country].filter(Boolean).join(", ")} onEdit={() => go("business")} />
-                  <Summary label="Region" value={`${state.profile.timezone || "—"} · ${state.profile.currency || "—"}`}
+                  <Summary label={t("onboarding.region")} value={`${state.profile.timezone || "—"} · ${state.profile.currency || "—"}`}
                     sub={`${Object.values(state.profile.opening_hours || {}).filter((d) => !d.closed).length} open days a week`} onEdit={() => go("preferences")} />
-                  <Summary label="Branches" value={`${branches.length} active`} sub={branches.map((b) => b.name).join(", ")} onEdit={() => go("branches")} />
+                  <Summary label={t("onboarding.branches")} value={`${branches.length} active`} sub={branches.map((b) => b.name).join(", ")} onEdit={() => go("branches")} />
                 </dl>
                 <p className="rounded-[10px] bg-[var(--primary-soft)] px-4 py-3 text-sm text-[var(--primary-dark)]">
-                  Your 14-day free trial starts today. You can change plans anytime from Settings → Billing.
+                  {t("onboarding.your_14_day_free_trial_starts")}
                 </p>
                 <StepNav onBack={() => go("team")}>
                   <PrimaryButton type="button" loading={busy} onClick={launch}>
-                    <Rocket className="h-4 w-4" aria-hidden /> Launch workspace
-                  </PrimaryButton>
+                    {richText(t("onboarding.rocketlaunch_workspace"), { rocket: <Rocket className="h-4 w-4" aria-hidden /> })}</PrimaryButton>
                 </StepNav>
               </div>
             )}
@@ -258,8 +256,7 @@ export default function OnboardingPage() {
 
           {(step === "business" || step === "preferences") && index > 0 && (
             <SecondaryButton type="button" onClick={() => go(STEPS[index - 1].id)}>
-              <ArrowLeft className="h-4 w-4" aria-hidden /> Back
-            </SecondaryButton>
+              {richText(t("onboarding.arrowleftback"), { arrowleft: <ArrowLeft className="h-4 w-4" aria-hidden /> })}</SecondaryButton>
           )}
         </main>
       </div>
@@ -268,22 +265,23 @@ export default function OnboardingPage() {
 }
 
 function StepNav({ onBack, children }: { onBack: () => void; children: React.ReactNode }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col-reverse gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
       <SecondaryButton type="button" onClick={onBack}>
-        <ArrowLeft className="h-4 w-4" aria-hidden /> Back
-      </SecondaryButton>
+        {richText(t("onboarding.arrowleftback"), { arrowleft: <ArrowLeft className="h-4 w-4" aria-hidden /> })}</SecondaryButton>
       {children}
     </div>
   );
 }
 
 function Summary({ label, value, sub, onEdit }: { label: string; value: string; sub?: string; onEdit: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-[12px] border border-[var(--border)] p-4">
       <div className="flex items-center justify-between gap-2">
         <dt className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">{label}</dt>
-        <button type="button" onClick={onEdit} className="text-xs font-medium text-[var(--primary-dark)] hover:underline">Edit</button>
+        <button type="button" onClick={onEdit} className="text-xs font-medium text-[var(--primary-dark)] hover:underline">{t("common.edit")}</button>
       </div>
       <dd className="mt-1 break-words text-sm font-medium text-[var(--text)]">{value}</dd>
       {sub && <dd className="mt-0.5 break-words text-xs text-[var(--text-muted)]">{sub}</dd>}
@@ -292,6 +290,7 @@ function Summary({ label, value, sub, onEdit }: { label: string; value: string; 
 }
 
 function Shell({ children, email }: { children: React.ReactNode; email?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)]">
       <header className="flex h-16 items-center justify-between gap-4 border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6">
@@ -300,8 +299,8 @@ function Shell({ children, email }: { children: React.ReactNode; email?: string 
           {email && <span className="hidden truncate text-sm text-[var(--text-muted)] sm:inline">{email}</span>}
           <button type="button" onClick={() => logoutSession()}
             className="inline-flex h-9 items-center gap-1.5 rounded-[8px] border border-[var(--border)] px-3 text-sm font-medium hover:bg-[var(--surface-hover)]"
-            title="Your progress is saved. Sign in again to continue.">
-            <LogOut className="h-4 w-4" aria-hidden /> <span>Save & exit</span>
+            title={t("onboarding.your_progress_is_saved_sign_in")}>
+            <LogOut className="h-4 w-4" aria-hidden /> <span>{t("onboarding.save_exit")}</span>
           </button>
         </div>
       </header>

@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import '../../shared/models/user_model.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiNavItem {
   final IconData icon;
   final IconData? activeIcon;
@@ -30,49 +31,49 @@ class RepsiBottomNav extends StatelessWidget {
     this.customItems,
   });
 
-  static List<RepsiNavItem> getItemsForRole(UserRole role) {
+  static List<RepsiNavItem> getItemsForRole(BuildContext context, UserRole role) {
     switch (role) {
       case UserRole.trainer:
-        return const [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: 'Clients'),
-          RepsiNavItem(icon: Icons.calendar_today_outlined, activeIcon: Icons.calendar_today_rounded, label: 'Schedule'),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: 'Plans'),
-          RepsiNavItem(icon: Icons.menu_rounded, activeIcon: Icons.menu_rounded, label: 'More'),
+        return [
+          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
+          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: context.l10n.navClients),
+          RepsiNavItem(icon: Icons.calendar_today_outlined, activeIcon: Icons.calendar_today_rounded, label: context.l10n.navSchedule),
+          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navPlans),
+          RepsiNavItem(icon: Icons.menu_rounded, activeIcon: Icons.menu_rounded, label: context.l10n.commonMore),
         ];
       case UserRole.owner:
       case UserRole.manager:
-        return const [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-          RepsiNavItem(icon: Icons.group_outlined, activeIcon: Icons.group_rounded, label: 'Members'),
-          RepsiNavItem(icon: Icons.how_to_reg_outlined, activeIcon: Icons.how_to_reg_rounded, label: 'Front desk'),
-          RepsiNavItem(icon: Icons.currency_rupee_rounded, activeIcon: Icons.currency_rupee_rounded, label: 'Finance'),
-          RepsiNavItem(icon: Icons.more_horiz_rounded, activeIcon: Icons.more_horiz_rounded, label: 'More'),
+        return [
+          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
+          RepsiNavItem(icon: Icons.group_outlined, activeIcon: Icons.group_rounded, label: context.l10n.commonMembers),
+          RepsiNavItem(icon: Icons.how_to_reg_outlined, activeIcon: Icons.how_to_reg_rounded, label: context.l10n.commonFrontDesk),
+          RepsiNavItem(icon: Icons.currency_rupee_rounded, activeIcon: Icons.currency_rupee_rounded, label: context.l10n.commonFinance),
+          RepsiNavItem(icon: Icons.more_horiz_rounded, activeIcon: Icons.more_horiz_rounded, label: context.l10n.commonMore),
         ];
       case UserRole.admin:
       case UserRole.superAdmin:
-        return const [
-          RepsiNavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Home'),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: 'Gyms'),
-          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: 'Users'),
-          RepsiNavItem(icon: Icons.analytics_outlined, activeIcon: Icons.analytics_rounded, label: 'Analytics'),
-          RepsiNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'More'),
+        return [
+          RepsiNavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: context.l10n.commonHome),
+          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navGyms),
+          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: context.l10n.navUsers),
+          RepsiNavItem(icon: Icons.analytics_outlined, activeIcon: Icons.analytics_rounded, label: context.l10n.navAnalytics),
+          RepsiNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: context.l10n.commonMore),
         ];
       case UserRole.user:
       case UserRole.staff:
-        return const [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: 'Workout'),
-          RepsiNavItem(icon: Icons.show_chart_rounded, activeIcon: Icons.show_chart_rounded, label: 'Progress'),
-          RepsiNavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, label: 'Classes'),
-          RepsiNavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: 'More'),
+        return [
+          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
+          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navWorkout),
+          RepsiNavItem(icon: Icons.show_chart_rounded, activeIcon: Icons.show_chart_rounded, label: context.l10n.navProgress),
+          RepsiNavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, label: context.l10n.navClasses),
+          RepsiNavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: context.l10n.commonMore),
         ];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final items = customItems ?? getItemsForRole(role);
+    final items = customItems ?? getItemsForRole(context, role);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(

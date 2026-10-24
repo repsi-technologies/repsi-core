@@ -8,6 +8,8 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../../l10n/l10n.dart';
+import '../../../shared/widgets/language_selector_sheet.dart';
 
 class AdminMoreView extends ConsumerWidget {
   const AdminMoreView({super.key});
@@ -15,11 +17,12 @@ class AdminMoreView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final menuItems = [
-      {'icon': Icons.tune_rounded, 'title': 'System Settings'},
-      {'icon': Icons.security_rounded, 'title': 'Security & Compliance'},
-      {'icon': Icons.api_rounded, 'title': 'API & Webhooks'},
-      {'icon': Icons.notifications_none_rounded, 'title': 'System Alerts'},
-      {'icon': Icons.help_outline_rounded, 'title': 'Platform Support'},
+      {'icon': Icons.translate_rounded, 'title': context.l10n.commonLanguage, 'id': 'language'},
+      {'icon': Icons.tune_rounded, 'title': context.l10n.systemSettings},
+      {'icon': Icons.security_rounded, 'title': context.l10n.securityCompliance},
+      {'icon': Icons.api_rounded, 'title': context.l10n.apiWebhooks},
+      {'icon': Icons.notifications_none_rounded, 'title': context.l10n.systemAlerts},
+      {'icon': Icons.help_outline_rounded, 'title': context.l10n.platformSupport},
     ];
 
     return Scaffold(
@@ -28,7 +31,7 @@ class AdminMoreView extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'System Admin Settings',
+          context.l10n.systemAdminSettings,
           style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
@@ -64,7 +67,7 @@ class AdminMoreView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Super Administrator',
+                              context.l10n.superAdministrator,
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -73,7 +76,7 @@ class AdminMoreView extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'admin@repsi.com · Full Access',
+                              context.l10n.adminFullAccess('admin@repsi.com'),
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
@@ -96,8 +99,12 @@ class AdminMoreView extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: RepsiCard(
                       onTap: () {
+                        if (item['id'] == 'language') {
+                          LanguageSelectorSheet.show(context);
+                          return;
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${item['title']} accessed')),
+                          SnackBar(content: Text(context.l10n.comingSoon('${item['title']}'))),
                         );
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
@@ -139,7 +146,7 @@ class AdminMoreView extends ConsumerWidget {
                       const Icon(Icons.logout_rounded, size: 20, color: AppColors.error),
                       const SizedBox(width: 14),
                       Text(
-                        'Sign Out',
+                        context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

@@ -4,6 +4,7 @@ import '../../../core/providers/api_provider.dart';
 import '../../../shared/models/member_model.dart';
 import '../services/member_service.dart';
 
+import '../../../l10n/l10n.dart';
 class MemberListState {
   final bool isLoading;
   final List<MemberModel> members;
@@ -71,7 +72,7 @@ class MemberListNotifier extends StateNotifier<MemberListState> {
     } on ApiError catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Failed to load members');
+      state = state.copyWith(isLoading: false, errorMessage: L10n.current.errorLoadMembers);
     }
   }
 

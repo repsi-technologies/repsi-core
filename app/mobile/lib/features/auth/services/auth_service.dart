@@ -5,6 +5,7 @@ import '../../../core/api/api_error.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/models/workspace_model.dart';
 
+import '../../../l10n/l10n.dart';
 class AuthResponse {
   final String accessToken;
   final String? refreshToken;
@@ -185,7 +186,7 @@ class AuthService {
     }
     final token = data['registration_token']?.toString();
     if (token == null || token.isEmpty) {
-      throw ApiError(message: 'Verification did not complete. Please request a new code.');
+      throw ApiError(message: L10n.current.authVerificationIncomplete);
     }
     return PhoneVerification(registrationToken: token);
   }

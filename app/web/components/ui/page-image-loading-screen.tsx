@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Marketing Landing Page Initial Loading Screen
@@ -13,6 +14,7 @@ import { RepsiBrandLoader } from "@/components/ui/repsi-brand-loader";
  * 4. Guarded by sessionStorage so it doesn't interrupt internal route navigation
  */
 export function PageImageLoadingScreen() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const [progress, setProgress] = useState(12);
@@ -117,7 +119,7 @@ export function PageImageLoadingScreen() {
     <div
       onClick={completeAndReveal}
       className="cursor-pointer"
-      title="Click to skip"
+      title={t("ui.click_to_skip")}
     >
       <RepsiBrandLoader
         progress={progress}

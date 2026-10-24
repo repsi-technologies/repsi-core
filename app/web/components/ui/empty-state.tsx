@@ -5,6 +5,7 @@ import { AlertCircle, RefreshCcw, HelpCircle, ChevronRight, Sparkles } from "luc
 import { Button } from "@/components/ui/button";
 import { RepsiMascot, MascotPose } from "@/components/ui/repsi-mascot";
 import { cn } from "@/lib/utils";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -51,6 +52,7 @@ export function EmptyState({
   templateCard,
   className,
 }: EmptyStateProps) {
+  const { t } = useTranslation();
   const [showGuideModal, setShowGuideModal] = useState(false);
 
   return (
@@ -115,10 +117,10 @@ export function EmptyState({
         <div className="w-full max-w-sm my-4 text-left p-4 rounded-xl border border-dashed border-[var(--primary)]/40 bg-[#F4FBF6] dark:bg-[#112317] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[#E8F8ED] dark:bg-[#1a3824] px-2 py-0.5 rounded">
-              Example Template
+              {t("ui.example_template")}
             </span>
             <span className="text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted)] font-medium">
-              Not saved to database
+              {t("ui.not_saved_to_database")}
             </span>
           </div>
 
@@ -149,7 +151,7 @@ export function EmptyState({
             className="w-full text-xs font-bold border-[var(--primary)]/40 text-[var(--primary-dark)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5 mr-1" />
-            {templateCard.actionLabel || "Use as template"}
+            {templateCard.actionLabel || t("ui.use_as_template")}
           </Button>
         </div>
       )}
@@ -176,7 +178,7 @@ export function EmptyState({
                 onClick={() => setShowGuideModal(!showGuideModal)}
                 className="text-[11px] text-[var(--primary-dark)] hover:underline font-semibold"
               >
-                {showGuideModal ? "Hide steps" : "View steps →"}
+                {showGuideModal ? t("ui.hide_steps") : t("ui.view_steps")}
               </button>
             )}
           </div>
@@ -208,6 +210,7 @@ export function ErrorState({
   onRetry,
   className,
 }: ErrorStateProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -220,9 +223,7 @@ export function ErrorState({
       <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">{description}</p>
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
-          <RefreshCcw className="h-3.5 w-3.5 mr-1.5" />
-          Try again
-        </Button>
+          {richText(t("ui.refreshccwtry_again"), { refreshccw: <RefreshCcw className="h-3.5 w-3.5 mr-1.5" /> })}</Button>
       )}
     </div>
   );

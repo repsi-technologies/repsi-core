@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../core/api/api_time.dart';
 
+import '../../../l10n/l10n.dart';
 /// Front-desk data for the Operations tab. All auto-disposed families/providers, so nothing
 /// outlives the screen or the signed-in gym.
 
@@ -61,7 +62,7 @@ final insideListProvider = FutureProvider.autoDispose<List<InsidePerson>>((ref) 
       .map((j) => InsidePerson(
             attendanceId: j['attendance_id'].toString(),
             memberId: j['member_id']?.toString(),
-            name: j['name']?.toString() ?? 'Member',
+            name: j['name']?.toString() ?? L10n.current.commonMember,
             avatarUrl: j['avatar_url']?.toString(),
             planName: j['plan_name']?.toString(),
             duration: j['duration_formatted']?.toString() ?? '',
@@ -103,7 +104,21 @@ const leadStages = [
   ('lost', 'Lost'),
 ];
 
-String leadStageLabel(String status) => leadStages.firstWhere((s) => s.$1 == status, orElse: () => (status, status)).$2;
+/// Label in the current language; the English second value above is only the fallback.
+String leadStageLabel(String status) {
+  final l = L10n.current;
+  return switch (status) {
+    '' => l.commonAll,
+    'new' => l.leadNew,
+    'contacted' => l.leadContacted,
+    'visit_scheduled' => l.leadVisitBooked,
+    'trial' => l.leadTrial,
+    'negotiation' => l.leadNegotiating,
+    'converted' => l.historyJoined,
+    'lost' => l.leadLost,
+    _ => leadStages.firstWhere((s) => s.$1 == status, orElse: () => (status, status)).$2,
+  };
+}
 
 final leadsProvider = FutureProvider.autoDispose.family<List<LeadItem>, String>((ref, status) async {
   final res = await ref.watch(apiClientProvider).get('/crm/leads', queryParameters: {
@@ -136,7 +151,7 @@ class GymQr {
 
 final gymQrProvider = FutureProvider.autoDispose<GymQr>((ref) async {
   final j = (await ref.watch(apiClientProvider).get('/attendance/qr')).data as Map<String, dynamic>;
-  return GymQr(payload: j['payload']?.toString() ?? '', label: j['label']?.toString() ?? 'Gym check-in', expiresAt: _dt(j['expires_at']));
+  return GymQr(payload: j['payload']?.toString() ?? '', label: j['label']?.toString() ?? L10n.current.qrGymCheckIn, expiresAt: _dt(j['expires_at']));
 });
 
 class TeamPerson {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, CheckCircle2, Info, Loader2, Mail, MessageCircle, RefreshCw, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPhone } from "@/lib/countries";
+import { useTranslation, richText } from "@/lib/i18n";
 
 const LENGTH = 6;
 
@@ -54,6 +55,7 @@ function SingleOtpSection({
   testModeBadge,
   tipNote,
 }: SingleOtpSectionProps) {
+  const { t } = useTranslation();
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   const fill = (value: string, start = 0) => {
@@ -87,8 +89,7 @@ function SingleOtpSection({
           {codeSent ? (
             countdown > 0 ? (
               <span className="text-xs text-[var(--text-muted)] tabular-nums font-medium">
-                Resend in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
-              </span>
+                {t("auth.resend_in_math_padstart", undefined, { Math: Math.floor(countdown / 60), padStart: String(countdown % 60).padStart(2, "0") })}</span>
             ) : (
               <button
                 type="button"
@@ -97,7 +98,7 @@ function SingleOtpSection({
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline disabled:opacity-50"
               >
                 <RefreshCw className={cn("h-3 w-3", resending && "animate-spin")} />
-                {resending ? "Sending…" : "Resend"}
+                {resending ? t("auth.sending") : t("auth.resend")}
               </button>
             )
           ) : (
@@ -109,14 +110,10 @@ function SingleOtpSection({
             >
               {sending ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Sending…
-                </>
+                  {richText(t("auth.loader2sending"), { loader2: <Loader2 className="h-3.5 w-3.5 animate-spin" /> })}</>
               ) : (
                 <>
-                  <Send className="h-3 w-3" />
-                  Send Code
-                </>
+                  {richText(t("auth.sendsend_code"), { send: <Send className="h-3 w-3" /> })}</>
               )}
             </button>
           )}
@@ -125,13 +122,13 @@ function SingleOtpSection({
 
       {!codeSent ? (
         <div className="rounded-[8px] border border-dashed border-[var(--border)] bg-[var(--surface)] px-3.5 py-3 text-xs text-[var(--text-muted)] flex items-center justify-between">
-          <span>Click <strong>Send Code</strong> to receive your 6-digit code.</span>
+          <span>{t("auth.click")}{" "}<strong>{t("auth.send_code")}</strong> to receive your 6-digit code.</span>
         </div>
       ) : (
         <div className="space-y-2.5 pt-1">
           <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
             <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-            <span>Verification code sent. Enter the 6 digits below:</span>
+            <span>{t("auth.verification_code_sent_enter_the_6")}</span>
           </div>
 
           <div
@@ -231,6 +228,7 @@ export function DualOtpVerification({
   onResendEmail,
   onEditDetails,
 }: DualOtpVerificationProps) {
+  const { t } = useTranslation();
   const [phoneDigits, setPhoneDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [emailDigits, setEmailDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [phoneCountdown, setPhoneCountdown] = useCountdown(phoneResendIn);
@@ -263,8 +261,8 @@ export function DualOtpVerification({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Informational intro */}
       <div className="rounded-[10px] border border-[var(--border)] bg-[var(--surface-subtle,#F7F7F5)] p-3 text-xs text-[var(--text-secondary)]">
-        <p className="font-semibold text-[var(--text)]">Please confirm your contact details:</p>
-        <p className="mt-0.5">Click <strong>Send Code</strong> for both your mobile number and email ID to receive verification codes.</p>
+        <p className="font-semibold text-[var(--text)]">{t("auth.please_confirm_your_contact_details")}</p>
+        <p className="mt-0.5">{t("auth.click")}{" "}<strong>{t("auth.send_code")}</strong> {t("auth.for_both_your_mobile_number_and")}</p>
       </div>
 
       {error && (
@@ -275,7 +273,7 @@ export function DualOtpVerification({
 
       {/* WhatsApp / Mobile OTP Section */}
       <SingleOtpSection
-        label="Mobile Number (WhatsApp)"
+        label={t("auth.mobile_number_whatsapp")}
         destination={formatPhone(phone) || phone}
         icon={<MessageCircle className="h-4 w-4" />}
         iconBg="bg-[#25D366]"
@@ -294,7 +292,7 @@ export function DualOtpVerification({
 
       {/* Email OTP Section */}
       <SingleOtpSection
-        label="Email Address"
+        label={t("auth.email_address")}
         destination={email}
         icon={<Mail className="h-4 w-4" />}
         iconBg="bg-[var(--primary)]"
@@ -312,8 +310,8 @@ export function DualOtpVerification({
           <div className="flex items-start gap-2 rounded-[8px] border border-amber-200/90 bg-amber-50/90 px-3 py-2 text-[11px] text-amber-900 leading-tight">
             <span className="text-sm">📬</span>
             <div>
-              <span className="font-semibold">Check your Spam or Junk folder: </span>
-              <span>If you don&apos;t see the email code in your inbox, please check your Spam folder and mark REPSI as &ldquo;Not Spam&rdquo;.</span>
+              <span className="font-semibold">{t("auth.check_your_spam_or_junk_folder")}{" "}</span>
+              <span>{t("auth.if_you_don_t_see_the")}</span>
             </div>
           </div>
         }
@@ -326,12 +324,12 @@ export function DualOtpVerification({
       >
         {verifying && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
         {verifying
-          ? "Verifying codes…"
+          ? t("auth.verifying_codes")
           : !phoneCodeSent || !emailCodeSent
-          ? "Send both codes to continue"
+          ? t("auth.send_both_codes_to_continue")
           : !isComplete
-          ? "Enter both 6-digit codes"
-          : "Verify & Create Account"}
+          ? t("auth.enter_both_6_digit_codes")
+          : t("auth.verify_create_account")}
       </button>
 
       <div className="text-center pt-1">
@@ -341,9 +339,7 @@ export function DualOtpVerification({
           disabled={verifying}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text)] transition-colors disabled:opacity-50"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Edit contact details
-        </button>
+          {richText(t("auth.arrowleftedit_contact_details"), { arrowleft: <ArrowLeft className="h-3.5 w-3.5" /> })}</button>
       </div>
     </form>
   );

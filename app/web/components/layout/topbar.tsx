@@ -31,10 +31,12 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useTranslation } from "@/lib/i18n";
+import { clearStorageKeepingLanguage } from "@/lib/i18n/persist";
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────────
 
 function ThemeToggle() {
+  const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -53,9 +55,9 @@ function ThemeToggle() {
     <Button 
       variant="ghost" 
       size="icon" 
-      aria-label="Toggle theme"
+      aria-label={t("layout.toggle_theme")}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      title={isDark ? t("layout.switch_to_light_mode") : t("layout.switch_to_dark_mode")}
     >
       {isDark ? <Moon className="h-4 w-4 text-[var(--primary)]" /> : <Sun className="h-4 w-4 text-[var(--primary)]" />}
     </Button>
@@ -94,14 +96,13 @@ function UserMenu({ workspace }: { workspace?: string }) {
         document.documentElement.classList.remove("dark");
         document.documentElement.removeAttribute("data-theme");
         document.documentElement.style.colorScheme = "light";
-        localStorage.clear();
-        sessionStorage.clear();
+        clearStorageKeepingLanguage();
       } catch {}
       window.location.href = "/login";
     }
   };
 
-  const displayName = user?.name || "Nitheesh Kumar";
+  const displayName = user?.name || t("layout.nitheesh_kumar");
   const displayEmail = user?.email || "owner@apexfitness.in";
   const initials = displayName
     .split(" ")
@@ -115,7 +116,7 @@ function UserMenu({ workspace }: { workspace?: string }) {
       <DropdownMenuTrigger asChild>
         <button 
           className="flex items-center gap-2 rounded-[8px] p-1 pr-2 hover:bg-[var(--nav-hover-bg)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] cursor-pointer"
-          aria-label="Open user menu"
+          aria-label={t("layout.open_user_menu")}
         >
           <Avatar className="h-7 w-7">
             <AvatarFallback className="text-[10px] bg-[var(--primary-soft)] text-[var(--primary-dark)] dark:text-[var(--primary-hover)] font-bold">
@@ -206,7 +207,7 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
       {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-1.5 min-w-0 max-w-[130px] xs:max-w-[180px] sm:max-w-none">
         {breadcrumbs && breadcrumbs.length > 0 ? (
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5">
+          <nav aria-label={t("layout.breadcrumb")} className="flex items-center gap-1.5">
             {breadcrumbs.map((crumb, i) => (
               <div key={i} className="flex items-center gap-1.5">
                 {i > 0 && (
@@ -254,7 +255,7 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
         {/* Notifications */}
         <Link href={workspace ? `/${workspace}/notifications` : "/notifications"}>
           <div className="relative">
-            <Button variant="ghost" size="icon" aria-label="Notifications">
+            <Button variant="ghost" size="icon" aria-label={t("nav.notifications")}>
               <Bell className="h-4 w-4" />
             </Button>
             {/* Unread indicator */}

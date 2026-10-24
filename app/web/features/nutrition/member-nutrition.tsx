@@ -6,9 +6,11 @@ import { Card } from "@/components/ui/card";
 import { repsiApi, type ApiAdherence, type ApiDietAssignment, type ApiDietPlan } from "@/lib/api";
 import { EmptyBlock, Field, inputClass, LoadingRow, Notice, StatusBadge } from "@/features/fitness/shared";
 import { DietVersionView } from "@/features/nutrition/diet-plans";
+import { useTranslation } from "@/lib/i18n";
 
 /** Staff view of one member's diet: active plan, adherence and assignment history. */
 export function MemberNutrition({ memberId }: { memberId: string }) {
+  const { t } = useTranslation();
   const [assignments, setAssignments] = useState<ApiDietAssignment[] | null>(null);
   const [adherence, setAdherence] = useState<ApiAdherence | null>(null);
   const [plans, setPlans] = useState<ApiDietPlan[]>([]);
@@ -48,7 +50,7 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
     }
   };
 
-  if (assignments === null) return <LoadingRow label="Loading nutrition…" />;
+  if (assignments === null) return <LoadingRow label={t("nutrition.loading_nutrition")} />;
   const active = assignments.find((a) => a.status === "active");
 
   return (
@@ -56,15 +58,15 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       <Card className="p-4">
         <form onSubmit={assign} className="flex flex-wrap items-end gap-2">
-          <Field label={active ? "Replace diet plan" : "Assign a diet plan"} htmlFor="assign-diet">
+          <Field label={active ? t("nutrition.replace_diet_plan") : t("nutrition.assign_a_diet_plan")} htmlFor="assign-diet">
             <select id="assign-diet" className={inputClass} value={planId} onChange={(e) => setPlanId(e.target.value)}>
-              <option value="">Choose a plan…</option>
+              <option value="">{t("nutrition.choose_a_plan")}</option>
               {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </Field>
-          <Button type="submit" size="sm" disabled={!planId || busy}>Assign</Button>
+          <Button type="submit" size="sm" disabled={!planId || busy}>{t("nutrition.assign")}</Button>
         </form>
-        {active && <p className="mt-2 text-xs text-[var(--text-muted)]">Assigning a new plan ends the current one; its history is kept.</p>}
+        {active && <p className="mt-2 text-xs text-[var(--text-muted)]">{t("nutrition.assigning_a_new_plan_ends_the")}</p>}
       </Card>
 
       {adherence && adherence.planned_meals > 0 && (
@@ -83,17 +85,17 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
         <Card className="p-4">
           <div className="mb-3 flex items-center gap-2">
             <h3 className="font-semibold text-[var(--text)]">{active.title}</h3>
-            <span className="text-xs text-[var(--text-muted)]">v{active.version.version_number} · since {active.start_date}</span>
+            <span className="text-xs text-[var(--text-muted)]">{t("nutrition.vversion_number_since_start_date", undefined, { version_number: active.version.version_number, start_date: active.start_date })}</span>
           </div>
           <DietVersionView version={active.version} />
         </Card>
       ) : (
-        <EmptyBlock title="No diet plan assigned">Pick a plan above to give this member a meal schedule.</EmptyBlock>
+        <EmptyBlock title={t("nutrition.no_diet_plan_assigned")}>{t("nutrition.pick_a_plan_above_to_give")}</EmptyBlock>
       )}
 
       {assignments.length > 1 && (
         <Card className="p-4">
-          <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">History</h3>
+          <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">{t("nutrition.history")}</h3>
           <ul className="space-y-1 text-sm">
             {assignments.filter((a) => a.id !== active?.id).map((a) => (
               <li key={a.id} className="flex flex-wrap items-center gap-2 text-[var(--text-secondary)]">

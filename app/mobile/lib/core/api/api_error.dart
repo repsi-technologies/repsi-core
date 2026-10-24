@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../l10n/l10n.dart';
 class ApiError implements Exception {
   final String message;
   final int? statusCode;
@@ -18,7 +19,7 @@ class ApiError implements Exception {
         error.type == DioExceptionType.sendTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return ApiError(
-        message: 'Connection timed out. Please check your internet connection.',
+        message: L10n.current.errorTimeout,
         statusCode: 408,
         code: 'TIMEOUT',
       );
@@ -27,7 +28,7 @@ class ApiError implements Exception {
     if (error.type == DioExceptionType.connectionError) {
       return ApiError(
         message:
-            'Unable to connect to REPSI. Check your internet connection or server status.',
+            L10n.current.errorNoConnection,
         statusCode: 0,
         code: 'CONNECTION_ERROR',
       );
@@ -63,7 +64,7 @@ class ApiError implements Exception {
           }).join(', ');
           return ApiError(
             message:
-                messages.isNotEmpty ? messages : 'Validation error occurred.',
+                messages.isNotEmpty ? messages : L10n.current.errorValidation,
             statusCode: response.statusCode ?? 422,
             code: 'VALIDATION_ERROR',
             details: detail,
@@ -75,7 +76,7 @@ class ApiError implements Exception {
       if (data.containsKey('error') && data['error'] is Map<String, dynamic>) {
         final errMap = data['error'] as Map<String, dynamic>;
         return ApiError(
-          message: errMap['message']?.toString() ?? 'An error occurred',
+          message: errMap['message']?.toString() ?? L10n.current.errorGeneric,
           code: errMap['code']?.toString(),
           statusCode: response.statusCode,
           details: errMap['details'],
@@ -86,42 +87,42 @@ class ApiError implements Exception {
     switch (response?.statusCode) {
       case 400:
         return ApiError(
-            message: 'Invalid request parameters.', statusCode: 400);
+            message: L10n.current.errorBadRequest, statusCode: 400);
       case 401:
         final isSignIn = error.requestOptions.path.contains('/auth/login');
         return ApiError(
           message: isSignIn
-              ? 'Invalid email or password.'
-              : 'Your session has expired. Please sign in again.',
+              ? L10n.current.errorInvalidCredentials
+              : L10n.current.errorSessionExpired,
           statusCode: 401,
         );
       case 403:
         return ApiError(
-            message: "You don't have permission to access this gym.",
+            message: L10n.current.errorForbidden,
             statusCode: 403);
       case 404:
-        return ApiError(message: 'Account or gym not found.', statusCode: 404);
+        return ApiError(message: L10n.current.errorNotFound, statusCode: 404);
       case 408:
         return ApiError(
-            message: 'Request timed out. Please try again.', statusCode: 408);
+            message: L10n.current.errorRequestTimeout, statusCode: 408);
       case 409:
         return ApiError(
-            message: 'Account with these details already exists.',
+            message: L10n.current.errorConflict,
             statusCode: 409);
       case 422:
         return ApiError(
-            message: 'Please check your inputs and try again.',
+            message: L10n.current.errorCheckInputs,
             statusCode: 422);
       case 429:
         return ApiError(
-            message: 'Too many attempts. Please try again later.',
+            message: L10n.current.errorTooManyAttempts,
             statusCode: 429);
       case 500:
         return ApiError(
-            message: 'REPSI is temporarily unavailable.', statusCode: 500);
+            message: L10n.current.errorServerUnavailable, statusCode: 500);
       default:
         return ApiError(
-          message: 'Unable to process request. Please try again.',
+          message: L10n.current.errorUnknown,
           statusCode: response?.statusCode,
         );
     }

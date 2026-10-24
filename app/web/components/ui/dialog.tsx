@@ -3,6 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n";
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -39,7 +40,7 @@ const DialogContent = ({
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 rounded-[6px] p-1 text-[var(--text-muted)] opacity-70 ring-offset-[var(--background)] transition-opacity hover:opacity-100 hover:bg-[var(--nav-hover-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:ring-offset-2 disabled:pointer-events-none">
         <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
+        <span className="sr-only">{tr("common.close")}</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>

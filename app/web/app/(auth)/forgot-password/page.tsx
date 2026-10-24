@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2, MailCheck } from "lucide-react";
 import { ApiError, authApi } from "@/lib/auth-client";
+import { useTranslation, richText } from "@/lib/i18n";
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,7 @@ export default function ForgotPasswordPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      setError("Enter the email address you use for REPSI.");
+      setError(t("forgot_password.enter_the_email_address_you_use"));
       return;
     }
     setLoading(true);
@@ -23,7 +25,7 @@ export default function ForgotPasswordPage() {
       await authApi.forgotPassword(email.trim());
       setSent(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("forgot_password.something_went_wrong_please_try_again"));
     } finally {
       setLoading(false);
     }
@@ -32,9 +34,9 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full max-w-[400px] space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Reset your password</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{t("forgot_password.reset_your_password")}</h1>
         <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-          Also use this if you signed up with Google or WhatsApp and want to add a password.
+          {t("forgot_password.also_use_this_if_you_signed")}
         </p>
       </div>
 
@@ -42,18 +44,15 @@ export default function ForgotPasswordPage() {
         <div className="space-y-4 rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 text-center sm:p-8">
           <MailCheck className="mx-auto h-10 w-10 text-[var(--primary)]" aria-hidden />
           <p className="text-sm text-[var(--text)]">
-            If an account exists for <strong>{email.trim()}</strong>, we&apos;ve emailed a link to set a new password. It
-            expires in 30 minutes.
-          </p>
+            {richText(t("forgot_password.if_an_account_exists_for_email"), { email: <strong>{email.trim()}</strong> })}</p>
           <Link href="/login" className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--primary-dark)] hover:underline">
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Back to sign in
-          </Link>
+            {richText(t("forgot_password.arrowleftback_to_sign_in"), { arrowleft: <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> })}</Link>
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="space-y-4 rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[var(--text)]">
-              Email address
+              {t("forgot_password.email_address")}
             </label>
             <input
               id="email"
@@ -72,11 +71,11 @@ export default function ForgotPasswordPage() {
             className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] disabled:opacity-60"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-            Send reset link
+            {t("forgot_password.send_reset_link")}
           </button>
           <p className="text-center text-sm">
             <Link href="/login" className="text-[var(--text-muted)] hover:text-[var(--primary-dark)]">
-              Back to sign in
+              {t("forgot_password.back_to_sign_in")}
             </Link>
           </p>
         </form>

@@ -25,6 +25,7 @@ import {
   ApiPaymentInstructions, 
   ApiPaymentSubmission 
 } from "@/lib/api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface MemberFeePaymentDialogProps {
   invoice: {
@@ -40,6 +41,7 @@ interface MemberFeePaymentDialogProps {
 }
 
 export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFeePaymentDialogProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<"instructions" | "submit" | "submitted">("instructions");
   const [instructions, setInstructions] = useState<ApiPaymentInstructions | null>(null);
   const [loadingInstructions, setLoadingInstructions] = useState(true);
@@ -67,7 +69,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
         const data = await repsiApi.getInvoicePaymentInstructions(invoice.id);
         setInstructions(data);
       } catch (err: any) {
-        setInstructionsError(err.message || "Failed to load payment instructions from gym.");
+        setInstructionsError(err.message || t("payments.failed_to_load_payment_instructions_from"));
       } finally {
         setLoadingInstructions(false);
       }
@@ -128,7 +130,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
       setStep("submitted");
       onSuccess();
     } catch (err: any) {
-      setSubmitError(err.message || "Failed to submit receipt proof. Please check your network.");
+      setSubmitError(err.message || t("payments.failed_to_submit_receipt_proof_please"));
     } finally {
       setIsSubmitting(false);
     }
@@ -142,8 +144,8 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-[var(--primary)]" />
             <div>
-              <h3 className="font-bold text-sm">Pay Membership Fee</h3>
-              <p className="text-[11px] text-[var(--text-secondary)]">Invoice #{invoice.id} • {invoice.plan_name || "Gym Membership"}</p>
+              <h3 className="font-bold text-sm">{t("payments.pay_membership_fee")}</h3>
+              <p className="text-[11px] text-[var(--text-secondary)]">{t("pay.invoiceNo")}{invoice.id} • {invoice.plan_name || t("payments.gym_membership")}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-[var(--text-secondary)] hover:text-[var(--text)] p-1">
@@ -154,12 +156,12 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
         {/* Amount Due Banner */}
         <div className="p-4 rounded-xl bg-[var(--primary-soft)] dark:bg-[var(--primary)]/10 border border-[var(--primary)]/25 flex items-center justify-between">
           <div>
-            <span className="text-[11px] text-[var(--text-secondary)] font-medium">Outstanding Balance</span>
+            <span className="text-[11px] text-[var(--text-secondary)] font-medium">{t("memberPay.outstanding")}</span>
             <p className="text-2xl font-bold text-[var(--primary-dark)] mt-0.5">₹{amountDue.toLocaleString("en-IN")}</p>
           </div>
           <div className="text-right text-[11px] text-[var(--text-secondary)]">
-            <span>Direct to Gym Account</span>
-            <p className="text-emerald-500 font-semibold">Zero Gateway Charges</p>
+            <span>{t("payments.direct_to_gym_account")}</span>
+            <p className="text-emerald-500 font-semibold">{t("payments.zero_gateway_charges")}</p>
           </div>
         </div>
 
@@ -169,7 +171,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             {loadingInstructions ? (
               <div className="p-8 text-center space-y-2">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-[var(--primary)]" />
-                <p className="text-xs text-[var(--text-secondary)]">Loading gym payment details...</p>
+                <p className="text-xs text-[var(--text-secondary)]">{t("payments.loading_gym_payment_details")}</p>
               </div>
             ) : instructionsError ? (
               <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
@@ -181,9 +183,9 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 {instructions.narration_reference && (
                   <div className="p-3.5 rounded-xl border border-[var(--info)]/25 bg-[var(--info-soft)] flex items-center justify-between text-xs">
                     <div>
-                      <span className="text-[var(--info-foreground)] font-semibold">Transfer Reference Code:</span>
+                      <span className="text-[var(--info-foreground)] font-semibold">{t("payments.transfer_reference_code")}</span>
                       <p className="font-mono font-bold text-[var(--text)] text-sm mt-0.5">{instructions.narration_reference}</p>
-                      <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Mention this code in your UPI remark or transfer note for faster verification.</p>
+                      <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">{t("payments.mention_this_code_in_your_upi")}</p>
                     </div>
                     <Button
                       variant="outline"
@@ -192,7 +194,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                       className="h-8 px-2.5 bg-[var(--surface-secondary)] border-[var(--border)] text-[var(--info-foreground)] hover:text-[var(--text)] text-xs gap-1"
                     >
                       {copiedKey === "ref" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      {copiedKey === "ref" ? "Copied" : "Copy"}
+                      {copiedKey === "ref" ? t("payments.copied") : t("common.copy")}
                     </Button>
                   </div>
                 )}
@@ -205,7 +207,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                           <Smartphone className="w-4 h-4 text-[var(--primary)]" />
-                          <span>UPI Transfer (GPay / PhonePe / Paytm / BHIM)</span>
+                          <span>{t("payments.upi_transfer_gpay_phonepe_paytm_bhim")}</span>
                         </div>
                         <Button
                           variant="outline"
@@ -214,7 +216,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                           className="h-7 px-2 bg-[var(--surface-hover)] border-[var(--border)] text-xs gap-1"
                         >
                           {copiedKey === "upi" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                          {copiedKey === "upi" ? "Copied" : "Copy UPI ID"}
+                          {copiedKey === "upi" ? t("payments.copied") : t("settings.copy_upi_id")}
                         </Button>
                       </div>
                       <div className="p-2.5 rounded bg-[var(--background-secondary)] font-mono text-[var(--primary-dark)] font-bold flex items-center justify-between">
@@ -231,15 +233,15 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                     <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-2 text-xs">
                       <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                         <QrCode className="w-4 h-4 text-blue-500" />
-                        <span>Gym Merchant QR Code</span>
+                        <span>{t("payments.gym_merchant_qr_code")}</span>
                       </div>
                       <div className="p-3 rounded-lg bg-[var(--background-secondary)] flex flex-col items-center justify-center">
                         <img
                           src={repsiApi.getMerchantQrUrl()}
-                          alt="Gym QR Code"
+                          alt={t("payments.gym_qr_code")}
                           className="max-h-48 max-w-full rounded-lg border border-[var(--border)] shadow-md object-contain"
                         />
-                        <span className="text-[10px] text-[var(--text-secondary)] mt-2">Scan using any payment app (GPay, PhonePe, Paytm)</span>
+                        <span className="text-[10px] text-[var(--text-secondary)] mt-2">{t("payments.scan_using_any_payment_app_gpay")}</span>
                       </div>
                     </div>
                   )}
@@ -250,7 +252,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                           <Smartphone className="w-4 h-4 text-indigo-400" />
-                          <span>Payment Contact / Number</span>
+                          <span>{t("payments.payment_contact_number")}</span>
                         </div>
                         <Button
                           variant="outline"
@@ -259,7 +261,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                           className="h-7 px-2 bg-[var(--surface-hover)] border-[var(--border)] text-xs gap-1"
                         >
                           {copiedKey === "phone" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                          {copiedKey === "phone" ? "Copied" : "Copy Number"}
+                          {copiedKey === "phone" ? t("payments.copied") : t("payments.copy_number")}
                         </Button>
                       </div>
                       <p className="font-mono text-[var(--text)] text-sm font-semibold">{instructions.payment_phone}</p>
@@ -271,20 +273,20 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                     <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] space-y-3 text-xs">
                       <div className="flex items-center gap-2 font-semibold text-[var(--text)]">
                         <Building2 className="w-4 h-4 text-[var(--info-foreground)]" />
-                        <span>Direct Bank Transfer (NEFT / IMPS / RTGS)</span>
+                        <span>{t("payments.direct_bank_transfer_neft_imps_rtgs")}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-[11px]">
                         <div className="p-2 rounded bg-[var(--background-secondary)]">
-                          <span className="text-[var(--text-muted)]">Account Holder</span>
+                          <span className="text-[var(--text-muted)]">{t("payments.account_holder")}</span>
                           <p className="font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.account_holder_name}</p>
                         </div>
                         <div className="p-2 rounded bg-[var(--background-secondary)]">
-                          <span className="text-[var(--text-muted)]">Bank Name</span>
+                          <span className="text-[var(--text-muted)]">{t("memberPay.bankName")}</span>
                           <p className="font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.bank_name}</p>
                         </div>
                         <div className="p-2 rounded bg-[var(--background-secondary)] flex items-center justify-between">
                           <div>
-                            <span className="text-[var(--text-muted)]">Account Number</span>
+                            <span className="text-[var(--text-muted)]">{t("memberPay.accountNo")}</span>
                             <p className="font-mono font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.account_number}</p>
                           </div>
                           <button
@@ -297,7 +299,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                         </div>
                         <div className="p-2 rounded bg-[var(--background-secondary)] flex items-center justify-between">
                           <div>
-                            <span className="text-[var(--text-muted)]">IFSC Code</span>
+                            <span className="text-[var(--text-muted)]">{t("memberPay.ifsc")}</span>
                             <p className="font-mono font-semibold text-[var(--text)] mt-0.5">{instructions.bank_details.ifsc_code}</p>
                           </div>
                           <button
@@ -317,20 +319,20 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 <div className="p-3 rounded-lg bg-[var(--surface-secondary)]/60 border border-[var(--border)] text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
                   <Info className="w-4 h-4 text-[var(--text-secondary)] shrink-0 mt-0.5" />
                   <span>
-                    After completing the transfer in your payment app, take a screenshot of the successful payment page and click &quot;Submit Payment Proof&quot; below.
+                    {t("payments.after_completing_the_transfer_in_your")}
                   </span>
                 </div>
 
                 <div className="pt-2 flex items-center justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={onClose} className="bg-[var(--surface-secondary)] border-[var(--border)] text-xs">
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => setStep("submit")}
                     className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs"
                   >
-                    I Have Paid → Submit Receipt
+                    {t("payments.i_have_paid_submit_receipt")}
                   </Button>
                 </div>
               </>
@@ -342,13 +344,13 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
         {step === "submit" && (
           <form onSubmit={handleSubmitProof} className="space-y-4">
             <div className="p-3 rounded-lg bg-[var(--surface-secondary)] border border-[var(--border)] text-xs flex items-center justify-between">
-              <span className="text-[var(--text-secondary)]">Paying for Invoice:</span>
+              <span className="text-[var(--text-secondary)]">{t("payments.paying_for_invoice")}</span>
               <span className="font-mono font-bold text-[var(--text)]">{invoice.id}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Amount Paid (₹)</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.amount_paid")}</label>
                 <input
                   type="number"
                   value={amountPaid}
@@ -359,25 +361,25 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Payment Method Used</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("memberPay.chooseMethod")}</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as any)}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs focus:outline-none focus:border-[var(--primary)]"
                 >
-                  <option value="upi">UPI Transfer</option>
-                  <option value="qr">Scanned Gym QR Code</option>
-                  <option value="phone">Phone Payment (GPay/PhonePe)</option>
-                  <option value="bank_transfer">Direct Bank Transfer</option>
+                  <option value="upi">{t("payments.upi_transfer")}</option>
+                  <option value="qr">{t("payments.scanned_gym_qr_code")}</option>
+                  <option value="phone">{t("payments.phone_payment_gpay_phonepe")}</option>
+                  <option value="bank_transfer">{t("payments.direct_bank_transfer")}</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[var(--text-secondary)]">Transaction ID / UTR # (Optional)</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.transaction_id_utr_optional")}</label>
               <input
                 type="text"
-                placeholder="e.g. 428910284920 or UPI Ref ID"
+                placeholder={t("payments.e_g_428910284920_or_upi_ref")}
                 value={transactionRef}
                 onChange={(e) => setTransactionRef(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs font-mono focus:outline-none focus:border-[var(--primary)]"
@@ -387,7 +389,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             {/* File Upload Area */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                Payment Receipt / Screenshot <span className="text-rose-400">*</span>
+                {t("payments.payment_receipt_screenshot")}{" "}<span className="text-rose-400">*</span>
               </label>
               <div className="p-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-secondary)]/50 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer hover:border-[var(--primary)] transition-colors">
                 <input
@@ -400,24 +402,24 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 <label htmlFor="receiptUpload" className="cursor-pointer space-y-1">
                   <Upload className="w-6 h-6 mx-auto text-[var(--primary)]" />
                   <p className="text-xs font-semibold text-[var(--text)]">
-                    {receiptFile ? receiptFile.name : "Click to select receipt screenshot"}
+                    {receiptFile ? receiptFile.name : t("payments.click_to_select_receipt_screenshot")}
                   </p>
-                  <p className="text-[10px] text-[var(--text-muted)]">PNG, JPG, WEBP, or PDF up to 10MB</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">{t("payments.png_jpg_webp_or_pdf_up")}</p>
                 </label>
               </div>
 
               {receiptPreview && (
                 <div className="mt-2 p-2 rounded-lg bg-[var(--surface-secondary)] border border-[var(--border)] flex items-center justify-center">
-                  <img src={receiptPreview} alt="Screenshot Preview" className="max-h-40 rounded object-contain" />
+                  <img src={receiptPreview} alt={t("payments.screenshot_preview")} className="max-h-40 rounded object-contain" />
                 </div>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[var(--text-secondary)]">Note for Gym Staff (Optional)</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.note_for_gym_staff_optional")}</label>
               <input
                 type="text"
-                placeholder="e.g. Paid via Nitheesh's HDFC account"
+                placeholder={t("payments.e_g_paid_via_nitheesh_s")}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--text)] text-xs focus:outline-none focus:border-[var(--primary)]"
@@ -433,7 +435,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             <div className="p-3 rounded-lg bg-[var(--info-soft)] border border-[var(--info)]/20 text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-[var(--info-foreground)] shrink-0 mt-0.5" />
               <span>
-                <strong>Verification Notice:</strong> Submitting a receipt records your proof for verification. Gym floor access is activated once an authorized owner or trainer verifies and approves the payment.
+                <strong>{t("payments.verification_notice")}</strong> {t("payments.submitting_a_receipt_records_your_proof")}
               </span>
             </div>
 
@@ -446,7 +448,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 disabled={isSubmitting}
                 className="bg-[var(--surface-secondary)] border-[var(--border)] text-xs text-[var(--text-secondary)]"
               >
-                ← Back to Details
+                {t("payments.back_to_details")}
               </Button>
               <Button
                 type="submit"
@@ -456,14 +458,10 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Submitting Proof...
-                  </>
+                    {richText(t("payments.loader2submitting_proof"), { loader2: <Loader2 className="w-3.5 h-3.5 animate-spin" /> })}</>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Submit Payment Receipt
-                  </>
+                    {richText(t("payments.checkcircle2submit_payment_receipt"), { checkcircle2: <CheckCircle2 className="w-3.5 h-3.5" /> })}</>
                 )}
               </Button>
             </div>
@@ -478,32 +476,30 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
             </div>
 
             <div>
-              <h4 className="text-base font-bold text-[var(--text)]">Payment Receipt Submitted!</h4>
+              <h4 className="text-base font-bold text-[var(--text)]">{t("payments.payment_receipt_submitted")}</h4>
               <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-sm mx-auto">
-                Your payment proof for invoice <span className="font-mono text-[var(--text)]">#{invoice.id}</span> has been securely recorded.
+                {t("payments.your_payment_proof_for_invoice")}{" "}<span className="font-mono text-[var(--text)]">#{invoice.id}</span> {t("payments.has_been_securely_recorded")}
               </p>
             </div>
 
             <div className="p-3.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--border)] text-xs text-left space-y-1.5 max-w-sm mx-auto">
               <div className="flex justify-between">
-                <span className="text-[var(--text-muted)]">Submitted Amount:</span>
+                <span className="text-[var(--text-muted)]">{t("payments.submitted_amount")}</span>
                 <span className="font-bold text-[var(--text)]">₹{(createdSubmission.amount_paid ?? createdSubmission.amount ?? 0).toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-muted)]">Status:</span>
+                <span className="text-[var(--text-muted)]">{t("payments.status")}</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20">
-                  <Clock className="w-3 h-3 inline mr-1" />
-                  Pending Owner Verification
-                </span>
+                  {richText(t("payments.clockpending_owner_verification"), { clock: <Clock className="w-3 h-3 inline mr-1" /> })}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-muted)]">Submission Time:</span>
-                <span className="text-[var(--text-secondary)]">{createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at ? new Date(createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at!).toLocaleTimeString() : "time unavailable"}</span>
+                <span className="text-[var(--text-muted)]">{t("payments.submission_time")}</span>
+                <span className="text-[var(--text-secondary)]">{createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at ? new Date(createdSubmission.submitted_at || createdSubmission.payment_date || createdSubmission.created_at!).toLocaleTimeString() : t("payments.time_unavailable")}</span>
               </div>
             </div>
 
             <p className="text-[11px] text-[var(--text-muted)] max-w-sm mx-auto">
-              Your gym owner or authorized trainer has been notified to verify your transaction. Access will be activated automatically once approved.
+              {t("payments.your_gym_owner_or_authorized_trainer")}
             </p>
 
             <div className="pt-2">
@@ -511,7 +507,7 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                 onClick={onClose}
                 className="bg-[var(--surface-hover)] hover:bg-zinc-700 text-[var(--text)] font-semibold text-xs px-6"
               >
-                Close & View Status
+                {t("payments.close_view_status")}
               </Button>
             </div>
           </div>

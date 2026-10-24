@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { repsiApi, ApiPayment, ApiMember } from "@/lib/api";
 import { PaymentVerificationQueue } from "./payment-verification-queue";
+import { useTranslation, richText } from "@/lib/i18n";
 
 const loadCashfreeSDK = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -22,6 +23,7 @@ const loadCashfreeSDK = (): Promise<boolean> => {
 };
 
 export function PaymentsClient() {
+  const { t } = useTranslation();
   const [payments, setPayments] = useState<ApiPayment[]>([]);
   const [members, setMembers] = useState<ApiMember[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -75,7 +77,7 @@ export function PaymentsClient() {
       try {
         const sdkReady = await loadCashfreeSDK();
         if (!sdkReady) {
-          throw new Error("Unable to load Cashfree Payment SDK. Please check your internet connection.");
+          throw new Error(t("payments.unable_to_load_cashfree_payment_sdk"));
         }
 
         // 1. Create order on backend API via Cashfree PG
@@ -147,7 +149,7 @@ export function PaymentsClient() {
           });
         }
       } catch (err: any) {
-        setPaymentError(err.message || "Failed to complete Cashfree payment.");
+        setPaymentError(err.message || t("payments.failed_to_complete_cashfree_payment"));
         setIsProcessing(false);
         return;
       } finally {
@@ -177,15 +179,13 @@ export function PaymentsClient() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Payments & Billing</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("nav.payments")}</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Real-time Cashfree UPI gateway settlements, GST invoices, and membership renewals.
+            {t("payments.real_time_cashfree_upi_gateway_settlements")}
           </p>
         </div>
         <Button size="sm" onClick={() => { setPaymentError(""); setModalOpen(true); }} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold">
-          <Plus className="h-4 w-4 mr-1" />
-          Record / Collect Payment
-        </Button>
+          {richText(t("payments.plusrecord_collect_payment"), { plus: <Plus className="h-4 w-4 mr-1" /> })}</Button>
       </div>
 
       {/* Navigation Sub-Tabs */}
@@ -199,7 +199,7 @@ export function PaymentsClient() {
           }`}
         >
           <CreditCard className="w-3.5 h-3.5" />
-          <span>Payment Ledger & Gateway</span>
+          <span>{t("payments.payment_ledger_gateway")}</span>
         </button>
 
         <button
@@ -211,7 +211,7 @@ export function PaymentsClient() {
           }`}
         >
           <ShieldCheck className="w-3.5 h-3.5 text-[var(--info-foreground)]" />
-          <span>Manual Receipt Verification Queue</span>
+          <span>{t("payments.manual_receipt_verification_queue")}</span>
           {pendingCount > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[var(--info)] text-[var(--text-inverse)]">
               {pendingCount}
@@ -227,29 +227,29 @@ export function PaymentsClient() {
           {/* Metrics Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <span className="text-xs text-[var(--text-muted)]">Monthly Collections</span>
+          <span className="text-xs text-[var(--text-muted)]">{t("payments.monthly_collections")}</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">
             ₹{totalCollected.toLocaleString("en-IN")}
           </p>
-          <span className="text-[11px] text-[var(--success-foreground)] font-medium">+14.2% vs last month</span>
+          <span className="text-[11px] text-[var(--success-foreground)] font-medium">{t("payments.14_2_vs_last_month")}</span>
         </div>
 
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <span className="text-xs text-[var(--text-muted)]">Cashfree Gateway Volume</span>
+          <span className="text-xs text-[var(--text-muted)]">{t("payments.cashfree_gateway_volume")}</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">84.6%</p>
-          <span className="text-[11px] text-[var(--text-muted)]">Instant UPI settlement</span>
+          <span className="text-[11px] text-[var(--text-muted)]">{t("payments.instant_upi_settlement")}</span>
         </div>
 
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <span className="text-xs text-[var(--text-muted)]">Pending Dues</span>
+          <span className="text-xs text-[var(--text-muted)]">{t("pay.pendingDues")}</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">₹34,000</p>
-          <span className="text-[11px] text-[var(--error)] font-medium">12 overdue members</span>
+          <span className="text-[11px] text-[var(--error)] font-medium">{t("payments.12_overdue_members")}</span>
         </div>
 
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <span className="text-xs text-[var(--text-muted)]">Invoices Generated</span>
+          <span className="text-xs text-[var(--text-muted)]">{t("payments.invoices_generated")}</span>
           <p className="text-2xl font-bold text-[var(--text)] tabular-nums mt-2">{payments.length + 248}</p>
-          <span className="text-[11px] text-[var(--success-foreground)] font-medium">100% Tax Compliant</span>
+          <span className="text-[11px] text-[var(--success-foreground)] font-medium">{t("payments.100_tax_compliant")}</span>
         </div>
       </div>
 
@@ -258,7 +258,7 @@ export function PaymentsClient() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form onSubmit={handleRecordPayment} className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg text-[var(--text)]">Record / Collect Payment</h3>
+              <h3 className="font-bold text-lg text-[var(--text)]">{t("payments.record_collect_payment")}</h3>
               <button type="button" onClick={() => setModalOpen(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text)]">
                 ✕
               </button>
@@ -271,7 +271,7 @@ export function PaymentsClient() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[var(--text-secondary)]">Select Member</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.select_member")}</label>
               <select
                 value={selectedMemberId}
                 onChange={(e) => setSelectedMemberId(e.target.value)}
@@ -287,7 +287,7 @@ export function PaymentsClient() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Amount (₹)</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.amount")}</label>
                 <input
                   type="number"
                   value={amount}
@@ -297,53 +297,51 @@ export function PaymentsClient() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Payment Method</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.payment_method")}</label>
                 <select
                   value={method}
                   onChange={(e) => setMethod(e.target.value as any)}
                   className="w-full px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm font-semibold text-[var(--primary-dark)] focus:outline-none focus:border-[var(--ring)]"
                 >
-                  <option value="cashfree">Cashfree PG (UPI / Cards / Netbanking)</option>
-                  <option value="upi">Direct UPI Transfer</option>
-                  <option value="card">Credit/Debit Card</option>
-                  <option value="cash">Cash Register</option>
+                  <option value="cashfree">{t("payments.cashfree_pg_upi_cards_netbanking")}</option>
+                  <option value="upi">{t("payments.direct_upi_transfer")}</option>
+                  <option value="card">{t("payments.credit_debit_card")}</option>
+                  <option value="cash">{t("payments.cash_register")}</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[var(--text-secondary)]">Membership Tier</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">{t("payments.membership_tier")}</label>
               <select
                 value={plan}
                 onChange={(e) => setPlan(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--ring)]"
               >
-                <option value="Monthly Membership">Monthly Membership (₹1,000)</option>
-                <option value="Quarterly Plan">Quarterly Plan (₹2,700)</option>
-                <option value="Half-Yearly">Half-Yearly (₹5,000)</option>
-                <option value="Yearly Transformation">Annual Transformation (₹9,000)</option>
+                <option value="Monthly Membership">{t("payments.monthly_membership_1_000")}</option>
+                <option value="Quarterly Plan">{t("payments.quarterly_plan_2_700")}</option>
+                <option value="Half-Yearly">{t("payments.half_yearly_5_000")}</option>
+                <option value="Yearly Transformation">{t("payments.annual_transformation_9_000")}</option>
               </select>
             </div>
 
             {method === "cashfree" && (
               <div className="p-3 rounded-xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 text-xs text-[var(--text-muted)] flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[var(--primary-dark)] shrink-0" />
-                <span>Processes via Cashfree PG with instant UPI auto-reconciliation.</span>
+                <span>{t("payments.processes_via_cashfree_pg_with_instant")}</span>
               </div>
             )}
 
             <div className="pt-2 flex justify-end gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setModalOpen(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" size="sm" disabled={isProcessing} className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold cursor-pointer">
                 {isProcessing ? (
                   <span className="flex items-center gap-2">
-                    <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Opening Cashfree...
-                  </span>
+                    {richText(t("payments.spanopening_cashfree"), { span: <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> })}</span>
                 ) : (
-                  <span>{method === "cashfree" ? "Pay via Cashfree PG →" : "Confirm & Save"}</span>
+                  <span>{method === "cashfree" ? t("payments.pay_via_cashfree_pg") : t("payments.confirm_save")}</span>
                 )}
               </Button>
             </div>
@@ -354,11 +352,11 @@ export function PaymentsClient() {
       {/* Transactions Table */}
       <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-base font-bold text-[var(--text)]">Recent Transactions</h2>
+          <h2 className="text-base font-bold text-[var(--text)]">{t("payments.recent_transactions")}</h2>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search member or plan..."
+              placeholder={t("payments.search_member_or_plan")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8 pr-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none w-52"
@@ -371,13 +369,13 @@ export function PaymentsClient() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-hover)] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
-                <th className="p-3.5">Member</th>
-                <th className="p-3.5">Amount</th>
-                <th className="p-3.5">Method</th>
-                <th className="p-3.5">Membership Plan</th>
-                <th className="p-3.5">Date</th>
-                <th className="p-3.5">Status</th>
-                <th className="p-3.5 text-right">Receipt</th>
+                <th className="p-3.5">{t("pay.member")}</th>
+                <th className="p-3.5">{t("common.amount")}</th>
+                <th className="p-3.5">{t("pay.method")}</th>
+                <th className="p-3.5">{t("members.membership_plan")}</th>
+                <th className="p-3.5">{t("common.date")}</th>
+                <th className="p-3.5">{t("common.status")}</th>
+                <th className="p-3.5 text-right">{t("pay.receipt")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -397,9 +395,7 @@ export function PaymentsClient() {
                   <td className="p-3.5 text-[var(--text-muted)]">{p.date}</td>
                   <td className="p-3.5">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Paid
-                    </span>
+                      {richText(t("payments.checkcircle2paid"), { checkcircle2: <CheckCircle2 className="w-3 h-3" /> })}</span>
                   </td>
                   <td className="p-3.5 text-right">
                     <button className="text-[var(--text-muted)] hover:text-[var(--text)] p-1">

@@ -6,6 +6,8 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_white_logo.dart';
+import '../../../l10n/l10n.dart';
+import '../../../shared/widgets/language_selector_sheet.dart';
 
 /// Three-step introduction on the ink canvas. Each slide shows a small preview of the real
 /// product (drawn in Flutter, so it stays crisp and on-brand) instead of stock imagery.
@@ -20,27 +22,14 @@ class _OnboardingViewState extends State<OnboardingView> {
   final PageController _pageController = PageController();
   int _page = 0;
 
-  static const _slides = [
-    _Slide(
-      lead: 'Manage. Train.\n',
-      accent: 'Grow.',
-      body: 'One app for your gym: check-ins, memberships, payments and training, for owners, trainers and members.',
-      preview: _PassPreview(),
-    ),
-    _Slide(
-      lead: 'Manage\n',
-      accent: 'Members',
-      tail: ' easily',
-      body: 'Memberships, attendance and dues for every member, with expiries flagged before they lapse.',
-      preview: _MembersPreview(),
-    ),
-    _Slide(
-      lead: 'Insights that\n',
-      accent: 'matter',
-      body: 'Check-ins, renewals and revenue at a glance, so you can act before members drop off.',
-      preview: _InsightsPreview(),
-    ),
-  ];
+  List<_Slide> get _slides {
+    final l = context.l10n;
+    return [
+      _Slide(lead: '${l.onboarding1Lead}\n', accent: l.onboarding1Accent, body: l.onboarding1Body, preview: const _PassPreview()),
+      _Slide(lead: '${l.onboarding2Lead}\n', accent: l.onboarding2Accent, tail: ' ${l.onboarding2Tail}', body: l.onboarding2Body, preview: const _MembersPreview()),
+      _Slide(lead: '${l.onboarding3Lead}\n', accent: l.onboarding3Accent, body: l.onboarding3Body, preview: const _InsightsPreview()),
+    ];
+  }
 
   @override
   void dispose() {
@@ -84,12 +73,13 @@ class _OnboardingViewState extends State<OnboardingView> {
                     children: [
                       const RepsiWhiteLogo(height: 34),
                       const Spacer(),
+                      const LanguageButton(color: AppColors.inkText),
                       if (!isLast)
                         TextButton(
                           onPressed: _finish,
                           style:
                               TextButton.styleFrom(foregroundColor: AppColors.inkText, minimumSize: const Size(56, 44)),
-                          child: Text('Skip', style: AppTypography.button.copyWith(color: AppColors.inkTextSecondary)),
+                          child: Text(context.l10n.skip, style: AppTypography.button.copyWith(color: AppColors.inkTextSecondary)),
                         ),
                     ],
                   ),
@@ -116,7 +106,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                             : Padding(
                                 padding: const EdgeInsets.only(right: AppSpacing.lg),
                                 child: _RoundButton(
-                                  tooltip: 'Back',
+                                  tooltip: context.l10n.commonBack,
                                   icon: Icons.arrow_back_rounded,
                                   filled: false,
                                   onPressed: () => _goTo(_page - 1),
@@ -137,7 +127,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                                   onPressed: _finish,
                                   iconAlignment: IconAlignment.end,
                                   icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-                                  label: const Text('Get started', maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  label: Text(context.l10n.getStarted, maxLines: 1, overflow: TextOverflow.ellipsis),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppColors.primary,
                                     foregroundColor: Colors.white,
@@ -149,7 +139,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                                 )
                               : _RoundButton(
                                   key: const ValueKey('next'),
-                                  tooltip: 'Next',
+                                  tooltip: context.l10n.next,
                                   icon: Icons.arrow_forward_rounded,
                                   filled: true,
                                   onPressed: _next,
@@ -205,11 +195,12 @@ class _SlidePage extends StatelessWidget {
                     TextSpan(text: slide.accent, style: const TextStyle(color: AppColors.primaryBright)),
                     TextSpan(text: slide.tail),
                   ]),
+                  // Indic scripts need taller lines and no negative tracking; their words are longer too.
                   style: AppTypography.display.copyWith(
-                    fontSize: constraints.maxHeight < 460 ? 28 : 34,
-                    height: 1.1,
+                    fontSize: (constraints.maxHeight < 460 ? 28 : 34) - (AppTypography.isIndic ? 6 : 0),
+                    height: AppTypography.isIndic ? 1.4 : 1.1,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: -1.0,
+                    letterSpacing: AppTypography.isIndic ? 0 : -1.0,
                     color: AppColors.inkText,
                   ),
                 ),
@@ -297,7 +288,7 @@ class _Progress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Step ${index + 1} of $count',
+      label: context.l10n.onboardingStep(index + 1, count),
       child: Row(
         children: [
           for (var i = 0; i < count; i++)
@@ -436,9 +427,9 @@ class _PassPreview extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text('Gym pass', style: _t(13, FontWeight.w600, AppColors.inkTextSecondary)),
+                      Text(context.l10n.gymPass, style: _t(13, FontWeight.w600, AppColors.inkTextSecondary)),
                       const Spacer(),
-                      const _Chip('Active', Color(0xFF34D399), icon: Icons.check_circle_rounded),
+                      _Chip(context.l10n.commonActive, Color(0xFF34D399), icon: Icons.check_circle_rounded),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -483,7 +474,7 @@ class _PassPreview extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Checked in', style: _t(13, FontWeight.w600, AppColors.inkText)),
+                      Text(context.l10n.checkedIn, style: _t(13, FontWeight.w600, AppColors.inkText)),
                       Text('6:02 AM · Main branch', style: _t(11, FontWeight.w400, AppColors.inkTextSecondary)),
                     ],
                   ),
@@ -549,7 +540,7 @@ class _MembersPreview extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Members', style: _t(17, FontWeight.w700, AppColors.inkText)),
+              Text(context.l10n.commonMembers, style: _t(17, FontWeight.w700, AppColors.inkText)),
               const SizedBox(width: 8),
               Text('642', style: _t(13, FontWeight.w500, AppColors.inkTextSecondary)),
               const Spacer(),
@@ -575,7 +566,7 @@ class _MembersPreview extends StatelessWidget {
                 const Icon(Icons.search_rounded, size: 16, color: AppColors.inkTextSecondary),
                 const SizedBox(width: 8),
                 Flexible(
-                  child: Text('Search by name or phone',
+                  child: Text(context.l10n.searchNameOrPhone,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _t(12, FontWeight.w400, AppColors.inkTextSecondary)),
@@ -660,23 +651,23 @@ class _InsightsPreview extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Dashboard', style: _t(17, FontWeight.w700, AppColors.inkText)),
+              Text(context.l10n.dashboard, style: _t(17, FontWeight.w700, AppColors.inkText)),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                     border: Border.all(color: AppColors.inkBorder), borderRadius: BorderRadius.circular(6)),
-                child: Text('This week', style: _t(11, FontWeight.w500, AppColors.inkTextSecondary)),
+                child: Text(context.l10n.commonThisWeek, style: _t(11, FontWeight.w500, AppColors.inkTextSecondary)),
               ),
             ],
           ),
           const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: _metric('Check-ins', '1,284', '12% vs last week')),
+              Expanded(child: _metric(context.l10n.checkIns, '1,284', '12% vs last week')),
               Container(width: 1, height: 64, color: AppColors.inkBorder),
               const SizedBox(width: 16),
-              Expanded(child: _metric('Revenue', '₹84,200', '8% vs last week')),
+              Expanded(child: _metric(context.l10n.revenue, '₹84,200', '8% vs last week')),
             ],
           ),
           const SizedBox(height: 16),
@@ -684,14 +675,14 @@ class _InsightsPreview extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _metric('Active members', '642', '18 joined')),
+              Expanded(child: _metric(context.l10n.activeMembers, '642', '18 joined')),
               Container(width: 1, height: 64, color: AppColors.inkBorder),
               const SizedBox(width: 16),
-              Expanded(child: _metric('Renewals due', '23', 'next 7 days', up: false)),
+              Expanded(child: _metric(context.l10n.renewalsDue, '23', 'next 7 days', up: false)),
             ],
           ),
           const SizedBox(height: 20),
-          Text('Daily check-ins', style: _t(12, FontWeight.w500, AppColors.inkTextSecondary)),
+          Text(context.l10n.dailyCheckins, style: _t(12, FontWeight.w500, AppColors.inkTextSecondary)),
           const SizedBox(height: 10),
           SizedBox(
             height: 92,

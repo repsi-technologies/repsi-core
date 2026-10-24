@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/member_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class AddMemberView extends ConsumerStatefulWidget {
   const AddMemberView({super.key});
@@ -55,11 +56,11 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
       if (success) {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Member added successfully!')),
+          SnackBar(content: Text(context.l10n.memberAdded)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to add member. Please retry.')),
+          SnackBar(content: Text(context.l10n.memberAddFailed)),
         );
       }
     }
@@ -75,7 +76,7 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Add New Member',
+          context.l10n.addNewMember,
           style: AppTypography.headingSmall.copyWith(
             color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           ),
@@ -97,28 +98,28 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 RepsiTextField(
-                  label: 'Full Name *',
-                  hintText: 'John Doe',
+                  label: context.l10n.fullNameRequiredLabel,
+                  hintText: context.l10n.nameHintExample,
                   controller: _fullNameController,
                   prefixIcon: const Icon(LucideIcons.user, size: 18),
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Name is required' : null,
+                  validator: (val) => val == null || val.trim().isEmpty ? context.l10n.nameRequired : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Email Address *',
-                  hintText: 'john@example.com',
+                  label: context.l10n.emailRequiredLabel,
+                  hintText: context.l10n.commonEmailHint,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(LucideIcons.mail, size: 18),
                   validator: (val) {
-                    if (val == null || val.trim().isEmpty) return 'Email is required';
-                    if (!val.contains('@')) return 'Enter a valid email';
+                    if (val == null || val.trim().isEmpty) return context.l10n.emailRequired;
+                    if (!val.contains('@')) return context.l10n.commonEnterValidEmail;
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Phone Number',
+                  label: context.l10n.phoneNumber,
                   hintText: '+91 98765 43210',
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
@@ -126,14 +127,14 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Emergency Contact Phone',
+                  label: context.l10n.emergencyContactPhone,
                   hintText: '+91 98765 00000',
                   controller: _emergencyPhoneController,
                   keyboardType: TextInputType.phone,
                   prefixIcon: const Icon(LucideIcons.phoneCall, size: 18),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Membership Plan', style: AppTypography.labelMedium),
+                Text(context.l10n.membershipPlan, style: AppTypography.labelMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Wrap(
                   spacing: AppSpacing.sm,
@@ -159,7 +160,7 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 RepsiButton(
-                  text: 'Save Member',
+                  text: context.l10n.saveMember,
                   isLoading: _isLoading,
                   onPressed: _handleSubmit,
                   isFullWidth: true,

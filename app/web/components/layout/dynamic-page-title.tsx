@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 
 // Dedicated mapping of static route titles
 const STATIC_TITLES: Record<string, string> = {
@@ -53,6 +54,7 @@ const FEATURE_TITLES: Record<string, string> = {
 };
 
 export function DynamicPageTitle() {
+  const { t } = useTranslation();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function DynamicPageTitle() {
     }
 
     if (STATIC_TITLES[pathname]) {
-      document.title = `${STATIC_TITLES[pathname]} | Repsi`;
+      document.title = t("layout.value_repsi", undefined, { value: STATIC_TITLES[pathname] });
       return;
     }
 
@@ -76,8 +78,8 @@ export function DynamicPageTitle() {
 
     // SuperAdmin routes: /superadmin/...
     if (segments[0] === "superadmin") {
-      const sub = segments[1] ? segments[1].charAt(0).toUpperCase() + segments[1].slice(1) : "Overview";
-      document.title = `${sub} | SuperAdmin · Repsi`;
+      const sub = segments[1] ? segments[1].charAt(0).toUpperCase() + segments[1].slice(1) : t("layout.overview");
+      document.title = t("layout.sub_superadmin_repsi", undefined, { sub });
       return;
     }
 
@@ -85,7 +87,7 @@ export function DynamicPageTitle() {
     const subRoute = segments[1] || "dashboard";
     const titleName = FEATURE_TITLES[subRoute] || (subRoute.charAt(0).toUpperCase() + subRoute.slice(1).replace(/-/g, " "));
 
-    document.title = `${titleName} | Repsi`;
+    document.title = t("layout.titlename_repsi", undefined, { titleName });
   }, [pathname]);
 
   return null;

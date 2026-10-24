@@ -16,19 +16,20 @@ import {
 import { CURRENCIES, REGION_DEFAULTS, listTimezones } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 const LOCALES = [
-  { value: "en-IN", label: "English (India)" },
-  { value: "en-US", label: "English (United States)" },
-  { value: "en-GB", label: "English (United Kingdom)" },
-  { value: "en-AE", label: "English (UAE)" },
-  { value: "en-SG", label: "English (Singapore)" },
-  { value: "en-AU", label: "English (Australia)" },
-  { value: "ta-IN", label: "தமிழ் (Tamil)" },
-  { value: "ml-IN", label: "മലയാളം (Malayalam)" },
-  { value: "kn-IN", label: "ಕನ್ನಡ (Kannada)" },
-  { value: "te-IN", label: "తెలుగు (Telugu)" },
-  { value: "hi-IN", label: "हिन्दी (Hindi)" },
+  { value: "en-IN", get label() { return tr("organization.english_india"); } },
+  { value: "en-US", get label() { return tr("organization.english_united_states"); } },
+  { value: "en-GB", get label() { return tr("organization.english_united_kingdom"); } },
+  { value: "en-AE", get label() { return tr("organization.english_uae"); } },
+  { value: "en-SG", get label() { return tr("organization.english_singapore"); } },
+  { value: "en-AU", get label() { return tr("organization.english_australia"); } },
+  { value: "ta-IN", get label() { return tr("organization.tamil"); } },
+  { value: "ml-IN", get label() { return tr("organization.malayalam"); } },
+  { value: "kn-IN", get label() { return tr("organization.kannada"); } },
+  { value: "te-IN", get label() { return tr("organization.telugu"); } },
+  { value: "hi-IN", get label() { return tr("organization.hindi"); } },
 ];
 
 export function hoursErrors(hours: OpeningHours): Partial<Record<keyof OpeningHours, string>> {
@@ -53,6 +54,7 @@ export function OpeningHoursEditor({
   disabled?: boolean;
   errors?: Partial<Record<keyof OpeningHours, string>>;
 }) {
+  const { t } = useTranslation();
   const update = (key: keyof OpeningHours, patch: Partial<OpeningHours[keyof OpeningHours]>) =>
     onChange({ ...value, [key]: { ...value[key], ...patch } });
 
@@ -74,14 +76,14 @@ export function OpeningHoursEditor({
                   </span>
                 </div>
                 {d.closed ? (
-                  <span className="text-sm text-[var(--text-muted)]">Closed</span>
+                  <span className="text-sm text-[var(--text-muted)]">{t("organization.closed")}</span>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <input type="time" aria-label={`${label} opening time`} value={d.open || ""} disabled={disabled}
+                    <input type="time" aria-label={t("organization.label_opening_time", undefined, { label })} value={d.open || ""} disabled={disabled}
                       onChange={(e) => update(key, { open: e.target.value })}
                       className={cn("h-9 rounded-[8px] border bg-[var(--surface)] px-2 text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]", err ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")} />
                     <span className="text-sm text-[var(--text-muted)]">to</span>
-                    <input type="time" aria-label={`${label} closing time`} value={d.close || ""} disabled={disabled}
+                    <input type="time" aria-label={t("organization.label_closing_time", undefined, { label })} value={d.close || ""} disabled={disabled}
                       onChange={(e) => update(key, { close: e.target.value })}
                       className={cn("h-9 rounded-[8px] border bg-[var(--surface)] px-2 text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]", err ? "border-[var(--error,#DC2626)]" : "border-[var(--border)]")} />
                   </div>
@@ -99,8 +101,7 @@ export function OpeningHoursEditor({
             onChange({ ...value, tue: mon, wed: mon, thu: mon, fri: mon });
           }}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--primary-dark)] hover:underline">
-          <Copy className="h-3.5 w-3.5" aria-hidden /> Copy Monday to Tuesday–Friday
-        </button>
+          {richText(t("organization.copycopy_monday_to_tuesday_friday"), { copy: <Copy className="h-3.5 w-3.5" aria-hidden /> })}</button>
       )}
     </div>
   );
@@ -114,6 +115,7 @@ interface Props {
 }
 
 export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Props) {
+  const { t } = useTranslation();
   const timezones = useMemo(() => listTimezones(), []);
   const [form, setForm] = useState<PreferencesInput>(() => fromProfile(profile));
   const [hourErrs, setHourErrs] = useState<Partial<Record<keyof OpeningHours, string>>>({});
@@ -129,14 +131,14 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
     e.preventDefault();
     const errs = hoursErrors(form.opening_hours);
     setHourErrs(errs);
-    if (Object.keys(errs).length) return setError("Fix the highlighted opening hours.");
+    if (Object.keys(errs).length) return setError(t("organization.fix_the_highlighted_opening_hours"));
     setSaving(true);
     setError("");
     try {
       await onSubmit(form);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't save. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("organization.couldn_t_save_please_try_again"));
     } finally {
       setSaving(false);
     }
@@ -144,10 +146,10 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
 
   const addDate = () => {
     if (!newDate) return;
-    if (form.closed_dates.some((d) => d.date === newDate)) return setError("That date is already listed.");
+    if (form.closed_dates.some((d) => d.date === newDate)) return setError(t("organization.that_date_is_already_listed"));
     setForm((f) => ({
       ...f,
-      closed_dates: [...f.closed_dates, { date: newDate, label: newLabel.trim() || "Closed" }].sort((a, b) => a.date.localeCompare(b.date)),
+      closed_dates: [...f.closed_dates, { date: newDate, label: newLabel.trim() || t("organization.closed") }].sort((a, b) => a.date.localeCompare(b.date)),
     }));
     setNewDate("");
     setNewLabel("");
@@ -160,28 +162,28 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
       {error && <FormAlert>{error}</FormAlert>}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <FormField id="pref-tz" label="Time zone" required>
+        <FormField id="pref-tz" label={t("organization.time_zone")} required>
           <SelectInput id="pref-tz" value={form.timezone} disabled={disabled}
             onChange={(e) => { setForm((f) => ({ ...f, timezone: e.target.value })); setSaved(false); }}>
             {!timezones.includes(form.timezone) && <option value={form.timezone}>{form.timezone}</option>}
             {timezones.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
           </SelectInput>
         </FormField>
-        <FormField id="pref-currency" label="Currency" required>
+        <FormField id="pref-currency" label={t("organization.currency")} required>
           <SelectInput id="pref-currency" value={form.currency} disabled={disabled}
             onChange={(e) => { setForm((f) => ({ ...f, currency: e.target.value })); setSaved(false); }}>
             {!CURRENCIES.includes(form.currency) && <option>{form.currency}</option>}
             {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
           </SelectInput>
         </FormField>
-        <FormField id="pref-locale" label="Language & format" required>
+        <FormField id="pref-locale" label={t("organization.language_format")} required>
           <SelectInput id="pref-locale" value={form.locale} disabled={disabled}
             onChange={(e) => { setForm((f) => ({ ...f, locale: e.target.value })); setSaved(false); }}>
             {!LOCALES.some((l) => l.value === form.locale) && <option value={form.locale}>{form.locale}</option>}
             {LOCALES.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
           </SelectInput>
         </FormField>
-        <FormField id="pref-language" label="Default member language" hint="Used for members who haven't picked a language, including their WhatsApp and email messages.">
+        <FormField id="pref-language" label={t("organization.default_member_language")} hint={t("organization.used_for_members_who_haven_t")}>
           <SelectInput id="pref-language" value={form.default_language || "en"} disabled={disabled}
             onChange={(e) => { setForm((f) => ({ ...f, default_language: e.target.value })); setSaved(false); }}>
             {SUPPORTED_LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.nativeName} · {l.label}</option>)}
@@ -190,21 +192,20 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-[var(--text)]">Opening hours</h3>
-        <p className="text-xs text-[var(--text-muted)]">Default hours for every branch. Branches can override them.</p>
+        <h3 className="text-sm font-semibold text-[var(--text)]">{t("organization.opening_hours")}</h3>
+        <p className="text-xs text-[var(--text-muted)]">{t("organization.default_hours_for_every_branch_branches")}</p>
         <OpeningHoursEditor value={form.opening_hours} disabled={disabled} errors={hourErrs}
           onChange={(h) => { setForm((f) => ({ ...f, opening_hours: h })); setHourErrs({}); setSaved(false); }} />
       </div>
 
       <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text)]">Holidays & closed days</h3>
-          <p className="text-xs text-[var(--text-muted)]">Dates when the business is closed regardless of opening hours.</p>
+          <h3 className="text-sm font-semibold text-[var(--text)]">{t("organization.holidays_closed_days")}</h3>
+          <p className="text-xs text-[var(--text-muted)]">{t("organization.dates_when_the_business_is_closed")}</p>
         </div>
         {form.closed_dates.length === 0 ? (
           <p className="flex items-center gap-2 rounded-[10px] border border-dashed border-[var(--border)] px-3 py-3 text-sm text-[var(--text-muted)]">
-            <CalendarX className="h-4 w-4" aria-hidden /> No closed dates added.
-          </p>
+            {richText(t("organization.calendarxno_closed_dates_added"), { calendarx: <CalendarX className="h-4 w-4" aria-hidden /> })}</p>
         ) : (
           <ul className="flex flex-wrap gap-2">
             {form.closed_dates.map((d) => (
@@ -212,7 +213,7 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
                 <span className="tabular-nums">{new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</span>
                 <span className="text-[var(--text-muted)]">· {d.label}</span>
                 {!disabled && (
-                  <button type="button" aria-label={`Remove ${d.label}`}
+                  <button type="button" aria-label={t("organization.remove_label", undefined, { label: d.label })}
                     onClick={() => { setForm((f) => ({ ...f, closed_dates: f.closed_dates.filter((x) => x.date !== d.date) })); setSaved(false); }}
                     className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--surface-hover)]">
                     <X className="h-3.5 w-3.5" aria-hidden />
@@ -224,20 +225,19 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
         )}
         {!disabled && (
           <div className="flex flex-col gap-2 sm:flex-row">
-            <TextInput type="date" aria-label="Closed date" value={newDate} onChange={(e) => setNewDate(e.target.value)} className="sm:w-44" />
-            <TextInput aria-label="Reason" placeholder="Reason (e.g. Diwali)" value={newLabel} maxLength={80}
+            <TextInput type="date" aria-label={t("organization.closed_date")} value={newDate} onChange={(e) => setNewDate(e.target.value)} className="sm:w-44" />
+            <TextInput aria-label={t("organization.reason")} placeholder={t("organization.reason_e_g_diwali")} value={newLabel} maxLength={80}
               onChange={(e) => setNewLabel(e.target.value)} className="sm:flex-1"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addDate(); } }} />
             <SecondaryButton type="button" onClick={addDate} disabled={!newDate}>
-              <Plus className="h-4 w-4" aria-hidden /> Add date
-            </SecondaryButton>
+              {richText(t("organization.plusadd_date"), { plus: <Plus className="h-4 w-4" aria-hidden /> })}</SecondaryButton>
           </div>
         )}
       </div>
 
       {!disabled && (
         <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
-          {saved && <span role="status" className="text-sm text-emerald-700">Saved</span>}
+          {saved && <span role="status" className="text-sm text-emerald-700">{t("organization.saved")}</span>}
           <PrimaryButton type="submit" loading={saving}>{submitLabel}</PrimaryButton>
         </div>
       )}

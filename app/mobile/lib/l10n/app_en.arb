@@ -1,0 +1,1833 @@
+{
+  "@@locale": "en",
+  "commonCancel": "Cancel",
+  "commonRetry": "Retry",
+  "commonTryAgain": "Try again",
+  "commonContinue": "Continue",
+  "commonBack": "Back",
+  "commonClose": "Close",
+  "commonCopy": "Copy",
+  "commonAdd": "Add",
+  "commonClear": "Clear",
+  "commonView": "View",
+  "commonSearch": "Search",
+  "commonSearchHint": "Search…",
+  "commonAll": "All",
+  "commonActive": "Active",
+  "commonInactive": "Inactive",
+  "commonExpired": "Expired",
+  "commonSuspended": "Suspended",
+  "commonTotal": "Total",
+  "commonToday": "Today",
+  "commonThisWeek": "This week",
+  "commonThisMonth": "This month",
+  "commonDayStreak": "Day streak",
+  "commonMember": "Member",
+  "commonMembers": "Members",
+  "commonTrainer": "Trainer",
+  "commonTrainers": "Trainers",
+  "commonOwner": "Owner",
+  "commonStaff": "Staff",
+  "commonUser": "User",
+  "commonAttendance": "Attendance",
+  "commonPayments": "Payments",
+  "commonPayment": "Payment",
+  "commonMembership": "Membership",
+  "commonNotifications": "Notifications",
+  "commonSettings": "Settings",
+  "commonProfile": "Profile",
+  "commonMore": "More",
+  "commonHome": "Home",
+  "commonFinance": "Finance",
+  "commonFrontDesk": "Front desk",
+  "commonSignOut": "Sign out",
+  "commonEmail": "Email",
+  "commonPassword": "Password",
+  "commonMobileNumber": "Mobile number",
+  "commonEmailHint": "name@example.com",
+  "commonAtLeast8Chars": "At least 8 characters",
+  "commonUseAtLeast8Chars": "Use at least 8 characters",
+  "commonEnterValidEmail": "Enter a valid email address",
+  "commonEnterValidMobile": "Enter a valid mobile number",
+  "commonCheckConnection": "Check your connection and try again.",
+  "commonSomethingWentWrong": "Something went wrong. Please try again.",
+  "commonInTheGymNow": "In the gym now",
+  "commonNoOneCheckedIn": "No one is checked in right now.",
+  "commonCheckIn": "Check in",
+  "commonCheckOut": "Check out",
+  "commonCash": "Cash",
+  "commonCard": "Card",
+  "commonNetBanking": "Net banking",
+  "commonCheque": "Cheque",
+  "commonOther": "Other",
+  "commonMonths": "{count, plural, =1{1 month} other{{count} months}}",
+  "@commonMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDaysLeft": "{count, plural, =1{1 day left} other{{count} days left}}",
+  "@commonDaysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonErrorWithDetail": "Error: {detail}",
+  "@commonErrorWithDetail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "commonLinkCopied": "Link copied: https://repsi.app",
+  "commonLanguage": "Language",
+  "appTagline": "Your gym. Your progress.",
+  "errorTimeout": "Connection timed out. Please check your internet connection.",
+  "errorNoConnection": "Unable to connect to REPSI. Check your internet connection or server status.",
+  "errorValidation": "Validation error occurred.",
+  "errorGeneric": "An error occurred",
+  "errorBadRequest": "Invalid request parameters.",
+  "errorInvalidCredentials": "Invalid email or password.",
+  "errorSessionExpired": "Your session has expired. Please sign in again.",
+  "errorForbidden": "You don't have permission to access this gym.",
+  "errorNotFound": "Account or gym not found.",
+  "errorRequestTimeout": "Request timed out. Please try again.",
+  "errorConflict": "Account with these details already exists.",
+  "errorCheckInputs": "Please check your inputs and try again.",
+  "errorTooManyAttempts": "Too many attempts. Please try again later.",
+  "errorServerUnavailable": "REPSI is temporarily unavailable.",
+  "errorUnknown": "Unable to process request. Please try again.",
+  "errorLoadAttendance": "Couldn't load attendance",
+  "authNoSession": "Sign-in did not return a session. Please try again.",
+  "authSignInFailed": "Couldn't sign in. Please check your details.",
+  "authGoogleNoToken": "Google did not return a sign-in token. Please try again.",
+  "authGoogleFailed": "Google Sign-In failed. Please try again or use your email and password.",
+  "authCreateAccountFailed": "We could not create your account. Please try again.",
+  "authRegistrationFailed": "Registration failed. Please try again.",
+  "authDeleteFailed": "Could not delete your account. Please try again.",
+  "authVerificationIncomplete": "Verification did not complete. Please request a new code.",
+  "errorLoadDashboard": "Couldn't load dashboard figures",
+  "healthPermissionDenied": "Permission was not granted. You can allow access in Health Connect settings.",
+  "healthConnectFailed": "Could not connect to Health Connect. Please try again.",
+  "healthReadFailed": "Could not read your activity from Health Connect.",
+  "errorLoadMembers": "Couldn't load members",
+  "errorLoadNotifications": "Couldn't load notifications. Pull to try again.",
+  "notificationFallbackTitle": "Notification",
+  "timeJustNow": "Just now",
+  "errorLoadWorkspaces": "Couldn't load your gyms.",
+  "errorOnboarding": "Couldn't finish setting up",
+  "qrGymCheckIn": "Gym check-in",
+  "navClients": "Clients",
+  "navSchedule": "Schedule",
+  "navPlans": "Plans",
+  "navGyms": "Gyms",
+  "navUsers": "Users",
+  "navAnalytics": "Analytics",
+  "navWorkout": "Workout",
+  "navProgress": "Progress",
+  "navClasses": "Classes",
+  "languageSheetTitle": "App language",
+  "languageSheetSubtitle": "Choose the language REPSI uses on this device.",
+  "signOutConfirmGeneric": "Sign out of REPSI on this device?",
+  "switchWorkspace": "Switch gym",
+  "avatarTitle": "Profile photo",
+  "avatarTakePhoto": "Take a photo",
+  "avatarChooseGallery": "Choose from gallery",
+  "avatarRemove": "Remove photo",
+  "avatarCameraError": "Couldn't open the camera. Check REPSI's camera permission in Settings.",
+  "avatarGalleryError": "Couldn't open your photos. Check REPSI's photo permission in Settings.",
+  "avatarChange": "Change profile photo",
+  "avatarAdd": "Add profile photo",
+  "codeFieldLabel": "Verification code, {count} digits",
+  "@codeFieldLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorStateTitle": "Something went wrong",
+  "ownerProfileTitle": "Owner Profile",
+  "gymOwner": "Gym Owner",
+  "gymSettings": "Gym Settings",
+  "accountSettings": "Account Settings",
+  "statusExpiring": "Expiring",
+  "statusFrozen": "Frozen",
+  "statusCancelled": "Cancelled",
+  "deleteAccountWarning": "This permanently removes your login, profile details and synced activity data. Your gym keeps its own member records (attendance and payments) as required for its accounts. This cannot be undone.",
+  "ownerSignupExplainer": "Gym businesses are created on the REPSI website, where you choose a plan and set up your branches. Once it is ready, sign in here with the same mobile number.",
+  "resetLinkSent": "If {email} has a REPSI account, a reset link is on its way. Open it on this phone or a computer to choose a new password.",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "otpSentTo": "Enter the 6-digit code we sent on WhatsApp to {number}.",
+  "@otpSentTo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailSentTo": "We have sent a verification link to {email}. Please check your inbox.",
+  "@verifyEmailSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailYourAddress": "your email address",
+  "signupJoining": "Joining: {slug}",
+  "@signupJoining": {
+    "placeholders": {
+      "slug": {
+        "type": "String"
+      }
+    }
+  },
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "enterCurrentPassword": "Enter your current password",
+  "newPassword": "New password",
+  "passwordMax72": "Use at most 72 characters",
+  "passwordChooseDifferent": "Choose a different password",
+  "commonSaving": "Saving…",
+  "commonUpdate": "Update",
+  "passwordUpdated": "Password updated. Other devices were signed out.",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountPasswordLabel": "Password (leave empty for Google-only accounts)",
+  "deleteAccountTypeConfirm": "Type DELETE to confirm",
+  "commonDeleting": "Deleting…",
+  "deleteAccount": "Delete account",
+  "profilePhotoUploadFailed": "Account created, but your photo didn't upload. You can add it from your profile.",
+  "completeProfileTitle": "Almost there!",
+  "completeProfileSubtitle": "Your number is verified. Add a few details to finish setting up your account.",
+  "addProfilePhotoOptional": "Add a profile photo (optional)",
+  "tapToChange": "Tap to change",
+  "fullName": "Full name",
+  "fullNameHint": "As your gym knows you",
+  "enterFullName": "Enter your full name",
+  "uploadingPhoto": "Uploading photo…",
+  "emailSendFailed": "We couldn't send the email. Please try again.",
+  "checkYourEmail": "Check your email",
+  "backToSignIn": "Back to sign in",
+  "useDifferentEmail": "Use a different email",
+  "resetPasswordTitle": "Reset your password",
+  "resetPasswordSubtitle": "Enter the email on your account and we'll send you a link to set a new password.",
+  "sendResetLink": "Send reset link",
+  "codeSendFailed": "We couldn't send the code. Please try again.",
+  "accountNotFoundPassword": "We couldn't find a REPSI account with those details. Check your email or mobile number, or sign in with a WhatsApp code.",
+  "accountNotFoundGoogle": "We couldn't find a REPSI account linked to this Google account. Sign in with your mobile number instead.",
+  "accountNotFound": "Account not found",
+  "useMobileNumber": "Use mobile number",
+  "setUpNewGym": "Set up a new gym",
+  "copyRepsiLink": "Copy repsi.app link",
+  "setUpNewGymQuestion": "Setting up a new gym?",
+  "startOnRepsi": "Start on repsi.app",
+  "welcomeBack": "Welcome back",
+  "letsGetStarted": "Let's get started",
+  "loginPasswordSubtitle": "Sign in with the email or mobile number and password on your account.",
+  "loginOtpSubtitle": "Enter your mobile number and we'll send a verification code on WhatsApp.",
+  "continueWithGoogle": "Continue with Google",
+  "useMobileInstead": "Use mobile number instead",
+  "signInWithEmailPassword": "Sign in with email and password",
+  "enterMobileNumber": "Enter your mobile number",
+  "enterValid10Digit": "Enter a valid 10-digit mobile number",
+  "sendCodeWhatsApp": "Send code on WhatsApp",
+  "emailOrMobile": "Email or mobile number",
+  "emailOrMobileRequired": "Email or mobile number is required",
+  "passwordRequired": "Password is required",
+  "forgotPassword": "Forgot password?",
+  "signIn": "Sign in",
+  "chooseWorkspace": "Choose your workspace",
+  "chooseWorkspaceSubtitle": "Select the organization and workspace you'd like to access",
+  "roleOwnerTitle": "Repsi Fitness — Owner",
+  "roleOwnerDesc": "Business command center: revenue, members, attendance & ops",
+  "roleTrainerTitle": "Repsi Fitness — Trainer",
+  "roleTrainerDesc": "Coaching workspace: client training, workout & diet builder, chat",
+  "roleTrainerBadge": "Active Coach",
+  "roleMemberTitle": "Repsi Fitness — Member",
+  "roleMemberDesc": "Personal fitness companion: streak, workouts, QR check-in & progress",
+  "roleMemberBadge": "Gold Member",
+  "roleAdminTitle": "Repsi Platform — Admin",
+  "roleAdminDesc": "Internal administration: gym tenants, accounts & system metrics",
+  "roleAdminBadge": "Superadmin",
+  "signOutFailed": "Couldn't sign out. Please try again.",
+  "signOutTitle": "Sign out?",
+  "signOutConfirmOwner": "Are you sure you want to sign out of your REPSI owner account?",
+  "signingOut": "Signing out…",
+  "createAccountTitle": "Create your account",
+  "joinGymTitle": "Join your gym",
+  "signupStep1": "Step 1 of 2: Member profile",
+  "signupStep2": "Step 2 of 2: Join your gym",
+  "nameHintExample": "Priya Sharma",
+  "fullNameRequired": "Full name is required",
+  "emailRequired": "Email is required",
+  "continueToGym": "Continue to Gym",
+  "gymCode": "Gym link name",
+  "gymCodeRequired": "Gym link name is required",
+  "phoneOptional": "Phone number (optional)",
+  "cityOptional": "City (optional)",
+  "cityHint": "Chennai, Kochi, Delhi…",
+  "createMemberAccount": "Create member account",
+  "verifyEmailTitle": "Verify your email",
+  "continueToSetup": "Continue setup",
+  "resendEmail": "Resend email",
+  "verificationEmailResent": "Verification email resent!",
+  "codeVerifyFailed": "We couldn't verify the code. Please try again.",
+  "newCodeSent": "A new code is on its way to WhatsApp.",
+  "verifyNumberTitle": "Verify your number",
+  "changeNumber": "Change number",
+  "didntGetCode": "Didn't get it?",
+  "resendIn": "Resend in {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "commonSending": "Sending…",
+  "resendCode": "Resend code",
+  "otpTestServerNotice": "Test server: WhatsApp is not connected, so use the server's test code.",
+  "verify": "Verify",
+  "photoUpdateFailed": "Couldn't update your photo. Please try again.",
+  "photoUpdated": "Profile photo updated",
+  "photoRemoved": "Profile photo removed",
+  "splashSlow": "Taking longer than usual · Tap to continue",
+  "dashExpiringSoon": "{count, plural, =1{1 membership ends in the next 7 days} other{{count} memberships end in the next 7 days}}",
+  "@dashExpiringSoon": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashPeakHour": "Peak {hour}",
+  "@dashPeakHour": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "dashGreetingLine": "{greeting} · {date}",
+  "@dashGreetingLine": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dashGreetingNameLine": "{greeting}, {name} · {date}",
+  "@dashGreetingNameLine": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dashNotificationsUnread": "Notifications, {count} unread",
+  "@dashNotificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashTrialDaysLeft": "{count, plural, =1{1 day left in your free trial. Choose a plan on repsi.app anytime.} other{{count} days left in your free trial. Choose a plan on repsi.app anytime.}}",
+  "@dashTrialDaysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashRevenueSemantics": "Revenue this month {amount}, up {percent} percent versus last month",
+  "@dashRevenueSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dashRevenueSemanticsDown": "Revenue this month {amount}, down {percent} percent versus last month",
+  "@dashRevenueSemanticsDown": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dashVsLastMonth": "{percent}% vs last month",
+  "@dashVsLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dashCheckinsChartSemantics": "Check-ins over the last {days} days: {values}",
+  "@dashCheckinsChartSemantics": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "dashCheckinsCount": "{count, plural, =1{1 check-in} other{{count} check-ins}}",
+  "@dashCheckinsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashCheckedInCount": "{count} checked in",
+  "@dashCheckedInCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashInSince": "in since {time}",
+  "@dashInSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dashSeeAll": "See all {count}",
+  "@dashSeeAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchNoResults": "No results for \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchMembersHeader": "MEMBERS ({count})",
+  "@searchMembersHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTrainersHeader": "TRAINERS ({count})",
+  "@searchTrainersHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchFeaturesHeader": "FEATURES & SHORTCUTS ({count})",
+  "@searchFeaturesHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "financeMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@financeMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "financeDaysOverdue": "{count, plural, =1{1 day overdue} other{{count} days overdue}}",
+  "@financeDaysOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "financeMoreOnWeb": "+ {count} more. Full report on repsi.app",
+  "@financeMoreOnWeb": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memberCopied": "Copied {value}",
+  "@memberCopied": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "memberLastVisit": "Last visit {when}",
+  "@memberLastVisit": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "memberPaidAcross": "{count, plural, =1{{amount} paid across 1 payment} other{{amount} paid across {count} payments}}",
+  "@memberPaidAcross": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memberInSince": "In since {time}",
+  "@memberInSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "memberHistoryUntil": "{label} · until {date}",
+  "@memberHistoryUntil": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "memberRenewedOn": "{name} renewed on {plan}. Record the payment when it is collected.",
+  "@memberRenewedOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "memberRenewFor": "Renew for {amount}",
+  "@memberRenewFor": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "memberPaymentRecorded": "{amount} recorded for {name}",
+  "@memberPaymentRecorded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberEnded": "ended {when}",
+  "@memberEnded": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "memberEnds": "ends {when}",
+  "@memberEnds": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "timeMinutesAgo": "{count}m ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count}h ago",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count}d ago",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "opsCheckedOut": "{name} checked out",
+  "@opsCheckedOut": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "opsCheckedIn": "{name} checked in",
+  "@opsCheckedIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "opsInAt": "In at {time} · {duration}",
+  "@opsInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "opsFollowUp": "follow up {date}",
+  "@opsFollowUp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "opsLeadAdded": "{name} added to leads",
+  "@opsLeadAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "opsQrRotates": "Rotates {when}",
+  "@opsQrRotates": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "opsTeamHeader": "Staff & Trainers ({count})",
+  "@opsTeamHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "opsYou": "{name} (you)",
+  "@opsYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceGreeting": "Good morning, {name}",
+  "@workspaceGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceSlug": "Link: {slug}",
+  "@workspaceSlug": {
+    "placeholders": {
+      "slug": {
+        "type": "String"
+      }
+    }
+  },
+  "yourGym": "Your gym",
+  "errorLoadDashboardTitle": "Couldn't load your dashboard",
+  "needsAttention": "Needs attention",
+  "remindToRenew": "Remind them to renew before access lapses",
+  "checkIns": "Check-ins",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "accountAndSettings": "Account and settings",
+  "trialEnded": "Your free trial has ended. Choose a plan on repsi.app to keep using REPSI.",
+  "revenueThisMonth": "Revenue this month",
+  "checkInsToday": "Check-ins today",
+  "activeMembers": "Active members",
+  "renewalsDue": "Renewals due",
+  "addMember": "Add member",
+  "noCheckinsThisWeek": "No check-ins recorded this week yet.",
+  "errorLoadCheckedIn": "Couldn't load who's checked in.",
+  "memberships": "Memberships",
+  "reports": "Reports",
+  "searchAttendanceDesc": "Check members in and out, see who is inside",
+  "searchMembersDesc": "Profiles, memberships and renewals",
+  "leads": "Leads",
+  "searchLeadsDesc": "Enquiries, trials and follow-ups",
+  "searchFinanceDesc": "Collections, dues and expenses",
+  "businessInsights": "Business insights",
+  "searchInsightsDesc": "What changed and what to do next",
+  "insights": "Insights",
+  "searchNotificationsDesc": "Alerts and announcements",
+  "account": "Account",
+  "searchSettingsDesc": "Profile, branches, plans and appearance",
+  "searchFailed": "Couldn't search members and trainers. Check your connection.",
+  "searchHint": "Search members, trainers, features…",
+  "recent": "Recent",
+  "quickAccess": "Quick access",
+  "searchUnavailable": "Search unavailable",
+  "searchEmptyHint": "Search by member name, phone number or member code, or a screen like Attendance.",
+  "memberIdLabel": "Member ID:",
+  "coach": "Coach",
+  "specStrength": "Strength & Conditioning",
+  "errorLoadFinance": "Couldn't load finance",
+  "collectedThisMonth": "Collected this month",
+  "expenses": "Expenses",
+  "net": "Net",
+  "duesToCollect": "Dues to collect",
+  "collections": "Collections",
+  "last6Months": "Last 6 months",
+  "noCollections": "No collections recorded in the last six months.",
+  "nothingOutstanding": "Nothing outstanding. Every invoice is paid.",
+  "dueNow": "Due now",
+  "recentExpenses": "Recent expenses",
+  "noExpenses": "No expenses recorded yet.",
+  "historyJoined": "Joined",
+  "historyStarted": "Membership started",
+  "historyRenewed": "Membership renewed",
+  "historyExpired": "Membership expired",
+  "historyFrozen": "Membership frozen",
+  "historyResumed": "Membership resumed",
+  "historyFreezeCancelled": "Freeze cancelled",
+  "historyExtended": "Membership extended",
+  "historyCancelled": "Membership cancelled",
+  "historyStatusChanged": "Account status changed",
+  "historyNoteAdded": "Note added",
+  "historyNoteEdited": "Note edited",
+  "historyNoteDeleted": "Note deleted",
+  "historyProfileUpdated": "Profile updated",
+  "plan": "Plan",
+  "memberAdded": "Member added",
+  "memberAddFailed": "Couldn't add the member. Please try again.",
+  "addNewMember": "Add new member",
+  "fullNameRequiredLabel": "Full name *",
+  "nameRequired": "Name is required",
+  "emailRequiredLabel": "Email address *",
+  "phoneNumber": "Phone number",
+  "emergencyContactPhone": "Emergency contact phone",
+  "membershipPlan": "Membership plan",
+  "saveMember": "Save member",
+  "errorLoadMember": "Couldn't load this member",
+  "renew": "Renew",
+  "overview": "Overview",
+  "visits": "Visits",
+  "history": "History",
+  "errorLoadThis": "Couldn't load this section",
+  "noPlan": "No plan",
+  "ended": "Ended",
+  "ends": "Ends",
+  "memberSince": "Member since",
+  "gender": "Gender",
+  "emergencyContact": "Emergency contact",
+  "errorLoadVisits": "Couldn't load visits.",
+  "noVisitsYet": "No visits yet",
+  "notes": "Notes",
+  "errorLoadNotes": "Couldn't load notes.",
+  "noNotes": "No notes yet. Add context the front desk should know.",
+  "noPaymentsForMember": "No payments recorded for this member yet.",
+  "noVisitsRecorded": "No visits recorded yet.",
+  "noHistory": "No history yet.",
+  "system": "System",
+  "renewMembership": "Renew membership",
+  "recordPayment": "Record payment",
+  "amountRupees": "Amount (₹)",
+  "enterAmountReceived": "Enter the amount received",
+  "noteOptional": "Note (optional)",
+  "paymentNoteHint": "e.g. Quarterly renewal, UPI ref",
+  "savePayment": "Save payment",
+  "addNote": "Add note",
+  "noteHint": "What should staff know?",
+  "saveNote": "Save note",
+  "endingSoon": "Ending soon",
+  "searchMembersHint": "Search name, phone or email",
+  "noMembersMatch": "No members match",
+  "noMembersYet": "No members yet",
+  "tryAnotherSearch": "Try another name, phone number or filter.",
+  "addFirstMember": "Add your first member to start tracking memberships and visits.",
+  "branches": "Branches",
+  "membershipPlans": "Membership plans",
+  "addTrainer": "Add trainer",
+  "addTrainerDesc": "Onboard gym coach or PT",
+  "app": "App",
+  "darkMode": "Dark mode",
+  "onTheWeb": "On the web",
+  "onTheWebTitle": "Billing, staff roles, reports and website",
+  "manageOnWeb": "Manage these on repsi.app",
+  "errorLoadBranches": "Couldn't load branches.",
+  "branch": "Branch",
+  "mainBranch": "Main",
+  "editBranchesOnWeb": "Add or edit branches on repsi.app.",
+  "errorLoadPlans": "Couldn't load plans.",
+  "noPlansYet": "No plans yet. Create plans on repsi.app.",
+  "markAllRead": "Mark all read",
+  "unread": "Unread",
+  "billing": "Billing",
+  "announcements": "Announcements",
+  "notificationsUnavailable": "Notifications unavailable",
+  "noNotifications": "No notifications",
+  "noNotificationsDesc": "You are all caught up! Updates about your gym membership, classes, and payments will appear here.",
+  "leadNew": "-",
+  "leadContacted": "-",
+  "leadVisitBooked": "-",
+  "leadTrial": "-",
+  "leadNegotiating": "-",
+  "leadLost": "-",
+  "checkInQr": "Check-in QR",
+  "team": "Team",
+  "errorLoadToday": "Couldn't load today's numbers.",
+  "insideNow": "Inside now",
+  "avgStay": "Avg. stay",
+  "checkInMember": "Check in a member",
+  "searchNameOrPhone": "Search name or phone",
+  "typeTwoLetters": "Type at least two letters of a name or phone number.",
+  "errorLoadLeads": "Couldn't load leads",
+  "noLeadsYet": "No leads yet",
+  "noLeadsInStage": "No leads in this stage",
+  "leadsEmptyDesc": "Capture walk-ins and enquiries so nobody slips through.",
+  "addLead": "Add lead",
+  "newLead": "New lead",
+  "sourceWalkIn": "Walk-in",
+  "sourceInstagram": "Instagram",
+  "sourceWebsite": "Website",
+  "sourceReferral": "Referral",
+  "sourceGoogle": "Google",
+  "sourcePhoneCall": "Phone call",
+  "name": "Name",
+  "enterTheirName": "Enter their name",
+  "interestedIn": "Interested in (optional)",
+  "interestedInHint": "e.g. Quarterly plan, PT",
+  "saveLead": "Save lead",
+  "errorLoadQr": "Couldn't load the check-in QR",
+  "qrDesc": "Members scan this with the REPSI app to check themselves in. Show it at the front desk or print it.",
+  "qrSemantics": "Gym check-in QR code",
+  "refresh": "Refresh",
+  "errorLoadTeam": "Couldn't load your team",
+  "teamDesc": "Add trainers and manage staff roles directly from your phone.",
+  "chooseGym": "Choose your gym",
+  "chooseGymSubtitle": "Select which gym location you would like to view and manage today.",
+  "noGymsFound": "No gyms found",
+  "registerGymOnWeb": "Register your gym on repsi.app to activate your workspace.",
+  "gymWorkspace": "Gym",
+  "openWorkspace": "Open",
+  "registerAnotherGym": "Want to register another gym location?",
+  "createGymOnDesktop": "Gyms are created on repsi.app from a computer.",
+  "memberExpiredOn": "Expired on {date}",
+  "@memberExpiredOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "memberValidUntil": "Valid until {date}",
+  "@memberValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "memberCheckedInSince": "Checked in since {time}",
+  "@memberCheckedInSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "healthAverageSteps": "7-day average: {steps} steps",
+  "@healthAverageSteps": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      }
+    }
+  },
+  "healthSyncedAt": "synced {time}",
+  "@healthSyncedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStepsSummary": "{total} total · {average} per day",
+  "@healthStepsSummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentRefLine": "Ref: {ref} · {method}",
+  "@paymentRefLine": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptNumberLine": "Receipt #: {number}",
+  "@receiptNumberLine": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptDescriptionLine": "Description: {text}",
+  "@receiptDescriptionLine": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptAmountLine": "Amount paid: {amount}",
+  "@receiptAmountLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptModeLine": "Payment mode: {mode}",
+  "@receiptModeLine": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptStatusLine": "Status: {status}",
+  "@receiptStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "qrSince": "Since {time}",
+  "@qrSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "qrInAt": "In at {time}",
+  "@qrInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatUnread": "{count} unread",
+  "@chatUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatNotSent": "Not sent: {error}",
+  "@chatNotSent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatRead": "Read",
+  "workoutLogExercise": "Log {name}",
+  "@workoutLogExercise": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "weightKg": "{value} kg",
+  "@weightKg": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "exPrimary": "Primary: {muscle} ({category})",
+  "@exPrimary": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "exSecondary": "Secondary: {muscle}",
+  "@exSecondary": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      }
+    }
+  },
+  "exSetsCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "@exSetsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exRepsCount": "{count, plural, =1{1 rep} other{{count} reps}}",
+  "@exRepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exSetsReps": "{sets} sets · {reps} reps",
+  "@exSetsReps": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "exAllCount": "All ({count})",
+  "@exAllCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exFavsCount": "Favourites ({count})",
+  "@exFavsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exSelectedCount": "Selected exercises ({count})",
+  "@exSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exBasketCount": "{count, plural, =1{1 exercise selected} other{{count} exercises selected}}",
+  "@exBasketCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exWorkoutSaved": "Workout \"{name}\" saved to My Workouts!",
+  "@exWorkoutSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "exCoachNote": "Coach's note: \"{note}\"",
+  "@exCoachNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "exRestSeconds": "{count}s",
+  "@exRestSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myPass": "My pass",
+  "aiCoach": "AI coach",
+  "errorLoadMembership": "Couldn't load your membership.",
+  "noMembershipYet": "No membership yet. Ask your gym to set one up for you.",
+  "errorLoadYourAttendance": "Couldn't load your attendance.",
+  "checkInWithQr": "Check in with QR",
+  "healthAndroidOnly": "Activity tracking is available on Android phones with Health Connect.",
+  "healthConnectPitch": "Connect Health Connect to see your steps, distance and active calories from Google Fit and other apps. Only these three totals are read, and you can disconnect and delete them any time.",
+  "healthConnectNeeded": "Health Connect is needed to read your steps from Google Fit and other fitness apps.",
+  "healthConnect": "Connect Health Connect",
+  "healthUpdate": "Update Health Connect",
+  "healthInstall": "Install Health Connect",
+  "steps": "Steps",
+  "activeKcal": "Active kcal",
+  "syncNow": "Sync now",
+  "disconnect": "Disconnect",
+  "todaysActivity": "Today's activity",
+  "healthDisconnectTitle": "Disconnect Health Connect?",
+  "healthDisconnectBody": "REPSI will stop syncing and delete the activity totals it has stored for you.",
+  "aiWorkoutCoach": "AI Workout Coach",
+  "paymentsAndInvoices": "Payments & Invoices",
+  "notificationsAndAlerts": "Notifications & Alerts",
+  "membershipAndPayments": "Membership & Payments",
+  "membershipDetails": "Membership details",
+  "membershipDetailsUnavailable": "Your current plan and renewal options are not available here yet. Contact your gym to confirm your membership.",
+  "paymentHistoryHeader": "Payment history & receipts",
+  "digitalReceipt": "Payment receipt",
+  "scanMemberPass": "Scan member pass",
+  "scanGymQr": "Scan gym QR",
+  "toggleFlashlight": "Toggle flashlight",
+  "cameraAccessOff": "Camera access is off",
+  "cameraUnavailable": "Camera unavailable",
+  "cameraAccessOffDesc": "Allow camera access for REPSI in your phone settings to scan the gym QR, or ask the front desk to check you in.",
+  "cameraStartFailed": "We couldn't start the camera. Ask the front desk to check you in.",
+  "notRepsiQr": "That is not a REPSI gym QR code. Scan the code shown at your gym entrance.",
+  "checkedInGreat": "Checked in. Have a great workout!",
+  "checkOutTitle": "Check out?",
+  "checkOutBody": "This ends your current gym visit.",
+  "checkedOutBye": "Checked out. See you next time!",
+  "pointCamera": "Point your camera at the QR code at your gym entrance.",
+  "youAreCheckedIn": "You are checked in",
+  "youAreNotCheckedIn": "You are not checked in",
+  "noVisitsYetDesc": "No visits yet. Your check-ins will show up here.",
+  "recentVisits": "Recent visits",
+  "memberPassSemantics": "Your REPSI member pass QR code",
+  "showFrontDesk": "Show this to the front desk",
+  "passRefreshNote": "It refreshes automatically and only works at your gym. Do not share a screenshot.",
+  "scanMemberPassDesc": "Scan a member's pass to check them in or out.",
+  "activity": "Activity",
+  "errorLoadGymVisits": "Couldn't load your gym visits.",
+  "gymVisits": "Gym visits",
+  "avgVisit": "Avg. visit",
+  "noVisitsStartStreak": "No visits yet. Check in at your gym to start your streak.",
+  "inProgress": "In progress",
+  "healthStepsAndroidOnly": "Step tracking needs an Android phone with Health Connect.",
+  "healthConnectFromHome": "Connect Health Connect from the Home tab to see your steps, distance and active calories here.",
+  "stepsThisWeek": "Steps this week",
+  "stepsChartSemantics": "Bar chart of steps for the last seven days",
+  "messages": "Messages",
+  "noConversationsTrainer": "No conversations yet. Open a client and tap Message.",
+  "noConversationsMember": "Once a trainer is assigned to you, you can message them here.",
+  "noMessagesYet": "No messages yet",
+  "sayHello": "Say hello to start the conversation.",
+  "writeMessage": "Write a message…",
+  "sendMessage": "Send message",
+  "chatReadOnly": "This trainer is no longer assigned, so the conversation is read-only.",
+  "targetWeight": "Target weight",
+  "repsPerSet": "Reps per set",
+  "saveSets": "Save sets",
+  "todaysWorkout": "Today's workout",
+  "workoutProgress": "Workout progress",
+  "targetSixExercises": "Target: 6 exercises",
+  "estDuration": "Est. 45–50 min",
+  "logged": "Logged",
+  "log": "Log",
+  "completeWorkout": "Complete workout",
+  "workoutSummary": "Workout summary",
+  "workoutComplete": "Workout complete!",
+  "workoutRecorded": "Great work! Upper Body A is saved to your fitness profile.",
+  "streakPlusOne": "+1 workout streak",
+  "streakFive": "You're on fire! 5 days in a row.",
+  "activeBurn": "Active burn",
+  "duration": "Duration",
+  "exercises": "Exercises",
+  "totalVolume": "Total volume",
+  "newPersonalRecord": "New personal record!",
+  "howDidItFeel": "How did this workout feel?",
+  "saveAndReturn": "Save and go back",
+  "workoutSavedSynced": "Workout saved.",
+  "targetMuscles": "Target muscles",
+  "sets": "Sets",
+  "reps": "Reps",
+  "rest": "Rest",
+  "whyThisExercise": "Why this exercise? (Coach's note)",
+  "howToPerform": "How to do it",
+  "favourited": "Saved to favourites",
+  "favourite": "Add to favourites",
+  "inWorkoutPlan": "In workout plan",
+  "addToWorkout": "Add to workout",
+  "workoutBuilder": "Workout builder",
+  "routineName": "Routine name",
+  "noExercisesSelected": "No exercises selected.\nTap \"Add to workout\" on any exercise card.",
+  "saveWorkout": "Save workout",
+  "exerciseLibrary": "Exercise library",
+  "searchExercises": "Search exercises (e.g. chest dumbbell)",
+  "trainerCues": "Trainer tips",
+  "noExercisesMatch": "No exercises match your filters",
+  "resetFilters": "Reset filters",
+  "demo": "Demo",
+  "added": "Added",
+  "readyToBuild": "Ready to build your routine",
+  "buildWorkout": "Build workout",
+  "trainerDietTitle": "{name} · Diet",
+  "@trainerDietTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dietEatenToday": "Eaten today: {calories} kcal · {protein} g protein",
+  "@dietEatenToday": {
+    "placeholders": {
+      "calories": {
+        "type": "String"
+      },
+      "protein": {
+        "type": "String"
+      }
+    }
+  },
+  "dietOfTarget": "of {target} kcal",
+  "@dietOfTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "dietWater": "Water: {amount} ml",
+  "@dietWater": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dietWaterOfTarget": "Water: {amount} / {target} ml",
+  "@dietWaterOfTarget": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "dietAdherence": "Followed {followed} · Modified {modified} · Skipped {skipped} · Not logged {notLogged}",
+  "@dietAdherence": {
+    "placeholders": {
+      "followed": {
+        "type": "String"
+      },
+      "modified": {
+        "type": "String"
+      },
+      "skipped": {
+        "type": "String"
+      },
+      "notLogged": {
+        "type": "String"
+      }
+    }
+  },
+  "mealBreakfast": "Breakfast",
+  "mealMorningSnack": "Morning snack",
+  "mealLunch": "Lunch",
+  "mealEveningSnack": "Evening snack",
+  "mealDinner": "Dinner",
+  "mealPreWorkout": "Pre-workout",
+  "mealPostWorkout": "Post-workout",
+  "trainerSessionStarted": "Session started with {name}",
+  "@trainerSessionStarted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerSessionStarting": "Starting session with {name}",
+  "@trainerSessionStarting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerWeightAttendance": "Weight: {weight} · Attendance: {attendance}",
+  "@trainerWeightAttendance": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "attendance": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerAddedExercise": "Added {name} to workout",
+  "@trainerAddedExercise": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerAssignTo": "Assign \"{name}\" to:",
+  "@trainerAssignTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerAssigned": "{workout} assigned to {name}",
+  "@trainerAssigned": {
+    "placeholders": {
+      "workout": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerExercisesCount": "Exercises ({count})",
+  "@trainerExercisesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainerSetsRepsWeight": "{sets} sets × {reps} reps · {weight}",
+  "@trainerSetsRepsWeight": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerRest": "Rest: {value}",
+  "@trainerRest": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trainerTempo": "Tempo: {value}",
+  "@trainerTempo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "adminOwnerPlan": "Owner: {owner} · {plan}",
+  "@adminOwnerPlan": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "comingSoon": "{feature} is coming soon",
+  "@comingSoon": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingStep": "Step {current} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding1Lead": "Manage. Train.",
+  "onboarding1Accent": "Grow.",
+  "onboarding1Body": "One app for your gym: check-ins, memberships, payments and training, for owners, trainers and members.",
+  "onboarding2Lead": "Manage",
+  "onboarding2Accent": "members",
+  "onboarding2Tail": "easily",
+  "onboarding2Body": "Memberships, attendance and dues for every member, with expiries flagged before they lapse.",
+  "onboarding3Lead": "Insights that",
+  "onboarding3Accent": "matter",
+  "onboarding3Body": "Check-ins, renewals and revenue at a glance, so you can act before members drop off.",
+  "trainerAdded": "Trainer added",
+  "trainerAddFailed": "Couldn't add the trainer. Please check the details.",
+  "addNewTrainer": "Add new trainer",
+  "trainerNameHint": "e.g. Arun Kumar",
+  "trainerNameRequired": "Trainer name is required",
+  "mobileRequiredLabel": "Mobile number *",
+  "mobileRequired": "Mobile number is required",
+  "emailOptional": "Email address (optional)",
+  "specialization": "Specialisation",
+  "hourlyRateOptional": "Hourly rate (₹) (optional)",
+  "bioOptional": "Bio / experience (optional)",
+  "bioHint": "e.g. Certified trainer with 5+ years of experience…",
+  "saveTrainer": "Save trainer",
+  "openFromMyClients": "Open this client from My clients to message them or see their diet.",
+  "message": "Message",
+  "dietPlan": "Diet plan",
+  "errorLoadAdherence": "Couldn't load diet adherence.",
+  "noDietPlan": "No diet plan assigned.",
+  "dietAdherenceTitle": "Diet adherence · last 7 days",
+  "myClients": "My clients",
+  "searchClients": "Search clients",
+  "activeMembershipsOnly": "Active memberships only",
+  "noClientsAssigned": "No members are assigned to you yet.",
+  "noClientsMatch": "No clients match your search.",
+  "noDietPlanMember": "Your trainer hasn't assigned a diet plan yet.",
+  "noDietPlanTrainer": "No diet plan assigned. Assign one from the web dashboard.",
+  "addWater": "+250 ml",
+  "coachingWorkspace": "Coaching workspace",
+  "todaysClients": "Today's clients",
+  "pendingPlans": "Pending plans",
+  "clientChat": "Client chat",
+  "todaysSessions": "Today's sessions",
+  "fullSchedule": "Full schedule →",
+  "nextUp": "Next up",
+  "startSession": "Start session",
+  "myProfile": "My profile",
+  "mySchedule": "My schedule",
+  "workoutTemplates": "Workout templates",
+  "dietTemplates": "Diet templates",
+  "start": "Start",
+  "upcoming": "Upcoming",
+  "assignToClient": "Assign to client",
+  "assignNow": "Assign",
+  "programTitle": "Program title",
+  "addExercise": "Add exercise",
+  "saveAsTemplate": "Save as gym template",
+  "notOnPlan": "Not on your plan",
+  "errorLoadInsights": "Couldn't load insights",
+  "insightsUpgrade": "Business insights are part of higher REPSI plans. Upgrade on repsi.app to turn them on.",
+  "summaryByAi": "Summary by AI",
+  "summary": "Summary",
+  "whatStandsOut": "What stands out",
+  "suggestedNextSteps": "Suggested next steps",
+  "goalMuscleGain": "Muscle gain",
+  "goalFatLoss": "Fat loss & tone",
+  "goalStrength": "Strength",
+  "goalEndurance": "Endurance & stamina",
+  "goalWellness": "General wellness",
+  "expBeginner": "Beginner (< 1 yr)",
+  "expIntermediate": "Intermediate (1–3 yrs)",
+  "expAdvanced": "Advanced (3+ yrs)",
+  "equipFullGym": "Full gym",
+  "equipDumbbells": "Dumbbells & bench",
+  "equipBodyweight": "Bodyweight at home",
+  "safetyGuidelines": "Safety guidelines",
+  "aiPowered": "AI powered",
+  "tailoredRoutine": "Your personal routine",
+  "aiCoachIntro": "Answer a few questions to build a progressive plan for your equipment and goals.",
+  "aiQ1": "1. What is your main fitness goal?",
+  "aiQ2": "2. Training experience",
+  "aiQ3": "3. Training days per week",
+  "aiQ4": "4. Equipment available",
+  "generateRoutine": "Create my plan",
+  "personalizeAi": "Personalise",
+  "noPlanForCriteria": "No plan is available for these choices.",
+  "aiTailored": "Made by AI",
+  "verifiedSplit": "Coach-verified plan",
+  "startThisWorkout": "Start this workout",
+  "coachTips": "Coach tips",
+  "safetyDisclaimerTitle": "Safety & medical disclaimer",
+  "safetyDisclaimerBody": "REPSI AI Workout Coach gives general exercise suggestions based on sports science and automated generation. It does not replace personal medical advice or a fitness consultation. Stop exercising immediately if you feel dizzy, have sharp pain or are short of breath.",
+  "understood": "Understood",
+  "aiPlanUpperLowerTitle": "4-day upper / lower routine",
+  "aiPlanUpperLowerBody": "A balanced muscle-building routine with progressive overload and enough time for joints to recover.",
+  "aiPlanFatLossTitle": "Metabolic conditioning split",
+  "aiPlanFatLossBody": "Compound lifts with short rests to keep muscle while burning more calories.",
+  "aiPlanStrengthTitle": "Compound strength foundation",
+  "aiPlanStrengthBody": "Heavy multi-joint barbell lifts at RPE 8–9 to build maximum strength.",
+  "aiDay1": "Day 1: Upper body power",
+  "aiCueBench": "Drive through your heels and keep a slight arch",
+  "aiCueRow": "Keep a neutral spine and pull to your sternum",
+  "aiDay2": "Day 2: Lower body muscle building",
+  "aiCueSquat": "Bend at the knees and hips together",
+  "aiCueRdl": "Hinge back with soft knees and feel your hamstrings",
+  "aiDay3": "Day 3: Upper body & arms",
+  "aiDay4": "Day 4: Lower body & core",
+  "aiTipHydrate": "Drink at least 500 ml of water before training.",
+  "aiTipWarmup": "Warm up with 5–10 minutes of mobility work and 2 light sets before each compound lift.",
+  "aiTipProgress": "Try to add weight or reps on your main lifts every 1–2 weeks.",
+  "aiPersonalisedNotice": "Personalised by REPSI AI",
+  "aiDisclaimer": "Always check with your doctor before starting a new exercise routine. Listen to your body and stop if you feel unusual discomfort.",
+  "aiWorkoutDay": "Workout day",
+  "aiPersonalPlan": "Personal workout plan",
+  "aiDisclaimerShort": "Always check with your doctor before starting an exercise programme.",
+  "platformAnalytics": "Platform analytics",
+  "platformMrrGrowth": "Platform MRR growth",
+  "platformHealth": "Platform health",
+  "apiResponseTime": "API response time (P95)",
+  "activeGymLicences": "Active gym licences",
+  "totalCheckinsToday": "Total check-ins (today)",
+  "systemAdmin": "System Admin",
+  "platformMetrics": "Platform-wide metrics",
+  "totalGyms": "Total gyms",
+  "plusThreeThisMonth": "+3 this month",
+  "activeUsers": "Active users",
+  "payingMembers": "Paying members",
+  "acrossAllGyms": "Across all gyms",
+  "platformRevenue": "Platform revenue",
+  "mrrThisMonth": "MRR this month",
+  "subscriptions": "Subscriptions",
+  "allServicesOk": "All platform services are running",
+  "searchGymsHint": "Search gyms by name or owner…",
+  "systemSettings": "System settings",
+  "securityCompliance": "Security & compliance",
+  "apiWebhooks": "API & webhooks",
+  "systemAlerts": "System alerts",
+  "platformSupport": "Platform support",
+  "systemAdminSettings": "Admin settings",
+  "superAdministrator": "Super Administrator",
+  "searchUsersHint": "Search users across all gyms…",
+  "skip": "Skip",
+  "getStarted": "Get started",
+  "next": "Next",
+  "gymPass": "Gym pass",
+  "checkedIn": "Checked in",
+  "dashboard": "Dashboard",
+  "revenue": "Revenue",
+  "dailyCheckins": "Daily check-ins",
+  "mealSnack": "Snack",
+  "mealStatusEaten": "Eaten",
+  "mealStatusModified": "Modified",
+  "mealStatusSkipped": "Skipped",
+  "dashTrendPercent": "{value}%",
+  "@dashTrendPercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "myCustomRoutine": "My routine",
+  "yourGymLinkPlaceholder": "your-gym",
+  "memberNoteMeta": "{author} · {date}",
+  "@memberNoteMeta": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipPayment": "Membership payment",
+  "languageMenuSubtitle": "Choose the app language",
+  "specPersonalTraining": "Personal Training",
+  "specHiit": "HIIT & Functional",
+  "specCrossfit": "CrossFit",
+  "specYoga": "Yoga & Mobility",
+  "specRehab": "Rehabilitation",
+  "specGeneral": "General Fitness",
+  "exCatChest": "Chest",
+  "exCatBack": "Back",
+  "exCatLegs": "Legs",
+  "exCatShoulders": "Shoulders",
+  "exCatArms": "Arms",
+  "exCatCore": "Core",
+  "exCatCardio": "Cardio",
+  "exCatFullBody": "Full Body",
+  "exEqAll": "All equipment",
+  "exEqNone": "No equipment",
+  "exEqDumbbells": "Dumbbells",
+  "exEqBarbell": "Barbell",
+  "exEqCable": "Cable",
+  "exEqMachine": "Machine",
+  "exEqKettlebell": "Kettlebell",
+  "exEqBand": "Resistance band",
+  "exEqSmith": "Smith machine",
+  "exLvlAll": "All levels",
+  "exLvlBeginner": "Beginner",
+  "exLvlIntermediate": "Intermediate",
+  "exLvlAdvanced": "Advanced",
+  "exTypeStrength": "Strength",
+  "exTypeHypertrophy": "Muscle building",
+  "exTypeEndurance": "Endurance",
+  "exMuscleMidChest": "Mid chest",
+  "exMuscleUpperChest": "Upper chest",
+  "exMuscleFrontDelts": "Front shoulders",
+  "exMuscleTriceps": "Triceps",
+  "exMuscleBiceps": "Biceps",
+  "exMuscleQuads": "Quadriceps",
+  "exMuscleHamstrings": "Hamstrings",
+  "exMuscleGlutes": "Glutes",
+  "exMuscleLowerBack": "Lower back",
+  "exMuscleLats": "Lats",
+  "exMuscleRearDelts": "Rear shoulders",
+  "exMuscleForearms": "Forearms",
+  "exMuscleLowerAbs": "Lower abs",
+  "exMuscleGrip": "Grip strength",
+  "exMuscleUpperBack": "Upper back & rhomboids",
+  "exMuscleTraps": "Traps",
+  "exMuscleObliques": "Obliques",
+  "exMuscleHipFlexors": "Hip flexors",
+  "exStepBench1": "Lie flat on the bench with your eyes directly under the bar.",
+  "exStepBench2": "Grip the barbell slightly wider than shoulder-width.",
+  "exStepBench3": "Unrack the weight and brace your core, pinching your shoulder blades together.",
+  "exStepBench4": "Lower the bar under control toward your lower sternum.",
+  "exStepBench5": "Press explosively back up to full lockout.",
+  "exNoteBench": "Drive your feet firmly into the ground and keep your back neutral.",
+  "exStepIncline1": "Set an adjustable bench to a 30 to 45 degree incline.",
+  "exStepIncline2": "Kick the dumbbells up to shoulder level as you sit back.",
+  "exStepIncline3": "Press both dumbbells straight up, squeezing your upper chest at the top.",
+  "exStepIncline4": "Lower under control until your upper arms are parallel to the floor.",
+  "exNoteIncline": "Keep your elbows tucked at about 45 degrees to protect your shoulders.",
+  "exStepSquat1": "Rest the barbell across your upper back.",
+  "exStepSquat2": "Stand with feet shoulder-width apart, toes pointing slightly out.",
+  "exStepSquat3": "Bend at the hips and knees together to sit down into the squat.",
+  "exStepSquat4": "Go down until your thighs are parallel to the ground or lower.",
+  "exStepSquat5": "Drive through your mid-foot to stand back up.",
+  "exNoteSquat": "Add 5 kg to your top set this week if the depth feels comfortable.",
+  "exStepLat1": "Hold the wide bar with an overhand grip, wider than shoulder-width.",
+  "exStepLat2": "Sit upright with the thigh pads pressing firmly on your knees.",
+  "exStepLat3": "Lean back slightly (about 10–15 degrees) and pull the bar down to your upper chest.",
+  "exStepLat4": "Squeeze your lats at the bottom, then return under control.",
+  "exStepOhp1": "Sit upright on a bench with back support.",
+  "exStepOhp2": "Hold the dumbbells at shoulder height, palms facing forward.",
+  "exStepOhp3": "Press the dumbbells straight overhead until your arms are extended.",
+  "exStepOhp4": "Lower under control back to shoulder level.",
+  "exNoteOhp": "Don't arch your lower back away from the bench pad.",
+  "exStepCurl1": "Sit back on an incline bench set to 45 degrees.",
+  "exStepCurl2": "Let the dumbbells hang straight down at your sides, palms forward.",
+  "exStepCurl3": "Curl the weights up while keeping your upper arms still.",
+  "exStepCurl4": "Pause at the top, then lower over 3 seconds.",
+  "exStepLegRaise1": "Hang from a pull-up bar with an overhand grip.",
+  "exStepLegRaise2": "Keep your legs straight or slightly bent at the knees.",
+  "exStepLegRaise3": "Raise your legs to waist height using your abs, without swinging.",
+  "exStepLegRaise4": "Lower back down slowly.",
+  "exStepRow1": "Hinge forward at the hips with a flat back and soft knees.",
+  "exStepRow2": "Let the dumbbells hang straight down below your shoulders.",
+  "exStepRow3": "Row the dumbbells toward your hips, driving your elbows up.",
+  "exStepRow4": "Squeeze your shoulder blades together at the top.",
+  "exNoteRow": "Pull with your elbows, not your biceps, to work your lats.",
+  "gymMachinesTitle": "Gym Machines & Equipment",
+  "machineStatusAvailable": "Available",
+  "machineStatusInUse": "In use",
+  "machineStatusMaintenance": "Maintenance",
+  "machineStatusUnavailable": "Unavailable",
+  "machineCategoryPrefix": "Category: {category} · Targets: {targets}",
+  "@machineCategoryPrefix": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "targets": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumPlan": "Premium plan",
+  "membershipStartDate": "Start date",
+  "membershipExpires": "Expires",
+  "paymentHistory": "Payment history",
+  "myProgress": "My progress",
+  "tabWeight": "Weight",
+  "tabMeasurements": "Measurements",
+  "tabAttendance": "Attendance",
+  "tabPRs": "PRs",
+  "bmiTitle": "BMI",
+  "calculatedHeight": "Calculated ({height} cm)",
+  "@calculatedHeight": {
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "bmiHealthNote": "BMI is an epidemiological estimate based on height & weight. Strength and body composition are your primary health indicators.",
+  "logMetricsButton": "Log weight & body metrics",
+  "startedWeightSubtitle": "From {weight} kg (Started {date})",
+  "@startedWeightSubtitle": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "weightProgressTitle": "Weight progress",
+  "measureChest": "Chest",
+  "measureWaist": "Waist",
+  "measureArms": "Arms",
+  "measureThighs": "Thighs",
+  "benchPressExercise": "Bench press",
+  "squatExercise": "Squat",
+  "deadliftExercise": "Deadlift",
+  "outdoorRunningGps": "Outdoor Running GPS",
+  "runDistance": "Distance",
+  "runKilometers": "Kilometers",
+  "runTime": "Time",
+  "runPace": "Pace",
+  "runCalories": "Calories",
+  "liveGpsMap": "Live GPS route map view",
+  "recentRunHistory": "Recent run history",
+  "morningRun": "Morning run",
+  "runPacePerKm": "{pace} /km",
+  "@runPacePerKm": {
+    "placeholders": {
+      "pace": {
+        "type": "String"
+      }
+    }
+  },
+  "runHistorySummary": "Time: {time} · Avg pace: {pace} /km",
+  "@runHistorySummary": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "pace": {
+        "type": "String"
+      }
+    }
+  },
+  "timeYesterday": "Yesterday",
+  "pauseRun": "Pause run",
+  "startRun": "Start run",
+  "workoutPlanTitle": "Workout plan",
+  "exercisesCount": "Exercises ({count})",
+  "@exercisesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exercisesDuration": "{count} exercises · {duration} min",
+  "@exercisesDuration": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "duration": {
+        "type": "int"
+      }
+    }
+  },
+  "adminUptime": "{percent}% uptime",
+  "@adminUptime": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "adminMom": "{percent}% MoM",
+  "@adminMom": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "adminTrialingCount": "{count} trialing",
+  "@adminTrialingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminFullAccess": "{email} · Full access",
+  "@adminFullAccess": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "compoundHypertrophy": "Compound · Hypertrophy",
+  "commonSave": "Save",
+  "commonSaved": "Saved",
+  "startWorkout": "Start workout"
+}

@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 function CustomTooltip({
   active,
@@ -44,13 +45,14 @@ function CustomTooltip({
 }
 
 export function RevenueChart({ data }: { data?: Array<{ label: string; value: number }> }) {
+  const { t } = useTranslation();
   const chartData = data || [
-    { label: "Oct", value: 0 },
-    { label: "Nov", value: 0 },
-    { label: "Dec", value: 0 },
-    { label: "Jan", value: 0 },
-    { label: "Feb", value: 0 },
-    { label: "Mar", value: 0 },
+    { label: t("dashboard.oct"), value: 0 },
+    { label: t("dashboard.nov"), value: 0 },
+    { label: t("dashboard.dec"), value: 0 },
+    { label: t("dashboard.jan"), value: 0 },
+    { label: t("dashboard.feb"), value: 0 },
+    { label: t("dashboard.mar"), value: 0 },
   ];
 
   return (
@@ -58,15 +60,15 @@ export function RevenueChart({ data }: { data?: Array<{ label: string; value: nu
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-base font-bold text-[var(--text)] tracking-tight">Revenue Overview</h2>
+          <h2 className="text-base font-bold text-[var(--text)] tracking-tight">{t("dashboard.revenue_overview")}</h2>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">
-            Last 6 months · Authenticated Gym Revenue
+            {t("dashboard.last_6_months_authenticated_gym_revenue")}
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] shadow-[0_0_8px_rgba(240,120,88,0.4)]" />
-            <span className="text-[var(--text-muted)] font-semibold">Revenue</span>
+            <span className="text-[var(--text-muted)] font-semibold">{t("dashboard.revenue")}</span>
           </div>
         </div>
       </div>

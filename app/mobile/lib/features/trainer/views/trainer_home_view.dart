@@ -10,6 +10,7 @@ import 'trainer_create_workout_view.dart';
 import 'trainer_clients_view.dart';
 import 'trainer_sessions_view.dart';
 import '../../member/presentation/views/trainer_chat_view.dart';
+import '../../../l10n/l10n.dart';
 
 class TrainerHomeView extends StatefulWidget {
   const TrainerHomeView({super.key});
@@ -98,7 +99,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  'COACHING WORKSPACE',
+                                  context.l10n.coachingWorkspace,
                                   style: AppTypography.caption.copyWith(
                                     color: AppColors.primaryDark,
                                     fontWeight: FontWeight.w700,
@@ -114,7 +115,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  'Good morning, Alex',
+                                  context.l10n.greetingMorning,
                                   style: AppTypography.heading.copyWith(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
@@ -163,13 +164,13 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildMetricTile('12', "Today's clients", Icons.people_outline_rounded, AppColors.primary),
+                      _buildMetricTile('12', context.l10n.todaysClients, Icons.people_outline_rounded, AppColors.primary),
                       _buildDivider(),
-                      _buildMetricTile('4', 'Pending plans', Icons.assignment_outlined, const Color(0xFFF59E0B)),
+                      _buildMetricTile('4', context.l10n.pendingPlans, Icons.assignment_outlined, const Color(0xFFF59E0B)),
                       _buildDivider(),
-                      _buildMetricTile('3', 'Messages', Icons.chat_bubble_outline_rounded, const Color(0xFF3B82F6), hasBadge: true),
+                      _buildMetricTile('3', context.l10n.messages, Icons.chat_bubble_outline_rounded, const Color(0xFF3B82F6), hasBadge: true),
                       _buildDivider(),
-                      _buildMetricTile('8', 'Attendance', Icons.check_circle_outline_rounded, AppColors.primaryDark),
+                      _buildMetricTile('8', context.l10n.commonAttendance, Icons.check_circle_outline_rounded, AppColors.primaryDark),
                     ],
                   ),
                 ),
@@ -184,7 +185,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                     Expanded(
                       child: _buildActionTile(
                         icon: Icons.fitness_center_rounded,
-                        label: 'Workout Builder',
+                        label: context.l10n.workoutBuilder,
                         color: AppColors.primarySoft,
                         iconColor: AppColors.primaryDark,
                         onTap: () {
@@ -199,7 +200,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                     Expanded(
                       child: _buildActionTile(
                         icon: Icons.restaurant_menu_rounded,
-                        label: 'Diet Plan',
+                        label: context.l10n.dietPlan,
                         color: const Color(0xFFFEF3C7),
                         iconColor: const Color(0xFFD97706),
                         onTap: () {
@@ -214,7 +215,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                     Expanded(
                       child: _buildActionTile(
                         icon: Icons.chat_rounded,
-                        label: 'Client Chat',
+                        label: context.l10n.clientChat,
                         color: const Color(0xFFEFF6FF),
                         iconColor: const Color(0xFF2563EB),
                         badgeText: '3',
@@ -240,7 +241,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                     Row(
                       children: [
                         Text(
-                          "Today's sessions",
+                          context.l10n.todaysSessions,
                           style: AppTypography.sectionHeading.copyWith(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -273,7 +274,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                         );
                       },
                       child: Text(
-                        'Full schedule →',
+                        context.l10n.fullSchedule,
                         style: AppTypography.caption.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -302,7 +303,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                 'name': session['client'] as String,
                                 'plan': session['plan'] as String,
                                 'goal': session['type'] as String,
-                                'status': 'Active',
+                                'status': context.l10n.commonActive,
                                 'weight': session['weight'] as String,
                                 'attendance': session['attendance'] as String,
                               },
@@ -358,8 +359,8 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                               color: const Color(0xFFDC2626).withValues(alpha: 0.12),
                                               borderRadius: BorderRadius.circular(4),
                                             ),
-                                            child: const Text(
-                                              'NEXT UP',
+                                            child: Text(
+                                              context.l10n.nextUp,
                                               style: TextStyle(
                                                 color: Color(0xFFDC2626),
                                                 fontSize: 9,
@@ -420,7 +421,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Weight: ${session['weight']} · Att: ${session['attendance']}',
+                                  context.l10n.trainerWeightAttendance('${session['weight']}', '${session['attendance']}'),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTypography.caption.copyWith(
@@ -436,7 +437,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                       HapticFeedback.lightImpact();
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Session started with ${session['client']}'),
+                                          content: Text(context.l10n.trainerSessionStarted('${session['client']}')),
                                           backgroundColor: AppColors.primary,
                                         ),
                                       );
@@ -447,8 +448,8 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                         color: AppColors.primary,
                                         borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: const Text(
-                                        'Start Session',
+                                      child: Text(
+                                        context.l10n.startSession,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,

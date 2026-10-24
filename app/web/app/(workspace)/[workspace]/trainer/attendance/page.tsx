@@ -21,11 +21,13 @@ import { slugToGymName } from "@/lib/workspace";
 import { QrCodeView } from "@/components/ui/qr-code-view";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n";
 
 export default function TrainerAttendancePage(props: { params: Promise<{ workspace: string }> }) {
   const params = use(props.params);
   const workspace = params.workspace || "apex-fitness";
   const gymName = slugToGymName(workspace);
+  const { t } = useTranslation();
 
   const [user, setUser] = useState<any>(null);
   const [history, setHistory] = useState<ApiAttendance[]>([]);
@@ -118,11 +120,11 @@ export default function TrainerAttendancePage(props: { params: Promise<{ workspa
           {activeSession ? (
             <Badge className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 gap-1.5 px-3 py-1 font-semibold text-xs">
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              On Floor Duty
+              {t("trainerPortal.onFloorDuty", "On Floor Duty")}
             </Badge>
           ) : (
             <Badge variant="outline" className="text-[var(--text-muted)] border-[var(--border)] px-3 py-1 text-xs">
-              Off Duty
+              {t("trainerPortal.offDuty", "Off Duty")}
             </Badge>
           )}
         </div>
@@ -173,10 +175,12 @@ export default function TrainerAttendancePage(props: { params: Promise<{ workspa
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-indigo-600" />
-                <h2 className="text-base font-bold text-[var(--text)]">Duty Shift Controls</h2>
+                <h2 className="text-base font-bold text-[var(--text)]">
+                  {t("trainerPortal.dutyControls", "Duty Shift Controls")}
+                </h2>
               </div>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Log your gym presence for payroll, client session availability, and turnstile door records.
+                {t("trainerPortal.dutySubtitle", "Log your gym presence for payroll, client session availability, and turnstile door records.")}
               </p>
             </div>
 

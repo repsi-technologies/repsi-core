@@ -12,6 +12,7 @@ import {
   Activity as ActivityIcon,
 } from "lucide-react";
 import { formatRelativeTime, formatCurrency } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 export type ActivityType =
   | "member_joined"
@@ -141,10 +142,11 @@ function ActivityRow({ activity }: { activity: Activity }) {
 }
 
 export function RecentActivity({ activities = [] }: { activities?: Activity[] }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-base font-semibold text-[var(--text)]">Recent Activity</h2>
+        <h2 className="text-base font-semibold text-[var(--text)]">{t("dashboard.recent_activity")}</h2>
       </div>
 
       {activities.length > 0 ? (
@@ -158,9 +160,9 @@ export function RecentActivity({ activities = [] }: { activities?: Activity[] })
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--surface-elevated)] text-[var(--text-muted)] mb-2">
             <ActivityIcon className="h-5 w-5" />
           </div>
-          <p className="text-sm font-medium text-[var(--text)]">No activity recorded yet</p>
+          <p className="text-sm font-medium text-[var(--text)]">{t("dashboard.no_activity_recorded_yet")}</p>
           <p className="text-xs text-[var(--text-muted)] mt-1">
-            Actions like member check-ins, payments, and registrations will appear here.
+            {t("dashboard.actions_like_member_check_ins_payments")}
           </p>
         </div>
       )}

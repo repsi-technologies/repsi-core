@@ -5,14 +5,16 @@ import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import 'repsi_button.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiErrorState extends StatelessWidget {
-  final String title;
+  /// Defaults to a generic "Something went wrong" in the current language.
+  final String? title;
   final String message;
   final VoidCallback? onRetry;
 
   const RepsiErrorState({
     super.key,
-    this.title = 'Something went wrong',
+    this.title,
     required this.message,
     this.onRetry,
   });
@@ -41,7 +43,7 @@ class RepsiErrorState extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              title,
+              title ?? context.l10n.errorStateTitle,
               textAlign: TextAlign.center,
               style: AppTypography.headingSmall.copyWith(
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
@@ -58,7 +60,7 @@ class RepsiErrorState extends StatelessWidget {
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.lg),
               RepsiButton(
-                text: 'Try Again',
+                text: context.l10n.commonTryAgain,
                 onPressed: onRetry,
                 size: RepsiButtonSize.small,
                 variant: RepsiButtonVariant.secondary,

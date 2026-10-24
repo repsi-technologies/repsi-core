@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
@@ -26,7 +27,7 @@ class WorkoutDashboardView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Workout Plan',
+          context.l10n.workoutPlanTitle,
           style: AppTypography.heading.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -43,9 +44,9 @@ class WorkoutDashboardView extends StatelessWidget {
                 );
               },
               icon: const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primary),
-              label: const Text(
-                'Library',
-                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13),
+              label: Text(
+                context.l10n.exerciseLibrary,
+                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ),
           ),
@@ -87,7 +88,7 @@ class WorkoutDashboardView extends StatelessWidget {
                                 const Icon(Icons.bolt_rounded, size: 14, color: AppColors.primaryDark),
                                 const SizedBox(width: 4),
                                 Text(
-                                  "Today's Workout",
+                                  context.l10n.todaysWorkout,
                                   style: AppTypography.caption.copyWith(
                                     color: AppColors.primaryDark,
                                     fontWeight: FontWeight.w700,
@@ -110,7 +111,7 @@ class WorkoutDashboardView extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '4 exercises · 45 min',
+                        context.l10n.exercisesDuration(4, 45),
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 14,
@@ -121,7 +122,7 @@ class WorkoutDashboardView extends StatelessWidget {
                         children: [
                           Expanded(
                             child: RepsiButton(
-                              text: 'Start Workout',
+                              text: context.l10n.startWorkout,
                               leadingIcon: const Icon(Icons.play_arrow_rounded, size: 22),
                               onPressed: () {
                                 Navigator.push(
@@ -141,9 +142,9 @@ class WorkoutDashboardView extends StatelessWidget {
                               );
                             },
                             icon: const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primary),
-                            label: const Text(
-                              'Library',
-                              style: TextStyle(
+                            label: Text(
+                              context.l10n.exerciseLibrary,
+                              style: const TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
@@ -167,7 +168,7 @@ class WorkoutDashboardView extends StatelessWidget {
               RepsiStaggerItem(
                 index: 1,
                 child: Text(
-                  'Exercises (${exercises.length})',
+                  context.l10n.exercisesCount(exercises.length),
                   style: AppTypography.sectionHeading.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -244,3 +245,4 @@ class WorkoutDashboardView extends StatelessWidget {
     );
   }
 }
+

@@ -85,7 +85,7 @@ export function PaymentSettingsTab() {
       setBankInstructions(data.bank_instructions || "");
       setGeneralNotes(data.general_notes || "");
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to load payment settings.");
+      setErrorMsg(err.message || t("settings.failed_to_load_payment_settings"));
     } finally {
       setLoading(false);
     }
@@ -147,7 +147,7 @@ export function PaymentSettingsTab() {
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 4000);
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to save payment settings.");
+      setErrorMsg(err.message || t("settings.failed_to_save_payment_settings"));
     } finally {
       setSaving(false);
     }
@@ -175,7 +175,7 @@ export function PaymentSettingsTab() {
       setQrImageUrl(updated.qr_image_url || null);
       setQrFilename(updated.qr_filename || file.name);
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to upload QR image.");
+      setErrorMsg(err.message || t("settings.failed_to_upload_qr_image"));
     } finally {
       setUploadingQr(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -191,7 +191,7 @@ export function PaymentSettingsTab() {
       setQrImageUrl(null);
       setQrFilename(null);
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to remove QR image.");
+      setErrorMsg(err.message || t("settings.failed_to_remove_qr_image"));
     } finally {
       setUploadingQr(false);
     }
@@ -201,7 +201,7 @@ export function PaymentSettingsTab() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-[var(--text-muted)] space-y-3">
         <Loader2 className="h-6 w-6 animate-spin text-[var(--primary-dark)]" />
-        <span className="text-sm">Loading payments and collection settings...</span>
+        <span className="text-sm">{t("settings.loading_payments_and_collection_settings")}</span>
       </div>
     );
   }
@@ -231,7 +231,7 @@ export function PaymentSettingsTab() {
             className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold h-9 text-xs px-4 rounded-xl gap-1.5 cursor-pointer shadow-sm"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            <span>{saving ? "Saving..." : t("common.save", "Save Changes")}</span>
+            <span>{saving ? t("trainers.saving") : t("common.save", "Save Changes")}</span>
           </Button>
         </div>
 
@@ -263,7 +263,7 @@ export function PaymentSettingsTab() {
                   {t("settings.upiSection", "UPI ID / VPA Configuration")}
                 </CardTitle>
                 <CardDescription className="text-xs text-[var(--text-muted)]">
-                  Enable instant peer-to-peer or merchant UPI transfers (Google Pay, PhonePe, Paytm, BHIM).
+                  {t("settings.enable_instant_peer_to_peer_or")}
                 </CardDescription>
               </div>
             </div>
@@ -275,7 +275,7 @@ export function PaymentSettingsTab() {
                 className="w-4 h-4 rounded text-[var(--primary-dark)] focus:ring-[var(--ring)]"
               />
               <span className={`text-xs font-semibold ${upiEnabled ? "text-[var(--success-foreground)]" : "text-[var(--text-muted)]"}`}>
-                {upiEnabled ? "Enabled" : "Disabled"}
+                {upiEnabled ? t("settings.enabled") : t("settings.disabled")}
               </span>
             </label>
           </div>
@@ -290,7 +290,7 @@ export function PaymentSettingsTab() {
                 <Input
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
-                  placeholder="e.g. gymname@okhdfcbank"
+                  placeholder={t("settings.e_g_gymname_okhdfcbank")}
                   disabled={!upiEnabled}
                   className="text-xs font-mono pr-9"
                 />
@@ -299,7 +299,7 @@ export function PaymentSettingsTab() {
                     type="button"
                     onClick={() => handleCopy("upi", upiId)}
                     className="absolute right-2 top-2 text-[var(--text-muted)] hover:text-[var(--text)]"
-                    title="Copy UPI ID"
+                    title={t("settings.copy_upi_id")}
                   >
                     {copiedKey === "upi" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                   </button>
@@ -313,7 +313,7 @@ export function PaymentSettingsTab() {
               <Input
                 value={upiName}
                 onChange={(e) => setUpiName(e.target.value)}
-                placeholder="e.g. Apex Fitness Pvt Ltd"
+                placeholder={t("settings.e_g_apex_fitness_pvt_ltd")}
                 disabled={!upiEnabled}
                 className="text-xs"
               />
@@ -326,7 +326,7 @@ export function PaymentSettingsTab() {
             <Input
               value={upiInstructions}
               onChange={(e) => setUpiInstructions(e.target.value)}
-              placeholder="e.g. Add your Invoice Number in the payment remarks/notes field"
+              placeholder={t("settings.e_g_add_your_invoice_number")}
               disabled={!upiEnabled}
               className="text-xs"
             />
@@ -359,7 +359,7 @@ export function PaymentSettingsTab() {
                 className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
               />
               <span className={`text-xs font-semibold ${qrEnabled ? "text-purple-600" : "text-[var(--text-muted)]"}`}>
-                {qrEnabled ? "Enabled" : "Disabled"}
+                {qrEnabled ? t("settings.enabled") : t("settings.disabled")}
               </span>
             </label>
           </div>
@@ -371,13 +371,13 @@ export function PaymentSettingsTab() {
               {qrImageUrl ? (
                 <img
                   src="/api/v1/payments/settings/qr-code"
-                  alt="Merchant QR"
+                  alt={t("settings.merchant_qr")}
                   className="w-full h-full object-contain rounded-xl"
                 />
               ) : (
                 <div className="text-center p-2 text-[var(--text-muted)] space-y-1">
                   <QrCode className="h-8 w-8 mx-auto opacity-40" />
-                  <span className="text-[10px] block">No QR Uploaded</span>
+                  <span className="text-[10px] block">{t("settings.no_qr_uploaded")}</span>
                 </div>
               )}
             </div>
@@ -385,10 +385,10 @@ export function PaymentSettingsTab() {
             <div className="space-y-3 flex-1">
               <div>
                 <h4 className="text-xs font-bold text-[var(--text)]">
-                  {qrFilename ? `Current File: ${qrFilename}` : "Upload Merchant QR"}
+                  {qrFilename ? t("settings.current_file_qrfilename", undefined, { qrFilename }) : t("settings.upload_merchant_qr")}
                 </h4>
                 <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  Supported formats: PNG, JPEG, WEBP. Maximum file size: 5MB. Files are verified server-side and stored in private storage.
+                  {t("settings.supported_formats_png_jpeg_webp_maximum")}
                 </p>
               </div>
 
@@ -409,7 +409,7 @@ export function PaymentSettingsTab() {
                   className="h-8 text-xs font-semibold gap-1.5 rounded-xl cursor-pointer"
                 >
                   {uploadingQr ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                  <span>{qrImageUrl ? "Replace QR Image" : t("settings.uploadQrBtn", "Upload QR Image")}</span>
+                  <span>{qrImageUrl ? t("settings.replace_qr_image") : t("settings.uploadQrBtn", "Upload QR Image")}</span>
                 </Button>
 
                 {qrImageUrl && (
@@ -456,7 +456,7 @@ export function PaymentSettingsTab() {
                 className="w-4 h-4 rounded accent-[var(--primary)] focus:ring-[var(--primary)]"
               />
               <span className={`text-xs font-semibold ${phoneEnabled ? "text-[var(--success-foreground)]" : "text-[var(--text-muted)]"}`}>
-                {phoneEnabled ? "Enabled" : "Disabled"}
+                {phoneEnabled ? t("settings.enabled") : t("settings.disabled")}
               </span>
             </label>
           </div>
@@ -465,7 +465,7 @@ export function PaymentSettingsTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-[var(--text)]">
-                Payment Contact Mobile Number
+                {t("settings.payment_contact_mobile_number")}
               </Label>
               <div className="relative">
                 <Input
@@ -487,11 +487,11 @@ export function PaymentSettingsTab() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[var(--text)]">Contact Display Name</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("settings.contact_display_name")}</Label>
               <Input
                 value={phoneName}
                 onChange={(e) => setPhoneName(e.target.value)}
-                placeholder="e.g. Apex Reception & Accounts"
+                placeholder={t("settings.e_g_apex_reception_accounts")}
                 disabled={!phoneEnabled}
                 className="text-xs"
               />
@@ -525,7 +525,7 @@ export function PaymentSettingsTab() {
                 className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
               />
               <span className={`text-xs font-semibold ${bankEnabled ? "text-blue-600" : "text-[var(--text-muted)]"}`}>
-                {bankEnabled ? "Enabled" : "Disabled"}
+                {bankEnabled ? t("settings.enabled") : t("settings.disabled")}
               </span>
             </label>
           </div>
@@ -533,27 +533,27 @@ export function PaymentSettingsTab() {
         <CardContent className="p-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[var(--text)]">Account Holder Name</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("settings.account_holder_name")}</Label>
               <Input
                 value={bankAccountName}
                 onChange={(e) => setBankAccountName(e.target.value)}
-                placeholder="e.g. Apex Fitness Pvt Ltd"
+                placeholder={t("settings.e_g_apex_fitness_pvt_ltd")}
                 disabled={!bankEnabled}
                 className="text-xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[var(--text)]">Bank Name</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("memberPay.bankName")}</Label>
               <Input
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
-                placeholder="e.g. HDFC Bank Ltd"
+                placeholder={t("settings.e_g_hdfc_bank_ltd")}
                 disabled={!bankEnabled}
                 className="text-xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[var(--text)]">Account Number</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("memberPay.accountNo")}</Label>
               <div className="relative">
                 <Input
                   value={bankAccountNumber}
@@ -574,12 +574,12 @@ export function PaymentSettingsTab() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[var(--text)]">IFSC Code</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("memberPay.ifsc")}</Label>
               <div className="relative">
                 <Input
                   value={bankIfsc}
                   onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
-                  placeholder="e.g. HDFC0001234"
+                  placeholder={t("settings.e_g_hdfc0001234")}
                   disabled={!bankEnabled}
                   className="text-xs font-mono uppercase pr-9"
                 />
@@ -595,11 +595,11 @@ export function PaymentSettingsTab() {
               </div>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className="text-xs font-medium text-[var(--text)]">Branch & Instructions</Label>
+              <Label className="text-xs font-medium text-[var(--text)]">{t("settings.branch_instructions")}</Label>
               <Input
                 value={bankBranch}
                 onChange={(e) => setBankBranch(e.target.value)}
-                placeholder="e.g. Koramangala 5th Block Branch"
+                placeholder={t("settings.e_g_koramangala_5th_block_branch")}
                 disabled={!bankEnabled}
                 className="text-xs"
               />
@@ -612,7 +612,7 @@ export function PaymentSettingsTab() {
       <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 text-[var(--text-muted)] text-xs flex items-center gap-3">
         <ShieldCheck className="h-5 w-5 text-[var(--primary-dark)] flex-shrink-0" />
         <p>
-          <strong className="text-[var(--text)] font-semibold">Security & Tenant Privacy:</strong> REPSI never collects banking passwords, UPI PINs, OTPs, or authentication secrets. Your payment details are strictly tenant-isolated and only displayed to authorized active members of your facility.
+          <strong className="text-[var(--text)] font-semibold">{t("settings.security_tenant_privacy")}</strong> {t("settings.repsi_never_collects_banking_passwords_upi")}
         </p>
       </div>
     </form>

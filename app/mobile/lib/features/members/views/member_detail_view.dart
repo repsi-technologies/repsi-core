@@ -15,9 +15,10 @@ import '../../../shared/widgets/repsi_skeleton.dart';
 import '../../../shared/widgets/repsi_status_badge.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/member_detail_provider.dart';
+import '../../../l10n/l10n.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
-final _day = DateFormat('d MMM yyyy');
+DateFormat get _day => DateFormat('d MMM yyyy', L10n.localeName);
 
 /// Staff view of one member: membership, visits, payments, notes and the full lifecycle history,
 /// with renew, record-payment and add-note actions. Every value comes from the API for [memberId].
@@ -34,7 +35,7 @@ class MemberDetailView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: canvas,
-      appBar: AppBar(backgroundColor: canvas, title: const Text('Member')),
+      appBar: AppBar(backgroundColor: canvas, title: Text(context.l10n.commonMember)),
       body: member.when(
         loading: () => ListView(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -45,8 +46,8 @@ class MemberDetailView extends ConsumerWidget {
           ],
         ),
         error: (e, _) => RepsiErrorState(
-          title: "Couldn't load this member",
-          message: e is ApiError ? e.message : 'Check your connection and try again.',
+          title: context.l10n.errorLoadMember,
+          message: e is ApiError ? e.message : context.l10n.commonCheckConnection,
           onRetry: () => ref.invalidate(memberDetailProvider(memberId)),
         ),
         data: (m) => DefaultTabController(
@@ -92,7 +93,7 @@ class _Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final name = member.fullName.isEmpty ? 'Member' : member.fullName;
+    final name = member.fullName.isEmpty ? context.l10n.commonMember : member.fullName;
     final contact = [if (member.phone?.isNotEmpty == true) _phone(member.phone!), if (member.email.isNotEmpty) member.email];
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, AppSpacing.lg),
@@ -125,12 +126,12 @@ class _Header extends ConsumerWidget {
                   ActionChip(
                     avatar: Icon(c.contains('@') ? Icons.mail_outline_rounded : Icons.call_outlined, size: 16, color: _secondary(isDark)),
                     label: Text(c, style: AppTypography.caption.copyWith(color: _text(isDark))),
-                    tooltip: 'Copy',
+                    tooltip: context.l10n.commonCopy,
                     backgroundColor: _surface(isDark),
                     side: BorderSide(color: _border(isDark)),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: c));
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Copied $c')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.memberCopied(c))));
                     },
                   ),
               ],
@@ -141,7 +142,7 @@ class _Header extends ConsumerWidget {
             children: [
               Expanded(
                 child: RepsiButton(
-                  text: 'Renew',
+                  text: context.l10n.renew,
                   leadingIcon: const Icon(Icons.autorenew_rounded, size: 18, color: Colors.white),
                   onPressed: () => _showRenew(context, ref, member),
                 ),
@@ -149,7 +150,7 @@ class _Header extends ConsumerWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: RepsiButton(
-                  text: 'Payment',
+                  text: context.l10n.commonPayment,
                   variant: RepsiButtonVariant.outline,
                   leadingIcon: Icon(Icons.currency_rupee_rounded, size: 18, color: _text(isDark)),
                   onPressed: () => _showRecordPayment(context, ref, member),
@@ -176,10 +177,10 @@ class _TabsHeader extends SliverPersistentHeaderDelegate {
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: isDark ? AppColors.darkBackground : AppColors.background,
-      child: const TabBar(
+      child: TabBar(
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        tabs: [Tab(text: 'Overview'), Tab(text: 'Payments'), Tab(text: 'Visits'), Tab(text: 'History')],
+        tabs: [Tab(text: context.l10n.overview), Tab(text: context.l10n.commonPayments), Tab(text: context.l10n.visits), Tab(text: context.l10n.history)],
       ),
     );
   }
@@ -241,8 +242,8 @@ Widget _kv(String k, String v, bool isDark) => Padding(
 Widget _loadingList() => ListView(children: [for (var i = 0; i < 4; i++) RepsiSkeleton.memberListItem()]);
 
 Widget _errorRetry(WidgetRef ref, ProviderOrFamily provider) => RepsiErrorState(
-      title: "Couldn't load this",
-      message: 'Check your connection and try again.',
+      title: L10n.current.errorLoadThis,
+      message: L10n.current.commonCheckConnection,
       onRetry: () => ref.invalidate(provider),
     );
 
@@ -263,39 +264,39 @@ class _OverviewTab extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpacing.xl),
       children: [
         _Panel(
-          title: 'Membership',
+          title: context.l10n.commonMembership,
           child: Column(
             children: [
-              _kv('Plan', member.planName ?? 'No plan', isDark),
-              _kv(end != null && end.isBefore(DateTime.now()) ? 'Ended' : 'Ends', end != null ? _day.format(end) : '—', isDark),
-              _kv('Member since', joined != null ? _day.format(joined) : '—', isDark),
-              if (member.gender?.isNotEmpty == true) _kv('Gender', member.gender![0].toUpperCase() + member.gender!.substring(1), isDark),
-              if (member.emergencyContact?.isNotEmpty == true) _kv('Emergency contact', member.emergencyContact!, isDark),
+              _kv(context.l10n.plan, member.planName ?? context.l10n.noPlan, isDark),
+              _kv(end != null && end.isBefore(DateTime.now()) ? context.l10n.ended : context.l10n.ends, end != null ? _day.format(end) : '—', isDark),
+              _kv(context.l10n.memberSince, joined != null ? _day.format(joined) : '—', isDark),
+              if (member.gender?.isNotEmpty == true) _kv(context.l10n.gender, member.gender![0].toUpperCase() + member.gender!.substring(1), isDark),
+              if (member.emergencyContact?.isNotEmpty == true) _kv(context.l10n.emergencyContact, member.emergencyContact!, isDark),
             ],
           ),
         ),
         _Panel(
-          title: 'Visits',
+          title: context.l10n.visits,
           child: visits.when(
             loading: () => const SizedBox(height: 56, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
-            error: (_, __) => Text("Couldn't load visits.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+            error: (_, __) => Text(context.l10n.errorLoadVisits, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
             data: (v) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    _Stat(label: 'This month', value: '${v.thisMonth}'),
-                    _Stat(label: 'This week', value: '${v.thisWeek}'),
-                    _Stat(label: 'Total', value: '${v.total}'),
+                    _Stat(label: context.l10n.commonThisMonth, value: '${v.thisMonth}'),
+                    _Stat(label: context.l10n.commonThisWeek, value: '${v.thisWeek}'),
+                    _Stat(label: context.l10n.commonTotal, value: '${v.total}'),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   v.insideNow
-                      ? 'In the gym now'
+                      ? context.l10n.commonInTheGymNow
                       : v.lastVisit != null
-                          ? 'Last visit ${DateFormat('d MMM, h:mm a').format(v.lastVisit!)}'
-                          : 'No visits yet',
+                          ? context.l10n.memberLastVisit(DateFormat('d MMM, h:mm a').format(v.lastVisit!))
+                          : context.l10n.noVisitsYet,
                   style: AppTypography.caption.copyWith(
                     color: v.insideNow ? (isDark ? AppColors.darkSuccess : AppColors.success) : _secondary(isDark),
                     fontWeight: FontWeight.w600,
@@ -306,17 +307,17 @@ class _OverviewTab extends ConsumerWidget {
           ),
         ),
         _Panel(
-          title: 'Notes',
+          title: context.l10n.notes,
           action: TextButton.icon(
             onPressed: () => _showAddNote(context, ref, member.id),
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('Add'),
+            label: Text(context.l10n.commonAdd),
           ),
           child: notes.when(
             loading: () => const SizedBox(height: 40),
-            error: (_, __) => Text("Couldn't load notes.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+            error: (_, __) => Text(context.l10n.errorLoadNotes, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
             data: (list) => list.isEmpty
-                ? Text('No notes yet. Add context the front desk should know.',
+                ? Text(context.l10n.noNotes,
                     style: AppTypography.bodySmall.copyWith(color: _secondary(isDark)))
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -330,7 +331,7 @@ class _OverviewTab extends ConsumerWidget {
                               Text(n.body, style: AppTypography.bodySmall.copyWith(color: _text(isDark))),
                               const SizedBox(height: 2),
                               Text(
-                                '${n.author ?? 'Staff'} · ${DateFormat('d MMM').format(n.createdAt)}',
+                                context.l10n.memberNoteMeta(n.author ?? context.l10n.commonStaff, DateFormat('d MMM').format(n.createdAt)),
                                 style: AppTypography.caption.copyWith(color: _secondary(isDark)),
                               ),
                             ],
@@ -379,13 +380,13 @@ class _PaymentsTab extends ConsumerWidget {
           error: (_, __) => _errorRetry(ref, memberPaymentsListProvider(memberId)),
           data: (list) {
             if (list.isEmpty) {
-              return _EmptyTab(icon: Icons.receipt_long_outlined, text: 'No payments recorded for this member yet.');
+              return _EmptyTab(icon: Icons.receipt_long_outlined, text: context.l10n.noPaymentsForMember);
             }
             final total = list.where((p) => p.status == 'success').fold<double>(0, (s, p) => s + p.amount);
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.xl),
               children: [
-                Text('${_inr.format(total)} paid across ${list.length} ${list.length == 1 ? 'payment' : 'payments'}',
+                Text(context.l10n.memberPaidAcross(_inr.format(total), list.length),
                     style: AppTypography.caption.copyWith(color: _secondary(isDark))),
                 const SizedBox(height: AppSpacing.md),
                 _Panel(
@@ -434,12 +435,12 @@ class _PaymentsTab extends ConsumerWidget {
         );
   }
 
-  static String _method(String m) => const {
+  static String _method(String m) => {
         'upi': 'UPI',
-        'card': 'Card',
-        'cash': 'Cash',
-        'netbanking': 'Net banking',
-        'cheque': 'Cheque',
+        'card': L10n.current.commonCard,
+        'cash': L10n.current.commonCash,
+        'netbanking': L10n.current.commonNetBanking,
+        'cheque': L10n.current.commonCheque,
       }[m] ??
       m;
 }
@@ -456,7 +457,7 @@ class _VisitsTab extends ConsumerWidget {
           loading: _loadingList,
           error: (_, __) => _errorRetry(ref, memberVisitsProvider(memberId)),
           data: (v) {
-            if (v.recent.isEmpty) return _EmptyTab(icon: Icons.event_available_outlined, text: 'No visits recorded yet.');
+            if (v.recent.isEmpty) return _EmptyTab(icon: Icons.event_available_outlined, text: context.l10n.noVisitsRecorded);
             return ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               itemCount: v.recent.length,
@@ -469,7 +470,7 @@ class _VisitsTab extends ConsumerWidget {
                   title: Text(DateFormat('EEE, d MMM').format(s.checkIn),
                       style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
                   subtitle: Text(
-                    s.checkOut == null ? 'In since ${time.format(s.checkIn)}' : '${time.format(s.checkIn)} – ${time.format(s.checkOut!)}',
+                    s.checkOut == null ? context.l10n.memberInSince(time.format(s.checkIn)) : '${time.format(s.checkIn)} – ${time.format(s.checkOut!)}',
                     style: AppTypography.caption.copyWith(color: _secondary(isDark)),
                   ),
                   trailing: Text(s.duration,
@@ -494,7 +495,7 @@ class _HistoryTab extends ConsumerWidget {
           loading: _loadingList,
           error: (_, __) => _errorRetry(ref, memberHistoryProvider(memberId)),
           data: (list) {
-            if (list.isEmpty) return _EmptyTab(icon: Icons.history_rounded, text: 'No history yet.');
+            if (list.isEmpty) return _EmptyTab(icon: Icons.history_rounded, text: context.l10n.noHistory);
             return ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.xl),
               itemCount: list.length,
@@ -530,11 +531,11 @@ class _HistoryTab extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                e.newEndDate != null ? '${e.label} · until ${_day.format(e.newEndDate!)}' : e.label,
+                                e.newEndDate != null ? context.l10n.memberHistoryUntil(e.label, _day.format(e.newEndDate!)) : e.label,
                                 style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                [DateFormat('d MMM yyyy, h:mm a').format(e.createdAt), e.actorName ?? 'System', if (e.reason != null) e.reason!]
+                                [DateFormat('d MMM yyyy, h:mm a').format(e.createdAt), e.actorName ?? context.l10n.system, if (e.reason != null) e.reason!]
                                     .join(' · '),
                                 style: AppTypography.caption.copyWith(color: _secondary(isDark)),
                               ),
@@ -581,7 +582,7 @@ class _EmptyTab extends StatelessWidget {
 
 void _showError(BuildContext context, Object e) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(e is ApiError ? e.message : 'Something went wrong. Please try again.')),
+    SnackBar(content: Text(e is ApiError ? e.message : context.l10n.commonSomethingWentWrong)),
   );
 }
 
@@ -594,7 +595,7 @@ Future<void> _showRenew(BuildContext context, WidgetRef ref, MemberModel member)
   final current = plans.where((p) => p.name == member.planName).firstOrNull ?? plans.first;
   await RepsiBottomSheet.show<void>(
     context: context,
-    title: 'Renew membership',
+    title: context.l10n.renewMembership,
     child: _RenewSheet(member: member, plans: plans, initial: current),
   );
 }
@@ -621,7 +622,7 @@ class _RenewSheetState extends ConsumerState<_RenewSheet> {
       if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${widget.member.firstName} renewed on ${_plan.name}. Record the payment when it is collected.')),
+        SnackBar(content: Text(L10n.current.memberRenewedOn(widget.member.firstName, _plan.name))),
       );
     } catch (e) {
       if (mounted) _showError(context, e);
@@ -647,7 +648,7 @@ class _RenewSheetState extends ConsumerState<_RenewSheet> {
                   value: p,
                   contentPadding: EdgeInsets.zero,
                   title: Text(p.name, style: AppTypography.body.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
-                  subtitle: Text('${p.months} ${p.months == 1 ? 'month' : 'months'}',
+                  subtitle: Text(context.l10n.commonMonths(p.months),
                       style: AppTypography.caption.copyWith(color: _secondary(isDark))),
                   secondary: Text(_inr.format(p.price),
                       style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w600, color: _text(isDark))),
@@ -656,7 +657,7 @@ class _RenewSheetState extends ConsumerState<_RenewSheet> {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        RepsiButton(text: 'Renew for ${_inr.format(_plan.price)}', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _confirm),
+        RepsiButton(text: context.l10n.memberRenewFor(_inr.format(_plan.price)), isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _confirm),
       ],
     );
   }
@@ -665,7 +666,7 @@ class _RenewSheetState extends ConsumerState<_RenewSheet> {
 Future<void> _showRecordPayment(BuildContext context, WidgetRef ref, MemberModel member) {
   return RepsiBottomSheet.show<void>(
     context: context,
-    title: 'Record payment',
+    title: context.l10n.recordPayment,
     child: _PaymentSheet(member: member),
   );
 }
@@ -701,7 +702,7 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
       await ref.read(memberActionsProvider).recordPayment(widget.member.id, amount, _method, notes: _notes.text);
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_inr.format(amount)} recorded for ${widget.member.firstName}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.current.memberPaymentRecorded(_inr.format(amount), widget.member.firstName))));
     } catch (e) {
       if (mounted) _showError(context, e);
     } finally {
@@ -720,30 +721,30 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             RepsiTextField(
-              label: 'Amount (₹)',
+              label: context.l10n.amountRupees,
               controller: _amount,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
               validator: (v) {
                 final n = double.tryParse((v ?? '').trim());
-                return n == null || n <= 0 ? 'Enter the amount received' : null;
+                return n == null || n <= 0 ? context.l10n.enterAmountReceived : null;
               },
             ),
             const SizedBox(height: AppSpacing.lg),
             SegmentedButton<String>(
-              segments: const [
+              segments: [
                 ButtonSegment(value: 'upi', label: Text('UPI')),
-                ButtonSegment(value: 'cash', label: Text('Cash')),
-                ButtonSegment(value: 'card', label: Text('Card')),
+                ButtonSegment(value: 'cash', label: Text(context.l10n.commonCash)),
+                ButtonSegment(value: 'card', label: Text(context.l10n.commonCard)),
               ],
               selected: {_method},
               onSelectionChanged: (s) => setState(() => _method = s.first),
               showSelectedIcon: false,
             ),
             const SizedBox(height: AppSpacing.lg),
-            RepsiTextField(label: 'Note (optional)', controller: _notes, hintText: 'e.g. Quarterly renewal, UPI ref'),
+            RepsiTextField(label: context.l10n.noteOptional, controller: _notes, hintText: context.l10n.paymentNoteHint),
             const SizedBox(height: AppSpacing.xl),
-            RepsiButton(text: 'Save payment', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
+            RepsiButton(text: context.l10n.savePayment, isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
           ],
         ),
       ),
@@ -755,18 +756,18 @@ Future<void> _showAddNote(BuildContext context, WidgetRef ref, String memberId) 
   final controller = TextEditingController();
   return RepsiBottomSheet.show<void>(
     context: context,
-    title: 'Add note',
+    title: context.l10n.addNote,
     child: Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          RepsiTextField(controller: controller, hintText: 'What should staff know?', maxLines: 4, minLines: 3),
+          RepsiTextField(controller: controller, hintText: context.l10n.noteHint, maxLines: 4, minLines: 3),
           const SizedBox(height: AppSpacing.lg),
           Builder(
             builder: (ctx) => RepsiButton(
-              text: 'Save note',
+              text: context.l10n.saveNote,
               isFullWidth: true,
               onPressed: () async {
                 if (controller.text.trim().isEmpty) return;

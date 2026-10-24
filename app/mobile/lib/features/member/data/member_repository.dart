@@ -5,6 +5,7 @@ import '../../../core/providers/api_provider.dart';
 import '../../../shared/models/fitness_models.dart';
 import '../../../shared/models/workout_models.dart';
 import '../../../core/api/api_time.dart';
+import '../../../l10n/l10n.dart';
 
 class MemberRepository {
   final ApiClient _apiClient;
@@ -114,7 +115,7 @@ class MemberRepository {
 
       return MemberPayment(
         id: payment['id'] as String? ?? '',
-        title: 'Membership payment',
+        title: L10n.current.membershipPayment,
         amount: (payment['amount'] as num?)?.toDouble() ?? 0,
         date: paidAt,
         status: status,

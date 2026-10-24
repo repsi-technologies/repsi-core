@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../data/member_repository.dart';
+import '../../../../l10n/l10n.dart';
 
 class MembershipPaymentsView extends ConsumerWidget {
   const MembershipPaymentsView({super.key});
@@ -14,7 +15,7 @@ class MembershipPaymentsView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Membership & Payments'),
+        title: Text(context.l10n.membershipAndPayments),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -28,12 +29,12 @@ class MembershipPaymentsView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Membership details',
+                      context.l10n.membershipDetails,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Your current plan and renewal options are not available here yet. Contact your gym to confirm your membership.',
+                    Text(
+                      context.l10n.membershipDetailsUnavailable,
                     ),
                   ],
                 ),
@@ -41,8 +42,8 @@ class MembershipPaymentsView extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            const Text(
-              'PAYMENT HISTORY & RECEIPTS',
+            Text(
+              context.l10n.paymentHistoryHeader,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -71,7 +72,7 @@ class MembershipPaymentsView extends ConsumerWidget {
                       ),
                       title: Text(pay.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       subtitle: Text(
-                        'Ref: ${pay.receiptNumber} · ${pay.paymentMethod}',
+                        context.l10n.paymentRefLine(pay.receiptNumber, pay.paymentMethod),
                         style: const TextStyle(fontSize: 12),
                       ),
                       trailing: Column(
@@ -100,23 +101,23 @@ class MembershipPaymentsView extends ConsumerWidget {
                         showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: const Text('Digital Payment Receipt'),
+                            title: Text(context.l10n.digitalReceipt),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Receipt #: ${pay.receiptNumber}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(context.l10n.receiptNumberLine(pay.receiptNumber), style: const TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 8),
-                                Text('Description: ${pay.title}'),
-                                Text('Amount Paid: ₹${pay.amount}'),
-                                Text('Payment Mode: ${pay.paymentMethod}'),
-                                Text('Status: ${pay.status}'),
+                                Text(context.l10n.receiptDescriptionLine(pay.title)),
+                                Text(context.l10n.receiptAmountLine(L10n.currency(pay.amount, decimals: 2))),
+                                Text(context.l10n.receiptModeLine(pay.paymentMethod)),
+                                Text(context.l10n.receiptStatusLine(pay.status)),
                               ],
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Close'),
+                                child: Text(context.l10n.commonClose),
                               ),
                             ],
                           ),
@@ -127,7 +128,7 @@ class MembershipPaymentsView extends ConsumerWidget {
                 },
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, __) => Text('Error: $err'),
+              error: (err, __) => Text(context.l10n.commonErrorWithDetail(err.toString())),
             ),
           ],
         ),

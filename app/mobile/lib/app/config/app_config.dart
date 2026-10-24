@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import '../../l10n/l10n.dart';
 /// Build-time configuration. Prefer `--dart-define` (see docs/mobile-release.md); the bundled
 /// `assets/.env` only supplies defaults and must never hold secrets.
 class AppConfig {
   static const String appName = 'REPSI';
-  static const String appTagline = 'Your gym. Your progress.';
+  static String get appTagline => L10n.current.appTagline;
   static const String defaultWorkspaceSlug = 'apex-fitness';
 
   static const String _definedBaseUrl = String.fromEnvironment('API_BASE_URL');

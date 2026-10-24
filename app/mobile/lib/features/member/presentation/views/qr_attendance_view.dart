@@ -18,6 +18,7 @@ import '../../../../shared/widgets/repsi_card.dart';
 import '../../../../shared/widgets/repsi_error_state.dart';
 import '../../../attendance/providers/attendance_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Check-in screen.
 ///
@@ -54,12 +55,12 @@ class _QrAttendanceViewState extends ConsumerState<QrAttendanceView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: context.l10n.commonBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
               size: 20, color: AppColors.text),
           onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
-        title: Text(isStaff ? 'Scan member pass' : 'Gym check-in',
+        title: Text(isStaff ? context.l10n.scanMemberPass : context.l10n.qrGymCheckIn,
             style: AppTypography.heading
                 .copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
         centerTitle: true,
@@ -75,15 +76,15 @@ class _QrAttendanceViewState extends ConsumerState<QrAttendanceView> {
                         vertical: 8),
                     child: SegmentedButton<int>(
                       showSelectedIcon: false,
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                             value: 0,
                             icon: Icon(Icons.qr_code_scanner_rounded, size: 18),
-                            label: Text('Scan gym QR')),
+                            label: Text(context.l10n.scanGymQr)),
                         ButtonSegment(
                             value: 1,
                             icon: Icon(Icons.badge_outlined, size: 18),
-                            label: Text('My pass')),
+                            label: Text(context.l10n.myPass)),
                       ],
                       selected: {_tab},
                       onSelectionChanged: (s) {
@@ -163,7 +164,7 @@ class _CameraScannerState extends State<_CameraScanner> {
             right: 8,
             top: 8,
             child: IconButton.filledTonal(
-              tooltip: 'Toggle flashlight',
+              tooltip: context.l10n.toggleFlashlight,
               onPressed: _controller.toggleTorch,
               icon: const Icon(Icons.flashlight_on_outlined),
             ),
@@ -193,14 +194,14 @@ class _CameraError extends StatelessWidget {
               size: 40, color: AppColors.textSecondary),
           const SizedBox(height: 12),
           Text(
-            denied ? 'Camera access is off' : 'Camera unavailable',
+            denied ? context.l10n.cameraAccessOff : context.l10n.cameraUnavailable,
             style: AppTypography.sectionHeading.copyWith(color: AppColors.text),
           ),
           const SizedBox(height: 6),
           Text(
             denied
-                ? 'Allow camera access for REPSI in your phone settings to scan the gym QR, or ask the front desk to check you in.'
-                : 'We could not start the camera. Ask the front desk to check you in.',
+                ? context.l10n.cameraAccessOffDesc
+                : context.l10n.cameraStartFailed,
             textAlign: TextAlign.center,
             style: AppTypography.bodySecondary
                 .copyWith(color: AppColors.textSecondary),
@@ -231,7 +232,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
     if (token == null) {
       setState(() {
         _message =
-            'That is not a REPSI gym QR code. Scan the code shown at your gym entrance.';
+            context.l10n.notRepsiQr;
         _messageIsError = true;
       });
       return;
@@ -246,7 +247,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
       ref.invalidate(myAttendanceProvider);
       if (mounted) {
         setState(() {
-          _message = 'Checked in. Have a great workout!';
+          _message = context.l10n.checkedInGreat;
           _messageIsError = false;
         });
       }
@@ -266,15 +267,15 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Check out?'),
-        content: const Text('This ends your current gym visit.'),
+        title: Text(context.l10n.checkOutTitle),
+        content: Text(context.l10n.checkOutBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Check out')),
+              child: Text(context.l10n.commonCheckOut)),
         ],
       ),
     );
@@ -285,7 +286,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
       ref.invalidate(myAttendanceProvider);
       if (mounted) {
         setState(() {
-          _message = 'Checked out. See you next time!';
+          _message = context.l10n.checkedOutBye;
           _messageIsError = false;
         });
       }
@@ -318,7 +319,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
               child: RepsiErrorState(
                 message: e is ApiError
                     ? e.message
-                    : 'Could not load your attendance.',
+                    : context.l10n.errorLoadYourAttendance,
                 onRetry: () => ref.invalidate(myAttendanceProvider),
               ),
             ),
@@ -333,7 +334,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Point your camera at the QR code at your gym entrance.',
+              context.l10n.pointCamera,
               textAlign: TextAlign.center,
               style: AppTypography.caption
                   .copyWith(color: AppColors.textSecondary),
@@ -399,8 +400,8 @@ class _StatusCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   active != null
-                      ? 'You are checked in'
-                      : 'You are not checked in',
+                      ? context.l10n.youAreCheckedIn
+                      : context.l10n.youAreNotCheckedIn,
                   style: AppTypography.sectionHeading
                       .copyWith(color: AppColors.text),
                 ),
@@ -409,12 +410,12 @@ class _StatusCard extends StatelessWidget {
           ),
           if (active != null) ...[
             const SizedBox(height: 4),
-            Text('Since ${DateFormat.jm().format(active.checkInTime)}',
+            Text(context.l10n.qrSince(DateFormat.jm().format(active.checkInTime)),
                 style: AppTypography.bodySecondary
                     .copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 12),
             RepsiButton(
-              text: 'Check out',
+              text: context.l10n.commonCheckOut,
               variant: RepsiButtonVariant.outline,
               isFullWidth: true,
               isLoading: busy,
@@ -424,10 +425,10 @@ class _StatusCard extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              _Stat(value: '${attendance.streakDays}', label: 'Day streak'),
-              _Stat(value: '${attendance.thisWeekVisits}', label: 'This week'),
+              _Stat(value: '${attendance.streakDays}', label: context.l10n.commonDayStreak),
+              _Stat(value: '${attendance.thisWeekVisits}', label: context.l10n.commonThisWeek),
               _Stat(
-                  value: '${attendance.thisMonthVisits}', label: 'This month'),
+                  value: '${attendance.thisMonthVisits}', label: context.l10n.commonThisMonth),
             ],
           ),
         ],
@@ -469,7 +470,7 @@ class _RecentVisits extends StatelessWidget {
     if (visits.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text('No visits yet. Your check-ins will show up here.',
+        child: Text(context.l10n.noVisitsYetDesc,
             textAlign: TextAlign.center,
             style: AppTypography.bodySecondary
                 .copyWith(color: AppColors.textSecondary)),
@@ -478,7 +479,7 @@ class _RecentVisits extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Recent visits',
+        Text(context.l10n.recentVisits,
             style:
                 AppTypography.sectionHeading.copyWith(color: AppColors.text)),
         const SizedBox(height: 8),
@@ -490,7 +491,7 @@ class _RecentVisits extends StatelessWidget {
                 size: 20, color: AppColors.primary),
             title: Text(DateFormat('EEE, d MMM').format(v.checkInTime)),
             subtitle: Text(v.isOpen
-                ? 'In at ${DateFormat.jm().format(v.checkInTime)}'
+                ? context.l10n.qrInAt(DateFormat.jm().format(v.checkInTime))
                 : '${DateFormat.jm().format(v.checkInTime)} – ${DateFormat.jm().format(v.checkOutTime!)}'),
             trailing: v.durationLabel.isEmpty ? null : Text(v.durationLabel),
           ),
@@ -562,17 +563,17 @@ class _MemberPassState extends ConsumerState<_MemberPass> {
           child: Column(
             children: [
               Semantics(
-                label: 'Your REPSI member pass QR code',
+                label: context.l10n.memberPassSemantics,
                 child: QrImageView(
                     data: pass.token, size: 240, backgroundColor: Colors.white),
               ),
               const SizedBox(height: 12),
-              Text('Show this to the front desk',
+              Text(context.l10n.showFrontDesk,
                   style: AppTypography.sectionHeading
                       .copyWith(color: AppColors.text)),
               const SizedBox(height: 4),
               Text(
-                'It refreshes automatically and only works at your gym. Do not share a screenshot.',
+                context.l10n.passRefreshNote,
                 textAlign: TextAlign.center,
                 style: AppTypography.caption
                     .copyWith(color: AppColors.textSecondary),
@@ -646,7 +647,7 @@ class _StaffScannerState extends ConsumerState<_StaffScanner> {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
               ),
               child: Text(
-                _message ?? 'Scan a member\'s pass to check them in or out.',
+                _message ?? context.l10n.scanMemberPassDesc,
                 textAlign: TextAlign.center,
                 style: AppTypography.body.copyWith(
                   color: _message == null

@@ -5,6 +5,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
+import '../../../l10n/l10n.dart';
 
 class AdminUsersView extends StatefulWidget {
   const AdminUsersView({super.key});
@@ -33,7 +34,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Users',
+          context.l10n.navUsers,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
@@ -47,7 +48,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
             children: [
               RepsiStaggerItem(
                 index: 0,
-                child: const RepsiSearchField(hintText: 'Search users across all gyms...'),
+                child: RepsiSearchField(hintText: context.l10n.searchUsersHint),
               ),
               const SizedBox(height: 14),
               // Filter pills

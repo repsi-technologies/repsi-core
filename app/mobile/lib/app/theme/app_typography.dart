@@ -9,6 +9,84 @@ import 'app_colors.dart';
 class AppTypography {
   static const String fontFamily = 'IBM Plex Sans';
 
+  /// IBM Plex Sans has no Tamil, Malayalam or Devanagari glyphs. For those languages the matching
+  /// Noto Sans family is loaded (only for the active language) and used as the fallback; the
+  /// platform's own Indic fonts still cover anything else.
+  static List<String> scriptFallback(String languageCode) {
+    final TextStyle? style = switch (languageCode) {
+      'ta' => GoogleFonts.notoSansTamil(),
+      'ml' => GoogleFonts.notoSansMalayalam(),
+      'hi' => GoogleFonts.notoSansDevanagari(),
+      _ => null,
+    };
+    final family = style?.fontFamily;
+    return family == null ? const [] : [family];
+  }
+
+  static ThemeData withScriptFallback(ThemeData theme, List<String> fallback) {
+    if (fallback.isEmpty) return theme;
+    return theme.copyWith(
+      textTheme: _textThemeForScript(theme.textTheme).apply(fontFamilyFallback: fallback),
+      primaryTextTheme: _textThemeForScript(theme.primaryTextTheme).apply(fontFamilyFallback: fallback),
+    );
+  }
+
+  /// True while Tamil, Malayalam or Hindi is active (see [applyScript]).
+  static bool isIndic = false;
+
+  static List<TextStyle>? _latin;
+
+  /// Tamil, Malayalam and Devanagari need taller lines than IBM Plex Sans' Latin metrics, and
+  /// negative letter-spacing breaks their conjuncts. Called by `LocaleNotifier` on every language
+  /// change; the app rebuilds right after, so every screen picks up the adjusted styles.
+  static void applyScript(String languageCode) {
+    final latin = _latin ??= [
+      display, heading, sectionHeading, body, bodySecondary, caption, button,
+      headingMedium, bodySmall, labelLarge, labelMedium, buttonSmall, buttonLarge,
+    ];
+    isIndic = languageCode != 'en';
+    final s = latin.map(forScript).toList();
+    display = s[0];
+    heading = s[1];
+    sectionHeading = s[2];
+    body = s[3];
+    bodySecondary = s[4];
+    caption = s[5];
+    button = s[6];
+    headingMedium = s[7];
+    bodySmall = s[8];
+    labelLarge = s[9];
+    labelMedium = s[10];
+    buttonSmall = s[11];
+    buttonLarge = s[12];
+  }
+
+  static TextStyle forScript(TextStyle style) {
+    if (!isIndic) return style;
+    final height = style.height;
+    return style.copyWith(letterSpacing: 0, height: height == null || height < 1.35 ? 1.35 : height);
+  }
+
+  static TextTheme _textThemeForScript(TextTheme t) => isIndic
+      ? TextTheme(
+          displayLarge: t.displayLarge == null ? null : forScript(t.displayLarge!),
+          displayMedium: t.displayMedium == null ? null : forScript(t.displayMedium!),
+          displaySmall: t.displaySmall == null ? null : forScript(t.displaySmall!),
+          headlineLarge: t.headlineLarge == null ? null : forScript(t.headlineLarge!),
+          headlineMedium: t.headlineMedium == null ? null : forScript(t.headlineMedium!),
+          headlineSmall: t.headlineSmall == null ? null : forScript(t.headlineSmall!),
+          titleLarge: t.titleLarge == null ? null : forScript(t.titleLarge!),
+          titleMedium: t.titleMedium == null ? null : forScript(t.titleMedium!),
+          titleSmall: t.titleSmall == null ? null : forScript(t.titleSmall!),
+          bodyLarge: t.bodyLarge == null ? null : forScript(t.bodyLarge!),
+          bodyMedium: t.bodyMedium == null ? null : forScript(t.bodyMedium!),
+          bodySmall: t.bodySmall == null ? null : forScript(t.bodySmall!),
+          labelLarge: t.labelLarge == null ? null : forScript(t.labelLarge!),
+          labelMedium: t.labelMedium == null ? null : forScript(t.labelMedium!),
+          labelSmall: t.labelSmall == null ? null : forScript(t.labelSmall!),
+        )
+      : t;
+
   static TextStyle display = GoogleFonts.ibmPlexSans(
     fontSize: 30,
     fontWeight: FontWeight.w700,
@@ -61,38 +139,38 @@ class AppTypography {
   );
 
   // Backward-compatible named styles
-  static final TextStyle headingLarge = heading;
-  static final TextStyle headingMedium = GoogleFonts.ibmPlexSans(
+  static TextStyle get headingLarge => heading;
+  static TextStyle headingMedium = GoogleFonts.ibmPlexSans(
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: AppColors.text,
     letterSpacing: -0.25,
     height: 1.2,
   );
-  static final TextStyle headingSmall = sectionHeading;
-  static final TextStyle bodySmall = GoogleFonts.ibmPlexSans(
+  static TextStyle get headingSmall => sectionHeading;
+  static TextStyle bodySmall = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
     height: 1.4,
   );
-  static final TextStyle bodyMedium = body;
-  static final TextStyle labelLarge = GoogleFonts.ibmPlexSans(
+  static TextStyle get bodyMedium => body;
+  static TextStyle labelLarge = GoogleFonts.ibmPlexSans(
     fontSize: 15,
     fontWeight: FontWeight.w600,
     color: AppColors.text,
   );
-  static final TextStyle labelMedium = GoogleFonts.ibmPlexSans(
+  static TextStyle labelMedium = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
   );
-  static final TextStyle buttonSmall = GoogleFonts.ibmPlexSans(
+  static TextStyle buttonSmall = GoogleFonts.ibmPlexSans(
     fontSize: 13,
     fontWeight: FontWeight.w600,
   );
-  static final TextStyle buttonMedium = button;
-  static final TextStyle buttonLarge = GoogleFonts.ibmPlexSans(
+  static TextStyle get buttonMedium => button;
+  static TextStyle buttonLarge = GoogleFonts.ibmPlexSans(
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );

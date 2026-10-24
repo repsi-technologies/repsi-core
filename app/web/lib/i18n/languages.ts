@@ -22,8 +22,8 @@ export const LANGUAGE_REGISTRY = [
   { code: "ta", label: "Tamil", nativeName: "தமிழ்", badge: "த", dir: "ltr", intlLocale: "ta-IN", status: "beta" },
   { code: "ml", label: "Malayalam", nativeName: "മലയാളം", badge: "മ", dir: "ltr", intlLocale: "ml-IN", status: "beta" },
   { code: "hi", label: "Hindi", nativeName: "हिन्दी", badge: "हि", dir: "ltr", intlLocale: "hi-IN", status: "beta" },
-  { code: "kn", label: "Kannada", nativeName: "ಕನ್ನಡ", badge: "ಕ", dir: "ltr", intlLocale: "kn-IN", status: "beta" },
-  { code: "te", label: "Telugu", nativeName: "తెలుగు", badge: "తె", dir: "ltr", intlLocale: "te-IN", status: "beta" },
+  { code: "kn", label: "Kannada", nativeName: "ಕನ್ನಡ", badge: "ಕ", dir: "ltr", intlLocale: "kn-IN", status: "planned" },
+  { code: "te", label: "Telugu", nativeName: "తెలుగు", badge: "తె", dir: "ltr", intlLocale: "te-IN", status: "planned" },
   { code: "mr", label: "Marathi", nativeName: "मराठी", badge: "म", dir: "ltr", intlLocale: "mr-IN", status: "planned" },
   { code: "bn", label: "Bengali", nativeName: "বাংলা", badge: "বা", dir: "ltr", intlLocale: "bn-IN", status: "planned" },
   { code: "gu", label: "Gujarati", nativeName: "ગુજરાતી", badge: "ગુ", dir: "ltr", intlLocale: "gu-IN", status: "planned" },
@@ -38,7 +38,8 @@ export const DEFAULT_LANGUAGE = "en";
 /** Languages users can pick today (beta + stable). */
 export const SUPPORTED_LANGUAGES: LanguageMeta[] = LANGUAGE_REGISTRY.filter((l) => l.status !== "planned");
 
-export type LanguageCode = "en" | "ta" | "ml" | "hi" | "kn" | "te";
+/** REPSI ships exactly these four; English and Tamil are listed first in the picker. */
+export type LanguageCode = "en" | "ta" | "ml" | "hi";
 
 export function isSupportedLanguage(code: unknown): code is LanguageCode {
   return typeof code === "string" && SUPPORTED_LANGUAGES.some((l) => l.code === code);

@@ -29,8 +29,10 @@ import {
   ApiPaymentSubmission, 
   ApiMember 
 } from "@/lib/api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 export function PaymentVerificationQueue() {
+  const { t } = useTranslation();
   const [submissions, setSubmissions] = useState<ApiPaymentSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("pending_review");
@@ -76,7 +78,7 @@ export function PaymentVerificationQueue() {
       window.dispatchEvent(new Event("repsi_storage_update"));
       setTimeout(() => setActionSuccess(""), 4000);
     } catch (err: any) {
-      setActionError(err.message || "Approval failed. Please verify your permissions.");
+      setActionError(err.message || t("payments.approval_failed_please_verify_your_permissions"));
     } finally {
       setActionLoading(false);
     }
@@ -100,7 +102,7 @@ export function PaymentVerificationQueue() {
       await loadSubmissions();
       setTimeout(() => setActionSuccess(""), 4000);
     } catch (err: any) {
-      setActionError(err.message || "Rejection failed. Please try again.");
+      setActionError(err.message || t("payments.rejection_failed_please_try_again"));
     } finally {
       setActionLoading(false);
     }
@@ -135,26 +137,26 @@ export function PaymentVerificationQueue() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[var(--text-muted)] font-medium">Pending Review</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">{t("pay.pendingReview")}</span>
             <span className="flex h-2 w-2 rounded-full bg-[var(--info)] animate-pulse" />
           </div>
           <p className="text-2xl font-bold text-[var(--text)] mt-2">{pendingCount}</p>
-          <span className="text-[11px] text-[var(--info-foreground)] font-medium">Awaiting Owner / Trainer verification</span>
+          <span className="text-[11px] text-[var(--info-foreground)] font-medium">{t("payments.awaiting_owner_trainer_verification")}</span>
         </div>
 
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs">
-          <span className="text-xs text-[var(--text-muted)] font-medium">Status Separation</span>
-          <p className="text-xs font-semibold text-[var(--text)] mt-2">Submitted → Approved → Activated</p>
-          <span className="text-[11px] text-[var(--text-muted)] font-medium">Strict zero-trust manual verification</span>
+          <span className="text-xs text-[var(--text-muted)] font-medium">{t("payments.status_separation")}</span>
+          <p className="text-xs font-semibold text-[var(--text)] mt-2">{t("payments.submitted_approved_activated")}</p>
+          <span className="text-[11px] text-[var(--text-muted)] font-medium">{t("payments.strict_zero_trust_manual_verification")}</span>
         </div>
 
         <div className="p-4 rounded-xl border border-[var(--info)]/20 bg-[var(--info-soft)] shadow-xs">
           <div className="flex items-center gap-2 text-[var(--info-foreground)] text-xs font-semibold">
             <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>Audit Notice</span>
+            <span>{t("payments.audit_notice")}</span>
           </div>
           <p className="text-[11px] text-[var(--text-muted)] mt-1">
-            Manual approval confirms you verified funds in your bank/UPI statement. It records an immutable ledger entry.
+            {t("payments.manual_approval_confirms_you_verified_funds")}
           </p>
         </div>
       </div>
@@ -163,10 +165,10 @@ export function PaymentVerificationQueue() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {[
-            { id: "pending_review", label: "Pending Review" },
-            { id: "approved", label: "Approved" },
-            { id: "rejected", label: "Rejected" },
-            { id: "all", label: "All Submissions" },
+            { id: "pending_review", label: t("pay.pendingReview") },
+            { id: "approved", label: t("pay.approved") },
+            { id: "rejected", label: t("pay.rejected") },
+            { id: "all", label: t("payments.all_submissions") },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -191,7 +193,7 @@ export function PaymentVerificationQueue() {
           <div className="relative flex-1 sm:w-64">
             <input
               type="text"
-              placeholder="Search invoice or UTR..."
+              placeholder={t("payments.search_invoice_or_utr")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none"
@@ -215,13 +217,13 @@ export function PaymentVerificationQueue() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-hover)] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
-                <th className="p-3.5">Submission Info</th>
-                <th className="p-3.5">Invoice #</th>
-                <th className="p-3.5">Amount Paid</th>
-                <th className="p-3.5">Method & Reference</th>
-                <th className="p-3.5">Date & Time</th>
-                <th className="p-3.5">Status</th>
-                <th className="p-3.5 text-right">Actions</th>
+                <th className="p-3.5">{t("payments.submission_info")}</th>
+                <th className="p-3.5">{t("pay.invoiceNo")}</th>
+                <th className="p-3.5">{t("payments.amount_paid_2")}</th>
+                <th className="p-3.5">{t("payments.method_reference")}</th>
+                <th className="p-3.5">{t("payments.date_time")}</th>
+                <th className="p-3.5">{t("common.status")}</th>
+                <th className="p-3.5 text-right">{t("attendance.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -231,9 +233,9 @@ export function PaymentVerificationQueue() {
                     <td className="p-3.5">
                       <div className="font-semibold text-[var(--text)] flex items-center gap-2">
                         <UserCheck className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                        <span>Member: {sub.member_id.substring(0, 8)}...</span>
+                        <span>{t("payments.member_substring", undefined, { substring: sub.member_id.substring(0, 8) })}</span>
                       </div>
-                      <span className="text-[10px] text-[var(--text-muted)] font-mono">Sub ID: {sub.id.substring(0, 8)}</span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-mono">{t("payments.sub_id_substring", undefined, { substring: sub.id.substring(0, 8) })}</span>
                     </td>
 
                     <td className="p-3.5 font-mono font-medium text-[var(--text-secondary)]">
@@ -259,8 +261,7 @@ export function PaymentVerificationQueue() {
                       </div>
                       {(sub.transaction_reference || sub.transaction_ref) && (
                         <span className="text-[10px] font-mono text-[var(--text-muted)] block">
-                          Ref: {sub.transaction_reference || sub.transaction_ref}
-                        </span>
+                          {t("payments.ref_value", undefined, { value: sub.transaction_reference || sub.transaction_ref })}</span>
                       )}
                     </td>
 
@@ -270,27 +271,21 @@ export function PaymentVerificationQueue() {
                         month: "short",
                         hour: "2-digit",
                         minute: "2-digit",
-                      }) : "date unavailable"}
+                      }) : t("payments.date_unavailable")}
                     </td>
 
                     <td className="p-3.5">
                       {sub.status === "pending_review" && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--info-soft)] text-[var(--info-foreground)] border border-[var(--info)]/20">
-                          <Clock className="w-3 h-3" />
-                          Pending Review
-                        </span>
+                          {richText(t("payments.clockpending_review"), { clock: <Clock className="w-3 h-3" /> })}</span>
                       )}
                       {sub.status === "approved" && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Approved
-                        </span>
+                          {richText(t("payments.checkcircle2approved"), { checkcircle2: <CheckCircle2 className="w-3 h-3" /> })}</span>
                       )}
                       {sub.status === "rejected" && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20" title={sub.rejection_reason || undefined}>
-                          <XCircle className="w-3 h-3" />
-                          Rejected
-                        </span>
+                          {richText(t("payments.xcirclerejected"), { xcircle: <XCircle className="w-3 h-3" /> })}</span>
                       )}
                     </td>
 
@@ -305,9 +300,7 @@ export function PaymentVerificationQueue() {
                           }}
                           className="h-7 px-2 text-xs border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)] gap-1"
                         >
-                          <Eye className="w-3 h-3" />
-                          Receipt
-                        </Button>
+                          {richText(t("payments.eyereceipt"), { eye: <Eye className="w-3 h-3" /> })}</Button>
 
                         {sub.status === "pending_review" && (
                           <>
@@ -319,9 +312,7 @@ export function PaymentVerificationQueue() {
                               }}
                               className="h-10 px-3 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold gap-1"
                             >
-                              <Check className="w-3 h-3" />
-                              Approve
-                            </Button>
+                              {richText(t("payments.checkapprove"), { check: <Check className="w-3 h-3" /> })}</Button>
                             <Button
                               variant="outline"
                               size="sm"
@@ -332,9 +323,7 @@ export function PaymentVerificationQueue() {
                               }}
                               className="h-7 px-2 text-xs border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 gap-1"
                             >
-                              <X className="w-3 h-3" />
-                              Reject
-                            </Button>
+                              {richText(t("payments.xreject"), { x: <X className="w-3 h-3" /> })}</Button>
                           </>
                         )}
                       </div>
@@ -345,11 +334,11 @@ export function PaymentVerificationQueue() {
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-[var(--text-muted)] space-y-2">
                     <Receipt className="w-6 h-6 mx-auto opacity-40" />
-                    <p className="text-xs font-semibold text-[var(--text)]">No submissions found</p>
+                    <p className="text-xs font-semibold text-[var(--text)]">{t("payments.no_submissions_found")}</p>
                     <p className="text-[11px]">
                       {filterStatus === "pending_review"
-                        ? "There are currently no manual payment receipts waiting for verification."
-                        : "No matching payment submissions match the selected filter."}
+                        ? t("payments.there_are_currently_no_manual_payment")
+                        : t("payments.no_matching_payment_submissions_match_the")}
                     </p>
                   </td>
                 </tr>
@@ -366,7 +355,7 @@ export function PaymentVerificationQueue() {
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-emerald-500" />
-                <h3 className="font-bold text-sm">Payment Receipt & Details</h3>
+                <h3 className="font-bold text-sm">{t("payments.payment_receipt_details")}</h3>
               </div>
               <button
                 onClick={() => setPreviewReceiptOpen(false)}
@@ -378,37 +367,37 @@ export function PaymentVerificationQueue() {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-                <span className="text-[var(--text-muted)]">Amount Paid</span>
+                <span className="text-[var(--text-muted)]">{t("payments.amount_paid_2")}</span>
                 <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</p>
               </div>
               <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-                <span className="text-[var(--text-muted)]">Payment Method</span>
+                <span className="text-[var(--text-muted)]">{t("payments.payment_method")}</span>
                 <p className="text-sm font-semibold capitalize text-[var(--text)] mt-1">{selectedSub.payment_method}</p>
               </div>
               <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-                <span className="text-[var(--text-muted)]">Transaction ID / UTR</span>
-                <p className="font-mono text-xs text-[var(--text)] mt-1">{selectedSub.transaction_reference || selectedSub.transaction_ref || "Not provided"}</p>
+                <span className="text-[var(--text-muted)]">{t("payments.transaction_id_utr")}</span>
+                <p className="font-mono text-xs text-[var(--text)] mt-1">{selectedSub.transaction_reference || selectedSub.transaction_ref || t("payments.not_provided")}</p>
               </div>
               <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-                <span className="text-[var(--text-muted)]">Submission Date</span>
-                <p className="text-xs text-[var(--text)] mt-1">{selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at ? new Date(selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at!).toLocaleString() : "date unavailable"}</p>
+                <span className="text-[var(--text-muted)]">{t("payments.submission_date")}</span>
+                <p className="text-xs text-[var(--text)] mt-1">{selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at ? new Date(selectedSub.submitted_at || selectedSub.payment_date || selectedSub.created_at!).toLocaleString() : t("payments.date_unavailable")}</p>
               </div>
             </div>
 
             {selectedSub.notes && (
               <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
-                <span className="text-[var(--text-muted)]">Member Note:</span>
+                <span className="text-[var(--text-muted)]">{t("payments.member_note")}</span>
                 <p className="text-[var(--text)] mt-0.5">{selectedSub.notes}</p>
               </div>
             )}
 
             {/* Receipt Media Preview */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-[var(--text)]">Uploaded Receipt / Screenshot:</span>
+              <span className="text-xs font-semibold text-[var(--text)]">{t("payments.uploaded_receipt_screenshot")}</span>
               <div className="p-2 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex flex-col items-center justify-center min-h-[220px] max-h-[360px] overflow-auto">
                 <img
                   src={repsiApi.getReceiptUrl(selectedSub.id)}
-                  alt="Receipt Preview"
+                  alt={t("payments.receipt_preview")}
                   className="max-h-[340px] max-w-full rounded object-contain"
                   onError={(e) => {
                     // Fallback for PDF or broken link
@@ -422,16 +411,14 @@ export function PaymentVerificationQueue() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-secondary)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text)] font-medium transition-colors"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Open Original Document (New Tab)
-                  </a>
+                    {richText(t("payments.externallinkopen_original_document_new_tab"), { externallink: <ExternalLink className="w-3.5 h-3.5" /> })}</a>
                 </div>
               </div>
             </div>
 
             {selectedSub.status === "rejected" && selectedSub.rejection_reason && (
               <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
-                <span className="font-semibold">Rejection Reason: </span>
+                <span className="font-semibold">{t("payments.rejection_reason")}{" "}</span>
                 {selectedSub.rejection_reason}
               </div>
             )}
@@ -443,7 +430,7 @@ export function PaymentVerificationQueue() {
                 onClick={() => setPreviewReceiptOpen(false)}
                 className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
-                Close
+                {t("common.close")}
               </Button>
             </div>
           </div>
@@ -456,22 +443,22 @@ export function PaymentVerificationQueue() {
           <div className="bg-[var(--background)] rounded-2xl border border-emerald-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
             <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
-              <h3 className="font-bold text-base">Approve Manual Payment</h3>
+              <h3 className="font-bold text-base">{t("payments.approve_manual_payment")}</h3>
             </div>
 
             <p className="text-xs text-[var(--text)]">
-              You are approving a payment of{" "}
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</span> for invoice{" "}
+              {t("payments.you_are_approving_a_payment_of")}{" "}
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">₹{(selectedSub.amount_paid ?? selectedSub.amount ?? 0).toLocaleString("en-IN")}</span> {t("payments.for_invoice")}{" "}
               <span className="font-mono font-bold text-[var(--text)]">{selectedSub.invoice_id}</span>.
             </p>
 
             <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-[var(--text)] space-y-1.5">
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400">Atomic Actions Upon Approval:</p>
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400">{t("payments.atomic_actions_upon_approval")}</p>
               <ul className="list-disc list-inside space-y-0.5 text-[var(--text-muted)]">
-                <li>Creates official Payment ledger record</li>
-                <li>Marks Invoice as fully paid</li>
-                <li>Restores member attendance & active gym access</li>
-                <li>Records immutable audit trail with reviewer ID</li>
+                <li>{t("payments.creates_official_payment_ledger_record")}</li>
+                <li>{t("payments.marks_invoice_as_fully_paid")}</li>
+                <li>{t("payments.restores_member_attendance_active_gym_access")}</li>
+                <li>{t("payments.records_immutable_audit_trail_with_reviewer")}</li>
               </ul>
             </div>
 
@@ -489,7 +476,7 @@ export function PaymentVerificationQueue() {
                 disabled={actionLoading}
                 className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 size="sm"
@@ -499,14 +486,10 @@ export function PaymentVerificationQueue() {
               >
                 {actionLoading ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Approving...
-                  </>
+                    {richText(t("payments.loader2approving"), { loader2: <Loader2 className="w-3.5 h-3.5 animate-spin" /> })}</>
                 ) : (
                   <>
-                    <Check className="w-3.5 h-3.5" />
-                    Confirm & Activate Access
-                  </>
+                    {richText(t("payments.checkconfirm_activate_access"), { check: <Check className="w-3.5 h-3.5" /> })}</>
                 )}
               </Button>
             </div>
@@ -520,19 +503,19 @@ export function PaymentVerificationQueue() {
           <form onSubmit={handleReject} className="bg-[var(--background)] rounded-2xl border border-rose-500/40 p-6 max-w-md w-full shadow-2xl space-y-4 text-[var(--text)]">
             <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <XCircle className="w-5 h-5" />
-              <h3 className="font-bold text-base">Reject Payment Submission</h3>
+              <h3 className="font-bold text-base">{t("payments.reject_payment_submission")}</h3>
             </div>
 
             <p className="text-xs text-[var(--text)]">
-              Provide a clear reason why this payment proof was rejected. The member will be notified and given the option to re-submit valid proof.
+              {t("payments.provide_a_clear_reason_why_this")}
             </p>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-[var(--text)]">Rejection Reason</label>
+              <label className="text-xs font-semibold text-[var(--text)]">{t("pay.rejectionReason")}</label>
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="e.g. UTR number not found in bank statement, screenshot illegible, or amount mismatch."
+                placeholder={t("payments.e_g_utr_number_not_found")}
                 className="w-full h-24 p-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] text-xs text-[var(--text)] focus:outline-none focus:border-rose-500"
                 required
               />
@@ -553,7 +536,7 @@ export function PaymentVerificationQueue() {
                 disabled={actionLoading}
                 className="bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -563,14 +546,10 @@ export function PaymentVerificationQueue() {
               >
                 {actionLoading ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Rejecting...
-                  </>
+                    {richText(t("payments.loader2rejecting"), { loader2: <Loader2 className="w-3.5 h-3.5 animate-spin" /> })}</>
                 ) : (
                   <>
-                    <X className="w-3.5 h-3.5" />
-                    Reject Submission
-                  </>
+                    {richText(t("payments.xreject_submission"), { x: <X className="w-3.5 h-3.5" /> })}</>
                 )}
               </Button>
             </div>

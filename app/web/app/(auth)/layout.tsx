@@ -12,7 +12,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-[#F7F9F8] text-[var(--text)] flex flex-col justify-between selection:bg-[var(--primary)]/20 selection:text-[var(--primary-dark)]">
       {/* Top Header - Small REPSI logo only */}
-      <header className="p-6 sm:p-8">
+      <header className="p-6 sm:p-8 shrink-0">
         <Link href="/" className="inline-block transition-opacity hover:opacity-80">
           <Image
             src="/logos/logo-dark.png"
@@ -25,13 +25,15 @@ export default function AuthLayout({
         </Link>
       </header>
 
-      {/* Center - Centered around 45–48% of viewport height */}
-      <main className="flex-1 flex flex-col justify-center items-center px-4 -mt-10 pb-8">
-        {children}
+      {/* Center - Uses my-auto so it stays centered when there is space, but never clips at the top when vertical space is constrained */}
+      <main className="flex-1 flex flex-col items-center px-4 py-4 sm:py-6">
+        <div className="w-full flex flex-col items-center my-auto">
+          {children}
+        </div>
       </main>
 
       {/* Footer - Tiny at bottom */}
-      <footer className="py-6 text-center text-xs text-[#8A9690]">
+      <footer className="py-6 text-center text-xs text-[#8A9690] shrink-0">
         <p>
           © {new Date().getFullYear()} REPSI Technologies ·{" "}
           <Link href="/privacy" className="hover:text-[var(--text)] transition-colors">

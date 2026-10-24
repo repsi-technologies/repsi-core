@@ -7,6 +7,7 @@ import '../../../core/api/api_error.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../shared/widgets/repsi_error_state.dart';
 import '../../../shared/widgets/repsi_skeleton.dart';
+import '../../../l10n/l10n.dart';
 
 class BusinessInsights {
   final String summary;
@@ -50,7 +51,7 @@ class AiInsightsView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: canvas,
-      appBar: AppBar(backgroundColor: canvas, title: const Text('Business insights')),
+      appBar: AppBar(backgroundColor: canvas, title: Text(context.l10n.businessInsights)),
       body: ref.watch(businessInsightsProvider).when(
             loading: () => ListView(
               padding: const EdgeInsets.all(AppSpacing.xl),
@@ -64,10 +65,10 @@ class AiInsightsView extends ConsumerWidget {
               final detail = e is ApiError ? e.details : null;
               final notInPlan = detail is Map && detail['error_code'] == 'FEATURE_NOT_IN_PLAN';
               return RepsiErrorState(
-                title: notInPlan ? 'Not on your plan' : "Couldn't load insights",
+                title: notInPlan ? context.l10n.notOnPlan : context.l10n.errorLoadInsights,
                 message: notInPlan
-                    ? 'Business insights are part of higher REPSI plans. Upgrade on repsi.app to turn them on.'
-                    : (e is ApiError ? e.message : 'Check your connection and try again.'),
+                    ? context.l10n.insightsUpgrade
+                    : (e is ApiError ? e.message : context.l10n.commonCheckConnection),
                 onRetry: notInPlan ? null : () => ref.invalidate(businessInsightsProvider),
               );
             },
@@ -92,7 +93,7 @@ class AiInsightsView extends ConsumerWidget {
                             Icon(i.generatedByAi ? Icons.auto_awesome_rounded : Icons.insights_rounded,
                                 size: 18, color: d ? AppColors.darkPrimaryLight : AppColors.primaryDark),
                             const SizedBox(width: AppSpacing.sm),
-                            Text(i.generatedByAi ? 'Summary by AI' : 'Summary',
+                            Text(i.generatedByAi ? context.l10n.summaryByAi : context.l10n.summary,
                                 style: AppTypography.caption.copyWith(
                                     color: d ? AppColors.darkPrimaryLight : AppColors.primaryDark, fontWeight: FontWeight.w600)),
                           ],
@@ -104,13 +105,13 @@ class AiInsightsView extends ConsumerWidget {
                   ),
                   if (i.highlights.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xxl),
-                    Text('What stands out', style: AppTypography.sectionHeading.copyWith(color: text, fontSize: 17)),
+                    Text(context.l10n.whatStandsOut, style: AppTypography.sectionHeading.copyWith(color: text, fontSize: 17)),
                     const SizedBox(height: AppSpacing.md),
                     for (final h in i.highlights) _Line(icon: Icons.circle, size: 6, text: h),
                   ],
                   if (i.actions.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xxl),
-                    Text('Suggested next steps', style: AppTypography.sectionHeading.copyWith(color: text, fontSize: 17)),
+                    Text(context.l10n.suggestedNextSteps, style: AppTypography.sectionHeading.copyWith(color: text, fontSize: 17)),
                     const SizedBox(height: AppSpacing.md),
                     for (final a in i.actions) _Line(icon: Icons.arrow_forward_rounded, size: 16, text: a),
                   ],

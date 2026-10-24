@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../../core/api/api_time.dart';
 
+import '../../../l10n/l10n.dart';
 enum NotificationType {
   announcement,
   billing,
@@ -44,7 +45,7 @@ class NotificationItem {
   }
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
-    final title = json['title']?.toString() ?? 'Notification';
+    final title = json['title']?.toString() ?? L10n.current.notificationFallbackTitle;
     final msg = json['message']?.toString() ?? '';
 
     // Infer notification type from content/title
@@ -88,10 +89,10 @@ class NotificationItem {
 
   String timeAgo() {
     final difference = DateTime.now().difference(createdAt);
-    if (difference.inMinutes < 1) return 'Just now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
-    if (difference.inHours < 24) return '${difference.inHours}h ago';
-    if (difference.inDays < 7) return '${difference.inDays}d ago';
+    if (difference.inMinutes < 1) return L10n.current.timeJustNow;
+    if (difference.inMinutes < 60) return L10n.current.timeMinutesAgo(difference.inMinutes);
+    if (difference.inHours < 24) return L10n.current.timeHoursAgo(difference.inHours);
+    if (difference.inDays < 7) return L10n.current.timeDaysAgo(difference.inDays);
     return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
   }
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, Circle, ArrowRight, HelpCircle, X, Sparkles } from "lucide-react";
 import { RepsiMascot } from "@/components/ui/repsi-mascot";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n";
 
 interface StepItem {
   id: string;
@@ -27,47 +28,48 @@ export function GettingStartedDialog({
   onClose,
   completedSteps = {},
 }: GettingStartedDialogProps) {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   const steps: StepItem[] = [
     {
       id: "profile",
-      title: "Gym Profile",
-      desc: "Gym name, contact info, operating hours and logo",
+      title: t("layout.gym_profile"),
+      desc: t("layout.gym_name_contact_info_operating_hours"),
       href: `/${workspace}/settings`,
       completed: completedSteps.profile ?? true,
     },
     {
       id: "memberships",
-      title: "Add Membership Plans",
-      desc: "Packages & pricing your members can purchase",
+      title: t("layout.add_membership_plans"),
+      desc: t("layout.packages_pricing_your_members_can_purchase"),
       href: `/${workspace}/memberships`,
       completed: completedSteps.memberships ?? false,
     },
     {
       id: "trainers",
-      title: "Add Trainers",
-      desc: "Coaches to manage client workouts and routines",
+      title: t("layout.add_trainers"),
+      desc: t("layout.coaches_to_manage_client_workouts_and"),
       href: `/${workspace}/trainers`,
       completed: completedSteps.trainers ?? false,
     },
     {
       id: "members",
-      title: "Add Members",
-      desc: "Create members manually or upload CSV spreadsheet",
+      title: t("layout.add_members"),
+      desc: t("layout.create_members_manually_or_upload_csv"),
       href: `/${workspace}/members`,
       completed: completedSteps.members ?? false,
     },
     {
       id: "attendance",
-      title: "Set up Attendance",
-      desc: "QR scanner code & front-desk check-in kiosk",
+      title: t("layout.set_up_attendance"),
+      desc: t("layout.qr_scanner_code_front_desk_check"),
       href: `/${workspace}/attendance`,
       completed: completedSteps.attendance ?? false,
     },
     {
       id: "website",
-      title: "Public Gym Website",
+      title: t("layout.public_gym_website"),
       desc: "Launch repsi.app/" + workspace + " in Website Studio",
       href: `/${workspace}/website`,
       completed: completedSteps.website ?? false,
@@ -93,17 +95,17 @@ export function GettingStartedDialog({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[#E8F8ED] dark:bg-[#163321] px-2 py-0.5 rounded">
-                Getting Started Guide
+                {t("layout.getting_started_guide")}
               </span>
               <span className="text-xs font-bold text-[var(--text-muted)]">
                 {completedCount} of {steps.length} completed
               </span>
             </div>
             <h2 className="text-xl font-bold text-[var(--text)] dark:text-white mt-1">
-              Set up your gym
+              {t("layout.set_up_your_gym")}
             </h2>
             <p className="text-xs text-[var(--text-muted)] dark:text-[#8D9C94] mt-0.5">
-              Follow these recommended steps to have your gym operational in minutes.
+              {t("layout.follow_these_recommended_steps_to_have")}
             </p>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function GettingStartedDialog({
         {/* Progress Bar */}
         <div className="my-5">
           <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)] dark:text-[#E8F0EC] mb-1.5">
-            <span>Setup progress</span>
+            <span>{t("layout.setup_progress")}</span>
             <span className="text-[var(--primary-dark)]">{progressPct}%</span>
           </div>
           <div className="w-full h-2 rounded-full bg-[var(--surface-hover)] dark:bg-[#1a251e] overflow-hidden">
@@ -158,7 +160,7 @@ export function GettingStartedDialog({
                     : "bg-[#111714] dark:bg-white text-white dark:text-[var(--text)] hover:opacity-90"
                 }`}
               >
-                <span>{s.completed ? "✓ Completed" : "Set up"}</span>
+                <span>{s.completed ? t("layout.completed") : t("layout.set_up")}</span>
                 {!s.completed && <ArrowRight className="w-3 h-3" />}
               </Link>
             </div>
@@ -167,10 +169,10 @@ export function GettingStartedDialog({
 
         <div className="mt-6 pt-4 border-t border-[var(--border)] dark:border-[#223127] flex items-center justify-between">
           <span className="text-[11px] text-[var(--text-muted)] dark:text-[#8D9C94]">
-            You can reopen this checklist anytime from the top bar.
+            {t("layout.you_can_reopen_this_checklist_anytime")}
           </span>
           <Button size="sm" variant="outline" onClick={onClose} className="text-xs">
-            Close
+            {t("common.close")}
           </Button>
         </div>
       </div>

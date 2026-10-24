@@ -19,6 +19,7 @@ import '../../data/member_self_provider.dart';
 import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
 import '../../../ai/views/ai_workout_coach_view.dart';
+import '../../../../l10n/l10n.dart';
 
 class MemberHomeView extends ConsumerStatefulWidget {
   const MemberHomeView({super.key});
@@ -46,9 +47,9 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
 
   String _greeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return context.l10n.greetingMorning;
+    if (hour < 17) return context.l10n.greetingAfternoon;
+    return context.l10n.greetingEvening;
   }
 
   @override
@@ -83,7 +84,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Notifications',
+                    tooltip: context.l10n.commonNotifications,
                     onPressed: () => context.push(RouteNames.notifications),
                     icon: const Icon(LucideIcons.bell,
                         color: AppColors.text, size: 22),
@@ -97,7 +98,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
               const SizedBox(height: 12),
               const _ActivityCard(),
               const SizedBox(height: 16),
-              Text('Quick access',
+              Text(context.l10n.quickAccess,
                   style: AppTypography.sectionHeading
                       .copyWith(fontSize: 16, color: AppColors.text)),
               const SizedBox(height: 8),
@@ -106,7 +107,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
                   Expanded(
                     child: _QuickAction(
                       icon: LucideIcons.receipt,
-                      label: 'Payments',
+                      label: context.l10n.commonPayments,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -117,7 +118,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
                   Expanded(
                     child: _QuickAction(
                       icon: LucideIcons.qrCode,
-                      label: 'My pass',
+                      label: context.l10n.myPass,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -128,7 +129,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
                   Expanded(
                     child: _QuickAction(
                       icon: LucideIcons.sparkles,
-                      label: 'AI coach',
+                      label: context.l10n.aiCoach,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -183,14 +184,14 @@ class _MembershipCard extends ConsumerWidget {
         loading: () => const RepsiSkeleton(height: 48),
         error: (e, _) => _InlineError(
           message:
-              e is ApiError ? e.message : 'Could not load your membership.',
+              e is ApiError ? e.message : context.l10n.errorLoadMembership,
           onRetry: () => ref.invalidate(memberSelfProvider),
         ),
         data: (member) {
           final m = member.membership;
           if (m == null) {
             return Text(
-                'No membership yet. Ask your gym to set one up for you.',
+                context.l10n.noMembershipYet,
                 style: AppTypography.bodySecondary
                     .copyWith(color: AppColors.textSecondary));
           }
@@ -209,8 +210,8 @@ class _MembershipCard extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       expired
-                          ? 'Expired on ${DateFormat.yMMMd().format(m.endDate)}'
-                          : 'Valid until ${DateFormat.yMMMd().format(m.endDate)}',
+                          ? context.l10n.memberExpiredOn(L10n.date(m.endDate))
+                          : context.l10n.memberValidUntil(L10n.date(m.endDate)),
                       style: AppTypography.bodySecondary
                           .copyWith(color: AppColors.textSecondary),
                     ),
@@ -227,7 +228,7 @@ class _MembershipCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  expired ? 'Expired' : (soon ? '$days days left' : 'Active'),
+                  expired ? context.l10n.commonExpired : (soon ? context.l10n.commonDaysLeft(days) : context.l10n.commonActive),
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w700,
                     color: expired
@@ -258,7 +259,7 @@ class _AttendanceCard extends ConsumerWidget {
         loading: () => const RepsiSkeleton(height: 84),
         error: (e, _) => _InlineError(
           message:
-              e is ApiError ? e.message : 'Could not load your attendance.',
+              e is ApiError ? e.message : context.l10n.errorLoadYourAttendance,
           onRetry: () => ref.invalidate(myAttendanceProvider),
         ),
         data: (a) => Column(
@@ -268,17 +269,17 @@ class _AttendanceCard extends ConsumerWidget {
               children: [
                 _Metric(
                     value: '${a.streakDays}',
-                    label: 'Day streak',
+                    label: context.l10n.commonDayStreak,
                     icon: Icons.local_fire_department_rounded,
                     color: AppColors.primary),
                 _Metric(
                     value: '${a.thisWeekVisits}',
-                    label: 'This week',
+                    label: context.l10n.commonThisWeek,
                     icon: Icons.event_available_rounded,
                     color: AppColors.success),
                 _Metric(
                     value: '${a.thisMonthVisits}',
-                    label: 'This month',
+                    label: context.l10n.commonThisMonth,
                     icon: Icons.calendar_month_rounded,
                     color: AppColors.info),
               ],
@@ -286,8 +287,8 @@ class _AttendanceCard extends ConsumerWidget {
             const SizedBox(height: 14),
             RepsiButton(
               text: a.isInside
-                  ? 'Checked in since ${DateFormat.jm().format(a.activeVisit!.checkInTime)}'
-                  : 'Check in with QR',
+                  ? context.l10n.memberCheckedInSince(DateFormat.jm().format(a.activeVisit!.checkInTime))
+                  : context.l10n.checkInWithQr,
               variant: a.isInside
                   ? RepsiButtonVariant.outline
                   : RepsiButtonVariant.primary,
@@ -325,7 +326,7 @@ class _ActivityCard extends ConsumerWidget {
     if (health.availability == HealthAvailability.unsupported &&
         !health.connected) {
       body = Text(
-          'Activity tracking is available on Android phones with Health Connect.',
+          context.l10n.healthAndroidOnly,
           style: AppTypography.bodySecondary
               .copyWith(color: AppColors.textSecondary));
     } else if (!health.connected) {
@@ -334,17 +335,17 @@ class _ActivityCard extends ConsumerWidget {
         children: [
           Text(
             health.availability == HealthAvailability.available
-                ? 'Connect Health Connect to see your steps, distance and active calories from Google Fit and other apps. Only these three totals are read, and you can disconnect and delete them any time.'
-                : 'Health Connect is needed to read your steps from Google Fit and other fitness apps.',
+                ? context.l10n.healthConnectPitch
+                : context.l10n.healthConnectNeeded,
             style: AppTypography.bodySecondary
                 .copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           RepsiButton(
             text: switch (health.availability) {
-              HealthAvailability.available => 'Connect Health Connect',
-              HealthAvailability.updateRequired => 'Update Health Connect',
-              _ => 'Install Health Connect',
+              HealthAvailability.available => context.l10n.healthConnect,
+              HealthAvailability.updateRequired => context.l10n.healthUpdate,
+              _ => context.l10n.healthInstall,
             },
             variant: RepsiButtonVariant.outline,
             isFullWidth: true,
@@ -362,12 +363,12 @@ class _ActivityCard extends ConsumerWidget {
             children: [
               _Metric(
                   value: nf.format(today?.steps ?? 0),
-                  label: 'Steps',
+                  label: context.l10n.steps,
                   icon: Icons.directions_walk_rounded,
                   color: AppColors.info),
               _Metric(
                 value: nf.format((today?.activeCalories ?? 0).round()),
-                label: 'Active kcal',
+                label: context.l10n.activeKcal,
                 icon: Icons.local_fire_department_rounded,
                 color: AppColors.primary,
               ),
@@ -381,19 +382,21 @@ class _ActivityCard extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '7-day average: ${nf.format(health.summary.averageSteps)} steps'
-            '${health.summary.lastSyncedAt == null ? '' : ' · synced ${DateFormat.jm().format(health.summary.lastSyncedAt!)}'}',
+            [
+              context.l10n.healthAverageSteps(nf.format(health.summary.averageSteps)),
+              if (health.summary.lastSyncedAt != null) context.l10n.healthSyncedAt(DateFormat.jm().format(health.summary.lastSyncedAt!)),
+            ].join(' · '),
             style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
           ),
           Wrap(
             children: [
               TextButton(
                 onPressed: health.syncing ? null : () => notifier.sync(force: true),
-                child: const Text('Sync now'),
+                child: Text(context.l10n.syncNow),
               ),
               TextButton(
                 onPressed: health.syncing ? null : () => _confirmDisconnect(context, notifier),
-                child: const Text('Disconnect'),
+                child: Text(context.l10n.disconnect),
               ),
             ],
           ),
@@ -409,7 +412,7 @@ class _ActivityCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                  child: Text("Today's activity",
+                  child: Text(context.l10n.todaysActivity,
                       style: AppTypography.sectionHeading
                           .copyWith(fontSize: 16, color: AppColors.text))),
               if (health.syncing)
@@ -436,16 +439,16 @@ class _ActivityCard extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Disconnect Health Connect?'),
-        content: const Text(
-            'REPSI will stop syncing and delete the activity totals it has stored for you.'),
+        title: Text(context.l10n.healthDisconnectTitle),
+        content: Text(
+            context.l10n.healthDisconnectBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Disconnect')),
+              child: Text(context.l10n.disconnect)),
         ],
       ),
     );
@@ -504,7 +507,7 @@ class _InlineError extends StatelessWidget {
             child: Text(message,
                 style: AppTypography.bodySecondary
                     .copyWith(color: AppColors.textSecondary))),
-        TextButton(onPressed: onRetry, child: const Text('Retry')),
+        TextButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
       ],
     );
   }

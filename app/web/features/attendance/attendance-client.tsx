@@ -50,10 +50,12 @@ import { CurrentlyInsideTable } from "./components/currently-inside-table";
 import { AttendanceHistoryTable } from "./components/attendance-history-table";
 import { AttendanceAnalyticsView } from "./components/attendance-analytics-view";
 import { AttendanceSettingsCard } from "./components/attendance-settings-card";
+import { useTranslation, tr } from "@/lib/i18n";
 
 type TabKey = "overview" | "qr_manager" | "history" | "analytics" | "settings";
 
 export function AttendanceClient() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const workspace = getWorkspaceFromPath(pathname);
@@ -156,7 +158,7 @@ export function AttendanceClient() {
       setManualModalOpen(false);
       setManualSearch("");
     } catch (e: any) {
-      alert(e.message || "Failed to check in member");
+      alert(e.message || t("attendance.failed_to_check_in_member"));
     }
   };
 
@@ -167,7 +169,7 @@ export function AttendanceClient() {
       setManualModalOpen(false);
       setManualSearch("");
     } catch (e: any) {
-      alert(e.message || "Failed to check out");
+      alert(e.message || t("attendance.failed_to_check_out"));
     }
   };
 
@@ -178,7 +180,7 @@ export function AttendanceClient() {
       setManualModalOpen(false);
       setManualSearch("");
     } catch (e: any) {
-      alert(e.message || "Failed to check in trainer");
+      alert(e.message || tr("attendance.failed_to_check_in_trainer"));
     }
   };
 
@@ -200,7 +202,7 @@ export function AttendanceClient() {
     } catch (err: any) {
       setScanStatus({
         type: "error",
-        message: err.message || "Access scan failed",
+        message: err.message || t("attendance.access_scan_failed"),
       });
     } finally {
       setScanning(false);
@@ -214,14 +216,14 @@ export function AttendanceClient() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
-              Attendance Command Hub
+              {t("attendance.attendance_command_hub")}
             </h1>
             <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs font-semibold">
-              Live Access
+              {t("attendance.live_access")}
             </Badge>
           </div>
           <p className="text-xs text-[var(--text-muted)] mt-1">
-            Real-time gym attendance, secure revocable QR passes, smart auto-checkout, and analytics.
+            {t("attendance.real_time_gym_attendance_secure_revocable")}
           </p>
         </div>
 
@@ -232,7 +234,7 @@ export function AttendanceClient() {
             className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold shadow-sm cursor-pointer"
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>Show QR Code</span>
+            <span>{t("attendance.show_qr_code")}</span>
           </Button>
 
           <Button
@@ -243,7 +245,7 @@ export function AttendanceClient() {
             className="text-xs gap-1.5 h-9"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
-            <span>Refresh</span>
+            <span>{t("common.refresh")}</span>
           </Button>
 
           <Button
@@ -253,7 +255,7 @@ export function AttendanceClient() {
             className="text-xs gap-1.5 h-9"
           >
             <Scan className="w-3.5 h-3.5 text-blue-500" />
-            <span>Fast Pass Scan</span>
+            <span>{t("attendance.fast_pass_scan")}</span>
           </Button>
 
           <Button
@@ -262,7 +264,7 @@ export function AttendanceClient() {
             className="text-xs gap-1.5 h-9 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] shadow-sm font-semibold"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Manual Entry</span>
+            <span>{t("attendance.manual_entry")}</span>
           </Button>
         </div>
       </div>
@@ -270,11 +272,11 @@ export function AttendanceClient() {
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1 border-b border-[var(--border)] overflow-x-auto pb-1">
         {[
-          { key: "overview", label: "Today's Overview & Live Inside", icon: Users },
-          { key: "qr_manager", label: "Attendance QR Station", icon: QrCode },
-          { key: "history", label: "Attendance History Log", icon: History },
-          { key: "analytics", label: "Attendance Analytics", icon: BarChart3 },
-          { key: "settings", label: "Attendance Policies & Settings", icon: Settings },
+          { key: "overview", label: t("attendance.today_s_overview_live_inside"), icon: Users },
+          { key: "qr_manager", label: t("attendance.attendance_qr_station"), icon: QrCode },
+          { key: "history", label: t("attendance.attendance_history_log"), icon: History },
+          { key: "analytics", label: t("attendance.attendance_analytics"), icon: BarChart3 },
+          { key: "settings", label: t("attendance.attendance_policies_settings"), icon: Settings },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -302,57 +304,57 @@ export function AttendanceClient() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Today's Check-Ins
+                {t("attendance.today_s_check_ins")}
               </span>
               <p className="text-2xl font-extrabold text-[var(--text)]">{summary.today_total}</p>
-              <span className="text-[10px] text-emerald-600 font-medium">Scans recorded today</span>
+              <span className="text-[10px] text-emerald-600 font-medium">{t("attendance.scans_recorded_today")}</span>
             </div>
 
             <div className="p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-                Currently Inside
+                {t("attendance.currently_inside")}
               </span>
               <p className="text-2xl font-extrabold text-emerald-600 flex items-center gap-1.5">
                 <span>{summary.currently_inside}</span>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
               </p>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">Active workout sessions</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-medium">{t("attendance.active_workout_sessions")}</span>
             </div>
 
             <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Checked Out
+                {t("attendance.checked_out")}
               </span>
               <p className="text-2xl font-extrabold text-[var(--text)]">{summary.total_checked_out}</p>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">Completed sessions</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-medium">{t("attendance.completed_sessions")}</span>
             </div>
 
             <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Average Session
+                {t("attendance.average_session")}
               </span>
               <p className="text-2xl font-extrabold text-[var(--text)]">
                 {Math.floor(summary.average_dwell_minutes / 60)}h {summary.average_dwell_minutes % 60}m
               </p>
-              <span className="text-[10px] text-blue-600 font-medium">Daily dwell time</span>
+              <span className="text-[10px] text-blue-600 font-medium">{t("attendance.daily_dwell_time")}</span>
             </div>
 
             <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Peak Time
+                {t("attendance.peak_time")}
               </span>
               <p className="text-xs font-bold text-[var(--text)] truncate font-mono mt-1">
                 {summary.peak_hour}
               </p>
-              <span className="text-[10px] text-amber-600 font-medium">Busiest window</span>
+              <span className="text-[10px] text-amber-600 font-medium">{t("attendance.busiest_window")}</span>
             </div>
 
             <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Auto Check-Outs
+                {t("attendance.auto_check_outs")}
               </span>
               <p className="text-2xl font-extrabold text-amber-600">{summary.auto_checkouts_count}</p>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">Smart closing rule</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-medium">{t("attendance.smart_closing_rule")}</span>
             </div>
           </div>
 
@@ -364,13 +366,13 @@ export function AttendanceClient() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-[var(--text)]">Gym Reception Check-In QR Pass</h3>
+                  <h3 className="text-sm font-bold text-[var(--text)]">{t("attendance.gym_reception_check_in_qr_pass")}</h3>
                   <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] font-bold">
-                    ● Live Pass Ready
+                    {t("attendance.live_pass_ready")}
                   </Badge>
                 </div>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Display this pass at front desk or kiosk for members to check in instantly using the Repsi app.
+                  {t("attendance.display_this_pass_at_front_desk")}
                 </p>
               </div>
             </div>
@@ -382,7 +384,7 @@ export function AttendanceClient() {
                 className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold cursor-pointer shadow-sm"
               >
                 <QrCode className="w-3.5 h-3.5" />
-                <span>Show QR Pass</span>
+                <span>{t("attendance.show_qr_pass")}</span>
               </Button>
               <Link href={`/${workspace}/attendance/display`}>
                 <Button
@@ -391,7 +393,7 @@ export function AttendanceClient() {
                   className="text-xs gap-1.5 h-9 cursor-pointer"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Kiosk Screen</span>
+                  <span>{t("attendance.kiosk_screen")}</span>
                 </Button>
               </Link>
               <Button
@@ -400,7 +402,7 @@ export function AttendanceClient() {
                 onClick={() => setActiveTab("qr_manager")}
                 className="text-xs gap-1.5 h-9 cursor-pointer"
               >
-                <span>QR Settings →</span>
+                <span>{t("attendance.qr_settings")}</span>
               </Button>
             </div>
           </div>
@@ -453,7 +455,7 @@ export function AttendanceClient() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Scan className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-sm font-bold text-[var(--text)]">Fast Pass Turnstile Simulator</h3>
+                <h3 className="text-sm font-bold text-[var(--text)]">{t("attendance.fast_pass_turnstile_simulator")}</h3>
               </div>
               <button
                 onClick={() => setScannerModalOpen(false)}
@@ -464,14 +466,14 @@ export function AttendanceClient() {
             </div>
 
             <p className="text-xs text-[var(--text-muted)]">
-              Simulate member camera scanner or turnstile gate optical read. If member is already inside, this automatically checks them out; otherwise checks them in.
+              {t("attendance.simulate_member_camera_scanner_or_turnstile")}
             </p>
 
             <form onSubmit={handleSimulateScan} className="space-y-3">
               <input
                 type="text"
                 autoFocus
-                placeholder="Scan pass payload, member email, or phone..."
+                placeholder={t("attendance.scan_pass_payload_member_email_or")}
                 value={scanInput}
                 onChange={(e) => setScanInput(e.target.value)}
                 className="w-full h-10 px-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -482,7 +484,7 @@ export function AttendanceClient() {
                 disabled={scanning || !scanInput.trim()}
                 className="w-full text-xs font-semibold h-10 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]"
               >
-                {scanning ? "Processing..." : "Process Entrance Scan"}
+                {scanning ? t("attendance.processing") : t("attendance.process_entrance_scan")}
               </Button>
             </form>
 
@@ -510,7 +512,7 @@ export function AttendanceClient() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
           <div className="w-full max-w-lg bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[var(--text)]">Reception Manual Check-In</h3>
+              <h3 className="text-sm font-bold text-[var(--text)]">{t("attendance.reception_manual_check_in")}</h3>
               <button
                 onClick={() => setManualModalOpen(false)}
                 className="text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -525,20 +527,18 @@ export function AttendanceClient() {
                 onClick={() => setManualTab("member")}
                 className={`pb-1 font-semibold ${manualTab === "member" ? "text-emerald-600 border-b-2 border-emerald-600" : "text-[var(--text-muted)]"}`}
               >
-                Members ({members.length})
-              </button>
+                {t("attendance.members_count", undefined, { count: members.length })}</button>
               <button
                 type="button"
                 onClick={() => setManualTab("trainer")}
                 className={`pb-1 font-semibold ${manualTab === "trainer" ? "text-emerald-600 border-b-2 border-emerald-600" : "text-[var(--text-muted)]"}`}
               >
-                Trainers ({trainers.length})
-              </button>
+                {t("attendance.trainers_count", undefined, { count: trainers.length })}</button>
             </div>
 
             <input
               type="text"
-              placeholder="Search by name, phone or email..."
+              placeholder={t("attendance.search_by_name_phone_or_email")}
               value={manualSearch}
               onChange={(e) => setManualSearch(e.target.value)}
               className="w-full h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none"
@@ -567,15 +567,14 @@ export function AttendanceClient() {
                             <p className="font-semibold text-[var(--text)]">{m.name}</p>
                             {isInside ? (
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                                Inside ({activeInside?.duration_formatted})
-                              </span>
+                                {t("attendance.inside_duration_formatted", undefined, { duration_formatted: activeInside?.duration_formatted })}</span>
                             ) : isExpired ? (
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20">
                                 {m.status.toUpperCase()}
                               </span>
                             ) : (
                               <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-500/10 text-[var(--text-muted)]">
-                                {m.plan || "Standard"}
+                                {m.plan || t("attendance.standard")}
                               </span>
                             )}
                           </div>
@@ -588,7 +587,7 @@ export function AttendanceClient() {
                             onClick={() => handleManualCheckOut(activeInside!.attendance_id)}
                             className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-semibold"
                           >
-                            Check Out
+                            {t("attendance.check_out")}
                           </Button>
                         ) : (
                           <Button
@@ -601,7 +600,7 @@ export function AttendanceClient() {
                                 : "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]"
                             }`}
                           >
-                            {isExpired ? "Membership Expired" : "Check In"}
+                            {isExpired ? t("attendance.membership_expired") : t("attendance.check_in")}
                           </Button>
                         )}
                       </div>
@@ -627,8 +626,7 @@ export function AttendanceClient() {
                             <p className="font-semibold text-[var(--text)]">{t.name}</p>
                             {isInside && (
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                                Inside ({activeInside?.duration_formatted})
-                              </span>
+                                {tr("attendance.inside_duration_formatted", undefined, { duration_formatted: activeInside?.duration_formatted })}</span>
                             )}
                           </div>
                           <p className="text-[10px] text-[var(--text-muted)]">{t.phone}</p>
@@ -640,7 +638,7 @@ export function AttendanceClient() {
                             onClick={() => handleManualCheckOut(activeInside!.attendance_id)}
                             className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-[var(--primary-foreground)] font-semibold"
                           >
-                            Check Out
+                            {tr("attendance.check_out")}
                           </Button>
                         ) : (
                           <Button
@@ -648,7 +646,7 @@ export function AttendanceClient() {
                             onClick={() => handleManualCheckInTrainer(t)}
                             className="h-7 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold"
                           >
-                            Check In
+                            {tr("attendance.check_in")}
                           </Button>
                         )}
                       </div>
@@ -670,8 +668,8 @@ export function AttendanceClient() {
                   <QrCode className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[var(--text)] tracking-tight">Reception Check-In QR Pass</h3>
-                  <p className="text-[11px] text-[var(--text-muted)]">{gymName} • Main Gate Entrance</p>
+                  <h3 className="text-base font-bold text-[var(--text)] tracking-tight">{t("attendance.reception_check_in_qr_pass")}</h3>
+                  <p className="text-[11px] text-[var(--text-muted)]">{t("attendance.gymname_main_gate_entrance", undefined, { gymName })}</p>
                 </div>
               </div>
               <button
@@ -688,13 +686,13 @@ export function AttendanceClient() {
                   value={activeQr?.payload || `repsi://gym/checkin?gym_id=${workspace}&token=rep_live_pass`}
                   size={240}
                   title={gymName}
-                  subtitle="Scan with Repsi App to check in"
+                  subtitle={t("attendance.scan_with_repsi_app_to_check")}
                   showDownload={true}
                   showCopy={true}
                 />
               </div>
               <span className="text-[11px] font-medium text-[var(--text-muted)] text-center max-w-xs">
-                Members scan this code with their Repsi mobile app or camera to record check-in/out.
+                {t("attendance.members_scan_this_code_with_their")}
               </span>
             </div>
 
@@ -705,7 +703,7 @@ export function AttendanceClient() {
                   className="w-full text-xs font-semibold h-10 gap-1.5 cursor-pointer"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Kiosk Fullscreen</span>
+                  <span>{t("attendance.kiosk_fullscreen")}</span>
                 </Button>
               </Link>
               <Button
@@ -715,7 +713,7 @@ export function AttendanceClient() {
                 }}
                 className="w-full text-xs font-bold h-10 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] gap-1.5 cursor-pointer shadow-sm"
               >
-                <span>Manage / Print</span>
+                <span>{t("attendance.manage_print")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </div>

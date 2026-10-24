@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ApiCurrentlyInside, repsiApi } from "@/lib/api";
 import { getInitials } from "@/lib/utils";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface CurrentlyInsideTableProps {
   members: ApiCurrentlyInside[];
@@ -23,6 +24,7 @@ interface CurrentlyInsideTableProps {
 }
 
 export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTableProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [checkingOutId, setCheckingOutId] = useState<string | null>(null);
 
@@ -33,7 +35,7 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
   );
 
   const handleManualCheckout = async (item: ApiCurrentlyInside) => {
-    if (!confirm(`Check out ${item.name}? Session elapsed: ${item.duration_formatted}.`)) {
+    if (!confirm(t("attendance.check_out_name_session_elapsed_duration", undefined, { name: item.name, duration_formatted: item.duration_formatted }))) {
       return;
     }
     setCheckingOutId(item.attendance_id);
@@ -41,7 +43,7 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
       await repsiApi.checkOut(item.attendance_id, "STAFF");
       await onRefresh();
     } catch (e: any) {
-      alert(e.message || "Failed to check out member");
+      alert(e.message || t("attendance.failed_to_check_out_member"));
     } finally {
       setCheckingOutId(null);
     }
@@ -58,14 +60,13 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-[var(--text)] tracking-tight">
-                Currently Inside Facility
+                {t("attendance.currently_inside_facility")}
               </h2>
               <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs font-bold">
-                {members.length} Active
-              </Badge>
+                {t("attendance.countactive", undefined, { count: members.length })}</Badge>
             </div>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Live roster of members working out right now with real-time duration tracking.
+              {t("attendance.live_roster_of_members_working_out")}
             </p>
           </div>
         </div>
@@ -76,7 +77,7 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <input
               type="text"
-              placeholder="Search member, phone..."
+              placeholder={t("attendance.search_member_phone")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full h-9 pl-9 pr-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -90,10 +91,10 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
         <div className="p-12 text-center space-y-2 border border-dashed border-[var(--border)] rounded-xl">
           <Users className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-50" />
           <p className="text-xs font-semibold text-[var(--text)]">
-            {query ? "No members match search" : "Nobody currently inside"}
+            {query ? t("attendance.no_members_match_search") : t("attendance.nobody_currently_inside")}
           </p>
           <p className="text-[11px] text-[var(--text-muted)]">
-            {query ? "Try searching by another name or phone number" : "When members scan the entrance QR code, they appear here live."}
+            {query ? t("attendance.try_searching_by_another_name_or") : t("attendance.when_members_scan_the_entrance_qr")}
           </p>
         </div>
       ) : (
@@ -101,12 +102,12 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--background)] text-[var(--text-muted)] font-semibold uppercase text-[10px] tracking-wider">
-                <th className="py-3 px-4">Member</th>
-                <th className="py-3 px-4">Plan & Status</th>
-                <th className="py-3 px-4">Check-In Time</th>
-                <th className="py-3 px-4">Active Duration</th>
-                <th className="py-3 px-4">Terminal</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">{t("pay.member")}</th>
+                <th className="py-3 px-4">{t("attendance.plan_status")}</th>
+                <th className="py-3 px-4">{t("attendance.check_in_time")}</th>
+                <th className="py-3 px-4">{t("attendance.active_duration")}</th>
+                <th className="py-3 px-4">{t("attendance.terminal")}</th>
+                <th className="py-3 px-4 text-right">{t("attendance.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -126,12 +127,12 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
                           <span>{item.name}</span>
                           {item.person_type === "trainer" && (
                             <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-blue-500/30 text-blue-600">
-                              Trainer
+                              {t("navItem.trainer")}
                             </Badge>
                           )}
                         </p>
                         <p className="text-[10px] text-[var(--text-muted)]">
-                          {item.phone || item.member_id || "Facility Pass"}
+                          {item.phone || item.member_id || t("attendance.facility_pass")}
                         </p>
                       </div>
                     </div>
@@ -140,11 +141,9 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
                   {/* Plan & Status */}
                   <td className="py-3 px-4">
                     <div className="space-y-0.5">
-                      <p className="font-medium text-[var(--text)]">{item.plan_name || "Standard Plan"}</p>
+                      <p className="font-medium text-[var(--text)]">{item.plan_name || t("attendance.standard_plan")}</p>
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        Active
-                      </span>
+                        {richText(t("attendance.spanactive"), { span: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> })}</span>
                     </div>
                   </td>
 
@@ -166,7 +165,7 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
 
                   {/* Terminal */}
                   <td className="py-3 px-4 text-[var(--text-muted)] text-[11px] font-mono">
-                    {item.terminal_id || "Main Door"}
+                    {item.terminal_id || t("attendance.main_door")}
                   </td>
 
                   {/* Action */}
@@ -179,7 +178,7 @@ export function CurrentlyInsideTable({ members, onRefresh }: CurrentlyInsideTabl
                       className="h-8 px-2.5 text-xs gap-1.5 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>{checkingOutId === item.attendance_id ? "Checking Out..." : "Check Out"}</span>
+                      <span>{checkingOutId === item.attendance_id ? t("attendance.checking_out") : t("attendance.check_out")}</span>
                     </Button>
                   </td>
                 </tr>

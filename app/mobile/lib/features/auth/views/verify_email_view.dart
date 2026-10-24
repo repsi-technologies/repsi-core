@@ -7,6 +7,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_button.dart';
 
+import '../../../l10n/l10n.dart';
 class VerifyEmailView extends StatelessWidget {
   final String? email;
 
@@ -55,7 +56,7 @@ class VerifyEmailView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 Text(
-                  'Verify your email',
+                  context.l10n.verifyEmailTitle,
                   textAlign: TextAlign.center,
                   style: AppTypography.headingLarge.copyWith(
                     color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
@@ -63,7 +64,7 @@ class VerifyEmailView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'We have sent a verification link to\n${email ?? 'your email address'}. Please check your inbox.',
+                  context.l10n.verifyEmailSentTo(email ?? context.l10n.verifyEmailYourAddress),
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(
                     color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -71,17 +72,17 @@ class VerifyEmailView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 RepsiButton(
-                  text: 'Continue to Onboarding',
+                  text: context.l10n.continueToSetup,
                   onPressed: () => context.go(RouteNames.onboarding),
                   size: RepsiButtonSize.large,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiButton(
-                  text: 'Resend Email',
+                  text: context.l10n.resendEmail,
                   variant: RepsiButtonVariant.outline,
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Verification email resent!')),
+                      SnackBar(content: Text(context.l10n.verificationEmailResent)),
                     );
                   },
                 ),

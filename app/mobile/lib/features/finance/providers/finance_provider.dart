@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/api_provider.dart';
 
+import '../../../l10n/l10n.dart';
 /// Owner finance figures from /payments/summary, the dues and revenue reports, and /expenses.
 /// Auto-disposed, so nothing outlives the tab or the signed-in gym.
 
@@ -40,7 +41,7 @@ final duesProvider = FutureProvider.autoDispose<List<DueItem>>((ref) async {
   return (j['rows'] as List<dynamic>? ?? const [])
       .whereType<Map<String, dynamic>>()
       .map((r) => DueItem(
-            member: r['member_name']?.toString() ?? 'Member',
+            member: r['member_name']?.toString() ?? L10n.current.commonMember,
             phone: r['phone']?.toString(),
             balance: _n(r['balance']),
             total: _n(r['total']),

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { Download, Copy, Check, QrCode as QrIcon } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface QrCodeViewProps {
   value: string;
@@ -27,6 +28,7 @@ export function QrCodeView({
   lightColor = "#ffffff",
   className = "",
 }: QrCodeViewProps) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function QrCodeView({
       (err) => {
         if (err) {
           console.error("QR Code generation error:", err);
-          setError("Failed to render QR Code");
+          setError(t("ui.failed_to_render_qr_code"));
         } else {
           setError(null);
         }
@@ -116,10 +118,10 @@ export function QrCodeView({
               onClick={handleDownload}
               type="button"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-hover)] text-xs font-semibold transition-colors cursor-pointer"
-              title="Download QR Code image"
+              title={t("ui.download_qr_code_image")}
             >
               <Download className="w-3.5 h-3.5 text-[var(--primary)]" />
-              <span>Download</span>
+              <span>{t("ui.download")}</span>
             </button>
           )}
 
@@ -128,17 +130,17 @@ export function QrCodeView({
               onClick={handleCopy}
               type="button"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-hover)] text-xs font-semibold transition-colors cursor-pointer"
-              title="Copy QR payload"
+              title={t("ui.copy_qr_payload")}
             >
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-emerald-600 font-bold">Copied!</span>
+                  <span className="text-emerald-600 font-bold">{t("common.copied")}</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  <span>Copy Code</span>
+                  <span>{t("ui.copy_code")}</span>
                 </>
               )}
             </button>

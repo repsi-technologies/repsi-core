@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 export const controlClass =
   "flex h-10 w-full rounded-[8px] border bg-[var(--surface)] px-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60";
@@ -23,6 +24,7 @@ export function FormField({
   className?: string;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={cn("min-w-0", className)}>
       <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-[var(--text)]">
@@ -32,7 +34,7 @@ export function FormField({
             *
           </span>
         ) : (
-          <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">(optional)</span>
+          <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">{t("organization.optional")}</span>
         )}
       </label>
       {children}

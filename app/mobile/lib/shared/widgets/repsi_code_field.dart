@@ -5,6 +5,7 @@ import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../animations/repsi_motion.dart';
 
+import '../../l10n/l10n.dart';
 /// One-time code entry shown as separate digit boxes, backed by a single text field so paste,
 /// SMS/WhatsApp autofill and backspace all behave like a normal input.
 class RepsiCodeField extends StatefulWidget {
@@ -69,7 +70,7 @@ class _RepsiCodeFieldState extends State<RepsiCodeField> {
     final focused = _focusNode.hasFocus;
 
     return Semantics(
-      label: 'Verification code, ${widget.length} digits',
+      label: context.l10n.codeFieldLabel(widget.length),
       value: code.isEmpty ? null : code.split('').join(' '),
       textField: true,
       child: GestureDetector(

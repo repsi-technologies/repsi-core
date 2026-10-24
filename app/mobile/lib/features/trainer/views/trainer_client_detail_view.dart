@@ -7,6 +7,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../member/presentation/views/trainer_chat_view.dart';
 import '../../nutrition/data/coaching_repository.dart';
 import 'trainer_diet_plan_view.dart';
+import '../../../l10n/l10n.dart';
 
 /// An assigned client: contact, diet adherence and shortcuts to chat and the diet plan.
 /// `client['client_id']` is the member id; without it (legacy callers) the actions are hidden.
@@ -45,13 +46,13 @@ class TrainerClientDetailView extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           if (id == null)
-            Text('Open this client from My clients to message them or see their diet.', style: AppTypography.bodySecondary)
+            Text(context.l10n.openFromMyClients, style: AppTypography.bodySecondary)
           else ...[
             Row(children: [
               Expanded(
                 child: FilledButton.icon(
                   icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text('Message'),
+                  label: Text(context.l10n.message),
                   onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => TrainerChatView(memberId: id, asTrainer: true))),
                 ),
@@ -60,7 +61,7 @@ class TrainerClientDetailView extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.restaurant_menu),
-                  label: const Text('Diet plan'),
+                  label: Text(context.l10n.dietPlan),
                   onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => TrainerDietPlanView(memberId: id, memberName: name))),
                 ),
@@ -72,17 +73,17 @@ class TrainerClientDetailView extends ConsumerWidget {
               builder: (context, snap) {
                 final a = snap.data;
                 if (snap.connectionState != ConnectionState.done) return const LinearProgressIndicator();
-                if (snap.hasError) return Text('Couldn\'t load diet adherence.', style: AppTypography.caption);
+                if (snap.hasError) return Text(context.l10n.errorLoadAdherence, style: AppTypography.caption);
                 if (a == null || (a['planned_meals'] as num? ?? 0) == 0) {
-                  return Text('No diet plan assigned.', style: AppTypography.bodySecondary);
+                  return Text(context.l10n.noDietPlan, style: AppTypography.bodySecondary);
                 }
                 return RepsiCard(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Diet adherence · last 7 days', style: AppTypography.sectionHeading),
+                    Text(context.l10n.dietAdherenceTitle, style: AppTypography.sectionHeading),
                     const SizedBox(height: 4),
                     Text('${a['adherence_pct'] ?? '—'}%', style: AppTypography.display),
                     Text(
-                      'Followed ${a['followed']} · Modified ${a['modified']} · Skipped ${a['skipped']} · Not logged ${a['not_logged']}',
+                      context.l10n.dietAdherence('${a['followed']}', '${a['modified']}', '${a['skipped']}', '${a['not_logged']}'),
                       style: AppTypography.caption,
                     ),
                   ]),

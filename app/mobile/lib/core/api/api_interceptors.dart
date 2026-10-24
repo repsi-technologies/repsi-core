@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import '../../app/config/app_config.dart';
 import '../storage/secure_storage_service.dart';
+import '../../l10n/l10n.dart';
 
 enum _RefreshResult { renewed, rejected, unavailable }
 
@@ -48,6 +49,8 @@ class AuthInterceptor extends Interceptor {
     }
 
     options.headers['Accept'] = 'application/json';
+    // Lets the API answer in the app language (validation and error messages, where translated).
+    options.headers['Accept-Language'] = L10n.localeName;
     if (options.data is! FormData) {
       options.headers['Content-Type'] ??= 'application/json';
     }

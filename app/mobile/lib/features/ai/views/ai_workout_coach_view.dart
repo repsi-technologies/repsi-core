@@ -12,6 +12,7 @@ import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../member/presentation/views/active_workout_view.dart';
 import '../providers/ai_coach_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class AiWorkoutCoachView extends ConsumerStatefulWidget {
   const AiWorkoutCoachView({super.key});
@@ -21,24 +22,24 @@ class AiWorkoutCoachView extends ConsumerStatefulWidget {
 }
 
 class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
-  final Map<String, String> _goalLabels = {
-    'hypertrophy': 'Muscle Gain',
-    'fat_loss': 'Fat Loss & Tone',
-    'strength': 'Raw Strength',
-    'endurance': 'Endurance & Stamina',
-    'general_fitness': 'General Wellness',
+  Map<String, String> get _goalLabels => {
+    'hypertrophy': context.l10n.goalMuscleGain,
+    'fat_loss': context.l10n.goalFatLoss,
+    'strength': context.l10n.goalStrength,
+    'endurance': context.l10n.goalEndurance,
+    'general_fitness': context.l10n.goalWellness,
   };
 
-  final Map<String, String> _expLabels = {
-    'beginner': 'Beginner (< 1 yr)',
-    'intermediate': 'Intermediate (1-3 yrs)',
-    'advanced': 'Advanced (3+ yrs)',
+  Map<String, String> get _expLabels => {
+    'beginner': context.l10n.expBeginner,
+    'intermediate': context.l10n.expIntermediate,
+    'advanced': context.l10n.expAdvanced,
   };
 
-  final Map<String, String> _equipLabels = {
-    'full_gym': 'Commercial Gym',
-    'dumbbells': 'Dumbbells & Bench',
-    'bodyweight': 'Calisthenics & Home',
+  Map<String, String> get _equipLabels => {
+    'full_gym': context.l10n.equipFullGym,
+    'dumbbells': context.l10n.equipDumbbells,
+    'bodyweight': context.l10n.equipBodyweight,
   };
 
   @override
@@ -70,7 +71,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
             ),
             const SizedBox(width: 10),
             Text(
-              'AI Workout Coach',
+              context.l10n.aiWorkoutCoach,
               style: AppTypography.headingSmall.copyWith(
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.darkText : AppColors.text,
@@ -81,7 +82,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.info),
-            tooltip: 'Safety Guidelines',
+            tooltip: context.l10n.safetyGuidelines,
             onPressed: () => _showSafetyDialog(context),
           ),
         ],
@@ -134,8 +135,8 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
-                              'GEMINI POWERED',
+                            child: Text(
+                              context.l10n.aiPowered,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
@@ -151,7 +152,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Tailored Fitness Routine',
+                        context.l10n.tailoredRoutine,
                         style: AppTypography.headingSmall.copyWith(
                           fontWeight: FontWeight.w700,
                           color: isDark ? AppColors.darkText : AppColors.text,
@@ -159,7 +160,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Answer your training preferences below to instantly build a science-backed progressive split adapted to your equipment and goals.',
+                        context.l10n.aiCoachIntro,
                         style: AppTypography.caption.copyWith(
                           color: isDark
                               ? AppColors.darkTextSecondary
@@ -183,7 +184,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSectionHeader(
-                          '1. What is your primary fitness goal?'),
+                          context.l10n.aiQ1),
                       const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
@@ -203,7 +204,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       const Divider(height: 1),
                       const SizedBox(height: 18),
 
-                      _buildSectionHeader('2. Training Experience Level'),
+                      _buildSectionHeader(context.l10n.aiQ2),
                       const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
@@ -223,7 +224,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       const Divider(height: 1),
                       const SizedBox(height: 18),
 
-                      _buildSectionHeader('3. Training Frequency (Days/Week)'),
+                      _buildSectionHeader(context.l10n.aiQ3),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -281,7 +282,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       const Divider(height: 1),
                       const SizedBox(height: 18),
 
-                      _buildSectionHeader('4. Equipment Access'),
+                      _buildSectionHeader(context.l10n.aiQ4),
                       const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
@@ -304,7 +305,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                         children: [
                           Expanded(
                             child: RepsiButton(
-                              text: 'Generate Routine',
+                              text: context.l10n.generateRoutine,
                               isLoading: state.isLoading,
                               leadingIcon:
                                   const Icon(LucideIcons.dumbbell, size: 18),
@@ -315,7 +316,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: RepsiButton(
-                              text: 'Personalize AI',
+                              text: context.l10n.personalizeAi,
                               variant: RepsiButtonVariant.outline,
                               isLoading: state.isPersonalizingAi,
                               leadingIcon: const Icon(LucideIcons.sparkles,
@@ -408,7 +409,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                 color: AppColors.warning, size: 36),
             const SizedBox(height: 10),
             Text(suggestion.safetyMessage ??
-                'No plan available for this criteria.'),
+                context.l10n.noPlanForCriteria),
           ],
         ),
       );
@@ -433,7 +434,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
             const SizedBox(width: 8),
             RepsiBadge(
               label:
-                  suggestion.source == 'ai' ? 'AI TAILORED' : 'VERIFIED SPLIT',
+                  suggestion.source == 'ai' ? context.l10n.aiTailored : context.l10n.verifiedSplit,
               variant: suggestion.source == 'ai'
                   ? RepsiBadgeVariant.active
                   : RepsiBadgeVariant.info,
@@ -499,7 +500,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                       IconButton(
                         icon: const Icon(LucideIcons.playCircle,
                             color: AppColors.primary, size: 22),
-                        tooltip: 'Start this workout',
+                        tooltip: context.l10n.startThisWorkout,
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -599,12 +600,12 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
+                  children: [
                     Icon(LucideIcons.lightbulb,
                         size: 16, color: AppColors.primary),
                     SizedBox(width: 6),
                     Text(
-                      'Coach Protocol Tips',
+                      context.l10n.coachTips,
                       style:
                           TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                     ),
@@ -658,14 +659,14 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Safety & Medical Disclaimer'),
-        content: const Text(
-          'REPSI AI Workout Coach provides general exercise recommendations based on sports science heuristics and automated generation. It does not replace individualized medical advice or personal fitness consultation. Stop exercising immediately if you feel dizziness, sharp pain, or shortness of breath.',
+        title: Text(context.l10n.safetyDisclaimerTitle),
+        content: Text(
+          context.l10n.safetyDisclaimerBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Understood'),
+            child: Text(context.l10n.understood),
           ),
         ],
       ),

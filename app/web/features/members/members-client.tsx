@@ -10,6 +10,7 @@ import { RenewalAlertsCard } from "./renewal-alerts-card";
 import { Button } from "@/components/ui/button";
 import type { Member, MemberStatus, MembershipPlanName } from "@/types";
 import { repsiApi } from "@/lib/api";
+import { tr } from "@/lib/i18n";
 
 interface MembersClientProps {
   initialMembers: Member[];
@@ -24,7 +25,7 @@ function toMember(m: any): Member {
     email: m.email,
     phone: m.phone || "",
     status: m.status as MemberStatus,
-    plan: (m.plan_name as MembershipPlanName) || "Monthly",
+    plan: (m.plan_name as MembershipPlanName) || tr("members.monthly"),
     repsiAccess: m.repsi_access,
     userId: m.user_id,
     joined: m.joined_date,
@@ -73,7 +74,7 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       setMembers(res.items.map(toMember));
       setTotal(res.total);
     } catch (err: any) {
-      setLoadError(err.message || "Failed to load members");
+      setLoadError(err.message || tr("members.failed_to_load_members"));
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || "Failed to export members");
+        throw new Error(err.detail || tr("members.failed_to_export_members"));
       }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -105,19 +106,19 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      alert(err.message || "Failed to export members");
+      alert(err.message || tr("members.failed_to_export_members"));
     }
   };
 
   const handleDeleteMember = async (id: string, name: string) => {
-    if (!confirm(`Permanently delete "${name}"? This removes their membership, payment and attendance history. To keep records, archive the member from their profile instead.`)) {
+    if (!confirm(tr("members.permanently_delete_name_this_removes_their", undefined, { name }))) {
       return;
     }
     try {
       await repsiApi.deleteMember(id);
       fetchMembers();
     } catch (err: any) {
-      alert(err.message || "Failed to delete member");
+      alert(err.message || tr("members.failed_to_delete_member"));
     }
   };
 
@@ -148,11 +149,11 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
       {loadError ? (
         <div role="alert" className="rounded-[12px] border border-rose-500/30 bg-rose-500/5 p-6 text-center text-sm text-rose-500">
           <p>{loadError}</p>
-          <Button variant="secondary" size="sm" className="mt-3" onClick={fetchMembers}>Try again</Button>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={fetchMembers}>{tr("onboarding.try_again")}</Button>
         </div>
       ) : !loading && members.length === 0 && hasFilters ? (
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-8 text-center text-sm text-[var(--text-muted)]">
-          No members match these filters.
+          {tr("members.no_members_match_these_filters")}
         </div>
       ) : (
         <div className={loading ? "opacity-60 transition-opacity" : ""} aria-busy={loading}>
@@ -170,7 +171,7 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
                 </span>
                 <div className="flex items-center gap-2">
                   <label className="flex items-center gap-1">
-                    Rows
+                    {tr("members.rows")}
                     <select
                       value={pageSize}
                       onChange={(e) => setPageSize(Number(e.target.value))}
@@ -179,9 +180,9 @@ export function MembersClient({ initialMembers }: MembersClientProps) {
                       {PAGE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </label>
-                  <Button variant="secondary" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)}>Previous</Button>
-                  <span>Page {page} of {pageCount}</span>
-                  <Button variant="secondary" size="sm" disabled={page >= pageCount || loading} onClick={() => setPage((p) => p + 1)}>Next</Button>
+                  <Button variant="secondary" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)}>{tr("members.previous")}</Button>
+                  <span>{tr("members.page_pageof_pagecount", undefined, { page, pageCount })}</span>
+                  <Button variant="secondary" size="sm" disabled={page >= pageCount || loading} onClick={() => setPage((p) => p + 1)}>{tr("members.next")}</Button>
                 </div>
               </div>
             }

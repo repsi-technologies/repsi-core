@@ -15,6 +15,9 @@ import '../../auth/views/sign_out_dialog.dart';
 import '../../auth/widgets/my_profile_photo.dart';
 import '../../members/providers/member_detail_provider.dart';
 import '../../workspaces/providers/workspace_provider.dart';
+import '../../../l10n/l10n.dart';
+import '../../../core/localization/locale_provider.dart';
+import '../../../shared/widgets/language_selector_sheet.dart';
 
 final _branchesProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
   final list = (await ref.watch(apiClientProvider).get('/branches')).data as List<dynamic>? ?? const [];
@@ -38,7 +41,7 @@ class MoreView extends ConsumerWidget {
       backgroundColor: canvas,
       appBar: AppBar(
         backgroundColor: canvas,
-        title: Text('More', style: AppTypography.heading.copyWith(color: _text(d), fontWeight: FontWeight.w700)),
+        title: Text(context.l10n.commonMore, style: AppTypography.heading.copyWith(color: _text(d), fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xs, AppSpacing.xl, AppSpacing.xxxl),
@@ -69,31 +72,37 @@ class MoreView extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-          _Group(title: 'Your gym', items: [
-            _Item(Icons.insights_rounded, 'Business insights', onTap: () => context.push(RouteNames.aiInsights)),
-            _Item(Icons.notifications_none_rounded, 'Notifications', onTap: () => context.push(RouteNames.notifications)),
-            _Item(Icons.store_mall_directory_outlined, 'Branches', onTap: () => _showBranches(context)),
-            _Item(Icons.card_membership_outlined, 'Membership plans', onTap: () => _showPlans(context)),
-            _Item(Icons.person_add_outlined, 'Add trainer', subtitle: 'Onboard gym coach or PT', onTap: () => context.push(RouteNames.addTrainer)),
+          _Group(title: context.l10n.yourGym, items: [
+            _Item(Icons.insights_rounded, context.l10n.businessInsights, onTap: () => context.push(RouteNames.aiInsights)),
+            _Item(Icons.notifications_none_rounded, context.l10n.commonNotifications, onTap: () => context.push(RouteNames.notifications)),
+            _Item(Icons.store_mall_directory_outlined, context.l10n.branches, onTap: () => _showBranches(context)),
+            _Item(Icons.card_membership_outlined, context.l10n.membershipPlans, onTap: () => _showPlans(context)),
+            _Item(Icons.person_add_outlined, context.l10n.addTrainer, subtitle: context.l10n.addTrainerDesc, onTap: () => context.push(RouteNames.addTrainer)),
           ]),
-          _Group(title: 'App', items: [
+          _Group(title: context.l10n.app, items: [
+            _Item(
+              Icons.translate_rounded,
+              context.l10n.commonLanguage,
+              subtitle: ref.watch(localeNotifierProvider).nativeName,
+              onTap: () => LanguageSelectorSheet.show(context),
+            ),
             _Item(
               Icons.dark_mode_outlined,
-              'Dark mode',
+              context.l10n.darkMode,
               trailing: Switch(
                 value: theme == AppThemeMode.dark,
                 onChanged: (on) => ref.read(themeNotifierProvider.notifier).setTheme(on ? AppThemeMode.dark : AppThemeMode.light),
               ),
             ),
           ]),
-          _Group(title: 'On the web', items: [
+          _Group(title: context.l10n.onTheWeb, items: [
             _Item(
               Icons.open_in_new_rounded,
-              'Billing, staff roles, reports and website',
-              subtitle: 'Manage these on repsi.app',
+              context.l10n.onTheWebTitle,
+              subtitle: context.l10n.manageOnWeb,
               onTap: () {
                 Clipboard.setData(const ClipboardData(text: 'https://repsi.app'));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied: https://repsi.app')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.commonLinkCopied)));
               },
             ),
           ]),
@@ -101,7 +110,7 @@ class MoreView extends ConsumerWidget {
           OutlinedButton.icon(
             onPressed: () => SignOutDialog.show(context),
             icon: Icon(Icons.logout_rounded, color: d ? AppColors.darkError : AppColors.error),
-            label: Text('Sign out', style: AppTypography.button.copyWith(color: d ? AppColors.darkError : AppColors.error)),
+            label: Text(context.l10n.commonSignOut, style: AppTypography.button.copyWith(color: d ? AppColors.darkError : AppColors.error)),
             style: OutlinedButton.styleFrom(side: BorderSide(color: _border(d))),
           ),
         ],
@@ -117,13 +126,13 @@ class MoreView extends ConsumerWidget {
   void _showBranches(BuildContext context) {
     RepsiBottomSheet.show<void>(
       context: context,
-      title: 'Branches',
+      title: context.l10n.branches,
       child: Consumer(
         builder: (context, ref, _) {
           final d = Theme.of(context).brightness == Brightness.dark;
           return ref.watch(_branchesProvider).when(
                 loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: Center(child: CircularProgressIndicator())),
-                error: (_, __) => Text("Couldn't load branches.", style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                error: (_, __) => Text(context.l10n.errorLoadBranches, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                 data: (list) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -131,18 +140,18 @@ class MoreView extends ConsumerWidget {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(Icons.store_mall_directory_outlined, color: _secondary(d)),
-                        title: Text(b['name']?.toString() ?? 'Branch',
+                        title: Text(b['name']?.toString() ?? context.l10n.branch,
                             style: AppTypography.body.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
                         subtitle: Text(
                           [b['address_line1'], b['city']].where((v) => v != null && v.toString().isNotEmpty).join(' · '),
                           style: AppTypography.caption.copyWith(color: _secondary(d)),
                         ),
                         trailing: b['is_primary'] == true
-                            ? Text('Main', style: AppTypography.caption.copyWith(color: _secondary(d), fontWeight: FontWeight.w600))
+                            ? Text(context.l10n.mainBranch, style: AppTypography.caption.copyWith(color: _secondary(d), fontWeight: FontWeight.w600))
                             : null,
                       ),
                     const SizedBox(height: AppSpacing.sm),
-                    Text('Add or edit branches on repsi.app.', style: AppTypography.caption.copyWith(color: _secondary(d))),
+                    Text(context.l10n.editBranchesOnWeb, style: AppTypography.caption.copyWith(color: _secondary(d))),
                   ],
                 ),
               );
@@ -155,23 +164,23 @@ class MoreView extends ConsumerWidget {
     final inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     RepsiBottomSheet.show<void>(
       context: context,
-      title: 'Membership plans',
+      title: context.l10n.membershipPlans,
       child: Consumer(
         builder: (context, ref, _) {
           final d = Theme.of(context).brightness == Brightness.dark;
           return ref.watch(membershipPlansProvider).when(
                 loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: Center(child: CircularProgressIndicator())),
-                error: (_, __) => Text("Couldn't load plans.", style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                error: (_, __) => Text(context.l10n.errorLoadPlans, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                 data: (plans) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (plans.isEmpty)
-                      Text('No plans yet. Create plans on repsi.app.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                      Text(context.l10n.noPlansYet, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                     for (final p in plans)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(p.name, style: AppTypography.body.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
-                        subtitle: Text('${p.months} ${p.months == 1 ? 'month' : 'months'}',
+                        subtitle: Text(context.l10n.commonMonths(p.months),
                             style: AppTypography.caption.copyWith(color: _secondary(d))),
                         trailing: Text(inr.format(p.price),
                             style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w600, color: _text(d))),

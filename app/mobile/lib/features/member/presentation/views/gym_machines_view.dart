@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../../shared/models/fitness_models.dart';
 import '../../data/member_repository.dart';
 
@@ -14,7 +15,7 @@ class GymMachinesView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gym Machines & Equipment'),
+        title: Text(context.l10n.gymMachinesTitle),
       ),
       body: machinesAsync.when(
         data: (machines) => ListView.separated(
@@ -35,19 +36,22 @@ class GymMachinesView extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          item.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        _buildStatusBadge(item.status),
+                        const SizedBox(width: 8),
+                        _buildStatusBadge(context, item.status),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Category: ${item.category} · Targets: ${item.targetMuscles}',
+                      context.l10n.machineCategoryPrefix(item.category, item.targetMuscles),
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 10),
@@ -78,12 +82,12 @@ class GymMachinesView extends ConsumerWidget {
           },
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, __) => Text('Error: $err'),
+        error: (err, __) => Center(child: Text(context.l10n.commonSomethingWentWrong)),
       ),
     );
   }
 
-  Widget _buildStatusBadge(MachineStatus status) {
+  Widget _buildStatusBadge(BuildContext context, MachineStatus status) {
     Color bg;
     Color text;
     String label;
@@ -92,22 +96,22 @@ class GymMachinesView extends ConsumerWidget {
       case MachineStatus.available:
         bg = AppColors.success.withValues(alpha: 0.15);
         text = AppColors.success;
-        label = 'AVAILABLE';
+        label = context.l10n.machineStatusAvailable.toUpperCase();
         break;
       case MachineStatus.inUse:
         bg = AppColors.info.withValues(alpha: 0.15);
         text = AppColors.info;
-        label = 'IN USE';
+        label = context.l10n.machineStatusInUse.toUpperCase();
         break;
       case MachineStatus.maintenance:
         bg = AppColors.error.withValues(alpha: 0.15);
         text = AppColors.error;
-        label = 'MAINTENANCE';
+        label = context.l10n.machineStatusMaintenance.toUpperCase();
         break;
       case MachineStatus.unavailable:
         bg = Colors.grey.withValues(alpha: 0.15);
         text = Colors.grey;
-        label = 'UNAVAILABLE';
+        label = context.l10n.machineStatusUnavailable.toUpperCase();
         break;
     }
 
@@ -128,3 +132,4 @@ class GymMachinesView extends ConsumerWidget {
     );
   }
 }
+

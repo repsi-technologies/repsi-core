@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { repsiApi } from "@/lib/api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 export interface TrialStatusData {
   workspace_id: string;
@@ -54,6 +55,7 @@ export function TrialCountdownCard({
   workspace: string;
   initialData?: TrialStatusData | null;
 }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<TrialStatusData | null>(initialData || null);
   const [loading, setLoading] = useState<boolean>(!initialData);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -123,14 +125,13 @@ export function TrialCountdownCard({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  {data.plan_name} Plan Active
-                </span>
+                  {t("dashboard.plan_nameplan_active", undefined, { plan_name: data.plan_name })}</span>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold px-2 py-0.5 rounded-full">
-                  Subscription Live
+                  {t("dashboard.subscription_live")}
                 </span>
               </div>
               <p className="text-xs text-[var(--text-muted)] dark:text-[#94a3b8] mt-0.5">
-                Up to {data.member_limit === -1 ? "Unlimited" : data.member_limit} members included.
+                {t("dashboard.up_to")}{" "}{data.member_limit === -1 ? t("dashboard.unlimited") : data.member_limit} {t("dashboard.members_included")}
               </p>
             </div>
           </div>
@@ -140,9 +141,7 @@ export function TrialCountdownCard({
               size="sm"
               className="border-[var(--success)]/30 text-[var(--success-foreground)] hover:bg-[var(--success-soft)] rounded-xl font-semibold text-xs"
             >
-              <CreditCard className="w-3.5 h-3.5 mr-1.5" />
-              Manage Billing
-            </Button>
+              {richText(t("dashboard.creditcardmanage_billing"), { creditcard: <CreditCard className="w-3.5 h-3.5 mr-1.5" /> })}</Button>
           </Link>
         </div>
       </div>
@@ -161,17 +160,16 @@ export function TrialCountdownCard({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-black uppercase tracking-wider text-[var(--error-foreground)] bg-[var(--error-soft)] px-2.5 py-0.5 rounded-md">
-                  14-Day Free Trial Ended
+                  {t("dashboard.14_day_free_trial_ended")}
                 </span>
                 <span className="text-xs text-[var(--text-muted)]">
-                  Expired on {new Date(data.trial_ends_at).toLocaleDateString()}
-                </span>
+                  {t("dashboard.expired_on_tolocaledatestring", undefined, { toLocaleDateString: new Date(data.trial_ends_at).toLocaleDateString() })}</span>
               </div>
               <h3 className="text-lg font-black text-[var(--text)]">
-                Your free trial has ended — choose a plan to continue
+                {t("dashboard.your_free_trial_has_ended_choose")}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl">
-                Your gym records, members, and payment history are safely preserved. Upgrade now to reactivate member registrations, QR check-ins, and staff workflows.
+                {t("dashboard.your_gym_records_members_and_payment")}
               </p>
             </div>
           </div>
@@ -179,7 +177,7 @@ export function TrialCountdownCard({
           <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto shrink-0">
             <Link href={`/${workspace}/settings?tab=billing`}>
               <Button className="w-full sm:w-auto bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs h-12 px-5 rounded-xl shadow-sm gap-1.5 cursor-pointer">
-                <span>View Plans & Upgrade</span>
+                <span>{t("dashboard.view_plans_upgrade")}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -204,7 +202,7 @@ export function TrialCountdownCard({
     btn: "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]",
     icon: <Sparkles className="w-5 h-5 text-[var(--success-foreground)]" />,
     heading: `${computedTiming.days} ${computedTiming.days === 1 ? "day" : "days"} remaining in your 14-day free trial`,
-    message: "Explore member management, QR attendance, trainer coaching, and automated billing before your trial ends.",
+    message: t("dashboard.explore_member_management_qr_attendance_trainer"),
   };
 
   if (isLastDay) {
@@ -216,8 +214,8 @@ export function TrialCountdownCard({
       progress: "bg-[var(--warning)]",
       btn: "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]",
       icon: <Clock className="w-5 h-5 text-[var(--warning-foreground)] animate-spin" />,
-      heading: `Trial expires today (${computedTiming.hours}h ${computedTiming.minutes}m remaining)`,
-      message: "Your free trial ends in less than 24 hours. Upgrade now to ensure zero interruption for your gym members.",
+      heading: t("dashboard.trial_expires_today_hoursh_minutesm_remaining", undefined, { hours: computedTiming.hours, minutes: computedTiming.minutes }),
+      message: t("dashboard.your_free_trial_ends_in_less"),
     };
   } else if (isThreeDaysOrLess) {
     theme = {
@@ -228,8 +226,8 @@ export function TrialCountdownCard({
       progress: "bg-[var(--warning)]",
       btn: "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]",
       icon: <AlertTriangle className="w-5 h-5 text-[var(--warning-foreground)]" />,
-      heading: `${computedTiming.days} days remaining — time to choose your plan`,
-      message: "Lock in your plan to keep attendance logs, member rosters, and coach assignments running seamlessly.",
+      heading: t("dashboard.days_days_remaining_time_to_choose", undefined, { days: computedTiming.days }),
+      message: t("dashboard.lock_in_your_plan_to_keep"),
     };
   } else if (isSevenDaysOrLess) {
     theme = {
@@ -240,8 +238,8 @@ export function TrialCountdownCard({
       progress: "bg-[var(--warning)]",
       btn: "bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)]",
       icon: <Clock className="w-5 h-5 text-[var(--warning-foreground)]" />,
-      heading: `You are halfway through your 14-day free trial (${computedTiming.days} days left)`,
-      message: "Test out trainer assignments, public website booking, and automated fee reminders before your trial ends.",
+      heading: t("dashboard.you_are_halfway_through_your_14", undefined, { days: computedTiming.days }),
+      message: t("dashboard.test_out_trainer_assignments_public_website"),
     };
   }
 
@@ -256,12 +254,9 @@ export function TrialCountdownCard({
         <div className="space-y-2.5 max-w-2xl">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${theme.badgeBg}`}>
-              14-Day Free Trial · {data.plan_name} Tier Unlocked
-            </span>
+              {t("dashboard.14_day_free_trial_plan_nametier", undefined, { plan_name: data.plan_name })}</span>
             <span className="text-[11px] font-medium text-[var(--text-muted)] dark:text-[#94a3b8] flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Expires: {formattedExpiry}
-            </span>
+              {richText(t("dashboard.clockexpires_formattedexpiry"), { clock: <Clock className="w-3 h-3" />, formattedExpiry })}</span>
           </div>
 
           <div className="space-y-1">
@@ -276,8 +271,8 @@ export function TrialCountdownCard({
           {/* Trial Progress Bar */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] dark:text-[#94a3b8]">
-              <span>Trial Consumption</span>
-              <span>{Math.round(data.progress_pct)}% completed</span>
+              <span>{t("dashboard.trial_consumption")}</span>
+              <span>{t("dashboard.math_completed", undefined, { Math: Math.round(data.progress_pct) })}</span>
             </div>
             <div className="w-full h-2.5 rounded-full bg-[var(--surface-secondary)] overflow-hidden">
               <div
@@ -293,13 +288,13 @@ export function TrialCountdownCard({
           <Link href={`/${workspace}/settings?tab=billing`}>
             <Button className={`w-full ${theme.btn} font-bold text-xs h-10 px-5 rounded-xl shadow-sm cursor-pointer gap-1.5`}>
               <CreditCard className="w-3.5 h-3.5" />
-              <span>View Plans & Upgrade</span>
+              <span>{t("dashboard.view_plans_upgrade")}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>
           <div className="flex items-center justify-center gap-1 text-[11px] text-[var(--text-muted)] dark:text-[#94a3b8] font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>No credit card required for trial</span>
+            <span>{t("dashboard.no_credit_card_required_for_trial")}</span>
           </div>
         </div>
       </div>

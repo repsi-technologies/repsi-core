@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, Sparkles, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from "lucide-react";
 import { repsiApi } from "@/lib/api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface TrialStatus {
   is_trial?: boolean;
@@ -15,6 +16,7 @@ interface TrialStatus {
 }
 
 export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
+  const { t } = useTranslation();
   const [trial, setTrial] = useState<TrialStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -62,10 +64,10 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
       <Link
         href={`/${workspace}/settings?tab=billing`}
         className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/25 hover:bg-[var(--success-soft)] transition-all"
-        title="Subscription active - View billing"
+        title={t("layout.subscription_active_view_billing")}
       >
         <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5" />
-        <span>{trial.plan_name || "Pro"} Active</span>
+        <span>{trial.plan_name || t("layout.pro")} {t("layout.active")}</span>
       </Link>
     );
   }
@@ -79,10 +81,10 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
       <Link
         href={`/${workspace}/settings?tab=billing`}
         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--error-soft)] text-[var(--error-foreground)] border border-[var(--error)]/30 hover:bg-[var(--error-soft)] transition-all"
-        title="Trial expired - Choose a plan to continue"
+        title={t("layout.trial_expired_choose_a_plan_to")}
       >
         <AlertCircle className="w-3.5 h-3.5" />
-        <span>Trial Expired • Upgrade</span>
+        <span>{t("layout.trial_expired_upgrade")}</span>
       </Link>
     );
   }
@@ -95,7 +97,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
           ? "bg-[var(--warning-soft)] text-[var(--warning-foreground)] border-[var(--warning)]/30 hover:bg-[var(--warning-soft)]"
           : "bg-[var(--success-soft)] text-[var(--success-foreground)] border-[var(--success)]/25 hover:bg-[var(--success-soft)]"
       }`}
-      title="14-Day Free Trial - Click to view plans & upgrade"
+      title={t("layout.14_day_free_trial_click_to")}
     >
       {isUrgent ? (
         <Clock aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
@@ -104,15 +106,14 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
       )}
 
       <span className="font-semibold whitespace-nowrap">
-        <span className="sm:hidden">{daysLeft}d trial</span>
+        <span className="sm:hidden">{t("layout.daysleftd_trial", undefined, { daysLeft })}</span>
         <span className="hidden sm:inline whitespace-nowrap">
-          {daysLeft} {daysLeft === 1 ? "day" : "days"} left in trial
+          {daysLeft} {daysLeft === 1 ? "day" : "days"} {t("layout.left_in_trial")}
         </span>
       </span>
 
       <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] group-hover:scale-105 transition-transform shrink-0 whitespace-nowrap">
-        Upgrade <ArrowRight className="w-2.5 h-2.5" />
-      </span>
+        {richText(t("layout.upgrade_arrowright"), { arrowright: <ArrowRight className="w-2.5 h-2.5" /> })}</span>
     </Link>
   );
 }

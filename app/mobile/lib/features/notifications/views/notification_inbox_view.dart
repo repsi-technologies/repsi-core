@@ -11,6 +11,7 @@ import '../../../shared/widgets/repsi_empty_state.dart';
 import '../../../shared/widgets/repsi_error_state.dart';
 import '../models/notification_model.dart';
 import '../providers/notification_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class NotificationInboxView extends ConsumerStatefulWidget {
   const NotificationInboxView({super.key});
@@ -78,7 +79,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         title: Text(
-          'Notifications',
+          context.l10n.commonNotifications,
           style: AppTypography.headingSmall.copyWith(
             fontWeight: FontWeight.w700,
             color: isDark ? AppColors.darkText : AppColors.text,
@@ -91,8 +92,8 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                 HapticFeedback.lightImpact();
                 notifier.markAllAsRead();
               },
-              child: const Text(
-                'Mark all read',
+              child: Text(
+                context.l10n.markAllRead,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -122,7 +123,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('All'),
+                      Text(context.l10n.commonAll),
                       if (state.unreadCount > 0) ...[
                         const SizedBox(width: 6),
                         Container(
@@ -144,9 +145,9 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                     ],
                   ),
                 ),
-                const Tab(text: 'Unread'),
-                const Tab(text: 'Billing'),
-                const Tab(text: 'Announcements'),
+                Tab(text: context.l10n.unread),
+                Tab(text: context.l10n.billing),
+                Tab(text: context.l10n.announcements),
               ],
             ),
           ),
@@ -156,7 +157,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
           ? const Center(child: CircularProgressIndicator())
           : state.items.isEmpty && state.error != null
               ? RepsiErrorState(
-                  title: 'Notifications unavailable',
+                  title: context.l10n.notificationsUnavailable,
                   message: state.error!,
                   onRetry: notifier.fetchNotifications,
                 )
@@ -195,9 +196,9 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
           padding: const EdgeInsets.all(32),
           child: RepsiEmptyState(
             icon: LucideIcons.bellOff,
-            title: 'No notifications',
+            title: context.l10n.noNotifications,
             message:
-                'You are all caught up! Updates about your gym membership, classes, and payments will appear here.',
+                context.l10n.noNotificationsDesc,
           ),
         ),
       );

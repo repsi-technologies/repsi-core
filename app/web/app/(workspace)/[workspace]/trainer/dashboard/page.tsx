@@ -20,10 +20,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { getAuthUser } from "@/lib/auth";
 import { repsiApi } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 export default function TrainerDashboardPage(props: { params: Promise<{ workspace: string }> }) {
   const params = use(props.params);
   const workspace = params.workspace || "apex-fitness";
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [clients, setClients] = useState<any[]>([]);
@@ -111,7 +113,7 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              TRAINER OPERATIONS
+              {t("trainerPortal.dashboardTitle", "TRAINER OPERATIONS")}
             </span>
             <span className="text-xs text-[var(--text-muted)]">• {workspace}</span>
           </div>
@@ -119,7 +121,7 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
             Good morning, {profile?.name || user?.name || "Alex"}
           </h1>
           <p className="text-xs text-[var(--text-muted)]">
-            Here is your training schedule, client activity, and operations for today.
+            {t("trainerPortal.dashboardSubtitle", "Here is your training schedule, client activity, and operations for today.")}
           </p>
         </div>
 
@@ -158,7 +160,9 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-[var(--text-muted)] font-medium">Assigned Clients</p>
+            <p className="text-xs text-[var(--text-muted)] font-medium">
+              {t("trainerPortal.assignedClients", "Assigned Clients")}
+            </p>
             <h3 className="text-2xl font-bold text-[var(--text)] mt-1">{clients.length}</h3>
           </div>
           <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600">
@@ -168,7 +172,9 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-[var(--text-muted)] font-medium">Today's Sessions</p>
+            <p className="text-xs text-[var(--text-muted)] font-medium">
+              {t("trainerPortal.todaysSessions", "Today's Sessions")}
+            </p>
             <h3 className="text-2xl font-bold text-[var(--text)] mt-1">{schedule.sessions.length}</h3>
           </div>
           <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600">
@@ -178,7 +184,9 @@ export default function TrainerDashboardPage(props: { params: Promise<{ workspac
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-[var(--text-muted)] font-medium">Active Group Classes</p>
+            <p className="text-xs text-[var(--text-muted)] font-medium">
+              {t("trainerPortal.activeGroupClasses", "Active Group Classes")}
+            </p>
             <h3 className="text-2xl font-bold text-[var(--text)] mt-1">{schedule.classes.length}</h3>
           </div>
           <div className="p-3 rounded-xl bg-purple-500/10 text-purple-600">

@@ -3,6 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "framer-motion";
+import { useTranslation } from "@/lib/i18n";
 
 interface DashboardSkeletonProps {
   className?: string;
@@ -13,6 +14,7 @@ export function DashboardSkeleton({
   className = "",
   showShellHeader = true,
 }: DashboardSkeletonProps) {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const shimmerClass = shouldReduceMotion
     ? "bg-[#E7E4DE]"
@@ -22,7 +24,7 @@ export function DashboardSkeleton({
     <div
       className={cn("space-y-8 w-full select-none", className)}
       role="status"
-      aria-label="Loading dashboard records"
+      aria-label={t("ui.loading_dashboard_records")}
     >
       {/* ───────────────────────────────────────────────────────────── */}
       {/* 01. DASHBOARD HEADER SKELETON                                 */}

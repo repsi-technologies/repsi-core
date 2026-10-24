@@ -4,6 +4,7 @@ import '../../../core/providers/api_provider.dart';
 import '../../../shared/models/member_model.dart';
 import 'member_provider.dart';
 import '../../../core/api/api_time.dart';
+import '../../../l10n/l10n.dart';
 
 /// Everything on the staff member profile comes from these per-member requests. They are
 /// auto-disposed families, so nothing outlives the screen or carries over between gyms.
@@ -121,21 +122,21 @@ class MemberHistoryEntry {
 
   /// Plain-language label for the lifecycle event names the API records.
   String get label {
-    const names = {
-      'created': 'Joined',
-      'assigned': 'Membership started',
-      'renewed': 'Membership renewed',
-      'expired': 'Membership expired',
-      'frozen': 'Membership frozen',
-      'unfrozen': 'Membership resumed',
-      'freeze_cancelled': 'Freeze cancelled',
-      'extended': 'Membership extended',
-      'cancelled': 'Membership cancelled',
-      'status_changed': 'Account status changed',
-      'note_added': 'Note added',
-      'note_updated': 'Note edited',
-      'note_deleted': 'Note deleted',
-      'profile_updated': 'Profile updated',
+    final names = {
+      'created': L10n.current.historyJoined,
+      'assigned': L10n.current.historyStarted,
+      'renewed': L10n.current.historyRenewed,
+      'expired': L10n.current.historyExpired,
+      'frozen': L10n.current.historyFrozen,
+      'unfrozen': L10n.current.historyResumed,
+      'freeze_cancelled': L10n.current.historyFreezeCancelled,
+      'extended': L10n.current.historyExtended,
+      'cancelled': L10n.current.historyCancelled,
+      'status_changed': L10n.current.historyStatusChanged,
+      'note_added': L10n.current.historyNoteAdded,
+      'note_updated': L10n.current.historyNoteEdited,
+      'note_deleted': L10n.current.historyNoteDeleted,
+      'profile_updated': L10n.current.historyProfileUpdated,
     };
     return names[eventType] ?? eventType.replaceAll('_', ' ').replaceFirstMapped(RegExp(r'^.'), (m) => m[0]!.toUpperCase());
   }
@@ -192,7 +193,7 @@ final membershipPlansProvider = FutureProvider.autoDispose<List<PlanOption>>((re
       .where((p) => p['is_active'] != false)
       .map((p) => PlanOption(
             id: p['id'].toString(),
-            name: p['name']?.toString() ?? 'Plan',
+            name: p['name']?.toString() ?? L10n.current.plan,
             price: (p['price'] as num?)?.toDouble() ?? 0,
             months: (p['duration_months'] as num?)?.toInt() ?? 1,
           ))

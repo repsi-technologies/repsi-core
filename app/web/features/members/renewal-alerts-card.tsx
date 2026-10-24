@@ -14,8 +14,10 @@ import {
   ChevronUp
 } from "lucide-react";
 import { repsiApi } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 export function RenewalAlertsCard() {
+  const { t } = useTranslation();
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [auditing, setAuditing] = useState(false);
@@ -71,14 +73,13 @@ export function RenewalAlertsCard() {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-[var(--text)] tracking-tight">
-                Automated Renewal & Dunning Engine
+                {t("members.automated_renewal_dunning_engine")}
               </h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--warning-soft)] text-[var(--warning-foreground)] border border-[var(--warning)]/30">
-                {reminders.length} Due for Renewal
-              </span>
+                {t("members.countdue_for_renewal", undefined, { count: reminders.length })}</span>
             </div>
             <p className="text-xs text-[var(--text-muted)]">
-              Members expiring within 14 days or overdue. Send 1-click WhatsApp reminders to protect revenue.
+              {t("members.members_expiring_within_14_days_or")}
             </p>
           </div>
         </div>
@@ -87,11 +88,11 @@ export function RenewalAlertsCard() {
           <button
             onClick={handleAudit}
             disabled={auditing}
-            title="Scan database and update expired memberships"
+            title={t("members.scan_database_and_update_expired_memberships")}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-semibold text-[var(--text)] hover:text-[var(--primary)] transition-colors cursor-pointer shadow-2xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${auditing ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Sync Status</span>
+            <span className="hidden sm:inline">{t("members.sync_status")}</span>
           </button>
 
           <button
@@ -136,10 +137,10 @@ export function RenewalAlertsCard() {
                         <span className="font-semibold text-[var(--text)]">{r.plan_name}</span> · ₹{r.amount_due} · {" "}
                         <span className={isOverdue ? "text-[var(--error-foreground)] font-bold" : "text-[var(--warning-foreground)] font-bold"}>
                           {isOverdue 
-                            ? `Overdue (${Math.abs(r.days_remaining)}d ago)` 
+                            ? t("members.overdue_mathd_ago", undefined, { Math: Math.abs(r.days_remaining) }) 
                             : isToday 
-                            ? "Expires TODAY" 
-                            : `Expires in ${r.days_remaining}d`}
+                            ? t("members.expires_today") 
+                            : t("members.expires_in_days_remainingd", undefined, { days_remaining: r.days_remaining })}
                         </span>
                       </p>
                     </div>
@@ -151,7 +152,7 @@ export function RenewalAlertsCard() {
                       type="button"
                       onClick={() => handleCopyMessage(r.message_template, r.member_id)}
                       className="p-2 rounded-lg bg-[var(--background)] hover:bg-[var(--surface-hover)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
-                      title="Copy WhatsApp text"
+                      title={t("members.copy_whatsapp_text")}
                     >
                       {copiedId === r.member_id ? (
                         <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -167,7 +168,7 @@ export function RenewalAlertsCard() {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs shadow-xs transition-colors cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>Send WhatsApp</span>
+                      <span>{t("members.send_whatsapp")}</span>
                     </a>
                   </div>
                 </div>

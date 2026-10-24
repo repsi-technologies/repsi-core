@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { memberRequest } from "@/lib/api";
 import { inputClass } from "@/features/fitness/shared";
+import { tr } from "@/lib/i18n";
 
 export interface MemberHit {
   id: string;
@@ -35,7 +36,7 @@ export function MemberSearch({ onPick, label = "Search member" }: { onPick: (m: 
         <input
           aria-label={label}
           className={`${inputClass} pl-9`}
-          placeholder="Name or phone…"
+          placeholder={tr("classes.name_or_phone")}
           value={q}
           autoComplete="off"
           onChange={(e) => setQ(e.target.value)}

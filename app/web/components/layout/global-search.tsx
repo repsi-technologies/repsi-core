@@ -24,6 +24,7 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { repsiApi } from "@/lib/api";
+import { useTranslation, tr } from "@/lib/i18n";
 
 const RECENT_SEARCHES_KEY = "repsi_recent_searches_v2";
 
@@ -63,80 +64,80 @@ interface SearchFeature {
 const STATIC_QUICK_FEATURES: SearchFeature[] = [
   {
     id: "members",
-    title: "Members",
-    description: "Manage member profiles and memberships",
+    get title() { return tr("nav.members"); },
+    get description() { return tr("layout.manage_member_profiles_and_memberships"); },
     category: "Directory",
     href: "/members",
     keywords: ["members", "member", "user", "users", "clients", "directory", "people"],
   },
   {
     id: "trainers",
-    title: "Trainers",
-    description: "Fitness coaches, schedules, and payouts",
+    get title() { return tr("nav.trainers"); },
+    get description() { return tr("layout.fitness_coaches_schedules_and_payouts"); },
     category: "Directory",
     href: "/trainers",
     keywords: ["trainers", "trainer", "coaches", "staff"],
   },
   {
     id: "attendance",
-    title: "Attendance",
-    description: "Check-in records and daily attendance",
+    get title() { return tr("nav.attendance"); },
+    get description() { return tr("layout.check_in_records_and_daily_attendance"); },
     category: "Operations",
     href: "/attendance",
     keywords: ["attendance", "check-in", "checkin", "logs"],
   },
   {
     id: "payments",
-    title: "Payments",
-    description: "Membership payments and receipts",
+    get title() { return tr("navItem.payments"); },
+    get description() { return tr("layout.membership_payments_and_receipts"); },
     category: "Finance",
     href: "/payments",
     keywords: ["payments", "payment", "billing", "invoices", "revenue"],
   },
   {
     id: "memberships",
-    title: "Memberships",
-    description: "Subscription plans and pricing packages",
+    get title() { return tr("navItem.memberships"); },
+    get description() { return tr("layout.subscription_plans_and_pricing_packages"); },
     category: "Plans",
     href: "/memberships",
     keywords: ["memberships", "membership", "plans", "pricing"],
   },
   {
     id: "reports",
-    title: "Reports",
-    description: "Analytics, revenue & retention metrics",
+    get title() { return tr("navItem.reports"); },
+    get description() { return tr("layout.analytics_revenue_retention_metrics"); },
     category: "Analytics",
     href: "/reports",
     keywords: ["reports", "report", "analytics", "insights"],
   },
   {
     id: "expenses",
-    title: "Expenses",
-    description: "Track operational expenses and equipment",
+    get title() { return tr("nav.expenses"); },
+    get description() { return tr("layout.track_operational_expenses_and_equipment"); },
     category: "Finance",
     href: "/expenses",
     keywords: ["expenses", "expense", "costs", "spending"],
   },
   {
     id: "crm",
-    title: "Leads & CRM",
-    description: "Sales pipeline and prospect conversion",
+    get title() { return tr("nav.crm"); },
+    get description() { return tr("layout.sales_pipeline_and_prospect_conversion"); },
     category: "Growth",
     href: "/crm",
     keywords: ["leads", "lead", "crm", "sales", "prospects"],
   },
   {
     id: "website",
-    title: "Website Builder",
-    description: "Customize public gym landing page",
+    get title() { return tr("navItem.website_builder"); },
+    get description() { return tr("layout.customize_public_gym_landing_page"); },
     category: "Growth",
     href: "/website",
     keywords: ["website", "site", "builder", "landing"],
   },
   {
     id: "settings",
-    title: "Settings",
-    description: "Workspace config, roles, and profile",
+    get title() { return tr("nav.settings"); },
+    get description() { return tr("layout.workspace_config_roles_and_profile"); },
     category: "System",
     href: "/settings",
     keywords: ["settings", "setting", "config", "profile"],
@@ -195,6 +196,7 @@ interface RecentSearchItem {
 }
 
 export function GlobalSearch() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const workspace = (params?.workspace as string) || "apex-fitness";
@@ -374,21 +376,21 @@ export function GlobalSearch() {
           saveItem = {
             term: current.data.name,
             type: "member",
-            subtitle: `Member · ${current.data.code}`,
+            subtitle: t("layout.member_code", undefined, { code: current.data.code }),
             href: current.href,
           };
         } else if (current.type === "trainer") {
           saveItem = {
             term: current.data.name,
             type: "trainer",
-            subtitle: `Trainer · ${current.data.code}`,
+            subtitle: t("layout.trainer_code", undefined, { code: current.data.code }),
             href: current.href,
           };
         } else if (current.type === "feature" || current.type === "quick") {
           saveItem = {
             term: current.data.title,
             type: "feature",
-            subtitle: `Feature · ${current.data.description}`,
+            subtitle: t("layout.feature_description", undefined, { description: current.data.description }),
             href: current.href,
           };
         }
@@ -406,11 +408,11 @@ export function GlobalSearch() {
         className={cn(
           "flex items-center gap-2.5 h-9 px-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-sm text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-secondary)] transition-all duration-150 w-full max-w-xs cursor-pointer shadow-2xs"
         )}
-        aria-label="Open global search modal"
+        aria-label={t("layout.open_global_search_modal")}
       >
         <Search className="h-4 w-4 text-[var(--text-muted)] flex-shrink-0" />
         <span className="flex-1 text-left text-xs font-medium truncate">
-          Search members, trainers, features...
+          {t("layout.search_members_trainers_features")}
         </span>
         <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono font-medium text-[var(--text-muted)] bg-[var(--background)] border border-[var(--border)] rounded px-1.5 py-0.5">
           <span>⌘</span>
@@ -433,7 +435,7 @@ export function GlobalSearch() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search members, trainers, features..."
+                placeholder={t("layout.search_members_trainers_features")}
                 className="w-full bg-transparent text-sm font-medium text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none"
                 autoFocus
               />
@@ -448,7 +450,7 @@ export function GlobalSearch() {
                 </button>
               ) : (
                 <kbd className="hidden sm:inline-block text-[10px] font-mono text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)] px-1.5 py-0.5 rounded ml-2">
-                  Esc
+                  {t("layout.esc")}
                 </kbd>
               )}
             </div>
@@ -463,7 +465,7 @@ export function GlobalSearch() {
                 {recentItems.length > 0 && (
                   <div>
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2 px-2">
-                      Recent
+                      {t("layout.recent")}
                     </div>
                     <div className="space-y-1">
                       {recentItems.map((r, idx) => {
@@ -506,7 +508,7 @@ export function GlobalSearch() {
                 {/* Quick Access (2-column grid of destinations) */}
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2 px-2">
-                    Quick Access
+                    {t("layout.quick_access")}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {STATIC_QUICK_FEATURES.map((f, idx) => {
@@ -551,7 +553,7 @@ export function GlobalSearch() {
                   <div>
                     <div className="flex items-center justify-between px-2 mb-1.5">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                        Members
+                        {t("nav.members")}
                       </span>
                       <span className="text-[10px] font-mono text-[var(--text-muted)]">
                         {members.length} {members.length === 1 ? "result" : "results"}
@@ -624,7 +626,7 @@ export function GlobalSearch() {
                   <div>
                     <div className="flex items-center justify-between px-2 mb-1.5">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                        Trainers
+                        {t("nav.trainers")}
                       </span>
                       <span className="text-[10px] font-mono text-[var(--text-muted)]">
                         {trainers.length} {trainers.length === 1 ? "result" : "results"}
@@ -695,7 +697,7 @@ export function GlobalSearch() {
                   <div>
                     <div className="flex items-center justify-between px-2 mb-1.5">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                        Features
+                        {t("navItem.features")}
                       </span>
                       <span className="text-[10px] font-mono text-[var(--text-muted)]">
                         {features.length} {features.length === 1 ? "result" : "results"}
@@ -758,11 +760,9 @@ export function GlobalSearch() {
                     <div className="p-8 text-center">
                       <Search className="h-8 w-8 text-[var(--text-muted)] mx-auto mb-2 opacity-50" />
                       <p className="text-xs font-medium text-[var(--text)]">
-                        No matching results for "{query}"
-                      </p>
+                        {t("layout.no_matching_results_for_query", undefined, { query })}</p>
                       <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                        Try searching member name, phone number, member code (RP-1024), or feature
-                        name like Attendance or Payments.
+                        {t("layout.try_searching_member_name_phone_number")}
                       </p>
                     </div>
                   )}
@@ -780,19 +780,19 @@ export function GlobalSearch() {
                 <kbd className="font-mono bg-[var(--surface)] border border-[var(--border)] px-1.5 py-0.5 rounded text-[10px]">
                   ↓
                 </kbd>
-                <span>Navigate</span>
+                <span>{t("layout.navigate")}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <kbd className="font-mono bg-[var(--surface)] border border-[var(--border)] px-1.5 py-0.5 rounded text-[10px]">
-                  Enter
+                  {t("layout.enter")}
                 </kbd>
-                <span>Open</span>
+                <span>{t("layout.open")}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <kbd className="font-mono bg-[var(--surface)] border border-[var(--border)] px-1.5 py-0.5 rounded text-[10px]">
-                  Esc
+                  {t("layout.esc")}
                 </kbd>
-                <span>Close</span>
+                <span>{t("common.close")}</span>
               </span>
             </div>
           </div>

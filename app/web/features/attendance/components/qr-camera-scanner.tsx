@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, CameraOff, Keyboard, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { tr, richText } from "@/lib/i18n";
 
 type ScannerState = "idle" | "starting" | "scanning" | "denied" | "unsupported" | "error";
 
@@ -127,20 +128,20 @@ export function QrCameraScanner({ onResult, busy = false, label = "Scan QR code"
   return (
     <div className="space-y-3">
       <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-black aspect-[4/3] max-h-[360px] w-full">
-        <video ref={videoRef} className={`h-full w-full object-cover ${active ? "" : "hidden"}`} muted playsInline aria-label="Camera preview" />
+        <video ref={videoRef} className={`h-full w-full object-cover ${active ? "" : "hidden"}`} muted playsInline aria-label={tr("attendance.camera_preview")} />
         {active && <div className="pointer-events-none absolute inset-10 rounded-xl border-2 border-white/70" aria-hidden />}
         {!active && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-xs text-white/80">
             <CameraOff className="h-8 w-8" aria-hidden />
-            {state === "idle" && <p>Camera is off.</p>}
-            {state === "denied" && <p>Camera permission was denied. Allow camera access in your browser settings, or enter the code below.</p>}
-            {state === "unsupported" && <p>This browser can&apos;t scan QR codes with the camera. Use Chrome or Edge, or enter the code below.</p>}
-            {state === "error" && <p>The camera couldn&apos;t start (it may be in use by another app). Try again or enter the code below.</p>}
+            {state === "idle" && <p>{tr("attendance.camera_is_off")}</p>}
+            {state === "denied" && <p>{tr("attendance.camera_permission_was_denied_allow_camera")}</p>}
+            {state === "unsupported" && <p>{tr("attendance.this_browser_can_t_scan_qr")}</p>}
+            {state === "error" && <p>{tr("attendance.the_camera_couldn_t_start_it")}</p>}
           </div>
         )}
         {busy && active && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <Loader2 className="h-8 w-8 animate-spin text-white" aria-label="Processing" />
+            <Loader2 className="h-8 w-8 animate-spin text-white" aria-label={tr("attendance.processing_2")} />
           </div>
         )}
       </div>
@@ -148,21 +149,19 @@ export function QrCameraScanner({ onResult, busy = false, label = "Scan QR code"
       <div className="flex flex-wrap gap-2">
         {active ? (
           <Button variant="secondary" size="sm" onClick={stop}>
-            <CameraOff className="h-3.5 w-3.5" /> Stop camera
-          </Button>
+            {richText(tr("attendance.cameraoffstop_camera"), { cameraoff: <CameraOff className="h-3.5 w-3.5" /> })}</Button>
         ) : (
           <Button size="sm" onClick={start}>
             <Camera className="h-3.5 w-3.5" /> {label}
           </Button>
         )}
         <Button variant="ghost" size="sm" onClick={() => setShowManual((v) => !v)} aria-expanded={showManual}>
-          <Keyboard className="h-3.5 w-3.5" /> Enter code
-        </Button>
+          {richText(tr("attendance.keyboardenter_code"), { keyboard: <Keyboard className="h-3.5 w-3.5" /> })}</Button>
       </div>
 
       {showManual && (
         <form onSubmit={submitManual} className="flex gap-2">
-          <label htmlFor="qr-manual" className="sr-only">QR code value</label>
+          <label htmlFor="qr-manual" className="sr-only">{tr("attendance.qr_code_value")}</label>
           <input
             id="qr-manual"
             value={manual}
@@ -171,7 +170,7 @@ export function QrCameraScanner({ onResult, busy = false, label = "Scan QR code"
             autoComplete="off"
             className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] text-sm text-[var(--text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           />
-          <Button type="submit" size="sm" disabled={busy || !manual.trim()}>Submit</Button>
+          <Button type="submit" size="sm" disabled={busy || !manual.trim()}>{tr("common.submit")}</Button>
         </form>
       )}
     </div>

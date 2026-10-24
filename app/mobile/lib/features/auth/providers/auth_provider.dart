@@ -11,6 +11,7 @@ import '../../../core/storage/secure_storage_service.dart';
 import '../../../shared/models/user_model.dart';
 import '../services/auth_service.dart';
 
+import '../../../l10n/l10n.dart';
 enum AuthStatus {
   initial,
   loading,
@@ -130,7 +131,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       {String? fallbackSlug}) async {
     if (response.accessToken.isEmpty) {
       throw ApiError(
-          message: 'Sign-in did not return a session. Please try again.');
+          message: L10n.current.authNoSession);
     }
     await _storage.saveToken(response.accessToken);
     final refresh = response.refreshToken;
@@ -188,7 +189,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final response = await _authService.login(
           email: email, password: password, workspaceSlug: workspaceSlug);
       await _establishSession(response, fallbackSlug: workspaceSlug);
-    }, 'Failed to sign in. Please check your credentials.');
+    }, L10n.current.authSignInFailed);
   }
 
   Future<bool> loginWithGoogle() async {
@@ -207,7 +208,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (token == null || token.isEmpty) {
         throw ApiError(
             message:
-                'Google did not return a sign-in token. Please try again.');
+                L10n.current.authGoogleNoToken);
       }
       final response = await _authService.loginWithGoogle(token: token);
       await _establishSession(response);
@@ -220,10 +221,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Type only: the exception text can carry account details.
       debugPrint('Google sign-in failed: ${e.runtimeType}');
       await _storage.clearAll();
-      state = const AuthState(
+      state = AuthState(
         status: AuthStatus.error,
         errorMessage:
-            'Google Sign-In failed. Please try again or use your email and password.',
+            L10n.current.authGoogleFailed,
       );
       return false;
     }
@@ -260,7 +261,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
       );
       await _establishSession(response);
-    }, 'We could not create your account. Please try again.');
+    }, L10n.current.authCreateAccountFailed);
   }
 
   /// Replaces the profile photo; the server's copy of the profile becomes the cached one.
@@ -294,7 +295,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         gymCity: gymCity,
       );
       await _establishSession(response);
-    }, 'Registration failed. Please try again.');
+    }, L10n.current.authRegistrationFailed);
   }
 
   Future<bool> registerMember({
@@ -313,7 +314,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         phone: phone,
       );
       await _establishSession(response, fallbackSlug: workspaceSlug);
-    }, 'Registration failed. Please try again.');
+    }, L10n.current.authRegistrationFailed);
   }
 
   Future<void> updateActiveWorkspace(String workspaceId, String slug) async {
@@ -332,9 +333,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _storage.clearAll();
       if (mounted) {
-        state = const AuthState(
+        state = AuthState(
           status: AuthStatus.unauthenticated,
-          errorMessage: 'Your session has expired. Please sign in again.',
+          errorMessage: L10n.current.errorSessionExpired,
         );
       }
     } finally {
@@ -349,7 +350,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } on ApiError catch (e) {
       return e.message;
     } catch (_) {
-      return 'Could not delete your account. Please try again.';
+      return L10n.current.authDeleteFailed;
     }
     try {
       await GoogleSignIn().signOut();

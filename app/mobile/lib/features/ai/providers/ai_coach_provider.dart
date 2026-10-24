@@ -3,6 +3,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/providers/api_provider.dart';
 import '../models/workout_plan_model.dart';
+import '../../../l10n/l10n.dart';
 
 class AiCoachState {
   final bool isLoading;
@@ -93,23 +94,23 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
     final goal = answers['goal']?.toString() ?? 'hypertrophy';
     final days = (answers['days_per_week'] as num?)?.toInt() ?? 4;
 
-    String title = '4-Day Upper / Lower Precision Routine';
+    String title = L10n.current.aiPlanUpperLowerTitle;
     String overview =
-        'A balanced progressive overload hypertrophy routine calibrated for maximum muscle protein synthesis and joint recovery.';
+        L10n.current.aiPlanUpperLowerBody;
 
     if (goal == 'fat_loss') {
-      title = 'High Density Metabolic Conditioning Split';
+      title = L10n.current.aiPlanFatLossTitle;
       overview =
-          'Combines compound lifts with short rest intervals to maintain lean mass while maximizing caloric expenditure.';
+          L10n.current.aiPlanFatLossBody;
     } else if (goal == 'strength') {
-      title = 'Compound Power & Strength Foundation';
+      title = L10n.current.aiPlanStrengthTitle;
       overview =
-          'Focuses on multi-joint barbell movements at RPE 8-9 for maximal neuromuscular recruitment.';
+          L10n.current.aiPlanStrengthBody;
     }
 
     final dayList = <AiWorkoutDay>[
-      const AiWorkoutDay(
-        name: 'Day 1: Upper Body Power',
+      AiWorkoutDay(
+        name: L10n.current.aiDay1,
         exercises: [
           AiExercise(
               exerciseId: 'bench-press',
@@ -117,14 +118,14 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
               sets: 4,
               reps: '6-8 reps',
               restSeconds: 120,
-              note: 'Drive through heels, maintain arch'),
+              note: L10n.current.aiCueBench),
           AiExercise(
               exerciseId: 'bent-row',
               name: 'Barbell Bent Over Row',
               sets: 4,
               reps: '8-10 reps',
               restSeconds: 90,
-              note: 'Neutral spine, pull to sternum'),
+              note: L10n.current.aiCueRow),
           AiExercise(
               exerciseId: 'overhead-press',
               name: 'Dumbbell Seated Shoulder Press',
@@ -151,8 +152,8 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
               restSeconds: 60),
         ],
       ),
-      const AiWorkoutDay(
-        name: 'Day 2: Lower Body Hypertrophy',
+      AiWorkoutDay(
+        name: L10n.current.aiDay2,
         exercises: [
           AiExercise(
               exerciseId: 'squat',
@@ -160,14 +161,14 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
               sets: 4,
               reps: '6-8 reps',
               restSeconds: 150,
-              note: 'Break at knees and hips simultaneously'),
+              note: L10n.current.aiCueSquat),
           AiExercise(
               exerciseId: 'rdl',
               name: 'Romanian Deadlift (RDL)',
               sets: 4,
               reps: '8-10 reps',
               restSeconds: 120,
-              note: 'Hinge back with soft knees, feel hamstrings'),
+              note: L10n.current.aiCueRdl),
           AiExercise(
               exerciseId: 'leg-press',
               name: '45-Degree Leg Press',
@@ -189,8 +190,8 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
         ],
       ),
       if (days >= 3)
-        const AiWorkoutDay(
-          name: 'Day 3: Upper Body Hypertrophy & Arms',
+        AiWorkoutDay(
+          name: L10n.current.aiDay3,
           exercises: [
             AiExercise(
                 exerciseId: 'incline-db-bench',
@@ -231,8 +232,8 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
           ],
         ),
       if (days >= 4)
-        const AiWorkoutDay(
-          name: 'Day 4: Lower Body & Core Stability',
+        AiWorkoutDay(
+          name: L10n.current.aiDay4,
           exercises: [
             AiExercise(
                 exerciseId: 'front-squat',
@@ -273,16 +274,16 @@ class AiCoachNotifier extends StateNotifier<AiCoachState> {
         title: title,
         overview: overview,
         days: dayList,
-        tips: const [
-          'Hydrate with at least 500ml water prior to training sessions.',
-          'Warm up with 5-10 minutes of dynamic mobility and 2 light warm-up sets per compound exercise.',
-          'Aim to increase weight or repetitions on your primary lifts every 1-2 weeks.',
+        tips: [
+          L10n.current.aiTipHydrate,
+          L10n.current.aiTipWarmup,
+          L10n.current.aiTipProgress,
         ],
       ),
       source: useAi ? 'ai' : 'rules',
-      notice: useAi ? 'Personalized with Repsi AI Workout Engine' : null,
+      notice: useAi ? L10n.current.aiPersonalisedNotice : null,
       disclaimer:
-          'Always consult your physician before beginning any exercise routine. Listen to your body and discontinue if you experience unusual discomfort.',
+          L10n.current.aiDisclaimer,
     );
   }
 }

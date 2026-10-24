@@ -12,6 +12,7 @@ import { OpeningHoursEditor, hoursErrors } from "@/components/organization/prefe
 import { ApiError, defaultHours, orgApi, type Branch, type BranchInput, type OpeningHours } from "@/lib/auth-client";
 import { findCountry, formatPhone, isValidPhone, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface Props {
   canEdit: boolean;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function BranchesManager({ canEdit, defaultCountry, businessHours, onChange }: Props) {
+  const { t } = useTranslation();
   const [branches, setBranches] = useState<Branch[] | null>(null);
   const [showInactive, setShowInactive] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +36,7 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
       onChange?.(list.filter((b) => b.is_active));
       setError("");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't load branches.");
+      setError(err instanceof ApiError ? err.message : t("organization.couldn_t_load_branches"));
       setBranches([]);
     }
   }
@@ -50,7 +52,7 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
       await orgApi.setBranchActive(b.id, !b.is_active);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't update the branch.");
+      setError(err instanceof ApiError ? err.message : t("organization.couldn_t_update_the_branch"));
     } finally {
       setBusyId(null);
     }
@@ -63,15 +65,12 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
       <div className="flex flex-wrap items-center justify-between gap-3">
         {canEdit && (
           <label className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-            <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)}
-              className="h-4 w-4 accent-[var(--primary)]" />
-            Show deactivated branches
-          </label>
+            {richText(t("organization.inputshow_deactivated_branches"), { input: <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)}
+              className="h-4 w-4 accent-[var(--primary)]" /> })}</label>
         )}
         {canEdit && (
           <PrimaryButton type="button" onClick={() => setEditing("new")} className="ml-auto">
-            <Plus className="h-4 w-4" aria-hidden /> Add branch
-          </PrimaryButton>
+            {richText(t("organization.plusadd_branch"), { plus: <Plus className="h-4 w-4" aria-hidden /> })}</PrimaryButton>
         )}
       </div>
 
@@ -82,9 +81,9 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
       ) : branches.length === 0 ? (
         <div className="rounded-[12px] border border-dashed border-[var(--border)] px-6 py-10 text-center">
           <Building className="mx-auto h-8 w-8 text-[var(--text-muted)]" aria-hidden />
-          <p className="mt-2 text-sm font-medium">No branches yet</p>
+          <p className="mt-2 text-sm font-medium">{t("organization.no_branches_yet")}</p>
           <p className="text-sm text-[var(--text-muted)]">
-            {canEdit ? "Add your first location to start managing it." : "You haven't been assigned to a branch yet."}
+            {canEdit ? t("organization.add_your_first_location_to_start") : t("organization.you_haven_t_been_assigned_to")}
           </p>
         </div>
       ) : (
@@ -97,15 +96,14 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
                     <span className="truncate">{b.name}</span>
                     {b.is_primary && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--primary-dark)]">
-                        <Star className="h-3 w-3" aria-hidden /> Primary
-                      </span>
+                        {richText(t("organization.starprimary"), { star: <Star className="h-3 w-3" aria-hidden /> })}</span>
                     )}
-                    {!b.is_active && <span className="rounded-full bg-[var(--background)] px-2 py-0.5 text-[11px]">Deactivated</span>}
+                    {!b.is_active && <span className="rounded-full bg-[var(--background)] px-2 py-0.5 text-[11px]">{t("organization.deactivated")}</span>}
                   </p>
-                  <p className="text-xs text-[var(--text-muted)]">Code {b.code}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{t("organization.code_code", undefined, { code: b.code })}</p>
                 </div>
                 {canEdit && b.is_active && (
-                  <button type="button" onClick={() => setEditing(b)} aria-label={`Edit ${b.name}`}
+                  <button type="button" onClick={() => setEditing(b)} aria-label={t("organization.edit_name", undefined, { name: b.name })}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-[var(--text-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--text)]">
                     <Pencil className="h-4 w-4" aria-hidden />
                   </button>
@@ -119,13 +117,13 @@ export function BranchesManager({ canEdit, defaultCountry, businessHours, onChan
                 {b.phone && <div className="flex gap-2"><Phone className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />{formatPhone(b.phone)}</div>}
                 {b.email && <div className="flex min-w-0 gap-2"><Mail className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden /><span className="truncate">{b.email}</span></div>}
                 <div className="flex gap-2"><Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {b.opening_hours ? "Custom hours" : "Uses business hours"}</div>
+                  {b.opening_hours ? t("organization.custom_hours") : t("organization.uses_business_hours")}</div>
               </dl>
               {canEdit && !b.is_primary && (
                 <div className="mt-auto pt-3">
                   <button type="button" disabled={busyId === b.id} onClick={() => toggleActive(b)}
                     className="text-xs font-medium text-[var(--text-muted)] hover:text-[var(--primary-dark)] disabled:opacity-50">
-                    {b.is_active ? "Deactivate branch" : "Reactivate branch"}
+                    {b.is_active ? t("organization.deactivate_branch") : t("organization.reactivate_branch")}
                   </button>
                 </div>
               )}
@@ -163,6 +161,7 @@ function BranchDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const country = branch?.country_code || defaultCountry;
   const split = branch?.phone ? splitPhone(branch.phone, country as CountryCode) : null;
   const [form, setForm] = useState({
@@ -222,7 +221,7 @@ function BranchDialog({
       onSaved();
     } catch (err) {
       const api = err instanceof ApiError ? err : null;
-      setErrors({ ...(api?.fieldErrors || {}), form: api?.message || "Couldn't save the branch." });
+      setErrors({ ...(api?.fieldErrors || {}), form: api?.message || t("organization.couldn_t_save_the_branch") });
       setSaving(false);
     }
   }
@@ -231,42 +230,42 @@ function BranchDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[92vh] w-[calc(100vw-24px)] overflow-y-auto rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:max-w-[600px] sm:p-6">
         <DialogHeader>
-          <DialogTitle>{branch ? "Edit branch" : "Add branch"}</DialogTitle>
-          <DialogDescription>Location details your team and members will see.</DialogDescription>
+          <DialogTitle>{branch ? t("organization.edit_branch") : t("organization.add_branch")}</DialogTitle>
+          <DialogDescription>{t("organization.location_details_your_team_and_members")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={save} noValidate className="mt-2 space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
-            <FormField id="br-name" label="Branch name" required error={errors.name} className="sm:col-span-2">
-              <TextInput id="br-name" value={form.name} invalid={Boolean(errors.name)} placeholder="Anna Nagar"
+            <FormField id="br-name" label={t("organization.branch_name")} required error={errors.name} className="sm:col-span-2">
+              <TextInput id="br-name" value={form.name} invalid={Boolean(errors.name)} placeholder={t("organization.anna_nagar")}
                 onChange={(e) => set("name", e.target.value)} autoFocus />
             </FormField>
-            <FormField id="br-code" label="Code" error={errors.code} hint="Auto-generated if empty.">
+            <FormField id="br-code" label={t("organization.code")} error={errors.code} hint={t("organization.auto_generated_if_empty")}>
               <TextInput id="br-code" value={form.code} invalid={Boolean(errors.code)} maxLength={20}
                 onChange={(e) => set("code", e.target.value.toUpperCase())} />
             </FormField>
-            <FormField id="br-addr1" label="Street address" className="sm:col-span-3">
+            <FormField id="br-addr1" label={t("organization.street_address")} className="sm:col-span-3">
               <TextInput id="br-addr1" value={form.address_line1} autoComplete="address-line1" onChange={(e) => set("address_line1", e.target.value)} />
             </FormField>
-            <FormField id="br-addr2" label="Area / landmark" className="sm:col-span-3">
+            <FormField id="br-addr2" label={t("organization.area_landmark")} className="sm:col-span-3">
               <TextInput id="br-addr2" value={form.address_line2} autoComplete="address-line2" onChange={(e) => set("address_line2", e.target.value)} />
             </FormField>
-            <FormField id="br-city" label="City">
+            <FormField id="br-city" label={t("organization.city")}>
               <TextInput id="br-city" value={form.city} onChange={(e) => set("city", e.target.value)} />
             </FormField>
-            <FormField id="br-state" label="State">
+            <FormField id="br-state" label={t("organization.state")}>
               <TextInput id="br-state" value={form.state} onChange={(e) => set("state", e.target.value)} />
             </FormField>
-            <FormField id="br-postal" label="Postal code" error={errors.postal_code}>
+            <FormField id="br-postal" label={t("organization.postal_code")} error={errors.postal_code}>
               <TextInput id="br-postal" value={form.postal_code} invalid={Boolean(errors.postal_code)} onChange={(e) => set("postal_code", e.target.value)} />
             </FormField>
-            <FormField id="br-country" label="Country" required className="sm:col-span-3">
+            <FormField id="br-country" label={t("organization.country")} required className="sm:col-span-3">
               <CountrySelect id="br-country" value={form.country_code} onChange={(c) => set("country_code", c.code)} />
             </FormField>
-            <FormField id="br-phone" label="Branch phone" error={errors.phone} className="sm:col-span-2">
+            <FormField id="br-phone" label={t("organization.branch_phone")} error={errors.phone} className="sm:col-span-2">
               <PhoneInput id="br-phone" value={form.phone} error={Boolean(errors.phone)} defaultCountry={form.phone_country}
                 onChange={(v) => set("phone", v)} onCountryChange={(c) => setForm((f) => ({ ...f, phone_country: c.code }))} />
             </FormField>
-            <FormField id="br-email" label="Branch email" error={errors.email}>
+            <FormField id="br-email" label={t("organization.branch_email")} error={errors.email}>
               <TextInput id="br-email" type="email" value={form.email} invalid={Boolean(errors.email)} onChange={(e) => set("email", e.target.value)} />
             </FormField>
           </div>
@@ -274,10 +273,10 @@ function BranchDialog({
           <div className="space-y-3 rounded-[12px] border border-[var(--border)] p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium">Custom opening hours</p>
-                <p className="text-xs text-[var(--text-muted)]">Off: this branch follows the business hours.</p>
+                <p className="text-sm font-medium">{t("organization.custom_opening_hours")}</p>
+                <p className="text-xs text-[var(--text-muted)]">{t("organization.off_this_branch_follows_the_business")}</p>
               </div>
-              <Toggle checked={customHours} onChange={setCustomHours} label="Custom opening hours" />
+              <Toggle checked={customHours} onChange={setCustomHours} label={t("organization.custom_opening_hours")} />
             </div>
             {customHours && <OpeningHoursEditor value={hours} onChange={setHours} errors={hoursErrors(hours)} />}
             {errors.hours && <p role="alert" className="text-xs font-medium text-[var(--error,#DC2626)]">{errors.hours}</p>}
@@ -286,14 +285,14 @@ function BranchDialog({
           {!branch?.is_primary && (
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.is_primary} onChange={(e) => set("is_primary", e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
-              Make this the primary branch
+              {t("organization.make_this_the_primary_branch")}
             </label>
           )}
 
           {errors.form && <FormAlert>{errors.form}</FormAlert>}
           <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
-            <SecondaryButton type="button" onClick={onClose}>Cancel</SecondaryButton>
-            <PrimaryButton type="submit" loading={saving}>{branch ? "Save branch" : "Add branch"}</PrimaryButton>
+            <SecondaryButton type="button" onClick={onClose}>{t("common.cancel")}</SecondaryButton>
+            <PrimaryButton type="submit" loading={saving}>{branch ? t("organization.save_branch") : t("organization.add_branch")}</PrimaryButton>
           </div>
         </form>
       </DialogContent>

@@ -4,6 +4,8 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 
+import '../../../l10n/l10n.dart';
+import '../../../shared/widgets/language_selector_sheet.dart';
 /// Shared frame for the sign-in screens: a quiet canvas with one warm wash in the corner, a
 /// predictable back button, and content that scrolls above the keyboard with [footer] kept at the
 /// bottom on tall screens.
@@ -50,12 +52,19 @@ class AuthLayout extends StatelessWidget {
                         children: [
                           SizedBox(
                             height: 48,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: leading ??
-                                  (showBack && context.canPop()
-                                      ? _BackButton(onPressed: () => context.pop())
-                                      : const SizedBox.shrink()),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: leading ??
+                                        (showBack && context.canPop()
+                                            ? _BackButton(onPressed: () => context.pop())
+                                            : const SizedBox.shrink()),
+                                  ),
+                                ),
+                                const LanguageButton(),
+                              ],
                             ),
                           ),
                           const SizedBox(height: AppSpacing.lg),
@@ -85,7 +94,7 @@ class _BackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return IconButton(
-      tooltip: 'Back',
+      tooltip: context.l10n.commonBack,
       onPressed: onPressed,
       style: IconButton.styleFrom(
         fixedSize: const Size.square(44),

@@ -13,16 +13,12 @@ export function cn(...inputs: ClassValue[]) {
  * Formats a number as Indian currency (INR).
  * e.g. 482500 → "₹4,82,500"
  */
-const LOCALES: Record<string, string> = { en: "en-IN", ta: "ta-IN", ml: "ml-IN", kn: "kn-IN", te: "te-IN" };
+const LOCALES: Record<string, string> = { en: "en-IN", ta: "ta-IN", ml: "ml-IN", hi: "hi-IN" };
 
-/** Intl locale for the language the user picked (stored by the language switcher); en-IN by default. */
+/** Intl locale for the active UI language (set on <html lang> by lib/i18n), Latin digits; en-IN by default. */
 export function appLocale(): string {
-  if (typeof window === "undefined") return "en-IN";
-  try {
-    return LOCALES[localStorage.getItem("repsi_preferred_locale") || "en"] || "en-IN";
-  } catch {
-    return "en-IN";
-  }
+  if (typeof document === "undefined") return "en-IN";
+  return `${LOCALES[document.documentElement.lang] || "en-IN"}-u-nu-latn`;
 }
 
 export function formatCurrency(value: number): string {

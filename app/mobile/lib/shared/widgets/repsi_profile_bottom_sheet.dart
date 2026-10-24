@@ -10,6 +10,7 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/views/sign_out_dialog.dart';
 import '../../features/auth/widgets/my_profile_photo.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiProfileBottomSheet extends ConsumerWidget {
   const RepsiProfileBottomSheet({super.key});
 
@@ -57,7 +58,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
               ),
             ),
             Text(
-              'Owner Profile',
+              context.l10n.ownerProfileTitle,
               style: AppTypography.headingSmall.copyWith(
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
               ),
@@ -74,7 +75,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user?.fullName ?? 'Gym Owner',
+                        user?.fullName ?? context.l10n.gymOwner,
                         style: AppTypography.labelLarge.copyWith(
                           color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                           fontWeight: FontWeight.w700,
@@ -98,7 +99,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             // Navigation Links
             ListTile(
               leading: Icon(LucideIcons.user, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text('Profile', style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              title: Text(context.l10n.commonProfile, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings); // Or specific profile route
@@ -106,7 +107,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             ),
             ListTile(
               leading: Icon(LucideIcons.settings, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text('Gym Settings', style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              title: Text(context.l10n.gymSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings);
@@ -114,7 +115,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             ),
             ListTile(
               leading: Icon(LucideIcons.shield, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text('Account Settings', style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              title: Text(context.l10n.accountSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings);
@@ -129,7 +130,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             ListTile(
               leading: const Icon(LucideIcons.logOut, size: 20, color: AppColors.error),
               title: Text(
-                'Sign Out',
+                context.l10n.commonSignOut,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.error,
                   fontWeight: FontWeight.w600,

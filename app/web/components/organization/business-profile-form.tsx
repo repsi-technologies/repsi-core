@@ -9,6 +9,7 @@ import { CountrySelect } from "@/components/ui/country-select";
 import { FormAlert, FormField, PrimaryButton, SelectInput, TextInput } from "@/components/organization/form-fields";
 import { ApiError, apiUrl, type BusinessProfileInput, type OrganizationProfile } from "@/lib/auth-client";
 import { countryName, findCountry, isValidPhone, splitPhone } from "@/lib/countries";
+import { useTranslation, richText } from "@/lib/i18n";
 
 export const BUSINESS_TYPES = [
   "Gym & Fitness center",
@@ -64,6 +65,7 @@ export function BusinessProfileForm({
   pendingLogo,
   onPendingLogo,
 }: Props) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<BusinessProfileInput>(() => fromProfile(profile, defaultEmail, defaultPhone));
   const [slugTouched, setSlugTouched] = useState(Boolean(profile?.slug));
   const [errors, setErrors] = useState<Errors>({});
@@ -126,7 +128,7 @@ export function BusinessProfileForm({
     } catch (err) {
       const api = err instanceof ApiError ? err : null;
       const fe = api?.fieldErrors || {};
-      setErrors({ ...Object.fromEntries(Object.entries(fe)), form: api?.message || "Couldn't save. Please try again." } as Errors);
+      setErrors({ ...Object.fromEntries(Object.entries(fe)), form: api?.message || t("organization.couldn_t_save_please_try_again") } as Errors);
     } finally {
       setSaving(false);
     }
@@ -142,7 +144,7 @@ export function BusinessProfileForm({
       try {
         await onLogoUpload(file);
       } catch (err) {
-        setErrors((e) => ({ ...e, logo: err instanceof ApiError ? err.message : "Upload failed." }));
+        setErrors((e) => ({ ...e, logo: err instanceof ApiError ? err.message : t("organization.upload_failed") }));
       } finally {
         setLogoBusy(false);
       }
@@ -161,14 +163,14 @@ export function BusinessProfileForm({
         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-dashed border-[var(--border-strong,#C9C7C1)] bg-[var(--background)]">
           {logoSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoSrc} alt="Business logo preview" className="h-full w-full object-contain" />
+            <img src={logoSrc} alt={t("organization.business_logo_preview")} className="h-full w-full object-contain" />
           ) : (
             <ImagePlus className="h-6 w-6 text-[var(--text-muted)]" aria-hidden />
           )}
         </div>
         <div className="space-y-2">
-          <p className="text-sm font-medium text-[var(--text)]">Business logo <span className="text-xs font-normal text-[var(--text-muted)]">(optional)</span></p>
-          <p className="text-xs text-[var(--text-muted)]">PNG, JPG or WebP, up to 2 MB. Square images look best.</p>
+          <p className="text-sm font-medium text-[var(--text)]">{t("organization.business_logo")}{" "}<span className="text-xs font-normal text-[var(--text-muted)]">{t("organization.optional")}</span></p>
+          <p className="text-xs text-[var(--text-muted)]">{t("organization.png_jpg_or_webp_up_to")}</p>
           <div className="flex flex-wrap gap-2">
             <input ref={fileRef} type="file" accept={LOGO_TYPES.join(",")} className="sr-only" id="logo-file"
               onChange={(e) => {
@@ -177,7 +179,7 @@ export function BusinessProfileForm({
               }} />
             <label htmlFor="logo-file"
               className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] px-3 text-xs font-medium hover:bg-[var(--surface-hover)] focus-within:ring-2 focus-within:ring-[var(--ring)]">
-              {logoBusy ? "Uploading…" : logoSrc ? "Replace" : "Upload logo"}
+              {logoBusy ? t("organization.uploading") : logoSrc ? t("organization.replace") : t("organization.upload_logo")}
             </label>
             {logoSrc && (
               <button type="button" disabled={logoBusy}
@@ -189,8 +191,7 @@ export function BusinessProfileForm({
                   }
                 }}
                 className="inline-flex h-8 items-center gap-1.5 rounded-[8px] px-2.5 text-xs font-medium text-[var(--text-muted)] hover:text-rose-600">
-                <Trash2 className="h-3.5 w-3.5" aria-hidden /> Remove
-              </button>
+                {richText(t("organization.trash2remove"), { trash2: <Trash2 className="h-3.5 w-3.5" aria-hidden /> })}</button>
             )}
           </div>
           {errors.logo && <p role="alert" className="text-xs font-medium text-[var(--error,#DC2626)]">{errors.logo}</p>}
@@ -198,9 +199,9 @@ export function BusinessProfileForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="biz-name" label="Business name" required error={errors.name} className="sm:col-span-2">
+        <FormField id="biz-name" label={t("organization.business_name")} required error={errors.name} className="sm:col-span-2">
           <TextInput id="biz-name" value={form.name} invalid={Boolean(errors.name)} disabled={disabled}
-            autoComplete="organization" placeholder="Iron Temple Fitness"
+            autoComplete="organization" placeholder={t("organization.iron_temple_fitness")}
             onChange={(e) => {
               set("name", e.target.value);
               if (showSlug && !slugTouched) set("slug", slugify(e.target.value));
@@ -208,7 +209,7 @@ export function BusinessProfileForm({
         </FormField>
 
         {showSlug && (
-          <FormField id="biz-slug" label="Workspace URL" required error={errors.slug} hint="Your team signs in at this address. You can't change it after setup."
+          <FormField id="biz-slug" label={t("organization.workspace_url")} required error={errors.slug} hint={t("organization.your_team_signs_in_at_this")}
             className="sm:col-span-2">
             <div className="flex items-stretch overflow-hidden rounded-[8px] border border-[var(--border)] focus-within:ring-2 focus-within:ring-[var(--ring)]">
               <span className="flex items-center bg-[var(--background)] px-3 text-sm text-[var(--text-muted)]">repsi.app/</span>
@@ -222,28 +223,28 @@ export function BusinessProfileForm({
           </FormField>
         )}
 
-        <FormField id="biz-type" label="Business type" required>
+        <FormField id="biz-type" label={t("organization.business_type")} required>
           <SelectInput id="biz-type" value={form.gym_type || BUSINESS_TYPES[0]} disabled={disabled}
             onChange={(e) => set("gym_type", e.target.value)}>
             {BUSINESS_TYPES.map((t) => <option key={t}>{t}</option>)}
           </SelectInput>
         </FormField>
 
-        <FormField id="biz-size" label="Approximate members">
+        <FormField id="biz-size" label={t("organization.approximate_members")}>
           <SelectInput id="biz-size" value={form.business_size || ""} disabled={disabled}
             onChange={(e) => set("business_size", e.target.value)}>
-            <option value="">Select…</option>
+            <option value="">{t("organization.select")}</option>
             {BUSINESS_SIZES.map((t) => <option key={t}>{t}</option>)}
           </SelectInput>
         </FormField>
 
-        <FormField id="biz-email" label="Business email" error={errors.business_email}>
+        <FormField id="biz-email" label={t("organization.business_email")} error={errors.business_email}>
           <TextInput id="biz-email" type="email" value={form.business_email || ""} invalid={Boolean(errors.business_email)}
             disabled={disabled} autoComplete="email" placeholder="hello@yourgym.com"
             onChange={(e) => set("business_email", e.target.value)} />
         </FormField>
 
-        <FormField id="biz-phone" label="Contact phone" required error={errors.phone}>
+        <FormField id="biz-phone" label={t("organization.contact_phone")} required error={errors.phone}>
           <PhoneInput id="biz-phone" value={form.phone} error={Boolean(errors.phone)} disabled={disabled}
             defaultCountry={form.phone_country}
             onChange={(v) => set("phone", v)}
@@ -252,29 +253,29 @@ export function BusinessProfileForm({
       </div>
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-semibold text-[var(--text)]">Address</legend>
+        <legend className="text-sm font-semibold text-[var(--text)]">{t("onboarding.address")}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField id="biz-addr1" label="Street address" required error={errors.address_line1} className="sm:col-span-2">
+          <FormField id="biz-addr1" label={t("organization.street_address")} required error={errors.address_line1} className="sm:col-span-2">
             <TextInput id="biz-addr1" value={form.address_line1} invalid={Boolean(errors.address_line1)} disabled={disabled}
-              autoComplete="address-line1" placeholder="Building, street" onChange={(e) => set("address_line1", e.target.value)} />
+              autoComplete="address-line1" placeholder={t("organization.building_street")} onChange={(e) => set("address_line1", e.target.value)} />
           </FormField>
-          <FormField id="biz-addr2" label="Area / landmark" className="sm:col-span-2">
+          <FormField id="biz-addr2" label={t("organization.area_landmark")} className="sm:col-span-2">
             <TextInput id="biz-addr2" value={form.address_line2 || ""} disabled={disabled} autoComplete="address-line2"
               onChange={(e) => set("address_line2", e.target.value)} />
           </FormField>
-          <FormField id="biz-city" label="City" required error={errors.city}>
+          <FormField id="biz-city" label={t("organization.city")} required error={errors.city}>
             <TextInput id="biz-city" value={form.city} invalid={Boolean(errors.city)} disabled={disabled}
               autoComplete="address-level2" onChange={(e) => set("city", e.target.value)} />
           </FormField>
-          <FormField id="biz-state" label="State / region">
+          <FormField id="biz-state" label={t("organization.state_region")}>
             <TextInput id="biz-state" value={form.state || ""} disabled={disabled} autoComplete="address-level1"
               onChange={(e) => set("state", e.target.value)} />
           </FormField>
-          <FormField id="biz-postal" label="Postal code" error={errors.postal_code}>
+          <FormField id="biz-postal" label={t("organization.postal_code")} error={errors.postal_code}>
             <TextInput id="biz-postal" value={form.postal_code || ""} invalid={Boolean(errors.postal_code)} disabled={disabled}
               autoComplete="postal-code" onChange={(e) => set("postal_code", e.target.value)} />
           </FormField>
-          <FormField id="biz-country" label="Country" required error={errors.country_code}>
+          <FormField id="biz-country" label={t("organization.country")} required error={errors.country_code}>
             <CountrySelect id="biz-country" value={form.country_code} invalid={Boolean(errors.country_code)} disabled={disabled}
               onChange={(c) => set("country_code", c.code)} />
           </FormField>
@@ -283,7 +284,7 @@ export function BusinessProfileForm({
 
       {!disabled && (
         <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
-          {saved && <span role="status" className="text-sm text-emerald-700">Saved</span>}
+          {saved && <span role="status" className="text-sm text-emerald-700">{t("organization.saved")}</span>}
           <PrimaryButton type="submit" loading={saving}>{submitLabel}</PrimaryButton>
         </div>
       )}

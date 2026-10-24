@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { memberRequest } from "@/lib/api";
 import { EmptyBlock, Field, LoadingRow, Modal, Notice, inputClass, isoDate } from "@/features/fitness/shared";
 import { financeApi, formatDateTime, formatMoney, type DueItem, type Reconciliation } from "@/lib/operations-api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface PaymentRow {
   id: string;
@@ -22,6 +23,7 @@ interface PaymentRow {
 const METHODS = ["cash", "upi", "card", "netbanking", "cheque"];
 
 function RefundDialog({ payment, onDone, onClose }: { payment: PaymentRow; onDone: () => void; onClose: () => void }) {
+  const { t } = useTranslation();
   const refundable = payment.amount - (payment.refunded_amount || 0);
   const [amount, setAmount] = useState(String(refundable));
   const [reason, setReason] = useState("");
@@ -45,26 +47,26 @@ function RefundDialog({ payment, onDone, onClose }: { payment: PaymentRow; onDon
     <Modal title={`Refund ${payment.receipt_number || "payment"}`} onClose={onClose}>
       <form onSubmit={submit} className="space-y-3">
         {error && <Notice kind="error">{error}</Notice>}
-        <p className="text-sm text-[var(--text-secondary)]">Up to {formatMoney(refundable)} can be refunded. The original payment stays on record.</p>
-        <Field label="Amount" htmlFor="refund-amount">
+        <p className="text-sm text-[var(--text-secondary)]">{t("payments.up_to_valuecan_be_refunded_the", undefined, { value: formatMoney(refundable) })}</p>
+        <Field label={t("common.amount")} htmlFor="refund-amount">
           <input id="refund-amount" type="number" min={0.01} step="0.01" max={refundable} required className={inputClass}
             value={amount} onChange={(e) => setAmount(e.target.value)} />
         </Field>
-        <Field label="Paid back by" htmlFor="refund-method">
+        <Field label={t("payments.paid_back_by")} htmlFor="refund-method">
           <select id="refund-method" className={inputClass} value={method} onChange={(e) => setMethod(e.target.value)}>
-            <option value="original_method">Same method as the payment</option>
-            <option value="cash">Cash</option>
+            <option value="original_method">{t("payments.same_method_as_the_payment")}</option>
+            <option value="cash">{t("payments.cash")}</option>
             <option value="upi">UPI</option>
-            <option value="bank_transfer">Bank transfer</option>
-            <option value="card">Card</option>
+            <option value="bank_transfer">{t("payments.bank_transfer")}</option>
+            <option value="card">{t("payments.card")}</option>
           </select>
         </Field>
-        <Field label="Reason" htmlFor="refund-reason">
+        <Field label={t("organization.reason")} htmlFor="refund-reason">
           <textarea id="refund-reason" required minLength={3} rows={2} className={inputClass} value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="destructive" size="sm" loading={saving}>Record refund</Button>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit" variant="destructive" size="sm" loading={saving}>{t("payments.record_refund")}</Button>
         </div>
       </form>
     </Modal>
@@ -72,6 +74,7 @@ function RefundDialog({ payment, onDone, onClose }: { payment: PaymentRow; onDon
 }
 
 function DayClose({ onClosed }: { onClosed: () => void }) {
+  const { t } = useTranslation();
   const [day, setDay] = useState(isoDate());
   const [expected, setExpected] = useState<Record<string, number> | null>(null);
   const [counted, setCounted] = useState<Record<string, string>>({});
@@ -103,9 +106,9 @@ function DayClose({ onClosed }: { onClosed: () => void }) {
 
   return (
     <form onSubmit={submit} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 space-y-3">
-      <h2 className="text-base font-semibold text-[var(--text)]">Close the day</h2>
+      <h2 className="text-base font-semibold text-[var(--text)]">{t("payments.close_the_day")}</h2>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
-      <Field label="Business day" htmlFor="close-day">
+      <Field label={t("payments.business_day")} htmlFor="close-day">
         <input id="close-day" type="date" max={isoDate()} className={`${inputClass} max-w-xs`} value={day} onChange={(e) => setDay(e.target.value)} />
       </Field>
       {expected === null ? <LoadingRow /> : (
@@ -118,15 +121,16 @@ function DayClose({ onClosed }: { onClosed: () => void }) {
           ))}
         </div>
       )}
-      <Field label="Notes" htmlFor="close-notes">
+      <Field label={t("payments.notes")} htmlFor="close-notes">
         <input id="close-notes" className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Field>
-      <Button type="submit" size="sm" loading={saving}>Close day</Button>
+      <Button type="submit" size="sm" loading={saving}>{t("payments.close_day")}</Button>
     </form>
   );
 }
 
 export function FinanceTools() {
+  const { t } = useTranslation();
   const [payments, setPayments] = useState<PaymentRow[] | null>(null);
   const [dues, setDues] = useState<{ total: number; by_age: Record<string, number>; items: DueItem[] } | null>(null);
   const [history, setHistory] = useState<Reconciliation[]>([]);
@@ -144,25 +148,25 @@ export function FinanceTools() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">Receipts, refunds and day close</h1>
-        <p className="text-sm text-[var(--text-muted)] mt-1">Download receipts, refund payments, chase dues and reconcile the cash drawer.</p>
+        <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">{t("payments.receipts_refunds_and_day_close")}</h1>
+        <p className="text-sm text-[var(--text-muted)] mt-1">{t("payments.download_receipts_refund_payments_chase_dues")}</p>
       </div>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       {notice && <Notice kind="success" onDismiss={() => setNotice(null)}>{notice}</Notice>}
 
       <section aria-labelledby="dues-heading" className="space-y-2">
         <h2 id="dues-heading" className="text-base font-semibold text-[var(--text)]">
-          Outstanding dues {dues && <span className="text-[var(--text-muted)] font-normal">· {formatMoney(dues.total)}</span>}
+          {t("ai.outstanding_dues")}{" "}{dues && <span className="text-[var(--text-muted)] font-normal">· {formatMoney(dues.total)}</span>}
         </h2>
-        {dues === null ? <LoadingRow /> : dues.items.length === 0 ? <EmptyBlock title="No outstanding dues" /> : (
+        {dues === null ? <LoadingRow /> : dues.items.length === 0 ? <EmptyBlock title={t("payments.no_outstanding_dues")} /> : (
           <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <table className="w-full text-sm">
               <thead className="bg-[var(--surface-secondary)] text-xs text-[var(--text-secondary)]">
                 <tr>
-                  <th scope="col" className="px-3 py-2 text-left font-medium">Member</th>
-                  <th scope="col" className="px-3 py-2 text-left font-medium">Invoice</th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">Balance</th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">Overdue</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">{t("pay.member")}</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">{t("payments.invoice")}</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">{t("members.balance")}</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">{t("payments.overdue")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
@@ -181,8 +185,8 @@ export function FinanceTools() {
       </section>
 
       <section aria-labelledby="payments-heading" className="space-y-2">
-        <h2 id="payments-heading" className="text-base font-semibold text-[var(--text)]">Recent payments</h2>
-        {payments === null ? <LoadingRow /> : payments.length === 0 ? <EmptyBlock title="No payments yet" /> : (
+        <h2 id="payments-heading" className="text-base font-semibold text-[var(--text)]">{t("payments.recent_payments")}</h2>
+        {payments === null ? <LoadingRow /> : payments.length === 0 ? <EmptyBlock title={t("payments.no_payments_yet")} /> : (
           <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             {payments.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
@@ -192,13 +196,12 @@ export function FinanceTools() {
                   {p.receipt_number && <span className="block text-xs text-[var(--text-muted)]">{p.receipt_number}</span>}
                 </span>
                 <span className="flex items-center gap-2">
-                  {(p.refunded_amount || 0) > 0 && <Badge variant="expiring">Refunded {formatMoney(p.refunded_amount)}</Badge>}
+                  {(p.refunded_amount || 0) > 0 && <Badge variant="expiring">{t("payments.refunded_value", undefined, { value: formatMoney(p.refunded_amount) })}</Badge>}
                   <Button size="sm" variant="outline" aria-label={`Download receipt ${p.receipt_number || ""}`}
                     onClick={() => financeApi.downloadReceipt(p.id, p.receipt_number).catch((e) => setError(e.message))}>
-                    <Download aria-hidden /> Receipt
-                  </Button>
+                    {richText(t("payments.downloadreceipt"), { download: <Download aria-hidden /> })}</Button>
                   {p.status !== "refunded" && (
-                    <Button size="sm" variant="ghost" onClick={() => setRefunding(p)}><RotateCcw aria-hidden /> Refund</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setRefunding(p)}>{richText(t("payments.rotateccwrefund"), { rotateccw: <RotateCcw aria-hidden /> })}</Button>
                   )}
                 </span>
               </li>
@@ -207,11 +210,11 @@ export function FinanceTools() {
         )}
       </section>
 
-      <DayClose onClosed={() => { setNotice("Day closed."); load(); }} />
+      <DayClose onClosed={() => { setNotice(t("payments.day_closed")); load(); }} />
 
       <section aria-labelledby="history-heading" className="space-y-2">
-        <h2 id="history-heading" className="text-base font-semibold text-[var(--text)]">Day-close history</h2>
-        {history.length === 0 ? <EmptyBlock title="No days closed yet" /> : (
+        <h2 id="history-heading" className="text-base font-semibold text-[var(--text)]">{t("payments.day_close_history")}</h2>
+        {history.length === 0 ? <EmptyBlock title={t("payments.no_days_closed_yet")} /> : (
           <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
@@ -219,9 +222,9 @@ export function FinanceTools() {
                 <span className="flex items-center gap-2 tabular-nums">
                   {formatMoney(h.total_counted)} counted
                   <Badge variant={h.total_variance === 0 ? "active" : "expired"}>
-                    {h.total_variance === 0 ? "Balanced" : `Variance ${formatMoney(h.total_variance)}`}
+                    {h.total_variance === 0 ? t("payments.balanced") : t("payments.variance_value", undefined, { value: formatMoney(h.total_variance) })}
                   </Badge>
-                  {h.status === "reopened" && <Badge variant="outline">Reopened</Badge>}
+                  {h.status === "reopened" && <Badge variant="outline">{t("payments.reopened")}</Badge>}
                 </span>
               </li>
             ))}
@@ -230,7 +233,7 @@ export function FinanceTools() {
       </section>
 
       {refunding && <RefundDialog payment={refunding} onClose={() => setRefunding(null)}
-        onDone={() => { setRefunding(null); setNotice("Refund recorded and the member was notified."); load(); }} />}
+        onDone={() => { setRefunding(null); setNotice(t("payments.refund_recorded_and_the_member_was")); load(); }} />}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, MessageCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPhone } from "@/lib/countries";
+import { useTranslation } from "@/lib/i18n";
 
 const LENGTH = 6;
 
@@ -42,6 +43,7 @@ export function OtpVerification({
   onChangeNumber,
   submitLabel = "Verify",
 }: OtpVerificationProps) {
+  const { t } = useTranslation();
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [countdown, setCountdown] = useCountdown(resendIn);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
@@ -83,7 +85,7 @@ export function OtpVerification({
         </span>
         <div className="min-w-0 text-sm">
           <p className="text-[var(--text)]">
-            We sent a 6-digit code on WhatsApp to{" "}
+            {t("auth.we_sent_a_6_digit_code")}{" "}
             <span className="font-semibold whitespace-nowrap">{formatPhone(phone)}</span>
           </p>
           <button
@@ -91,14 +93,14 @@ export function OtpVerification({
             onClick={onChangeNumber}
             className="mt-0.5 text-xs font-medium text-[var(--primary-dark)] hover:underline"
           >
-            Change number
+            {t("auth.change_number")}
           </button>
         </div>
       </div>
 
       {testMode && (
         <p className="rounded-[8px] border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          Test mode: no WhatsApp message is sent. Use the development code configured on the server.
+          {t("auth.test_mode_no_whatsapp_message_is")}
         </p>
       )}
 
@@ -110,7 +112,7 @@ export function OtpVerification({
         className="space-y-4"
       >
         <fieldset>
-          <legend className="sr-only">Verification code</legend>
+          <legend className="sr-only">{t("auth.verification_code")}</legend>
           <div className="flex justify-between gap-2" onPaste={(e) => {
             e.preventDefault();
             fill(e.clipboardData.getData("text"));
@@ -125,7 +127,7 @@ export function OtpVerification({
                 inputMode="numeric"
                 autoComplete={i === 0 ? "one-time-code" : "off"}
                 maxLength={LENGTH}
-                aria-label={`Digit ${i + 1} of ${LENGTH}`}
+                aria-label={t("auth.digit_value_of_length", undefined, { value: i + 1, LENGTH })}
                 aria-invalid={Boolean(error) || undefined}
                 disabled={verifying}
                 onChange={(e) => {
@@ -161,14 +163,14 @@ export function OtpVerification({
           className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-sm transition-colors hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {verifying && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-          {verifying ? "Verifying…" : submitLabel}
+          {verifying ? t("auth.verifying") : submitLabel}
         </button>
       </form>
 
       <div className="text-center text-sm text-[var(--text-muted)]">
         {countdown > 0 ? (
           <span>
-            Resend code in <span className="tabular-nums font-medium text-[var(--text)]">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}</span>
+            {t("auth.resend_code_in")}{" "}<span className="tabular-nums font-medium text-[var(--text)]">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}</span>
           </span>
         ) : (
           <button
@@ -178,7 +180,7 @@ export function OtpVerification({
             className="inline-flex items-center gap-1.5 font-medium text-[var(--primary-dark)] hover:underline disabled:opacity-50"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", resending && "animate-spin")} aria-hidden />
-            {resending ? "Sending…" : "Resend code"}
+            {resending ? t("auth.sending") : t("auth.resend_code")}
           </button>
         )}
       </div>

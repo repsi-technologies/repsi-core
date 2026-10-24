@@ -12,6 +12,7 @@ import {
   type CountryOption,
 } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 export interface PhoneInputProps {
   id?: string;
@@ -49,6 +50,7 @@ export function PhoneInput({
   error = false,
   ...rest
 }: PhoneInputProps) {
+  const { t } = useTranslation();
   const fallback = (findCountry(defaultCountry)?.code || DEFAULT_COUNTRY) as CountryCode;
   const [country, setCountry] = useState<CountryCode>(() => splitPhone(value, fallback).country);
   const national = value ? splitPhone(value, country).national : "";
@@ -104,7 +106,7 @@ export function PhoneInput({
         disabled={disabled}
         aria-invalid={error || undefined}
         aria-describedby={rest["aria-describedby"]}
-        placeholder={placeholder || (country === "IN" ? "98450 12345" : "Phone number")}
+        placeholder={placeholder || (country === "IN" ? "98450 12345" : t("ui.phone_number"))}
         value={national ? formatNational(national, country) : ""}
         onChange={(e) => {
           let raw = e.target.value;

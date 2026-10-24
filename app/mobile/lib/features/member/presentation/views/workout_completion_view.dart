@@ -4,6 +4,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../shared/models/workout_models.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
+import '../../../../l10n/l10n.dart';
 
 class WorkoutCompletionView extends StatefulWidget {
   final int durationSeconds;
@@ -40,7 +41,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Workout Summary', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.text)),
+        title: Text(context.l10n.workoutSummary, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.text)),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -61,7 +62,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
             ),
             const SizedBox(height: 14),
             Text(
-              'WORKOUT COMPLETE!',
+              context.l10n.workoutComplete,
               style: AppTypography.heading.copyWith(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -71,7 +72,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Crushed it Rahul! Upper Body A recorded to your fitness profile.',
+              context.l10n.workoutRecorded,
               textAlign: TextAlign.center,
               style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 13),
             ),
@@ -92,9 +93,9 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          '+1 WORKOUT STREAK',
+                          context.l10n.streakPlusOne,
                           style: TextStyle(
                             color: Color(0xFFB45309),
                             fontWeight: FontWeight.w800,
@@ -103,7 +104,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'You are on fire! Streak reached 5 consecutive days.',
+                          context.l10n.streakFive,
                           style: TextStyle(color: Color(0xFF92400E), fontSize: 11),
                         ),
                       ],
@@ -117,17 +118,17 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
             // 4 Stats Grid: 412 kcal · 47 min · 6 exercises · 4,250 kg
             Row(
               children: [
-                _buildStatBox('Active Burn', '🔥 412 kcal', Icons.local_fire_department_rounded, const Color(0xFFEF4444)),
+                _buildStatBox(context.l10n.activeBurn, '🔥 412 kcal', Icons.local_fire_department_rounded, const Color(0xFFEF4444)),
                 const SizedBox(width: 12),
-                _buildStatBox('Duration', '⏱ 47 min', Icons.timer_outlined, const Color(0xFF3B82F6)),
+                _buildStatBox(context.l10n.duration, '⏱ 47 min', Icons.timer_outlined, const Color(0xFF3B82F6)),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildStatBox('Exercises', '🏋️ 6 done', Icons.fitness_center_rounded, AppColors.primaryDark),
+                _buildStatBox(context.l10n.exercises, '🏋️ 6 done', Icons.fitness_center_rounded, AppColors.primaryDark),
                 const SizedBox(width: 12),
-                _buildStatBox('Total Volume', '4,250 kg', Icons.bar_chart_rounded, const Color(0xFF8B5CF6)),
+                _buildStatBox(context.l10n.totalVolume, '4,250 kg', Icons.bar_chart_rounded, const Color(0xFF8B5CF6)),
               ],
             ),
             const SizedBox(height: 16),
@@ -149,9 +150,9 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'NEW PERSONAL RECORD!',
+                          context.l10n.newPersonalRecord,
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB45309)),
                         ),
                         SizedBox(height: 2),
@@ -171,7 +172,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'How did this workout feel?',
+                context.l10n.howDidItFeel,
                 style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.text),
               ),
             ),
@@ -198,12 +199,12 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
 
             // Save Workout Button
             RepsiButton(
-              text: 'Save & Return to Dashboard',
+              text: context.l10n.saveAndReturn,
               leadingIcon: const Icon(Icons.check_circle_outline_rounded, size: 20),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Workout saved and synced with Health Connect!'),
+                  SnackBar(
+                    content: Text(context.l10n.workoutSavedSynced),
                     backgroundColor: AppColors.primary,
                   ),
                 );

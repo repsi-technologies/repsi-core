@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 class RunningTrackerView extends StatefulWidget {
   const RunningTrackerView({super.key});
@@ -57,7 +58,7 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Outdoor Running GPS'),
+        title: Text(context.l10n.outdoorRunningGps),
       ),
       body: Column(
         children: [
@@ -69,9 +70,9 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'DISTANCE',
-                  style: TextStyle(
+                Text(
+                  context.l10n.runDistance,
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -86,20 +87,20 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Text(
-                  'KILOMETERS',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                Text(
+                  context.l10n.runKilometers,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildRunMetric('TIME', _formatDuration(_secondsElapsed)),
+                    _buildRunMetric(context.l10n.runTime, _formatDuration(_secondsElapsed)),
                     _buildRunMetric(
-                      'PACE',
-                      '${_currentPace.toStringAsFixed(2)} /km',
+                      context.l10n.runPace,
+                      context.l10n.runPacePerKm(_currentPace.toStringAsFixed(2)),
                     ),
-                    _buildRunMetric('CALORIES', '$_caloriesEstimate kcal'),
+                    _buildRunMetric(context.l10n.runCalories, '$_caloriesEstimate kcal'),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -115,7 +116,7 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                   onPressed: _toggleRun,
                   icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow_rounded),
                   label: Text(
-                    _isRunning ? 'PAUSE RUN' : 'START RUNNING',
+                    _isRunning ? context.l10n.pauseRun : context.l10n.startRun,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -135,24 +136,24 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.map_rounded, size: 36, color: Colors.grey),
-                        SizedBox(height: 8),
+                        const Icon(Icons.map_rounded, size: 36, color: Colors.grey),
+                        const SizedBox(height: 8),
                         Text(
-                          'Live GPS Route Map View',
-                          style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                          context.l10n.liveGpsMap,
+                          style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'RECENT RUN HISTORY',
-                  style: TextStyle(
+                Text(
+                  context.l10n.recentRunHistory,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.1,
@@ -165,12 +166,12 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                     backgroundColor: AppColors.primarySoft,
                     child: Icon(Icons.directions_run, color: AppColors.primaryDark),
                   ),
-                  title: const Text(
-                    '5.42 km · Morning Run',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  title: Text(
+                    '5.42 km · ${context.l10n.morningRun}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: const Text('Time: 32:18 · Avg Pace: 5:57 /km'),
-                  trailing: const Text('Yesterday', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  subtitle: Text(context.l10n.runHistorySummary('32:18', '5:57')),
+                  trailing: Text(context.l10n.timeYesterday, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ),
                 ListTile(
                   leading: const CircleAvatar(
@@ -181,8 +182,8 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                     '3.10 km · Interval Jog',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: const Text('Time: 18:40 · Avg Pace: 6:01 /km'),
-                  trailing: const Text('3 days ago', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  subtitle: Text(context.l10n.runHistorySummary('18:40', '6:01')),
+                  trailing: const Text('3d', style: TextStyle(color: Colors.grey, fontSize: 12)),
                 ),
               ],
             ),
@@ -212,3 +213,4 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
     );
   }
 }
+

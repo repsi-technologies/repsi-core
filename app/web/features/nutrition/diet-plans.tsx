@@ -6,15 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { repsiApi, type ApiDietMeal, type ApiDietPlan, type ApiDietPlanSave, type ApiDietVersion } from "@/lib/api";
 import { EmptyBlock, Field, humanize, inputClass, LoadingRow, Modal, Notice, StatusBadge } from "@/features/fitness/shared";
+import { useTranslation, richText } from "@/lib/i18n";
 
 const SLOTS = ["breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_workout"];
 const DIET_TYPES = ["vegetarian", "eggetarian", "vegan", "non_vegetarian"];
 
 export function DietVersionView({ version }: { version: ApiDietVersion }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
       <p className="text-xs text-[var(--text-muted)]">
-        Planned {version.totals.calories} kcal · {version.totals.protein} g protein
+        {t("nutrition.planned")}{" "}{version.totals.calories} {t("nutrition.kcal")}{" "}{version.totals.protein} {t("nutrition.g_protein")}
         {version.calories_target ? ` · target ${version.calories_target} kcal` : ""}
         {version.water_ml_target ? ` · water ${version.water_ml_target} ml` : ""}
       </p>
@@ -36,6 +38,7 @@ export function DietVersionView({ version }: { version: ApiDietVersion }) {
 const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
 function PlanEditor({ plan, onClose, onSaved }: { plan: ApiDietPlan | null; onClose: () => void; onSaved: (p: ApiDietPlan) => void }) {
+  const { t } = useTranslation();
   const v = plan?.current_version;
   const [name, setName] = useState(plan?.name ?? "");
   const [goal, setGoal] = useState(plan?.goal ?? "");
@@ -59,7 +62,7 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: ApiDietPlan | null; onCl
     setError(null);
     const cleaned = meals.map((m) => ({ ...m, items: m.items.filter((it) => it.food.trim()) })).filter((m) => m.items.length);
     if (!cleaned.length) {
-      setError("Add at least one food.");
+      setError(t("nutrition.add_at_least_one_food"));
       setSaving(false);
       return;
     }
@@ -76,54 +79,54 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: ApiDietPlan | null; onCl
   };
 
   return (
-    <Modal title={plan ? `Revise ${plan.name}` : "New diet plan"} onClose={onClose} wide>
+    <Modal title={plan ? t("nutrition.revise_name", undefined, { name: plan.name }) : t("nutrition.new_diet_plan")} onClose={onClose} wide>
       <form onSubmit={save} className="space-y-4">
         {error && <Notice kind="error">{error}</Notice>}
         <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="Name" htmlFor="dp-name"><input id="dp-name" required maxLength={150} className={inputClass} value={name} onChange={(e) => setName(e.target.value)} /></Field>
-          <Field label="Goal" htmlFor="dp-goal"><input id="dp-goal" maxLength={100} className={inputClass} value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Fat loss, muscle gain…" /></Field>
-          <Field label="Diet type" htmlFor="dp-type">
+          <Field label={t("organization.name")} htmlFor="dp-name"><input id="dp-name" required maxLength={150} className={inputClass} value={name} onChange={(e) => setName(e.target.value)} /></Field>
+          <Field label={t("nutrition.goal")} htmlFor="dp-goal"><input id="dp-goal" maxLength={100} className={inputClass} value={goal} onChange={(e) => setGoal(e.target.value)} placeholder={t("nutrition.fat_loss_muscle_gain")} /></Field>
+          <Field label={t("nutrition.diet_type")} htmlFor="dp-type">
             <select id="dp-type" className={inputClass} value={dietType} onChange={(e) => setDietType(e.target.value)}>
-              <option value="">Not specified</option>
+              <option value="">{t("nutrition.not_specified")}</option>
               {DIET_TYPES.map((t) => <option key={t} value={t}>{humanize(t)}</option>)}
             </select>
           </Field>
-          <Field label="Calories target (kcal)" htmlFor="dp-kcal"><input id="dp-kcal" type="number" min={0} inputMode="numeric" className={inputClass} value={kcal} onChange={(e) => setKcal(e.target.value)} /></Field>
-          <Field label="Protein target (g)" htmlFor="dp-protein"><input id="dp-protein" type="number" min={0} inputMode="numeric" className={inputClass} value={protein} onChange={(e) => setProtein(e.target.value)} /></Field>
-          <Field label="Water target (ml)" htmlFor="dp-water"><input id="dp-water" type="number" min={0} inputMode="numeric" className={inputClass} value={water} onChange={(e) => setWater(e.target.value)} /></Field>
+          <Field label={t("nutrition.calories_target_kcal")} htmlFor="dp-kcal"><input id="dp-kcal" type="number" min={0} inputMode="numeric" className={inputClass} value={kcal} onChange={(e) => setKcal(e.target.value)} /></Field>
+          <Field label={t("nutrition.protein_target_g")} htmlFor="dp-protein"><input id="dp-protein" type="number" min={0} inputMode="numeric" className={inputClass} value={protein} onChange={(e) => setProtein(e.target.value)} /></Field>
+          <Field label={t("nutrition.water_target_ml")} htmlFor="dp-water"><input id="dp-water" type="number" min={0} inputMode="numeric" className={inputClass} value={water} onChange={(e) => setWater(e.target.value)} /></Field>
         </div>
 
         {meals.map((m, i) => (
           <fieldset key={i} className="space-y-2 rounded-[10px] border border-[var(--border)] p-3">
-            <legend className="sr-only">Meal {i + 1}</legend>
+            <legend className="sr-only">{t("nutrition.meal_value", undefined, { value: i + 1 })}</legend>
             <div className="flex flex-wrap items-end gap-2">
-              <Field label="Meal" htmlFor={`slot-${i}`}>
+              <Field label={t("nutrition.meal")} htmlFor={`slot-${i}`}>
                 <select id={`slot-${i}`} className={inputClass} value={m.slot} onChange={(e) => setMeal(i, { slot: e.target.value })}>
                   {SLOTS.map((s) => <option key={s} value={s}>{humanize(s)}</option>)}
                 </select>
               </Field>
-              <Field label="Time" htmlFor={`time-${i}`}><input id={`time-${i}`} type="time" className={inputClass} value={m.time ?? ""} onChange={(e) => setMeal(i, { time: e.target.value || null })} /></Field>
-              <Button type="button" variant="ghost" size="sm" aria-label="Remove meal" onClick={() => setMeals((ms) => ms.filter((_, k) => k !== i))}><Trash2 /></Button>
+              <Field label={t("nutrition.time")} htmlFor={`time-${i}`}><input id={`time-${i}`} type="time" className={inputClass} value={m.time ?? ""} onChange={(e) => setMeal(i, { time: e.target.value || null })} /></Field>
+              <Button type="button" variant="ghost" size="sm" aria-label={t("nutrition.remove_meal")} onClick={() => setMeals((ms) => ms.filter((_, k) => k !== i))}><Trash2 /></Button>
             </div>
             {m.items.map((it, j) => (
               <div key={j} className="grid grid-cols-2 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
-                <input aria-label="Food" placeholder="Food (e.g. Idli)" className={`${inputClass} col-span-2 sm:col-span-1`} value={it.food} onChange={(e) => setItem(i, j, { food: e.target.value })} />
-                <input aria-label="Portion" placeholder="Portion" className={inputClass} value={it.portion ?? ""} onChange={(e) => setItem(i, j, { portion: e.target.value || null })} />
-                <input aria-label="Calories" placeholder="kcal" type="number" min={0} className={inputClass} value={it.calories ?? ""} onChange={(e) => setItem(i, j, { calories: num(e.target.value) })} />
-                <input aria-label="Protein grams" placeholder="Protein g" type="number" min={0} className={inputClass} value={it.protein ?? ""} onChange={(e) => setItem(i, j, { protein: num(e.target.value) })} />
-                <Button type="button" variant="ghost" size="sm" aria-label="Remove food" onClick={() => setMeal(i, { items: m.items.filter((_, k) => k !== j) })}><Trash2 /></Button>
+                <input aria-label={t("nutrition.food")} placeholder={t("nutrition.food_e_g_idli")} className={`${inputClass} col-span-2 sm:col-span-1`} value={it.food} onChange={(e) => setItem(i, j, { food: e.target.value })} />
+                <input aria-label={t("nutrition.portion")} placeholder={t("nutrition.portion")} className={inputClass} value={it.portion ?? ""} onChange={(e) => setItem(i, j, { portion: e.target.value || null })} />
+                <input aria-label={t("nutrition.calories")} placeholder="kcal" type="number" min={0} className={inputClass} value={it.calories ?? ""} onChange={(e) => setItem(i, j, { calories: num(e.target.value) })} />
+                <input aria-label={t("nutrition.protein_grams")} placeholder={t("nutrition.protein_g")} type="number" min={0} className={inputClass} value={it.protein ?? ""} onChange={(e) => setItem(i, j, { protein: num(e.target.value) })} />
+                <Button type="button" variant="ghost" size="sm" aria-label={t("nutrition.remove_food")} onClick={() => setMeal(i, { items: m.items.filter((_, k) => k !== j) })}><Trash2 /></Button>
               </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => setMeal(i, { items: [...m.items, { food: "" }] })}><Plus /> Add food</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setMeal(i, { items: [...m.items, { food: "" }] })}>{richText(t("nutrition.plusadd_food"), { plus: <Plus /> })}</Button>
           </fieldset>
         ))}
-        <Button type="button" variant="outline" size="sm" onClick={() => setMeals((ms) => [...ms, { slot: "lunch", items: [{ food: "" }] }])}><Plus /> Add meal</Button>
+        <Button type="button" variant="outline" size="sm" onClick={() => setMeals((ms) => [...ms, { slot: "lunch", items: [{ food: "" }] }])}>{richText(t("nutrition.plusadd_meal"), { plus: <Plus /> })}</Button>
 
-        <Field label="Notes for the member" htmlFor="dp-notes"><textarea id="dp-notes" maxLength={2000} className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field>
-        {plan && <Field label="What changed?" htmlFor="dp-summary" hint="Saved as a new version; members on older versions keep theirs."><input id="dp-summary" maxLength={255} className={inputClass} value={summary} onChange={(e) => setSummary(e.target.value)} /></Field>}
+        <Field label={t("nutrition.notes_for_the_member")} htmlFor="dp-notes"><textarea id="dp-notes" maxLength={2000} className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field>
+        {plan && <Field label={t("nutrition.what_changed")} htmlFor="dp-summary" hint={t("nutrition.saved_as_a_new_version_members")}><input id="dp-summary" maxLength={255} className={inputClass} value={summary} onChange={(e) => setSummary(e.target.value)} /></Field>}
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          <Button type="submit" disabled={saving}>{saving ? "Saving…" : plan ? "Save new version" : "Create plan"}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit" disabled={saving}>{saving ? t("nutrition.saving") : plan ? t("nutrition.save_new_version") : t("nutrition.create_plan")}</Button>
         </div>
       </form>
     </Modal>
@@ -132,6 +135,7 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: ApiDietPlan | null; onCl
 
 /** Diet plan library for owners, managers and trainers with nutrition permissions. */
 export function DietPlansPage() {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<ApiDietPlan[] | null>(null);
   const [selected, setSelected] = useState<ApiDietPlan | null>(null);
   const [editing, setEditing] = useState<ApiDietPlan | null | "new">(null);
@@ -157,12 +161,12 @@ export function DietPlansPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-[var(--text)]">Diet plans</h1>
-        <Button size="sm" onClick={() => setEditing("new")}><Plus /> New diet plan</Button>
+        <h1 className="text-xl font-bold text-[var(--text)]">{t("nutrition.diet_plans")}</h1>
+        <Button size="sm" onClick={() => setEditing("new")}>{richText(t("nutrition.plusnew_diet_plan"), { plus: <Plus /> })}</Button>
       </div>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
-      {plans === null ? <LoadingRow label="Loading diet plans…" /> : plans.length === 0 ? (
-        <EmptyBlock title="No diet plans yet">Create a plan with meals and portions, then assign it from a member&apos;s Nutrition tab.</EmptyBlock>
+      {plans === null ? <LoadingRow label={t("nutrition.loading_diet_plans")} /> : plans.length === 0 ? (
+        <EmptyBlock title={t("nutrition.no_diet_plans_yet")}>{t("nutrition.create_a_plan_with_meals_and")}</EmptyBlock>
       ) : (
         <div className="grid gap-4 md:grid-cols-[320px_1fr]">
           <ul className="space-y-2">
@@ -184,15 +188,15 @@ export function DietPlansPage() {
                 <span className="text-xs text-[var(--text-muted)]">v{selected.current_version.version_number}</span>
                 {selected.can_edit && (
                   <span className="ml-auto flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setEditing(selected)}>Revise</Button>
-                    <Button size="sm" variant="outline" onClick={() => archive(selected)}>Archive</Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditing(selected)}>{t("nutrition.revise")}</Button>
+                    <Button size="sm" variant="outline" onClick={() => archive(selected)}>{t("nutrition.archive")}</Button>
                   </span>
                 )}
               </div>
               <DietVersionView version={selected.current_version} />
               {selected.versions && selected.versions.length > 1 && (
                 <details className="text-sm text-[var(--text-secondary)]">
-                  <summary className="cursor-pointer">Version history ({selected.versions.length})</summary>
+                  <summary className="cursor-pointer">{t("nutrition.version_history_count", undefined, { count: selected.versions.length })}</summary>
                   <ul className="mt-2 space-y-1">
                     {selected.versions.map((ver) => (
                       <li key={ver.id}>v{ver.version_number} · {new Date(ver.created_at).toLocaleDateString()}{ver.change_summary ? ` — ${ver.change_summary}` : ""}</li>
@@ -202,7 +206,7 @@ export function DietPlansPage() {
               )}
             </Card>
           ) : (
-            <p className="text-sm text-[var(--text-muted)]">Select a plan to see its meals.</p>
+            <p className="text-sm text-[var(--text-muted)]">{t("nutrition.select_a_plan_to_see_its")}</p>
           )}
         </div>
       )}

@@ -5,8 +5,10 @@ import { Receipt, Plus, ArrowUpRight, DollarSign, Wrench, Zap, Building } from "
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { repsiApi } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 export default function WorkspaceExpensesPage() {
+  const { t } = useTranslation();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -53,20 +55,24 @@ export default function WorkspaceExpensesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Operating Expenses</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
+            {t("expenses.title", "Operating Expenses")}
+          </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Track operational burn, facility overhead, equipment maintenance, and vendor bills.
+            {t("expenses.subtitle", "Track operational burn, facility overhead, equipment maintenance, and vendor bills.")}
           </p>
         </div>
         <Button size="sm" onClick={() => setShowModal(true)} className="gap-1.5 cursor-pointer">
           <Plus className="h-3.5 w-3.5" />
-          Record Expense
+          {t("expenses.recordExpense", "Record Expense")}
         </Button>
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Total Recorded Outflow</p>
+          <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            {t("expenses.totalOutflow", "Total Recorded Outflow")}
+          </p>
           <p className="text-2xl font-bold text-rose-500 mt-1">{formatCurrency(totalExpense)}</p>
         </div>
         <div className="w-10 h-10 rounded-[8px] bg-rose-500/10 text-rose-500 flex items-center justify-center">
@@ -76,7 +82,9 @@ export default function WorkspaceExpensesPage() {
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-[var(--shadow-sm)]">
         <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
-          <h2 className="font-semibold text-sm text-[var(--text)]">Recent Expense Outflows</h2>
+          <h2 className="font-semibold text-sm text-[var(--text)]">
+            {t("expenses.recentOutflows", "Recent Expense Outflows")}
+          </h2>
           <span className="text-xs text-[var(--text-muted)]">Total Outflow: {formatCurrency(totalExpense)}</span>
         </div>
         {expenses.length > 0 ? (

@@ -8,6 +8,7 @@ import '../data/health_data_source.dart';
 import '../data/health_models.dart';
 import '../data/health_repository.dart';
 
+import '../../../l10n/l10n.dart';
 class HealthState {
   final HealthAvailability availability;
   final bool connected;
@@ -108,7 +109,7 @@ class HealthNotifier extends StateNotifier<HealthState> {
       if (!granted) {
         state = state.copyWith(
             error:
-                'Permission was not granted. You can allow access in Health Connect settings.');
+                L10n.current.healthPermissionDenied);
         return;
       }
       await _storage.setHealthSyncEnabled(true);
@@ -117,7 +118,7 @@ class HealthNotifier extends StateNotifier<HealthState> {
     } catch (_) {
       if (mounted) {
         state = state.copyWith(
-            error: 'Could not connect to Health Connect. Please try again.');
+            error: L10n.current.healthConnectFailed);
       }
     }
   }
@@ -142,7 +143,7 @@ class HealthNotifier extends StateNotifier<HealthState> {
       if (mounted) {
         state = state.copyWith(
             syncing: false,
-            error: 'Could not read your activity from Health Connect.');
+            error: L10n.current.healthReadFailed);
       }
     }
   }

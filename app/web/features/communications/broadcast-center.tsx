@@ -18,12 +18,13 @@ import {
   type MessageTemplate,
 } from "@/lib/communications-api";
 import { EmptyBlock, Field, LoadingRow, Modal, Notice, inputClass } from "@/features/fitness/shared";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 type Tab = "compose" | "history" | "templates" | "log";
 const CHANNELS: { key: CommChannel; label: string }[] = [
-  { key: "in_app", label: "In-app" },
-  { key: "email", label: "Email" },
-  { key: "whatsapp", label: "WhatsApp (approved template)" },
+  { key: "in_app", get label() { return tr("communications.in_app"); } },
+  { key: "email", get label() { return tr("invite.email"); } },
+  { key: "whatsapp", get label() { return tr("communications.whatsapp_approved_template"); } },
 ];
 const DAY_SEGMENTS: CommSegment[] = ["expiring_soon", "new_members"];
 
@@ -39,8 +40,9 @@ function formatWhen(iso?: string | null) {
 }
 
 function SummaryChips({ summary }: { summary: Partial<Record<DeliveryStatus, number>> }) {
+  const { t } = useTranslation();
   const entries = Object.entries(summary) as [DeliveryStatus, number][];
-  if (!entries.length) return <span className="text-xs text-[var(--text-muted)]">No deliveries</span>;
+  if (!entries.length) return <span className="text-xs text-[var(--text-muted)]">{t("communications.no_deliveries")}</span>;
   return (
     <div className="flex flex-wrap gap-1.5">
       {entries.map(([s, n]) => (
@@ -80,9 +82,9 @@ function MemberPicker({ selected, onChange }: { selected: MemberHit[]; onChange:
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" aria-hidden />
         <input
-          aria-label="Search members to add"
+          aria-label={tr("communications.search_members_to_add")}
           className={`${inputClass} pl-9`}
-          placeholder="Search members by name or phone"
+          placeholder={tr("communications.search_members_by_name_or_phone")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -107,7 +109,7 @@ function MemberPicker({ selected, onChange }: { selected: MemberHit[]; onChange:
         {selected.map((m) => (
           <span key={m.id} className="inline-flex items-center gap-1 rounded-full bg-[var(--primary-soft)] text-[var(--primary-dark)] px-2.5 py-0.5 text-xs">
             {m.first_name} {m.last_name}
-            <button type="button" aria-label={`Remove ${m.first_name}`} onClick={() => onChange(selected.filter((s) => s.id !== m.id))}>
+            <button type="button" aria-label={tr("communications.remove_first_name", undefined, { first_name: m.first_name })} onClick={() => onChange(selected.filter((s) => s.id !== m.id))}>
               <X className="h-3 w-3" />
             </button>
           </span>
@@ -201,7 +203,7 @@ function Compose({ templates, onSent }: { templates: MessageTemplate[]; onSent: 
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
         {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
-        <Field label="Audience" htmlFor="bc-segment">
+        <Field label={tr("communications.audience")} htmlFor="bc-segment">
           <select id="bc-segment" className={inputClass} value={segment} onChange={(e) => setSegment(e.target.value as CommSegment)}>
             {(Object.keys(SEGMENT_LABELS) as CommSegment[]).map((s) => (
               <option key={s} value={s}>{SEGMENT_LABELS[s]}</option>
@@ -209,7 +211,7 @@ function Compose({ templates, onSent }: { templates: MessageTemplate[]; onSent: 
           </select>
         </Field>
         {DAY_SEGMENTS.includes(segment) && (
-          <Field label={segment === "expiring_soon" ? "Ending within (days)" : "Joined within (days)"} htmlFor="bc-days">
+          <Field label={segment === "expiring_soon" ? tr("communications.ending_within_days") : tr("communications.joined_within_days")} htmlFor="bc-days">
             <input id="bc-days" type="number" min={1} max={365} className={inputClass} value={days}
               onChange={(e) => setDays(Math.min(365, Math.max(1, Number(e.target.value) || 1)))} />
           </Field>
@@ -217,7 +219,7 @@ function Compose({ templates, onSent }: { templates: MessageTemplate[]; onSent: 
         {segment === "selected_members" && <MemberPicker selected={picked} onChange={setPicked} />}
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-[var(--text)]">Channels</legend>
+          <legend className="text-sm font-medium text-[var(--text)]">{tr("communications.channels")}</legend>
           <div className="flex flex-wrap gap-3">
             {CHANNELS.map((c) => (
               <label key={c.key} className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
@@ -228,64 +230,62 @@ function Compose({ templates, onSent }: { templates: MessageTemplate[]; onSent: 
           </div>
           {channels.includes("whatsapp") && (
             <p className="text-xs text-[var(--text-muted)]">
-              WhatsApp goes only to members who opted in, using an approved template. Without provider credentials,
-              deliveries are logged as &ldquo;Provider not configured&rdquo;.
+              {tr("communications.whatsapp_goes_only_to_members_who")}
             </p>
           )}
         </fieldset>
 
-        <Field label={channels.includes("whatsapp") ? "Template (required for WhatsApp)" : "Start from a template (optional)"} htmlFor="bc-template">
+        <Field label={channels.includes("whatsapp") ? tr("communications.template_required_for_whatsapp") : tr("communications.start_from_a_template_optional")} htmlFor="bc-template">
           <select id="bc-template" className={inputClass} value={templateId} onChange={(e) => applyTemplate(e.target.value)}>
-            <option value="">No template</option>
+            <option value="">{tr("communications.no_template")}</option>
             {templates.map((t) => (
               <option key={t.id} value={t.id}>{t.name} ({t.channel.replace("_", "-")})</option>
             ))}
           </select>
         </Field>
-        <Field label="Title" htmlFor="bc-title" hint="Placeholders: {{first_name}}, {{gym_name}}">
+        <Field label={tr("members.title")} htmlFor="bc-title" hint={tr("communications.placeholders_first_name_gym_name")}>
           <input id="bc-title" className={inputClass} maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} />
         </Field>
-        <Field label="Message" htmlFor="bc-message">
+        <Field label={tr("communications.message")} htmlFor="bc-message">
           <textarea id="bc-message" rows={5} className={inputClass} maxLength={4000} value={message} onChange={(e) => setMessage(e.target.value)} />
         </Field>
         <div className="flex justify-end">
           <Button onClick={() => setConfirming(true)} disabled={invalid} className="gap-2">
-            <Send className="h-4 w-4" /> Review &amp; send
-          </Button>
+            {richText(tr("communications.sendreview_send"), { send: <Send className="h-4 w-4" /> })}</Button>
         </div>
       </div>
 
       <aside className="space-y-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 h-fit">
-        <h3 className="text-sm font-semibold text-[var(--text)]">Recipients</h3>
+        <h3 className="text-sm font-semibold text-[var(--text)]">{tr("communications.recipients")}</h3>
         {previewError ? (
           <p className="text-sm text-[var(--error)]">{previewError}</p>
         ) : preview ? (
           <>
             <p className="text-3xl font-bold text-[var(--text)]">{preview.recipient_count}</p>
             <dl className="grid grid-cols-2 gap-1 text-xs text-[var(--text-secondary)]">
-              <dt>With app account</dt><dd className="text-right">{preview.with_app_account}</dd>
-              <dt>With email</dt><dd className="text-right">{preview.with_email}</dd>
-              <dt>With phone</dt><dd className="text-right">{preview.with_phone}</dd>
+              <dt>{tr("communications.with_app_account")}</dt><dd className="text-right">{preview.with_app_account}</dd>
+              <dt>{tr("communications.with_email")}</dt><dd className="text-right">{preview.with_email}</dd>
+              <dt>{tr("communications.with_phone")}</dt><dd className="text-right">{preview.with_phone}</dd>
             </dl>
             {preview.sample.length > 0 && (
               <p className="text-xs text-[var(--text-muted)]">e.g. {preview.sample.join(", ")}</p>
             )}
           </>
         ) : (
-          <p className="text-sm text-[var(--text-muted)]">{segment === "selected_members" ? "Pick members to see recipients." : "Loading…"}</p>
+          <p className="text-sm text-[var(--text-muted)]">{segment === "selected_members" ? tr("communications.pick_members_to_see_recipients") : tr("communications.loading")}</p>
         )}
       </aside>
 
       {confirming && preview && (
-        <Modal title="Send this broadcast?" onClose={() => setConfirming(false)}>
+        <Modal title={tr("communications.send_this_broadcast")} onClose={() => setConfirming(false)}>
           <div className="space-y-3 text-sm text-[var(--text-secondary)]">
             <p>
-              <strong className="text-[var(--text)]">{title}</strong> goes to {preview.recipient_count} recipient(s) via{" "}
-              {channels.map((c) => CHANNELS.find((x) => x.key === c)?.label).join(", ")}. This can&apos;t be undone.
+              <strong className="text-[var(--text)]">{title}</strong> {tr("communications.goes_to")}{" "}{preview.recipient_count} {tr("communications.recipient_s_via")}{" "}
+              {channels.map((c) => CHANNELS.find((x) => x.key === c)?.label).join(", ")}{tr("communications.this_can_t_be_undone")}
             </p>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setConfirming(false)} disabled={sending}>Cancel</Button>
-              <Button onClick={send} disabled={sending}>{sending ? "Sending…" : "Send now"}</Button>
+              <Button variant="outline" onClick={() => setConfirming(false)} disabled={sending}>{tr("common.cancel")}</Button>
+              <Button onClick={send} disabled={sending}>{sending ? tr("auth.sending") : tr("communications.send_now")}</Button>
             </div>
           </div>
         </Modal>
@@ -295,17 +295,18 @@ function Compose({ templates, onSent }: { templates: MessageTemplate[]; onSent: 
 }
 
 function DeliveryTable({ rows }: { rows: Delivery[] }) {
-  if (!rows.length) return <EmptyBlock title="No deliveries yet" />;
+  const { t } = useTranslation();
+  if (!rows.length) return <EmptyBlock title={t("communications.no_deliveries_yet")} />;
   return (
     <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
       <table className="w-full text-sm">
         <thead className="bg-[var(--surface-secondary)] text-left text-xs text-[var(--text-muted)]">
           <tr>
-            <th className="px-3 py-2 font-medium">Recipient</th>
-            <th className="px-3 py-2 font-medium">Channel</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Detail</th>
-            <th className="px-3 py-2 font-medium">When</th>
+            <th className="px-3 py-2 font-medium">{t("communications.recipient")}</th>
+            <th className="px-3 py-2 font-medium">{t("communications.channel")}</th>
+            <th className="px-3 py-2 font-medium">{t("common.status")}</th>
+            <th className="px-3 py-2 font-medium">{t("communications.detail")}</th>
+            <th className="px-3 py-2 font-medium">{t("communications.when")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--border)] bg-[var(--surface)]">
@@ -325,6 +326,7 @@ function DeliveryTable({ rows }: { rows: Delivery[] }) {
 }
 
 function History({ refreshKey }: { refreshKey: number }) {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Broadcast[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<Broadcast | null>(null);
@@ -343,9 +345,9 @@ function History({ refreshKey }: { refreshKey: number }) {
     communicationsApi.broadcastDeliveries(open.id).then((r) => setRows(r.items)).catch((e: Error) => setError(e.message));
   }, [open]);
 
-  if (error) return <Notice kind="error">{error} <button className="underline" onClick={load}>Retry</button></Notice>;
+  if (error) return <Notice kind="error">{error} <button className="underline" onClick={load}>{t("members.retry")}</button></Notice>;
   if (!items) return <LoadingRow />;
-  if (!items.length) return <EmptyBlock title="No broadcasts yet">Announcements you send appear here with their delivery status.</EmptyBlock>;
+  if (!items.length) return <EmptyBlock title={t("communications.no_broadcasts_yet")}>{t("communications.announcements_you_send_appear_here_with")}</EmptyBlock>;
   return (
     <div className="space-y-3">
       {items.map((b) => (
@@ -356,8 +358,7 @@ function History({ refreshKey }: { refreshKey: number }) {
             <Badge variant={statusVariant(b.status)}>{b.status.replace(/_/g, " ")}</Badge>
           </div>
           <p className="text-xs text-[var(--text-muted)] mt-1">
-            {SEGMENT_LABELS[b.audience.segment] ?? b.audience.segment} · {b.recipient_count} recipients · {b.channels.join(", ")} · {formatWhen(b.created_at)}
-          </p>
+            {t("communications.value_recipient_countrecipients_join_value2", undefined, { value: SEGMENT_LABELS[b.audience.segment] ?? b.audience.segment, recipient_count: b.recipient_count, join: b.channels.join(", "), value2: formatWhen(b.created_at) })}</p>
           <div className="mt-2"><SummaryChips summary={b.summary} /></div>
         </button>
       ))}
@@ -368,8 +369,7 @@ function History({ refreshKey }: { refreshKey: number }) {
             {open.summary.queued ? (
               <Button variant="outline" size="sm" className="gap-1.5"
                 onClick={() => communicationsApi.retryBroadcast(open.id).then((b) => { setOpen(b); load(); }).catch((e: Error) => setError(e.message))}>
-                <RefreshCw className="h-3.5 w-3.5" /> Send queued now
-              </Button>
+                {richText(t("communications.refreshcwsend_queued_now"), { refreshcw: <RefreshCw className="h-3.5 w-3.5" /> })}</Button>
             ) : null}
             {rows ? <DeliveryTable rows={rows} /> : <LoadingRow />}
           </div>
@@ -405,7 +405,7 @@ function Templates({ templates, reload }: { templates: MessageTemplate[]; reload
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <div className="space-y-3">
         {templates.length === 0 ? (
-          <EmptyBlock title="No templates yet">Save messages you send often, like holiday hours or renewal nudges.</EmptyBlock>
+          <EmptyBlock title={tr("communications.no_templates_yet")}>{tr("communications.save_messages_you_send_often_like")}</EmptyBlock>
         ) : (
           templates.map((t) => (
             <div key={t.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
@@ -415,41 +415,42 @@ function Templates({ templates, reload }: { templates: MessageTemplate[]; reload
                   <Badge variant="outline">{t.channel.replace("_", "-")}</Badge>
                   <Button variant="outline" size="sm"
                     onClick={() => communicationsApi.updateTemplate(t.id, { is_active: false }).then(reload).catch((e: Error) => setError(e.message))}>
-                    Archive
+                    {tr("nutrition.archive")}
                   </Button>
                 </div>
               </div>
-              {t.provider_template_name && <p className="text-xs text-[var(--text-muted)] mt-1">Approved template: {t.provider_template_name}</p>}
+              {t.provider_template_name && <p className="text-xs text-[var(--text-muted)] mt-1">{tr("communications.approved_template_provider_template_name", undefined, { provider_template_name: t.provider_template_name })}</p>}
               <p className="text-sm text-[var(--text-secondary)] mt-2 whitespace-pre-wrap">{t.body}</p>
             </div>
           ))
         )}
       </div>
       <div className="space-y-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 h-fit">
-        <h3 className="text-sm font-semibold text-[var(--text)]">New template</h3>
+        <h3 className="text-sm font-semibold text-[var(--text)]">{tr("communications.new_template")}</h3>
         {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
-        <Field label="Name" htmlFor="tpl-name"><input id="tpl-name" className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
-        <Field label="Channel" htmlFor="tpl-channel">
+        <Field label={tr("organization.name")} htmlFor="tpl-name"><input id="tpl-name" className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+        <Field label={tr("communications.channel")} htmlFor="tpl-channel">
           <select id="tpl-channel" className={inputClass} value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value as CommChannel })}>
             {CHANNELS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
           </select>
         </Field>
         {form.channel === "whatsapp" && (
-          <Field label="Approved WhatsApp template / campaign name" htmlFor="tpl-provider" hint="Exactly as approved in AiSensy">
+          <Field label={tr("communications.approved_whatsapp_template_campaign_name")} htmlFor="tpl-provider" hint={tr("communications.exactly_as_approved_in_aisensy")}>
             <input id="tpl-provider" className={inputClass} value={form.provider_template_name} onChange={(e) => setForm({ ...form, provider_template_name: e.target.value })} />
           </Field>
         )}
-        <Field label="Subject / title" htmlFor="tpl-subject"><input id="tpl-subject" className={inputClass} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} /></Field>
-        <Field label="Body" htmlFor="tpl-body" hint="Placeholders: {{first_name}}, {{gym_name}}">
+        <Field label={tr("communications.subject_title")} htmlFor="tpl-subject"><input id="tpl-subject" className={inputClass} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} /></Field>
+        <Field label={tr("communications.body")} htmlFor="tpl-body" hint={tr("communications.placeholders_first_name_gym_name")}>
           <textarea id="tpl-body" rows={4} className={inputClass} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
         </Field>
-        <Button onClick={save} disabled={invalid || saving} className="w-full">{saving ? "Saving…" : "Save template"}</Button>
+        <Button onClick={save} disabled={invalid || saving} className="w-full">{saving ? tr("nutrition.saving") : tr("communications.save_template")}</Button>
       </div>
     </div>
   );
 }
 
 function DeliveryLog() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<DeliveryStatus | "">("");
   const [channel, setChannel] = useState<CommChannel | "">("");
   const [page, setPage] = useState(1);
@@ -465,12 +466,12 @@ function DeliveryLog() {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <select aria-label="Filter by status" className={`${inputClass} w-auto`} value={status} onChange={(e) => { setPage(1); setStatus(e.target.value as DeliveryStatus | ""); }}>
-          <option value="">All statuses</option>
+        <select aria-label={t("members.filter_by_status")} className={`${inputClass} w-auto`} value={status} onChange={(e) => { setPage(1); setStatus(e.target.value as DeliveryStatus | ""); }}>
+          <option value="">{t("communications.all_statuses")}</option>
           {(Object.keys(DELIVERY_STATUS_LABELS) as DeliveryStatus[]).map((s) => <option key={s} value={s}>{DELIVERY_STATUS_LABELS[s]}</option>)}
         </select>
-        <select aria-label="Filter by channel" className={`${inputClass} w-auto`} value={channel} onChange={(e) => { setPage(1); setChannel(e.target.value as CommChannel | ""); }}>
-          <option value="">All channels</option>
+        <select aria-label={t("communications.filter_by_channel")} className={`${inputClass} w-auto`} value={channel} onChange={(e) => { setPage(1); setChannel(e.target.value as CommChannel | ""); }}>
+          <option value="">{t("communications.all_channels")}</option>
           {CHANNELS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
         </select>
       </div>
@@ -480,8 +481,8 @@ function DeliveryLog() {
           <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
             <span>{data.total} deliveries</span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
-              <Button variant="outline" size="sm" disabled={page * 50 >= data.total} onClick={() => setPage(page + 1)}>Next</Button>
+              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>{t("members.previous")}</Button>
+              <Button variant="outline" size="sm" disabled={page * 50 >= data.total} onClick={() => setPage(page + 1)}>{t("members.next")}</Button>
             </div>
           </div>
         </>
@@ -491,6 +492,7 @@ function DeliveryLog() {
 }
 
 export function BroadcastCenter() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("compose");
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [gate, setGate] = useState<string | null>(null);
@@ -511,10 +513,10 @@ export function BroadcastCenter() {
   }, [loadTemplates]);
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "compose", label: "Compose" },
-    { key: "history", label: "History" },
-    { key: "templates", label: "Templates" },
-    { key: "log", label: "Delivery log" },
+    { key: "compose", label: t("communications.compose") },
+    { key: "history", label: t("members.history") },
+    { key: "templates", label: t("communications.templates") },
+    { key: "log", label: t("communications.delivery_log") },
   ];
 
   return (
@@ -522,15 +524,14 @@ export function BroadcastCenter() {
       <div className="flex items-start gap-3">
         <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><Megaphone className="h-5 w-5" /></div>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Broadcasts</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">Announcements to selected member groups, with delivery status for every recipient.</p>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("navItem.broadcasts")}</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{t("communications.announcements_to_selected_member_groups_with")}</p>
         </div>
       </div>
       {gate && <Notice kind="error">{gate}</Notice>}
       {sent && (
         <Notice kind="success" onDismiss={() => setSent(null)}>
-          &ldquo;{sent.title}&rdquo; sent to {sent.recipient_count} recipient(s). Email/WhatsApp deliveries finish in the background; see History.
-        </Notice>
+          {t("communications.title_sent_to_recipient_countrecipient_s", undefined, { title: sent.title, recipient_count: sent.recipient_count })}</Notice>
       )}
       <div role="tablist" className="flex gap-1 border-b border-[var(--border)] overflow-x-auto">
         {tabs.map((t) => (

@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiErrorBanner extends StatelessWidget {
   final String message;
   final String? title;
@@ -89,7 +90,7 @@ class RepsiErrorBanner extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Retry',
+                  context.l10n.commonRetry,
                   style: AppTypography.caption.copyWith(
                     color: AppColors.error,
                     fontWeight: FontWeight.w700,

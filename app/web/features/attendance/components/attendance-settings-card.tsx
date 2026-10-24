@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ApiAttendanceSettings, repsiApi } from "@/lib/api";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface AttendanceSettingsCardProps {
   settings: ApiAttendanceSettings | null;
@@ -31,6 +32,7 @@ interface AttendanceSettingsCardProps {
 }
 
 export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettingsCardProps) {
+  const { t } = useTranslation();
   const [maxMinutes, setMaxMinutes] = useState<number>(settings?.max_session_duration_minutes ?? 240);
   const [closingTime, setClosingTime] = useState<string>(settings?.gym_closing_time ?? "22:00");
   const [autoCheckout, setAutoCheckout] = useState<boolean>(settings?.auto_checkout_enabled ?? true);
@@ -87,7 +89,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
         [deviceId]: {
           success: false,
           status: "DISCONNECTED",
-          message: err.message || "Device could not be reached on local network.",
+          message: err.message || t("attendance.device_could_not_be_reached_on"),
         },
       }));
     } finally {
@@ -119,19 +121,19 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
       });
       await loadBiometricDevices();
     } catch (err: any) {
-      setDeviceError(err.message || "Failed to register biometric device.");
+      setDeviceError(err.message || t("attendance.failed_to_register_biometric_device"));
     } finally {
       setRegisteringDevice(false);
     }
   };
 
   const handleDeleteDevice = async (deviceId: string, deviceName: string) => {
-    if (!confirm(`Are you sure you want to remove biometric terminal '${deviceName}'?`)) return;
+    if (!confirm(t("attendance.are_you_sure_you_want_to", undefined, { deviceName }))) return;
     try {
       await repsiApi.deleteBiometricDevice(deviceId);
       await loadBiometricDevices();
     } catch (err: any) {
-      alert(err.message || "Failed to delete device.");
+      alert(err.message || t("attendance.failed_to_delete_device"));
     }
   };
 
@@ -159,10 +161,10 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
         qr_rotation_interval_minutes: Number(qrRotation),
       });
       await onRefresh();
-      setFeedback("Attendance policies updated successfully.");
+      setFeedback(t("attendance.attendance_policies_updated_successfully"));
       setTimeout(() => setFeedback(null), 3000);
     } catch (e: any) {
-      alert(e.message || "Failed to update settings");
+      alert(e.message || t("attendance.failed_to_update_settings"));
     } finally {
       setSaving(false);
     }
@@ -175,7 +177,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
       alert(res.message);
       await onRefresh();
     } catch (e: any) {
-      alert(e.message || "Failed to execute auto checkout");
+      alert(e.message || t("attendance.failed_to_execute_auto_checkout"));
     } finally {
       setTriggering(false);
     }
@@ -187,10 +189,10 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-[var(--text)] tracking-tight">
-            Attendance Policy & Auto-Checkout Configuration
+            {t("attendance.attendance_policy_auto_checkout_configuration")}
           </h2>
           <p className="text-xs text-[var(--text-muted)] mt-0.5">
-            Configure automated checkout windows, gym closing rules, and access control permissions.
+            {t("attendance.configure_automated_checkout_windows_gym_closing")}
           </p>
         </div>
 
@@ -203,7 +205,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             className="text-xs gap-1.5 h-9 border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
           >
             <Zap className={`w-3.5 h-3.5 ${triggering ? "animate-spin" : ""}`} />
-            <span>Run Auto-Checkout Now</span>
+            <span>{t("attendance.run_auto_checkout_now")}</span>
           </Button>
 
           <Button
@@ -213,7 +215,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             className="text-xs gap-1.5 h-9 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-sm"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>{saving ? "Saving..." : "Save Settings"}</span>
+            <span>{saving ? t("trainers.saving") : t("attendance.save_settings")}</span>
           </Button>
         </div>
       </div>
@@ -235,10 +237,10 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             </div>
             <div>
               <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider">
-                Maximum Workout Session Duration
+                {t("attendance.maximum_workout_session_duration")}
               </h3>
               <p className="text-[11px] text-[var(--text-muted)]">
-                Members exceeding this duration are automatically checked out.
+                {t("attendance.members_exceeding_this_duration_are_automatically")}
               </p>
             </div>
           </div>
@@ -246,11 +248,11 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
           <div className="space-y-3">
             <div className="grid grid-cols-5 gap-2">
               {[
-                { label: "2 Hours", val: 120 },
-                { label: "3 Hours", val: 180 },
-                { label: "4 Hours", val: 240 },
-                { label: "5 Hours", val: 300 },
-                { label: "6 Hours", val: 360 },
+                { label: t("attendance.2_hours"), val: 120 },
+                { label: t("attendance.3_hours"), val: 180 },
+                { label: t("attendance.4_hours"), val: 240 },
+                { label: t("attendance.5_hours"), val: 300 },
+                { label: t("attendance.6_hours"), val: 360 },
               ].map((preset) => (
                 <button
                   key={preset.val}
@@ -268,7 +270,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--text-muted)]">Custom Duration:</span>
+              <span className="text-xs text-[var(--text-muted)]">{t("attendance.custom_duration")}</span>
               <input
                 type="number"
                 min={30}
@@ -277,7 +279,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                 onChange={(e) => setMaxMinutes(Number(e.target.value))}
                 className="w-24 h-8 px-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-xs text-[var(--text)] font-mono font-semibold"
               />
-              <span className="text-xs text-[var(--text-muted)]">minutes ({Math.floor(maxMinutes / 60)}h {maxMinutes % 60}m)</span>
+              <span className="text-xs text-[var(--text-muted)]">{t("attendance.minutes_mathh_valuem", undefined, { Math: Math.floor(maxMinutes / 60), value: maxMinutes % 60 })}</span>
             </div>
           </div>
         </div>
@@ -290,10 +292,10 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             </div>
             <div>
               <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider">
-                Gym Closing Time (Smart Rule)
+                {t("attendance.gym_closing_time_smart_rule")}
               </h3>
               <p className="text-[11px] text-[var(--text-muted)]">
-                Auto-checkout sessions at closing time instead of leaving overnight sessions open.
+                {t("attendance.auto_checkout_sessions_at_closing_time")}
               </p>
             </div>
           </div>
@@ -307,13 +309,12 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                 className="h-10 px-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-sm font-mono font-bold text-[var(--text)]"
               />
               <span className="text-xs text-[var(--text-muted)]">
-                Default: 10:00 PM (22:00)
+                {t("attendance.default_10_00_pm_22_00")}
               </span>
             </div>
 
             <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-              <strong>Smart Auto Checkout Rule:</strong> Uses whichever limit comes earlier:
-              gym closing time OR maximum session duration.
+              <strong>{t("attendance.smart_auto_checkout_rule")}</strong> {t("attendance.uses_whichever_limit_comes_earlier_gym")}
             </p>
           </div>
         </div>
@@ -321,14 +322,14 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
         {/* Toggles: Auto Checkout & Permissions */}
         <div className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)] space-y-4">
           <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider">
-            Automated Checkout Engine
+            {t("attendance.automated_checkout_engine")}
           </h3>
 
           <div className="space-y-3">
             <label className="flex items-center justify-between p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] cursor-pointer">
               <div className="space-y-0.5">
-                <span className="text-xs font-semibold text-[var(--text)]">Enable Smart Auto-Checkout</span>
-                <p className="text-[11px] text-[var(--text-muted)]">Automatically closes sessions exceeding limits.</p>
+                <span className="text-xs font-semibold text-[var(--text)]">{t("attendance.enable_smart_auto_checkout")}</span>
+                <p className="text-[11px] text-[var(--text-muted)]">{t("attendance.automatically_closes_sessions_exceeding_limits")}</p>
               </div>
               <input
                 type="checkbox"
@@ -340,8 +341,8 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
 
             <label className="flex items-center justify-between p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] cursor-pointer">
               <div className="space-y-0.5">
-                <span className="text-xs font-semibold text-[var(--text)]">Allow Member Manual Check-Out</span>
-                <p className="text-[11px] text-[var(--text-muted)]">Members can tap "Check Out" in the Repsi app.</p>
+                <span className="text-xs font-semibold text-[var(--text)]">{t("attendance.allow_member_manual_check_out")}</span>
+                <p className="text-[11px] text-[var(--text-muted)]">{t("attendance.members_can_tap_check_out_in")}</p>
               </div>
               <input
                 type="checkbox"
@@ -356,13 +357,13 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
         {/* QR Security & Rotation Policy */}
         <div className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--background)] space-y-4">
           <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider">
-            QR Security Settings
+            {t("attendance.qr_security_settings")}
           </h3>
           <div className="space-y-3">
             <label className="flex items-center justify-between p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] cursor-pointer">
               <div className="space-y-0.5">
-                <span className="text-xs font-semibold text-[var(--text)]">Staff Assisted Checkout</span>
-                <p className="text-[11px] text-[var(--text-muted)]">Allow front desk staff to manually check members out.</p>
+                <span className="text-xs font-semibold text-[var(--text)]">{t("attendance.staff_assisted_checkout")}</span>
+                <p className="text-[11px] text-[var(--text-muted)]">{t("attendance.allow_front_desk_staff_to_manually")}</p>
               </div>
               <input
                 type="checkbox"
@@ -374,20 +375,20 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
 
             <div className="p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[var(--text)]">Automatic QR Token Rotation</span>
+                <span className="text-xs font-semibold text-[var(--text)]">{t("attendance.automatic_qr_token_rotation")}</span>
                 <select
                   value={qrRotation}
                   onChange={(e) => setQrRotation(Number(e.target.value))}
                   className="h-7 px-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-semibold"
                 >
-                  <option value={0}>Manual Only (Standard)</option>
-                  <option value={15}>Every 15 Minutes</option>
-                  <option value={30}>Every 30 Minutes</option>
-                  <option value={60}>Every 1 Hour</option>
+                  <option value={0}>{t("attendance.manual_only_standard")}</option>
+                  <option value={15}>{t("attendance.every_15_minutes")}</option>
+                  <option value={30}>{t("attendance.every_30_minutes")}</option>
+                  <option value={60}>{t("attendance.every_1_hour")}</option>
                 </select>
               </div>
               <p className="text-[11px] text-[var(--text-muted)]">
-                Recommended: Manual rotation for printed posters, or 15m for dedicated TV kiosk screens.
+                {t("attendance.recommended_manual_rotation_for_printed_posters")}
               </p>
             </div>
           </div>
@@ -401,11 +402,11 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
               <div className="flex items-center gap-2">
                 <Fingerprint className="w-4 h-4 text-emerald-500" />
                 <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider">
-                  Biometric & Fingerprint Terminals
+                  {t("attendance.biometric_fingerprint_terminals")}
                 </h3>
               </div>
               <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                Manage hardware fingerprint terminals (ZKTeco, Mantra, IoT gates). Real hardware connectivity is strictly verified before marking online.
+                {t("attendance.manage_hardware_fingerprint_terminals_zkteco_mantra")}
               </p>
             </div>
             <Button
@@ -414,21 +415,21 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
               className="gap-1.5 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Register Biometric Device</span>
+              <span>{t("attendance.register_biometric_device")}</span>
             </Button>
           </div>
 
           {loadingDevices ? (
             <div className="p-6 text-center text-xs text-[var(--text-muted)] flex items-center justify-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span>Loading registered biometric terminals...</span>
+              <span>{t("attendance.loading_registered_biometric_terminals")}</span>
             </div>
           ) : biometricDevices.length === 0 ? (
             <div className="p-6 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface)] text-center space-y-2">
               <Radio className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-50" />
-              <p className="text-xs font-bold text-[var(--text)]">No physical biometric devices registered yet</p>
+              <p className="text-xs font-bold text-[var(--text)]">{t("attendance.no_physical_biometric_devices_registered_yet")}</p>
               <p className="text-[11px] text-[var(--text-muted)] max-w-md mx-auto">
-                Connect your gym entrance turnstiles or ZKTeco / Mantra fingerprint terminals to sync attendance directly into REPSI.
+                {t("attendance.connect_your_gym_entrance_turnstiles_or")}
               </p>
             </div>
           ) : (
@@ -452,23 +453,19 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                           </span>
                         </div>
                         <p className="text-[11px] text-[var(--text-muted)]">
-                          Location: <strong className="text-[var(--text)]">{dev.location_name}</strong> • S/N:{" "}
+                          {t("attendance.location")}{" "}<strong className="text-[var(--text)]">{dev.location_name}</strong> • S/N:{" "}
                           <span className="font-mono">{dev.device_serial}</span>
-                          {dev.ip_address && ` • LAN: ${dev.ip_address}:${dev.port}`}
+                          {dev.ip_address && t("attendance.lan_ip_address_port", undefined, { ip_address: dev.ip_address, port: dev.port })}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {isOnline ? (
                           <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/25 text-[10px] gap-1 font-bold">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Connected & Online
-                          </Badge>
+                            {richText(t("attendance.spanconnected_online"), { span: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> })}</Badge>
                         ) : (
                           <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/25 text-[10px] gap-1 font-bold">
-                            <AlertTriangle className="w-3 h-3" />
-                            Hardware Disconnected
-                          </Badge>
+                            {richText(t("attendance.alerttrianglehardware_disconnected"), { alerttriangle: <AlertTriangle className="w-3 h-3" /> })}</Badge>
                         )}
 
                         <Button
@@ -480,21 +477,17 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                         >
                           {isTesting ? (
                             <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Testing...
-                            </>
+                              {richText(t("attendance.loader2testing"), { loader2: <Loader2 className="w-3 h-3 animate-spin" /> })}</>
                           ) : (
                             <>
-                              <RefreshCw className="w-3 h-3" />
-                              Test Connectivity
-                            </>
+                              {richText(t("attendance.refreshcwtest_connectivity"), { refreshcw: <RefreshCw className="w-3 h-3" /> })}</>
                           )}
                         </Button>
 
                         <button
                           onClick={() => handleDeleteDevice(dev.id, dev.device_name)}
                           className="p-1.5 text-[var(--text-muted)] hover:text-rose-500 rounded-lg hover:bg-rose-500/10 transition-colors"
-                          title="Revoke device"
+                          title={t("attendance.revoke_device")}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -514,8 +507,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                         <div className="space-y-0.5">
                           <p className="font-semibold">{testRes.message}</p>
                           <p className="text-[10px] text-[var(--text-muted)]">
-                            Status verified at {new Date().toLocaleTimeString()}
-                          </p>
+                            {t("attendance.status_verified_at_tolocaletimestring", undefined, { toLocaleTimeString: new Date().toLocaleTimeString() })}</p>
                         </div>
                       </div>
                     )}
@@ -528,7 +520,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
           <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-[11px] text-[var(--text-muted)] flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
             <p>
-              <strong>Biometric Privacy & Zero-Knowledge Architecture:</strong> REPSI does not store raw fingerprint templates or biometric images in cloud databases. Connected terminals perform biometric matching locally on-premises and transmit only authorized user IDs over TLS.
+              <strong>{t("attendance.biometric_privacy_zero_knowledge_architecture")}</strong> {t("attendance.repsi_does_not_store_raw_fingerprint")}
             </p>
           </div>
         </div>
@@ -540,7 +532,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-2">
                 <Fingerprint className="w-5 h-5 text-emerald-500" />
-                <h3 className="text-base font-bold text-[var(--text)]">Register Biometric Terminal</h3>
+                <h3 className="text-base font-bold text-[var(--text)]">{t("attendance.register_biometric_terminal")}</h3>
               </div>
               <button
                 onClick={() => setShowRegisterDeviceModal(false)}
@@ -552,47 +544,47 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
 
             <form onSubmit={handleRegisterDeviceSubmit} className="space-y-3.5">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Device Friendly Name</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.device_friendly_name")}</label>
                 <input
                   type="text"
                   required
                   value={newDevice.device_name}
                   onChange={(e) => setNewDevice({ ...newDevice, device_name: e.target.value })}
-                  placeholder="e.g. Front Turnstile Scanner"
+                  placeholder={t("attendance.e_g_front_turnstile_scanner")}
                   className="w-full h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] text-xs text-[var(--text)]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Device Model / Manufacturer</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.device_model_manufacturer")}</label>
                 <select
                   value={newDevice.device_model}
                   onChange={(e) => setNewDevice({ ...newDevice, device_model: e.target.value })}
                   className="w-full h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] text-xs text-[var(--text)] font-medium"
                 >
-                  <option value="ZKTeco K40 Fingerprint Terminal">ZKTeco K40 / MB20 Standalone Terminal</option>
-                  <option value="ZKTeco IN01 / UFace Network Device">ZKTeco IN01 / UFace Network Device</option>
-                  <option value="Mantra MBF30 Biometric Terminal">Mantra MBF30 Biometric Terminal</option>
-                  <option value="Mantra MFS100 Optical Scanner">Mantra MFS100 Optical Scanner</option>
-                  <option value="Generic Network Biometric Terminal">Generic Network Biometric Gateway</option>
+                  <option value="ZKTeco K40 Fingerprint Terminal">{t("attendance.zkteco_k40_mb20_standalone_terminal")}</option>
+                  <option value="ZKTeco IN01 / UFace Network Device">{t("attendance.zkteco_in01_uface_network_device")}</option>
+                  <option value="Mantra MBF30 Biometric Terminal">{t("attendance.mantra_mbf30_biometric_terminal")}</option>
+                  <option value="Mantra MFS100 Optical Scanner">{t("attendance.mantra_mfs100_optical_scanner")}</option>
+                  <option value="Generic Network Biometric Terminal">{t("attendance.generic_network_biometric_gateway")}</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Device Serial Number (S/N)</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.device_serial_number_s_n")}</label>
                 <input
                   type="text"
                   required
                   value={newDevice.device_serial}
                   onChange={(e) => setNewDevice({ ...newDevice, device_serial: e.target.value })}
-                  placeholder="e.g. ZK9812498124"
+                  placeholder={t("attendance.e_g_zk9812498124")}
                   className="w-full h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] text-xs font-mono text-[var(--text)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[var(--text)]">Local IP Address</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.local_ip_address")}</label>
                   <input
                     type="text"
                     value={newDevice.ip_address}
@@ -602,7 +594,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[var(--text)]">Port</label>
+                  <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.port")}</label>
                   <input
                     type="number"
                     value={newDevice.port}
@@ -614,12 +606,12 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Installation Location</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("attendance.installation_location")}</label>
                 <input
                   type="text"
                   value={newDevice.location_name}
                   onChange={(e) => setNewDevice({ ...newDevice, location_name: e.target.value })}
-                  placeholder="Main Entrance / Turnstile 1"
+                  placeholder={t("attendance.main_entrance_turnstile_1")}
                   className="w-full h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] text-xs text-[var(--text)]"
                 />
               </div>
@@ -635,7 +627,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                   size="sm"
                   onClick={() => setShowRegisterDeviceModal(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -645,9 +637,7 @@ export function AttendanceSettingsCard({ settings, onRefresh }: AttendanceSettin
                 >
                   {registeringDevice ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                      Registering...
-                    </>
+                      {richText(t("attendance.loader2registering"), { loader2: <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> })}</>
                   ) : (
                     "Register Device"
                   )}

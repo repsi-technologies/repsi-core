@@ -23,12 +23,14 @@ import {
   Heart,
 } from "lucide-react";
 import { getAuthUser } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n";
 
 export default function MemberDashboardPage({ params }: { params: Promise<{ workspace: string }> }) {
   const resolvedParams = use(params);
   const workspace = resolvedParams.workspace || "apex-fitness";
   const [user, setUser] = useState<any>(null);
   const [checkedIn, setCheckedIn] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setUser(getAuthUser());
@@ -42,10 +44,10 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] tracking-tight">
-            Good morning, {userName}
+            {t("memberPortal.goodMorning", "Good morning, {name}", { name: userName })}
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Ready for today's workout? Keep pushing towards your goals.
+            {t("memberPortal.readyForWorkout")}
           </p>
         </div>
 
@@ -62,12 +64,12 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           {checkedIn ? (
             <>
               <CheckCircle2 className="h-4 w-4" />
-              <span>Checked In (06:42 AM)</span>
+              <span>{t("memberPortal.checkedInAt", "Checked In ({time})", { time: "06:42 AM" })}</span>
             </>
           ) : (
             <>
               <QrCode className="h-4 w-4" />
-              <span>Tap to Check In</span>
+              <span>{t("memberPortal.tapToCheckIn")}</span>
             </>
           )}
         </button>
@@ -78,18 +80,18 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
         <div className="relative z-10 space-y-4">
           <div className="flex items-center justify-between">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md uppercase tracking-wider">
-              Today's Workout
+              {t("memberPortal.todaysWorkout")}
             </span>
             <span className="text-xs font-medium text-white/80 flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              Estimated 52 min
+              {t("memberPortal.estimatedMin", "Estimated {min} min", { min: 52 })}
             </span>
           </div>
 
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Push Day</h2>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{t("memberPortal.pushDay")}</h2>
             <p className="text-xs sm:text-sm text-white/80 mt-1">
-              Chest • Shoulders • Triceps • 6 exercises planned
+              {t("memberPortal.pushDaySubtitle")}
             </p>
           </div>
 
@@ -99,13 +101,13 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[var(--primary-dark)] hover:bg-slate-100 text-xs sm:text-sm font-extrabold transition-all shadow-md active:scale-95"
             >
               <Play className="h-4 w-4 fill-[var(--primary-dark)]" />
-              <span>Start Workout</span>
+              <span>{t("memberPortal.startWorkout")}</span>
             </Link>
             <Link
               href={`/${workspace}/member/exercises`}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-all"
             >
-              <span>Explore Exercises</span>
+              <span>{t("memberPortal.exploreExercises")}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -120,41 +122,41 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
         {/* Streak */}
         <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-1">
           <div className="flex items-center justify-between text-amber-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Streak</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("memberPortal.streak")}</span>
             <Flame className="h-4 w-4 fill-amber-500" />
           </div>
-          <div className="text-2xl font-black text-[var(--text)]">12 Days</div>
-          <p className="text-[11px] text-[var(--text-muted)] font-medium">Current streak</p>
+          <div className="text-2xl font-black text-[var(--text)]">{t("memberPortal.daysCount", "{count} Days", { count: 12 })}</div>
+          <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.currentStreak")}</p>
         </div>
 
         {/* Workouts */}
         <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 space-y-1">
           <div className="flex items-center justify-between text-emerald-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Workouts</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("memberPortal.workouts")}</span>
             <Dumbbell className="h-4 w-4" />
           </div>
           <div className="text-2xl font-black text-[var(--text)]">4</div>
-          <p className="text-[11px] text-[var(--text-muted)] font-medium">This week</p>
+          <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.thisWeek")}</p>
         </div>
 
         {/* Workout Time */}
         <div className="p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 space-y-1">
           <div className="flex items-center justify-between text-blue-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Workout Time</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("memberPortal.workoutTime")}</span>
             <Clock className="h-4 w-4" />
           </div>
           <div className="text-2xl font-black text-[var(--text)]">3h 42m</div>
-          <p className="text-[11px] text-[var(--text-muted)] font-medium">This week</p>
+          <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.thisWeek")}</p>
         </div>
 
         {/* Progress */}
         <div className="p-4 rounded-xl border border-purple-500/20 bg-purple-500/5 space-y-1">
           <div className="flex items-center justify-between text-purple-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Progress</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("memberPortal.progress")}</span>
             <TrendingUp className="h-4 w-4" />
           </div>
           <div className="text-2xl font-black text-[var(--text)]">+2.4 kg</div>
-          <p className="text-[11px] text-[var(--text-muted)] font-medium">Strength progress</p>
+          <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.strengthProgress")}</p>
         </div>
       </div>
 
@@ -163,9 +165,9 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
         {/* Weekly Activity (2 cols) */}
         <div className="lg:col-span-2 p-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-base text-[var(--text)]">Weekly Activity</h3>
+            <h3 className="font-bold text-base text-[var(--text)]">{t("memberPortal.weeklyActivity")}</h3>
             <span className="text-xs font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
-              Target Achieved
+              {t("memberPortal.targetAchieved")}
             </span>
           </div>
 
@@ -197,15 +199,15 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
 
           <div className="pt-3 border-t border-[var(--border)] grid grid-cols-3 gap-4 text-center text-xs">
             <div>
-              <p className="text-[var(--text-muted)]">Workouts</p>
-              <p className="font-bold text-sm text-[var(--text)] mt-0.5">4 Sessions</p>
+              <p className="text-[var(--text-muted)]">{t("memberPortal.workouts")}</p>
+              <p className="font-bold text-sm text-[var(--text)] mt-0.5">{t("memberPortal.sessionsCount", "{count} Sessions", { count: 4 })}</p>
             </div>
             <div>
-              <p className="text-[var(--text-muted)]">Duration</p>
+              <p className="text-[var(--text-muted)]">{t("memberPortal.duration")}</p>
               <p className="font-bold text-sm text-[var(--text)] mt-0.5">3h 42m</p>
             </div>
             <div>
-              <p className="text-[var(--text-muted)]">Calories</p>
+              <p className="text-[var(--text-muted)]">{t("memberPortal.calories")}</p>
               <p className="font-bold text-sm text-[var(--text)] mt-0.5">1,840 kcal</p>
             </div>
           </div>
@@ -216,17 +218,17 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Membership
+                {t("memberPortal.membership")}
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/10 text-emerald-500">
-                ACTIVE
+                {t("memberPortal.active")}
               </span>
             </div>
 
             <div>
-              <h4 className="text-xl font-extrabold text-[var(--text)]">Premium Annual Plan</h4>
+              <h4 className="text-xl font-extrabold text-[var(--text)]">{t("memberPortal.premiumAnnualPlan")}</h4>
               <p className="text-xs text-[var(--text-muted)] mt-1">
-                23 days remaining • Expires Oct 07, 2026
+                {t("memberPortal.daysRemainingExpires", "{days} days remaining • Expires {date}", { days: 23, date: "Oct 07, 2026" })}
               </p>
             </div>
 
@@ -240,7 +242,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
             className="w-full py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--surface-hover)] text-xs font-bold text-center text-[var(--text)] transition-all flex items-center justify-center gap-1.5"
           >
             <CreditCard className="h-3.5 w-3.5 text-[var(--primary)]" />
-            <span>View Membership</span>
+            <span>{t("memberPortal.viewMembership")}</span>
           </Link>
         </div>
       </div>
@@ -252,24 +254,24 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CalendarCheck className="h-5 w-5 text-[var(--primary)]" />
-              <h3 className="font-bold text-base text-[var(--text)]">My Attendance</h3>
+              <h3 className="font-bold text-base text-[var(--text)]">{t("memberPortal.myAttendance")}</h3>
             </div>
             <Link
               href={`/${workspace}/member/attendance`}
               className="text-xs font-semibold text-[var(--primary)] hover:underline flex items-center gap-1"
             >
-              <span>View Attendance</span>
+              <span>{t("memberPortal.viewAttendance")}</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           <div className="flex items-center justify-between pt-1">
             <div>
-              <span className="text-2xl font-extrabold text-[var(--text)]">18 visits</span>
-              <span className="text-xs text-[var(--text-muted)] ml-2">/ 24 planned this month</span>
+              <span className="text-2xl font-extrabold text-[var(--text)]">{t("memberPortal.visitsCount", "{count} visits", { count: 18 })}</span>
+              <span className="text-xs text-[var(--text-muted)] ml-2">{t("memberPortal.plannedThisMonth", "/ {count} planned this month", { count: 24 })}</span>
             </div>
             <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">
-              75% Consistency
+              {t("memberPortal.consistencyPct", "{pct}% Consistency", { pct: 75 })}
             </span>
           </div>
 
@@ -278,7 +280,8 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           </div>
 
           <p className="text-xs text-[var(--text-muted)]">
-            Last check-in: <span className="font-semibold text-[var(--text)]">Today · 06:42 AM</span>
+            {t("memberPortal.lastCheckIn")}{" "}
+            <span className="font-semibold text-[var(--text)]">Today · 06:42 AM</span>
           </p>
         </div>
 
@@ -287,9 +290,9 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Your Personal Trainer
+                {t("memberPortal.yourPersonalTrainer")}
               </span>
-              <span className="text-xs text-emerald-500 font-medium">● Active Today</span>
+              <span className="text-xs text-emerald-500 font-medium">● {t("memberPortal.activeToday")}</span>
             </div>
 
             <div className="flex items-center gap-3.5 pt-3">
@@ -298,9 +301,9 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
               </div>
               <div>
                 <h4 className="font-extrabold text-base text-[var(--text)]">Vikram Rathore</h4>
-                <p className="text-xs text-[var(--text-muted)]">Strength & Conditioning Specialist</p>
+                <p className="text-xs text-[var(--text-muted)]">{t("memberPortal.strengthConditioningSpecialist")}</p>
                 <p className="text-[11px] text-[var(--primary)] font-medium mt-0.5">
-                  Next session: Tomorrow · 06:00 PM
+                  {t("memberPortal.nextSession", "Next session: {time}", { time: "Tomorrow · 06:00 PM" })}
                 </p>
               </div>
             </div>
@@ -312,7 +315,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
               className="flex-1 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)] text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
             >
               <MessageSquare className="h-3.5 w-3.5" />
-              <span>Message Trainer</span>
+              <span>{t("memberPortal.messageTrainer")}</span>
             </Link>
           </div>
         </div>
@@ -325,40 +328,40 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-amber-500" />
-              <h3 className="font-bold text-base text-[var(--text)]">Your Progress Snapshot</h3>
+              <h3 className="font-bold text-base text-[var(--text)]">{t("memberPortal.yourProgressSnapshot")}</h3>
             </div>
             <Link
               href={`/${workspace}/member/progress`}
               className="text-xs font-semibold text-[var(--primary)] hover:underline flex items-center gap-1"
             >
-              <span>Full Details</span>
+              <span>{t("memberPortal.fullDetails")}</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-xl bg-[var(--background-secondary)] space-y-1">
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">Body Weight</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.bodyWeight")}</p>
               <p className="text-lg font-bold text-[var(--text)]">72.4 kg</p>
-              <p className="text-[10px] text-emerald-500 font-semibold">↓ 1.2 kg this month</p>
+              <p className="text-[10px] text-emerald-500 font-semibold">{t("memberPortal.weightLossThisMonth", "↓ {amount} kg this month", { amount: "1.2" })}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[var(--background-secondary)] space-y-1">
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">Strength Gain</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.strengthGain")}</p>
               <p className="text-lg font-bold text-[var(--text)]">+14%</p>
-              <p className="text-[10px] text-purple-500 font-semibold">Compound lifts</p>
+              <p className="text-[10px] text-purple-500 font-semibold">{t("memberPortal.compoundLifts")}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[var(--background-secondary)] space-y-1">
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">Workouts Done</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.workoutsDone")}</p>
               <p className="text-lg font-bold text-[var(--text)]">+8</p>
-              <p className="text-[10px] text-blue-500 font-semibold">This month</p>
+              <p className="text-[10px] text-blue-500 font-semibold">{t("memberPortal.thisWeek")}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[var(--background-secondary)] space-y-1">
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">Personal Records</p>
-              <p className="text-lg font-bold text-[var(--text)]">3 New PRs</p>
-              <p className="text-[10px] text-amber-500 font-semibold">Bench & Deadlift</p>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.personalRecords")}</p>
+              <p className="text-lg font-bold text-[var(--text)]">{t("memberPortal.newPrs", "{count} New PRs", { count: 3 })}</p>
+              <p className="text-[10px] text-amber-500 font-semibold">{t("memberPortal.benchDeadlift")}</p>
             </div>
           </div>
         </div>
@@ -369,22 +372,22 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Navigation className="h-5 w-5 text-emerald-500" />
-                <h3 className="font-bold text-base text-[var(--text)]">GPS Running</h3>
+                <h3 className="font-bold text-base text-[var(--text)]">{t("memberPortal.gpsRunning")}</h3>
               </div>
-              <span className="text-[11px] text-[var(--text-muted)] font-medium">This Week</span>
+              <span className="text-[11px] text-[var(--text-muted)] font-medium">{t("memberPortal.thisWeek")}</span>
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center py-2 bg-[var(--background-secondary)] rounded-xl">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)]">Distance</p>
+                <p className="text-[10px] text-[var(--text-muted)]">{t("memberPortal.distance")}</p>
                 <p className="font-extrabold text-sm text-[var(--text)]">12.8 km</p>
               </div>
               <div>
-                <p className="text-[10px] text-[var(--text-muted)]">Time</p>
+                <p className="text-[10px] text-[var(--text-muted)]">{t("memberPortal.time")}</p>
                 <p className="font-extrabold text-sm text-[var(--text)]">1h 18m</p>
               </div>
               <div>
-                <p className="text-[10px] text-[var(--text-muted)]">Avg Pace</p>
+                <p className="text-[10px] text-[var(--text-muted)]">{t("memberPortal.avgPace")}</p>
                 <p className="font-extrabold text-sm text-[var(--text)]">6:05 /km</p>
               </div>
             </div>
@@ -395,7 +398,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
             className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Play className="h-3.5 w-3.5 fill-white" />
-            <span>Start Run</span>
+            <span>{t("memberPortal.startRun")}</span>
           </Link>
         </div>
       </div>

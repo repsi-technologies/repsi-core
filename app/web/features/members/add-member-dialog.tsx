@@ -16,6 +16,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { cn } from "@/lib/utils";
 import { repsiApi } from "@/lib/api";
 import type { MembershipPlanName } from "@/types";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface AddMemberDialogProps {
   open: boolean;
@@ -69,6 +70,7 @@ export function AddMemberDialog({
   onOpenChange,
   onSubmit,
 }: AddMemberDialogProps) {
+  const { t } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState<AddMemberFormData>({
     name: "",
@@ -165,7 +167,7 @@ export function AddMemberDialog({
       setGeneralError(null);
     } catch (err: any) {
       setLoading(false);
-      const msg = typeof err === "string" ? err : err?.message || "Failed to create member";
+      const msg = typeof err === "string" ? err : err?.message || t("members.failed_to_create_member");
       if (/email/i.test(msg) && !/workspace|subscription|plan/i.test(msg)) {
         setErrors((prev) => ({ ...prev, email: msg }));
       } else if (/phone|mobile/i.test(msg) && !/workspace|subscription|plan/i.test(msg)) {
@@ -181,13 +183,12 @@ export function AddMemberDialog({
       <DialogContent className="sm:max-w-lg rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-xl">
         <DialogHeader className="space-y-2">
           <div className="flex items-center gap-2">
-            <DialogTitle className="text-xl font-extrabold text-slate-900 dark:text-white">Add New Member</DialogTitle>
+            <DialogTitle className="text-xl font-extrabold text-slate-900 dark:text-white">{t("members.add_new_member")}</DialogTitle>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-[var(--nav-active-bg)] dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Direct Active
-            </span>
+              {richText(t("members.checkcircle2direct_active"), { checkcircle2: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> })}</span>
           </div>
           <DialogDescription className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-            This member will be added to your gym database and set to <strong>Active</strong> immediately.
+            {t("members.this_member_will_be_added_to")}{" "}<strong>{t("layout.active")}</strong> immediately.
           </DialogDescription>
         </DialogHeader>
 
@@ -202,10 +203,10 @@ export function AddMemberDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           {/* Full Name */}
-          <FormField label="Full Name *" htmlFor="member-name" error={errors.name}>
+          <FormField label={t("site.full_name")} htmlFor="member-name" error={errors.name}>
             <Input
               id="member-name"
-              placeholder="e.g. Rahul Kumar"
+              placeholder={t("members.e_g_rahul_kumar")}
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className={cn("rounded-xl h-10 text-sm", errors.name ? "border-rose-500 focus:ring-rose-500" : "")}
@@ -215,7 +216,7 @@ export function AddMemberDialog({
 
           {/* Contact Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <FormField label="Email Address *" htmlFor="member-email" error={errors.email}>
+            <FormField label={t("members.email_address")} htmlFor="member-email" error={errors.email}>
               <div className="relative">
                 <Input
                   id="member-email"
@@ -228,12 +229,12 @@ export function AddMemberDialog({
                   className={cn("rounded-xl h-10 text-sm", errors.email ? "border-rose-500 focus:ring-rose-500" : "")}
                 />
                 {checkingEmail && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 animate-pulse">Checking...</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 animate-pulse">{t("members.checking")}</span>
                 )}
               </div>
             </FormField>
 
-            <FormField label="Mobile Number" htmlFor="member-phone" error={errors.phone}>
+            <FormField label={t("members.mobile_number")} htmlFor="member-phone" error={errors.phone}>
               <PhoneInput
                 id="member-phone"
                 value={form.phone}
@@ -241,18 +242,18 @@ export function AddMemberDialog({
                 onBlur={handleCheckPhone}
               />
               {checkingPhone && (
-                <span className="text-[10px] text-slate-400 animate-pulse">Checking number...</span>
+                <span className="text-[10px] text-slate-400 animate-pulse">{t("members.checking_number")}</span>
               )}
             </FormField>
           </div>
 
           {/* Login Password */}
-          <FormField label="Login Password (Optional)" htmlFor="member-password">
+          <FormField label={t("members.login_password_optional")} htmlFor="member-password">
             <div className="relative">
               <Input
                 id="member-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Min. 6 chars (Auto-generated if blank)"
+                placeholder={t("members.min_6_chars_auto_generated_if")}
                 value={form.password || ""}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                 className="rounded-xl h-10 pr-10 text-sm border-[#D5DDD7] dark:border-zinc-800 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)]"
@@ -261,7 +262,7 @@ export function AddMemberDialog({
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("invite.hide_password") : t("invite.show_password")}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -269,7 +270,7 @@ export function AddMemberDialog({
           </FormField>
 
           {/* Membership Plan */}
-          <FormField label="Membership Plan" htmlFor="member-plan">
+          <FormField label={t("members.membership_plan")} htmlFor="member-plan">
             <div className="grid grid-cols-2 gap-2.5">
               {plans.map((plan) => (
                 <button
@@ -302,7 +303,7 @@ export function AddMemberDialog({
           </FormField>
 
           {/* Start Date */}
-          <FormField label="Start Date" htmlFor="member-start-date">
+          <FormField label={t("members.start_date")} htmlFor="member-start-date">
             <Input
               id="member-start-date"
               type="date"
@@ -320,11 +321,11 @@ export function AddMemberDialog({
               disabled={loading}
               className="rounded-xl text-slate-600 hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" loading={loading} className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
               <UserCheck className="w-4 h-4" />
-              {loading ? "Adding Member..." : "Add Member"}
+              {loading ? t("members.adding_member") : t("members.add_member")}
             </Button>
           </DialogFooter>
         </form>

@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { FormAlert, PrimaryButton, SecondaryButton } from "@/components/organization/form-fields";
 import { repsiApi, type ApiStaffPermissions } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Per-staff permission overrides on top of the role's defaults. The backend enforces every rule
  * (no self-edits, no owner restrictions, can't grant what you don't hold); this UI only reflects it.
  */
 export function PermissionEditor({ memberId, onClose }: { memberId: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const [catalog, setCatalog] = useState<{ key: string; label: string }[] | null>(null);
   const [presets, setPresets] = useState<{ key: string; label: string; permissions: string[] }[]>([]);
   const [current, setCurrent] = useState<ApiStaffPermissions | null>(null);
@@ -64,17 +66,16 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
 
   if (error && !current) return <FormAlert kind="error">{error}</FormAlert>;
   if (!catalog || !current) {
-    return <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-[var(--text-muted)]" aria-label="Loading permissions" /></div>;
+    return <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-[var(--text-muted)]" aria-label={t("organization.loading_permissions")} /></div>;
   }
 
   return (
     <div className="mt-3 space-y-3 rounded-[10px] border border-[var(--border)] bg-[var(--background)] p-3">
       <p className="text-xs text-[var(--text-muted)]">
-        Checked items are what this person can do. Bold items are the defaults for the {current.role.toLowerCase()} role.
-      </p>
+        {t("organization.checked_items_are_what_this_person", undefined, { toLowerCase: current.role.toLowerCase() })}</p>
       {current.role === "TRAINER" && presets.length > 0 && !current.locked && (
         <label className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-secondary)]">
-          Apply a trainer preset
+          {t("organization.apply_a_trainer_preset")}
           <select
             className="h-8 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] px-2 text-xs text-[var(--text)]"
             value=""
@@ -83,13 +84,13 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
               if (preset) { setSaved(false); setSelected(new Set(preset.permissions)); }
             }}
           >
-            <option value="">Choose…</option>
+            <option value="">{t("organization.choose")}</option>
             {presets.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
           </select>
         </label>
       )}
       <fieldset className="grid gap-2 sm:grid-cols-2">
-        <legend className="sr-only">Permissions</legend>
+        <legend className="sr-only">{t("organization.permissions")}</legend>
         {catalog.map((p) => (
           <label key={p.key} className="flex items-start gap-2 text-xs">
             <input
@@ -104,15 +105,15 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
         ))}
       </fieldset>
       {error && <FormAlert kind="error">{error}</FormAlert>}
-      {saved && !dirty && <FormAlert kind="success">Permissions saved.</FormAlert>}
+      {saved && !dirty && <FormAlert kind="success">{t("organization.permissions_saved")}</FormAlert>}
       <div className="flex justify-end gap-2">
-        <SecondaryButton type="button" className="h-8 px-3 text-xs" onClick={onClose}>Close</SecondaryButton>
+        <SecondaryButton type="button" className="h-8 px-3 text-xs" onClick={onClose}>{t("common.close")}</SecondaryButton>
         <SecondaryButton type="button" className="h-8 px-3 text-xs" disabled={saving}
           onClick={() => { setSaved(false); setSelected(new Set(current.role_defaults)); }}>
-          Reset to role defaults
+          {t("organization.reset_to_role_defaults")}
         </SecondaryButton>
         <PrimaryButton type="button" className="h-8 px-3 text-xs" disabled={!dirty || current.locked} loading={saving} onClick={save}>
-          Save permissions
+          {t("organization.save_permissions")}
         </PrimaryButton>
       </div>
     </div>

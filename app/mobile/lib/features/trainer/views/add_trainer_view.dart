@@ -10,6 +10,7 @@ import '../../../core/providers/api_provider.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../../operations/providers/operations_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class AddTrainerView extends ConsumerStatefulWidget {
   const AddTrainerView({super.key});
@@ -38,6 +39,18 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
     'Rehabilitation',
     'General Fitness',
   ];
+
+  // The specialisation is saved in English (it is shown on the web dashboard); only the label is translated.
+  String _specLabel(String spec) => switch (spec) {
+        'Strength & Conditioning' => context.l10n.specStrength,
+        'Personal Training' => context.l10n.specPersonalTraining,
+        'HIIT & Functional' => context.l10n.specHiit,
+        'CrossFit' => context.l10n.specCrossfit,
+        'Yoga & Mobility' => context.l10n.specYoga,
+        'Rehabilitation' => context.l10n.specRehab,
+        'General Fitness' => context.l10n.specGeneral,
+        _ => spec,
+      };
 
   @override
   void dispose() {
@@ -70,13 +83,13 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
         setState(() => _isLoading = false);
         context.pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Trainer added successfully!')),
+          SnackBar(content: Text(context.l10n.trainerAdded)),
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        final msg = e is ApiError ? e.message : 'Failed to add trainer. Please check details.';
+        final msg = e is ApiError ? e.message : context.l10n.trainerAddFailed;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
         );
@@ -94,7 +107,7 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Add New Trainer',
+          context.l10n.addNewTrainer,
           style: AppTypography.headingSmall.copyWith(
             color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           ),
@@ -116,45 +129,45 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 RepsiTextField(
-                  label: 'Full Name *',
-                  hintText: 'e.g. Vikram Rathore',
+                  label: context.l10n.fullNameRequiredLabel,
+                  hintText: context.l10n.trainerNameHint,
                   controller: _nameController,
                   prefixIcon: const Icon(LucideIcons.user, size: 18),
                   validator: (val) =>
-                      val == null || val.trim().length < 2 ? 'Trainer name is required' : null,
+                      val == null || val.trim().length < 2 ? context.l10n.trainerNameRequired : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Mobile Number *',
+                  label: context.l10n.mobileRequiredLabel,
                   hintText: '+91 98765 43210',
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   prefixIcon: const Icon(LucideIcons.phone, size: 18),
                   validator: (val) {
-                    if (val == null || val.trim().isEmpty) return 'Mobile number is required';
+                    if (val == null || val.trim().isEmpty) return context.l10n.mobileRequired;
                     if (val.replaceAll(RegExp(r'\D'), '').length < 8) {
-                      return 'Enter a valid mobile number';
+                      return context.l10n.commonEnterValidMobile;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Email Address (Optional)',
-                  hintText: 'trainer@example.com',
+                  label: context.l10n.emailOptional,
+                  hintText: context.l10n.commonEmailHint,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(LucideIcons.mail, size: 18),
                   validator: (val) {
                     if (val != null && val.trim().isNotEmpty && !val.contains('@')) {
-                      return 'Enter a valid email address';
+                      return context.l10n.commonEnterValidEmail;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Specialization / Track',
+                  context.l10n.specialization,
                   style: AppTypography.labelMedium.copyWith(
                     color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                   ),
@@ -166,7 +179,7 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
                   children: _specializations.map((spec) {
                     final isSelected = _selectedSpecialization == spec;
                     return ChoiceChip(
-                      label: Text(spec),
+                      label: Text(_specLabel(spec)),
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected) setState(() => _selectedSpecialization = spec);
@@ -185,7 +198,7 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Hourly Rate (₹) (Optional)',
+                  label: context.l10n.hourlyRateOptional,
                   hintText: 'e.g. 800',
                   controller: _hourlyRateController,
                   keyboardType: TextInputType.number,
@@ -193,15 +206,15 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 RepsiTextField(
-                  label: 'Bio / Experience (Optional)',
-                  hintText: 'e.g. Certified ACE Trainer with 5+ years experience...',
+                  label: context.l10n.bioOptional,
+                  hintText: context.l10n.bioHint,
                   controller: _bioController,
                   maxLines: 3,
                   prefixIcon: const Icon(LucideIcons.fileText, size: 18),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 RepsiButton(
-                  text: 'Save & Onboard Trainer',
+                  text: context.l10n.saveTrainer,
                   isLoading: _isLoading,
                   isFullWidth: true,
                   onPressed: _handleSubmit,

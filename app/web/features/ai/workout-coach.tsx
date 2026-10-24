@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { aiApi, SOURCE_LABEL, type WorkoutQuestion, type WorkoutSuggestion } from "@/lib/ai-api";
 import { Field, LoadingRow, Notice, inputClass } from "@/features/fitness/shared";
+import { useTranslation } from "@/lib/i18n";
 
 type Answers = Record<string, string | number | string[]>;
 
 function Choice({ q, value, onChange }: { q: WorkoutQuestion; value: Answers[string] | undefined; onChange: (v: Answers[string]) => void }) {
+  const { t } = useTranslation();
   const multi = q.type === "multi";
   const selected = multi ? ((value as string[]) || []) : value;
   return (
@@ -37,12 +39,13 @@ function Choice({ q, value, onChange }: { q: WorkoutQuestion; value: Answers[str
           );
         })}
       </div>
-      {multi && <p className="text-[11px] text-[var(--text-muted)]">Pick any that apply, or none.</p>}
+      {multi && <p className="text-[11px] text-[var(--text-muted)]">{t("ai.pick_any_that_apply_or_none")}</p>}
     </fieldset>
   );
 }
 
 export function WorkoutCoach() {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState<WorkoutQuestion[] | null>(null);
   const [answers, setAnswers] = useState<Answers>({ limitations: [], health_flags: [] });
   const [result, setResult] = useState<WorkoutSuggestion | null>(null);
@@ -75,8 +78,8 @@ export function WorkoutCoach() {
       <div className="flex items-start gap-3">
         <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><Sparkles className="h-5 w-5" /></div>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">AI Coach</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">Answer a few questions and get a weekly routine built from your gym&apos;s exercise library.</p>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("navItem.ai_coach")}</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{t("ai.answer_a_few_questions_and_get")}</p>
         </div>
       </div>
 
@@ -93,10 +96,10 @@ export function WorkoutCoach() {
         )}
         {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => suggest(false)} disabled={!complete || !!busy}>{busy === "rules" ? "Building…" : "Suggest a routine"}</Button>
+          <Button onClick={() => suggest(false)} disabled={!complete || !!busy}>{busy === "rules" ? t("ai.building") : t("ai.suggest_a_routine")}</Button>
           {result?.plan && (
             <Button variant="outline" className="gap-1.5" onClick={() => suggest(true)} disabled={!!busy}>
-              <Sparkles className="h-4 w-4" /> {busy === "ai" ? "Personalising…" : "Personalise with AI"}
+              <Sparkles className="h-4 w-4" /> {busy === "ai" ? t("ai.personalising") : t("ai.personalise_with_ai")}
             </Button>
           )}
         </div>

@@ -1,4 +1,5 @@
-class AiExercise {
+
+import '../../../l10n/l10n.dart';class AiExercise {
   final String exerciseId;
   final String name;
   final int sets;
@@ -39,7 +40,7 @@ class AiWorkoutDay {
   factory AiWorkoutDay.fromJson(Map<String, dynamic> json) {
     final rawExercises = json['exercises'] as List<dynamic>? ?? [];
     return AiWorkoutDay(
-      name: json['name']?.toString() ?? 'Workout Day',
+      name: json['name']?.toString() ?? L10n.current.aiWorkoutDay,
       exercises: rawExercises
           .whereType<Map<String, dynamic>>()
           .map((e) => AiExercise.fromJson(e))
@@ -65,7 +66,7 @@ class AiWorkoutPlan {
     final rawDays = json['days'] as List<dynamic>? ?? [];
     final rawTips = json['tips'] as List<dynamic>? ?? [];
     return AiWorkoutPlan(
-      title: json['title']?.toString() ?? 'Personalized Workout Plan',
+      title: json['title']?.toString() ?? L10n.current.aiPersonalPlan,
       overview: json['overview']?.toString() ?? '',
       days: rawDays
           .whereType<Map<String, dynamic>>()
@@ -100,7 +101,7 @@ class AiWorkoutSuggestion {
       safetyMessage: json['safety_message']?.toString(),
       notice: json['notice']?.toString(),
       disclaimer: json['disclaimer']?.toString() ??
-          'Always consult your physician before beginning any exercise program.',
+          L10n.current.aiDisclaimerShort,
     );
   }
 }

@@ -10,47 +10,49 @@ import {
   Dumbbell,
   Sparkles,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface QuickActionsProps {
   workspace?: string;
 }
 
 export function QuickActions({ workspace = "default" }: QuickActionsProps) {
+  const { t } = useTranslation();
   const actions = [
     {
-      label: "+ Add Member",
-      description: "Register gym member",
+      label: t("dashboard.add_member"),
+      description: t("dashboard.register_gym_member"),
       href: `/${workspace}/members/new`,
       icon: UserPlus,
       primary: true,
     },
     {
-      label: "+ Add Trainer",
-      description: "Onboard trainer profile",
+      label: t("dashboard.add_trainer"),
+      description: t("dashboard.onboard_trainer_profile"),
       href: `/${workspace}/trainers?new=true`,
       icon: UserCheck,
     },
     {
-      label: "+ Create Membership",
-      description: "Package & pricing plan",
+      label: t("dashboard.create_membership"),
+      description: t("dashboard.package_pricing_plan"),
       href: `/${workspace}/memberships?new=true`,
       icon: CreditCard,
     },
     {
-      label: "✓ Check Attendance",
-      description: "Live QR or manual scan",
+      label: t("dashboard.check_attendance"),
+      description: t("dashboard.live_qr_or_manual_scan"),
       href: `/${workspace}/attendance`,
       icon: CheckCircle2,
     },
     {
-      label: "+ Add Lead",
-      description: "Capture inquiry in CRM",
+      label: t("dashboard.add_lead"),
+      description: t("dashboard.capture_inquiry_in_crm"),
       href: `/${workspace}/crm?new=true`,
       icon: Users,
     },
     {
-      label: "+ Create Workout",
-      description: "Protocol or routine template",
+      label: t("dashboard.create_workout"),
+      description: t("dashboard.protocol_or_routine_template"),
       href: `/${workspace}/workouts?new=true`,
       icon: Dumbbell,
     },
@@ -59,9 +61,9 @@ export function QuickActions({ workspace = "default" }: QuickActionsProps) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-xs">
       <div className="flex items-center justify-between mb-3.5 sm:mb-4">
-        <h2 className="text-sm sm:text-base font-bold text-[var(--text)] tracking-tight">Quick Actions</h2>
+        <h2 className="text-sm sm:text-base font-bold text-[var(--text)] tracking-tight">{t("dashboard.quick_actions")}</h2>
         <span className="text-[10px] sm:text-[11px] font-semibold text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2 sm:px-2.5 py-0.5 rounded-full">
-          Shortcuts
+          {t("dashboard.shortcuts")}
         </span>
       </div>
 

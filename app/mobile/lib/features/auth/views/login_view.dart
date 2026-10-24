@@ -19,6 +19,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/auth_layout.dart';
 import 'verify_otp_view.dart';
 
+import '../../../l10n/l10n.dart';
 /// Sign-in entry. Mobile number + WhatsApp code is the default; email/password and Google stay
 /// available for accounts that use them.
 class LoginView extends ConsumerStatefulWidget {
@@ -68,7 +69,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
     } on ApiError catch (e) {
       if (mounted) setState(() => _phoneError = e.message);
     } catch (_) {
-      if (mounted) setState(() => _phoneError = "We couldn't send the code. Please try again.");
+      if (mounted) setState(() => _phoneError = context.l10n.codeSendFailed);
     } finally {
       if (mounted) setState(() => _sendingCode = false);
     }
@@ -90,8 +91,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
       goAfterSignIn(context, ref.read(authProvider));
     } else {
       _explainFailure(
-        ref.read(authProvider).errorMessage ?? 'Failed to sign in. Please check your credentials.',
-        "We couldn't find a REPSI account with those details. Check your email or mobile number, or sign in with a WhatsApp code.",
+        ref.read(authProvider).errorMessage ?? context.l10n.authSignInFailed,
+        context.l10n.accountNotFoundPassword,
       );
     }
   }
@@ -109,7 +110,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
       if (message == null) return; // cancelled by the user
       _explainFailure(
         message,
-        "We couldn't find a REPSI account linked to this Google account. Sign in with your mobile number instead.",
+        context.l10n.accountNotFoundGoogle,
       );
     }
   }
@@ -126,16 +127,16 @@ class _LoginViewState extends ConsumerState<LoginView> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Account not found'),
+        title: Text(context.l10n.accountNotFound),
         content: Text(message),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Try again')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.commonTryAgain)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               setState(() => _emailMode = false);
             },
-            child: const Text('Use mobile number'),
+            child: Text(context.l10n.useMobileNumber),
           ),
         ],
       ),
@@ -145,7 +146,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
   void _showOwnerSignup() {
     RepsiBottomSheet.show<void>(
       context: context,
-      title: 'Set up a new gym',
+      title: context.l10n.setUpNewGym,
       child: Builder(
         builder: (ctx) {
           final isDark = Theme.of(ctx).brightness == Brightness.dark;
@@ -154,19 +155,18 @@ class _LoginViewState extends ConsumerState<LoginView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Gym businesses are created on the REPSI website, where you choose a plan and set up your branches. '
-                'Once it is ready, sign in here with the same mobile number.',
+                context.l10n.ownerSignupExplainer,
                 style: AppTypography.bodySecondary.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
               ),
               const SizedBox(height: AppSpacing.xxl),
               RepsiButton(
-                text: 'Copy repsi.app link',
+                text: context.l10n.copyRepsiLink,
                 isFullWidth: true,
                 leadingIcon: const Icon(Icons.link_rounded, size: 18, color: Colors.white),
                 onPressed: () {
                   Navigator.pop(ctx);
                   Clipboard.setData(const ClipboardData(text: 'https://repsi.app'));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied: https://repsi.app')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.commonLinkCopied)));
                 },
               ),
             ],
@@ -198,14 +198,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text('Setting up a new gym? ', style: AppTypography.bodySmall.copyWith(color: secondary)),
+          Text(context.l10n.setUpNewGymQuestion, style: AppTypography.bodySmall.copyWith(color: secondary)),
           InkWell(
             onTap: _showOwnerSignup,
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
               child: Text(
-                'Start on repsi.app',
+                context.l10n.startOnRepsi,
                 style: AppTypography.bodySmall.copyWith(
                   color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
                   fontWeight: FontWeight.w600,
@@ -226,11 +226,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
             ),
             child: AuthHeading(
               key: ValueKey(_emailMode),
-              title: _emailMode ? 'Welcome back' : "Let's get started",
+              title: _emailMode ? context.l10n.welcomeBack : context.l10n.letsGetStarted,
               subtitle: Text(
                 _emailMode
-                    ? 'Sign in with the email or mobile number and password on your account.'
-                    : "Enter your mobile number and we'll send a verification code on WhatsApp.",
+                    ? context.l10n.loginPasswordSubtitle
+                    : context.l10n.loginOtpSubtitle,
               ),
             ),
           ),
@@ -253,7 +253,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           _OrDivider(color: secondary),
           const SizedBox(height: AppSpacing.xxl),
           RepsiButton(
-            text: 'Continue with Google',
+            text: context.l10n.continueWithGoogle,
             variant: RepsiButtonVariant.outline,
             isFullWidth: true,
             leadingIcon: const GoogleLogoIcon(size: 18),
@@ -264,7 +264,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
             onPressed: signingIn || _sendingCode ? null : () => setState(() => _emailMode = !_emailMode),
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: textColor),
             child: Text(
-              _emailMode ? 'Use mobile number instead' : 'Sign in with email and password',
+              _emailMode ? context.l10n.useMobileInstead : context.l10n.signInWithEmailPassword,
               style: AppTypography.button.copyWith(color: textColor),
             ),
           ),
@@ -280,7 +280,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           RepsiTextField(
-            label: 'Mobile number',
+            label: context.l10n.commonMobileNumber,
             hintText: '98765 43210',
             controller: _phoneController,
             keyboardType: TextInputType.phone,
@@ -294,8 +294,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
             },
             validator: (value) {
               final v = value?.trim() ?? '';
-              if (v.isEmpty) return 'Enter your mobile number';
-              if (!_indianMobile.hasMatch(v)) return 'Enter a valid 10-digit mobile number';
+              if (v.isEmpty) return context.l10n.enterMobileNumber;
+              if (!_indianMobile.hasMatch(v)) return context.l10n.enterValid10Digit;
               return null;
             },
           ),
@@ -305,7 +305,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           ],
           const SizedBox(height: AppSpacing.xl),
           RepsiButton(
-            text: 'Send code on WhatsApp',
+            text: context.l10n.sendCodeWhatsApp,
             isFullWidth: true,
             isLoading: _sendingCode,
             leadingIcon: const WhatsAppMark(size: 20),
@@ -324,37 +324,37 @@ class _LoginViewState extends ConsumerState<LoginView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             RepsiTextField(
-              label: 'Email or mobile number',
-              hintText: 'name@example.com',
+              label: context.l10n.emailOrMobile,
+              hintText: context.l10n.commonEmailHint,
               controller: _identifierController,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.username, AutofillHints.email],
               prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
-              validator: (val) => val == null || val.trim().isEmpty ? 'Email or mobile number is required' : null,
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.emailOrMobileRequired : null,
             ),
             const SizedBox(height: AppSpacing.lg),
             RepsiTextField(
-              label: 'Password',
+              label: context.l10n.commonPassword,
               controller: _passwordController,
               isPassword: true,
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.password],
               onSubmitted: (_) => _handleLogin(),
               prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
-              validator: (val) => val == null || val.isEmpty ? 'Password is required' : null,
+              validator: (val) => val == null || val.isEmpty ? context.l10n.passwordRequired : null,
             ),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => context.push(RouteNames.forgotPassword),
                 style: TextButton.styleFrom(foregroundColor: secondary, minimumSize: const Size(44, 44)),
-                child: Text('Forgot password?', style: AppTypography.caption.copyWith(color: secondary, fontWeight: FontWeight.w600)),
+                child: Text(context.l10n.forgotPassword, style: AppTypography.caption.copyWith(color: secondary, fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             RepsiButton(
-              text: 'Sign in',
+              text: context.l10n.signIn,
               isLoading: signingIn && !_lastMethodWasGoogle,
               onPressed: signingIn ? null : _handleLogin,
               isFullWidth: true,

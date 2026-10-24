@@ -7,6 +7,7 @@ import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import 'workout_completion_view.dart';
+import '../../../../l10n/l10n.dart';
 
 class ActiveWorkoutView extends StatefulWidget {
   const ActiveWorkoutView({super.key});
@@ -107,7 +108,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Log ${ex['name']}',
+                          context.l10n.workoutLogExercise(ex['name'] as String),
                           style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                         IconButton(
@@ -124,7 +125,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Target Weight', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(context.l10n.targetWeight, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                           Row(
                             children: [
                               IconButton(
@@ -133,7 +134,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                                   if (weight > 2) setSheetState(() => weight -= 2);
                                 },
                               ),
-                              Text('$weight kg', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                              Text(context.l10n.weightKg(weight.toString()), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                               IconButton(
                                 icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary),
                                 onPressed: () {
@@ -153,7 +154,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Reps per Set', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(context.l10n.repsPerSet, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                           Row(
                             children: [
                               IconButton(
@@ -216,7 +217,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                     const SizedBox(height: 20),
 
                     RepsiButton(
-                      text: 'Save Exercise Sets',
+                      text: context.l10n.saveSets,
                       onPressed: () {
                         setState(() {
                           ex['weight'] = '$weight kg';
@@ -271,7 +272,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
         title: Column(
           children: [
             Text(
-              "Today's Workout",
+              context.l10n.todaysWorkout,
               style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
             ),
             Text(
@@ -302,7 +303,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Workout Progress',
+                            context.l10n.workoutProgress,
                             style: AppTypography.caption.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.text,
@@ -332,9 +333,9 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text('Target: 6 exercises', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                          Text('Est: 45-50 min', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        children: [
+                          Text(context.l10n.targetSixExercises, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          Text(context.l10n.estDuration, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                         ],
                       ),
                     ],
@@ -403,7 +404,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                               ),
                             ),
                             RepsiButton(
-                              text: isComplete ? 'Logged' : 'Log',
+                              text: isComplete ? context.l10n.logged : context.l10n.log,
                               variant: isComplete ? RepsiButtonVariant.outline : RepsiButtonVariant.primary,
                               size: RepsiButtonSize.small,
                               leadingIcon: isComplete ? const Icon(Icons.check_rounded, size: 14) : null,
@@ -423,7 +424,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 8),
                   child: RepsiButton(
-                    text: 'Complete Workout',
+                    text: context.l10n.completeWorkout,
                     leadingIcon: const Icon(Icons.flag_rounded, size: 20),
                     onPressed: _finishWorkout,
                     isFullWidth: true,

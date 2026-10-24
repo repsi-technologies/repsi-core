@@ -19,6 +19,7 @@ import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { slugToGymName } from "@/lib/workspace";
 
 import { API_BASE } from "@/lib/api-base";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface DashboardMetrics {
   active_members: number;
@@ -37,6 +38,7 @@ const dashboardMetricsCache: Record<string, { data: DashboardMetrics; timestamp:
 const CACHE_STALE_MS = 30_000;
 
 export function DashboardClient({ workspace }: { workspace: string }) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   // Initialize from cache if fresh
@@ -111,7 +113,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
   }, [workspace, fetchMetrics, router]);
 
   const handleSeedDemoData = async () => {
-    if (!confirm("Are you sure you want to load sample records for your gym? This will only seed data for your account.")) {
+    if (!confirm(t("dashboard.are_you_sure_you_want_to"))) {
       return;
     }
     setSeeding(true);
@@ -120,7 +122,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
       delete dashboardMetricsCache[workspace];
       await fetchMetrics(false);
     } catch (err: any) {
-      alert(err.message || "Failed to seed demo data");
+      alert(err.message || t("dashboard.failed_to_seed_demo_data"));
     } finally {
       setSeeding(false);
     }
@@ -128,9 +130,9 @@ export function DashboardClient({ workspace }: { workspace: string }) {
 
   const greeting = (() => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return t("dashboard.good_morning");
+    if (hour < 17) return t("dashboard.good_afternoon");
+    return t("dashboard.good_evening");
   })();
 
   const today = new Date().toLocaleDateString("en-IN", {
@@ -144,12 +146,12 @@ export function DashboardClient({ workspace }: { workspace: string }) {
   const isSetupMode = !hasData && !dismissChecklist && !loading;
 
   const checklistSteps = [
-    { title: "Gym profile", completed: true, href: `/${workspace}/settings` },
-    { title: "Add membership plans", completed: false, href: `/${workspace}/memberships` },
-    { title: "Add trainers", completed: false, href: `/${workspace}/trainers` },
-    { title: "Add members", completed: (metrics?.active_members ?? 0) > 0, href: `/${workspace}/members` },
-    { title: "Set up attendance", completed: false, href: `/${workspace}/attendance` },
-    { title: "Public gym website", completed: false, href: `/${workspace}/website` },
+    { title: t("dashboard.gym_profile"), completed: true, href: `/${workspace}/settings` },
+    { title: t("dashboard.add_membership_plans"), completed: false, href: `/${workspace}/memberships` },
+    { title: t("dashboard.add_trainers"), completed: false, href: `/${workspace}/trainers` },
+    { title: t("dashboard.add_members"), completed: (metrics?.active_members ?? 0) > 0, href: `/${workspace}/members` },
+    { title: t("dashboard.set_up_attendance"), completed: false, href: `/${workspace}/attendance` },
+    { title: t("dashboard.public_gym_website"), completed: false, href: `/${workspace}/website` },
   ];
 
   const completedStepsCount = checklistSteps.filter((s) => s.completed).length;
@@ -157,8 +159,8 @@ export function DashboardClient({ workspace }: { workspace: string }) {
 
   const authUser = typeof window !== "undefined" ? getAuthUser() : null;
   const isUuidWorkspace = workspace && /^[0-9a-f]{8}-[0-9a-f]{4}/i.test(workspace);
-  const gymDisplayName = authUser?.gymName || (!isUuidWorkspace ? slugToGymName(workspace) : "Apex Fitness Club");
-  const ownerDisplayName = authUser?.name || "Owner";
+  const gymDisplayName = authUser?.gymName || (!isUuidWorkspace ? slugToGymName(workspace) : t("dashboard.apex_fitness_club"));
+  const ownerDisplayName = authUser?.name || t("dashboard.owner");
 
   return (
     <div className="space-y-8">
@@ -170,28 +172,25 @@ export function DashboardClient({ workspace }: { workspace: string }) {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[11px] font-bold tracking-wide uppercase px-2.5 py-0.5 rounded-md bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/20 inline-flex items-center gap-1.5 shadow-xs">
               <span className={`w-1.5 h-1.5 rounded-full bg-[var(--success)] ${revalidating ? "animate-ping" : "animate-pulse"}`} />
-              {gymDisplayName} • Live Workspace
+              {gymDisplayName} {t("dashboard.live_workspace")}
             </span>
             {revalidating && (
               <span className="text-[10px] text-[var(--success-foreground)] font-medium flex items-center gap-1">
-                <RefreshCw className="w-3 h-3 animate-spin" /> Live sync
-              </span>
+                {richText(t("dashboard.refreshcwlive_sync"), { refreshcw: <RefreshCw className="w-3 h-3 animate-spin" /> })}</span>
             )}
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] tracking-tight">
             {greeting}, {ownerDisplayName}
           </h1>
           <p className="text-xs sm:text-sm font-medium text-[var(--text-muted)] mt-1">
-            {isSetupMode ? "Let's finish setting up your gym." : "Today's overview — " + today}
+            {isSetupMode ? t("dashboard.let_s_finish_setting_up_your") : "Today's overview — " + today}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link href={`/${workspace}/members/new`}>
             <Button size="sm" className="flex-shrink-0 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl font-bold shadow-sm transition-all active:scale-[0.99] cursor-pointer">
-              <Plus className="h-4 w-4 mr-1.5 stroke-[2.5]" />
-              Add Member
-            </Button>
+              {richText(t("dashboard.plusadd_member"), { plus: <Plus className="h-4 w-4 mr-1.5 stroke-[2.5]" /> })}</Button>
           </Link>
         </div>
       </div>
@@ -207,14 +206,12 @@ export function DashboardClient({ workspace }: { workspace: string }) {
               <RepsiMascot pose="onboarding" size="md" animate={false} />
               <div className="space-y-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--primary-dark)] bg-[var(--primary)]/10 px-2.5 py-0.5 rounded">
-                  SETUP PROGRESS: {setupPercent}%
-                </span>
+                  {t("dashboard.setup_progress_setuppercent", undefined, { setupPercent })}</span>
                 <h3 className="text-xl font-black text-[var(--text)] tracking-tight">
-                  Welcome to Repsi! Let's get your gym ready.
+                  {t("dashboard.welcome_to_repsi_let_s_get")}
                 </h3>
                 <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl">
-                  {completedStepsCount} of {checklistSteps.length} steps completed. Add your membership packages, staff coaches, and members to launch.
-                </p>
+                  {t("dashboard.completedstepscountof_countsteps_completed_add_your_membership", undefined, { completedStepsCount, count: checklistSteps.length })}</p>
 
                 {/* Progress Bar */}
                 <div className="w-full max-w-md h-2.5 rounded-full bg-[var(--surface-secondary)] overflow-hidden mt-3">
@@ -231,14 +228,14 @@ export function DashboardClient({ workspace }: { workspace: string }) {
                 onClick={() => setShowGettingStartedModal(true)}
                 className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs h-10 px-5 rounded-xl shadow-sm"
               >
-                <span>Continue setup →</span>
+                <span>{t("dashboard.continue_setup")}</span>
               </Button>
               <button
                 type="button"
                 onClick={() => setDismissChecklist(true)}
                 className="text-xs text-[var(--text-muted)] hover:text-[var(--text)] dark:hover:text-white font-semibold py-1 transition-colors"
               >
-                I'll do this later
+                {t("dashboard.i_ll_do_this_later")}
               </button>
             </div>
           </div>
@@ -277,7 +274,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
-              label="Active Members"
+              label={t("dashboard.active_members")}
               sublabel={metrics?.active_members ? "Total enrolled" : "No members yet"}
               value={metrics ? metrics.active_members : 0}
               change={metrics ? metrics.revenue_growth_pct : 0}
@@ -285,7 +282,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
               iconName="users"
             />
             <StatCard
-              label="Monthly Revenue"
+              label={t("dashboard.monthly_revenue")}
               sublabel={metrics?.monthly_revenue ? "Current month" : "No payment data yet"}
               value={metrics ? metrics.monthly_revenue : 0}
               change={0}
@@ -294,7 +291,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
               iconName="trending-up"
             />
             <StatCard
-              label="Today's Attendance"
+              label={t("dashboard.today_s_attendance")}
               sublabel={metrics?.today_attendance ? "Check-ins today" : "Attendance will appear after check-in"}
               value={metrics ? metrics.today_attendance : 0}
               change={0}
@@ -302,7 +299,7 @@ export function DashboardClient({ workspace }: { workspace: string }) {
               iconName="calendar-check"
             />
             <StatCard
-              label="Expiring Soon"
+              label={t("dashboard.expiring_soon")}
               sublabel={metrics?.expiring_memberships ? "Within 7 days" : "No expiring plans"}
               value={metrics ? metrics.expiring_memberships : 0}
               change={0}

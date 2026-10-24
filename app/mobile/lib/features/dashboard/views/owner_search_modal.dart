@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/providers/api_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class OwnerSearchModal extends ConsumerStatefulWidget {
   const OwnerSearchModal({super.key});
@@ -28,22 +29,21 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   List<Map<String, dynamic>> _trainers = [];
   List<Map<String, dynamic>> _features = [];
 
-  List<String> _recentSearches = [
-    'Nitheesh',
-    'Attendance',
-    'Memberships',
-    'Reports',
-    'Trainers',
+  late List<String> _recentSearches = [
+    context.l10n.commonAttendance,
+    context.l10n.memberships,
+    context.l10n.reports,
+    context.l10n.commonTrainers,
   ];
 
-  static const List<Map<String, dynamic>> _staticFeatures = [
-    {'id': 'attendance', 'title': 'Attendance', 'description': 'Check members in and out, see who is inside', 'category': 'Front desk', 'icon': Icons.how_to_reg_rounded, 'route': RouteNames.operations},
-    {'id': 'members', 'title': 'Members', 'description': 'Profiles, memberships and renewals', 'category': 'Members', 'icon': Icons.groups_rounded, 'route': RouteNames.members},
-    {'id': 'leads', 'title': 'Leads', 'description': 'Enquiries, trials and follow-ups', 'category': 'Front desk', 'icon': Icons.person_search_rounded, 'route': RouteNames.operations},
-    {'id': 'finance', 'title': 'Finance', 'description': 'Collections, dues and expenses', 'category': 'Finance', 'icon': Icons.payments_rounded, 'route': RouteNames.finance},
-    {'id': 'insights', 'title': 'Business insights', 'description': 'What changed and what to do next', 'category': 'Insights', 'icon': Icons.insights_rounded, 'route': RouteNames.aiInsights},
-    {'id': 'notifications', 'title': 'Notifications', 'description': 'Alerts and announcements', 'category': 'Account', 'icon': Icons.notifications_none_rounded, 'route': RouteNames.notifications},
-    {'id': 'settings', 'title': 'Settings', 'description': 'Profile, branches, plans and appearance', 'category': 'Account', 'icon': Icons.settings_outlined, 'route': RouteNames.more},
+  List<Map<String, dynamic>> get _staticFeatures => [
+    {'id': 'attendance', 'title': context.l10n.commonAttendance, 'description': context.l10n.searchAttendanceDesc, 'category': context.l10n.commonFrontDesk, 'icon': Icons.how_to_reg_rounded, 'route': RouteNames.operations},
+    {'id': 'members', 'title': context.l10n.commonMembers, 'description': context.l10n.searchMembersDesc, 'category': context.l10n.commonMembers, 'icon': Icons.groups_rounded, 'route': RouteNames.members},
+    {'id': 'leads', 'title': context.l10n.leads, 'description': context.l10n.searchLeadsDesc, 'category': context.l10n.commonFrontDesk, 'icon': Icons.person_search_rounded, 'route': RouteNames.operations},
+    {'id': 'finance', 'title': context.l10n.commonFinance, 'description': context.l10n.searchFinanceDesc, 'category': context.l10n.commonFinance, 'icon': Icons.payments_rounded, 'route': RouteNames.finance},
+    {'id': 'insights', 'title': context.l10n.businessInsights, 'description': context.l10n.searchInsightsDesc, 'category': context.l10n.insights, 'icon': Icons.insights_rounded, 'route': RouteNames.aiInsights},
+    {'id': 'notifications', 'title': context.l10n.commonNotifications, 'description': context.l10n.searchNotificationsDesc, 'category': context.l10n.account, 'icon': Icons.notifications_none_rounded, 'route': RouteNames.notifications},
+    {'id': 'settings', 'title': context.l10n.commonSettings, 'description': context.l10n.searchSettingsDesc, 'category': context.l10n.account, 'icon': Icons.settings_outlined, 'route': RouteNames.more},
   ];
 
   @override
@@ -123,7 +123,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       setState(() {
         _members = [];
         _trainers = [];
-        _searchError = "Couldn't search members and trainers. Check your connection.";
+        _searchError = context.l10n.searchFailed;
         _features = matchedFeatures;
         _isLoading = false;
       });
@@ -219,8 +219,8 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                         fontWeight: FontWeight.w600,
                         color: AppColors.text,
                       ),
-                      decoration: const InputDecoration(
-                        hintText: 'Search members, trainers, features...',
+                      decoration: InputDecoration(
+                        hintText: context.l10n.searchHint,
                         hintStyle: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 14,
@@ -254,7 +254,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(
-                        'Cancel',
+                        context.l10n.commonCancel,
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
@@ -288,7 +288,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent',
+                context.l10n.recent,
                 style: AppTypography.caption.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
@@ -299,7 +299,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               GestureDetector(
                 onTap: () => setState(() => _recentSearches.clear()),
                 child: Text(
-                  'Clear',
+                  context.l10n.commonClear,
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
@@ -342,7 +342,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
 
         // Quick Access Features Section
         Text(
-          'Quick Access',
+          context.l10n.quickAccess,
           style: AppTypography.caption.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 12,
@@ -432,13 +432,13 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
               const SizedBox(height: 12),
               Text(
-                _searchError != null ? 'Search unavailable' : 'No results for "$_query"',
+                _searchError != null ? context.l10n.searchUnavailable : context.l10n.searchNoResults(_query),
                 textAlign: TextAlign.center,
                 style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, color: AppColors.text),
               ),
               const SizedBox(height: 6),
               Text(
-                _searchError ?? 'Search by member name, phone number or member code, or a screen like Attendance.',
+                _searchError ?? context.l10n.searchEmptyHint,
                 textAlign: TextAlign.center,
                 style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
               ),
@@ -459,7 +459,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'MEMBERS (${_members.length})',
+                  context.l10n.searchMembersHeader(_members.length),
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 11.5,
@@ -479,7 +479,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              'TRAINERS (${_trainers.length})',
+              context.l10n.searchTrainersHeader(_trainers.length),
               style: AppTypography.caption.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: 11.5,
@@ -497,7 +497,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              'FEATURES & SHORTCUTS (${_features.length})',
+              context.l10n.searchFeaturesHeader(_features.length),
               style: AppTypography.caption.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: 11.5,
@@ -514,9 +514,9 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   }
 
   Widget _buildMemberCard(Map<String, dynamic> member) {
-    final name = (member['name'] as String?) ?? 'Member';
-    final code = (member['code'] as String?) ?? 'REP-00124';
-    final status = (member['status'] as String?) ?? 'Active';
+    final name = (member['name'] as String?) ?? context.l10n.commonMember;
+    final code = (member['code'] as String?) ?? '';
+    final status = (member['status'] as String?) ?? context.l10n.commonActive;
     final id = (member['id'] as String?) ?? '1';
     final isActive = status.toLowerCase() == 'active';
 
@@ -576,7 +576,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                     Row(
                       children: [
                         Text(
-                          'Member ID: ',
+                          context.l10n.memberIdLabel,
                           style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
                         ),
                         Text(
@@ -628,7 +628,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                   const Icon(Icons.card_membership_rounded, size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
                   Text(
-                    'Membership',
+                    context.l10n.commonMembership,
                     style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
                   ),
                   const SizedBox(width: 6),
@@ -656,7 +656,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(
-                      'Attendance',
+                      context.l10n.commonAttendance,
                       style: AppTypography.caption.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.text,
@@ -676,8 +676,8 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text(
-                      'Profile',
+                    child: Text(
+                      context.l10n.commonProfile,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 11.5,
@@ -694,9 +694,9 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   }
 
   Widget _buildTrainerCard(Map<String, dynamic> trainer) {
-    final name = (trainer['name'] as String?) ?? 'Coach';
-    final code = (trainer['code'] as String?) ?? 'TR-101';
-    final spec = (trainer['specialization'] as String?) ?? 'Strength & Conditioning';
+    final name = (trainer['name'] as String?) ?? context.l10n.coach;
+    final code = (trainer['code'] as String?) ?? '';
+    final spec = (trainer['specialization'] as String?) ?? context.l10n.specStrength;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -754,7 +754,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('View', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5)),
+            child: Text(context.l10n.commonView, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5)),
           ),
         ],
       ),

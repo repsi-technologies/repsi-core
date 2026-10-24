@@ -11,6 +11,7 @@ import { OtpVerification } from "@/components/auth/otp-verification";
 import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi } from "@/lib/auth-client";
 import { formatPhone, isValidPhone, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation, richText } from "@/lib/i18n";
 
 const TICKET_TTL_MS = 18 * 60 * 1000; // backend ticket lives 20 minutes
 
@@ -50,6 +51,7 @@ function Field({
 }
 
 function SignupForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useSearchParams();
 
@@ -123,7 +125,7 @@ function SignupForm() {
         router.replace(applySession(session));
       } catch (err) {
         const api = err instanceof ApiError ? err : null;
-        setErrors({ form: api?.message || "Couldn't create account." });
+        setErrors({ form: api?.message || t("signup.couldn_t_create_account") });
       } finally {
         setLoading(false);
       }
@@ -147,7 +149,7 @@ function SignupForm() {
       setPhoneTestMode(res.test_mode);
       setPhoneCodeSent(true);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't send WhatsApp verification code.");
+      setOtpError(err instanceof ApiError ? err.message : t("signup.couldn_t_send_whatsapp_verification_code"));
     } finally {
       setPhoneSending(false);
     }
@@ -161,7 +163,7 @@ function SignupForm() {
       setEmailResendIn(res.resend_in);
       setEmailCodeSent(true);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't send email verification code.");
+      setOtpError(err instanceof ApiError ? err.message : t("signup.couldn_t_send_email_verification_code"));
     } finally {
       setEmailSending(false);
     }
@@ -183,7 +185,7 @@ function SignupForm() {
       sessionStorage.removeItem(SIGNUP_TICKET_KEY);
       router.replace(applySession(session));
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please check both codes.");
+      setOtpError(err instanceof ApiError ? err.message : t("signup.verification_failed_please_check_both_codes"));
       setVerifying(false);
     }
   }
@@ -199,7 +201,7 @@ function SignupForm() {
       setPhoneResendIn(res.resend_in);
       setPhoneTestMode(res.test_mode);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend WhatsApp code.");
+      setOtpError(err instanceof ApiError ? err.message : t("signup.couldn_t_resend_whatsapp_code"));
     } finally {
       setPhoneResending(false);
     }
@@ -213,7 +215,7 @@ function SignupForm() {
       const res = await authApi.requestEmailOtp(email.trim());
       setEmailResendIn(res.resend_in);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend email code.");
+      setOtpError(err instanceof ApiError ? err.message : t("signup.couldn_t_resend_email_code"));
     } finally {
       setEmailSending(false);
     }
@@ -223,10 +225,10 @@ function SignupForm() {
     <div className="mx-auto w-full max-w-[440px] space-y-6">
       <div className="space-y-1.5 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-[28px]">
-          {showVerification ? "Confirm Details & Verify" : "Create your account"}
+          {showVerification ? t("signup.confirm_details_verify") : t("signup.create_your_account")}
         </h1>
         <p className="text-sm text-[var(--text-muted)]">
-          {showVerification ? "Confirm your contact details and click Send Code to receive your OTPs." : "Start your 14-day free trial. No credit card required."}
+          {showVerification ? t("signup.confirm_your_contact_details_and_click") : t("signup.start_your_14_day_free_trial")}
         </p>
       </div>
 
@@ -259,16 +261,16 @@ function SignupForm() {
               <div role="alert" className="rounded-[8px] border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
                 {errors.form}{" "}
                 {errors.form.toLowerCase().includes("sign in") && (
-                  <Link href="/login" className="font-semibold underline">Go to sign in</Link>
+                  <Link href="/login" className="font-semibold underline">{t("signup.go_to_sign_in")}</Link>
                 )}
               </div>
             )}
 
-            <Field id="name" label="Full name" error={errors.name}>
+            <Field id="name" label={t("signup.full_name")} error={errors.name}>
               <input
                 id="name"
                 autoComplete="name"
-                placeholder="Arjun Nair"
+                placeholder={t("signup.arjun_nair")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 aria-invalid={Boolean(errors.name) || undefined}
@@ -277,7 +279,7 @@ function SignupForm() {
               />
             </Field>
 
-            <Field id="email" label="Work email" error={errors.email}>
+            <Field id="email" label={t("signup.work_email")} error={errors.email}>
               <input
                 id="email"
                 type="email"
@@ -294,11 +296,10 @@ function SignupForm() {
               <div className="flex items-center gap-2 rounded-[8px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
                 <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
                 <span>
-                  <span className="font-semibold">{formatPhone(ticket.phone)}</span> verified on WhatsApp
-                </span>
+                  {richText(t("signup.valueverified_on_whatsapp"), { value: <span className="font-semibold">{formatPhone(ticket.phone)}</span> })}</span>
               </div>
             ) : (
-              <Field id="signup-phone" label="Mobile number (WhatsApp)" error={errors.phone} hint="We'll send a verification code on WhatsApp.">
+              <Field id="signup-phone" label={t("signup.mobile_number_whatsapp")} error={errors.phone} hint={t("signup.we_ll_send_a_verification_code")}>
                 <PhoneInput
                   id="signup-phone"
                   value={phone}
@@ -309,7 +310,7 @@ function SignupForm() {
               </Field>
             )}
 
-            <Field id="password" label="Password" error={errors.password} hint="At least 8 characters.">
+            <Field id="password" label={t("signup.password")} error={errors.password} hint={t("signup.at_least_8_characters")}>
               <div className="relative">
                 <input
                   id="password"
@@ -324,14 +325,14 @@ function SignupForm() {
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
-                  aria-label={showPwd ? "Hide password" : "Show password"}
+                  aria-label={showPwd ? t("signup.hide_password") : t("signup.show_password")}
                 >
                   {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </Field>
 
-            <Field id="confirm" label="Confirm password" error={errors.confirm}>
+            <Field id="confirm" label={t("signup.confirm_password")} error={errors.confirm}>
               <input
                 id="confirm"
                 type={showPwd ? "text" : "password"}
@@ -349,10 +350,10 @@ function SignupForm() {
               className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading" />
+                <Loader2 className="h-4 w-4 animate-spin" aria-label={t("signup.loading")} />
               ) : (
                 <>
-                  {ticket ? "Create account" : "Continue"}
+                  {ticket ? t("signup.create_account") : t("signup.continue")}
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </>
               )}
@@ -362,9 +363,9 @@ function SignupForm() {
       </div>
 
       <p className="text-center text-sm text-[var(--text-muted)]">
-        Already have an account?{" "}
+        {t("signup.already_have_an_account")}{" "}
         <Link href="/login" className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)]">
-          Sign in
+          {t("auth.signIn")}
         </Link>
       </p>
     </div>

@@ -25,6 +25,7 @@ import { repsiApi, ApiMemberPersonalAttendance } from "@/lib/api";
 import { QrCameraScanner } from "@/features/attendance/components/qr-camera-scanner";
 import { getAuthUser } from "@/lib/auth";
 import { slugToGymName } from "@/lib/workspace";
+import { useTranslation } from "@/lib/i18n";
 
 type AttendanceState =
   | "NOT_CHECKED_IN"
@@ -132,6 +133,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
     }
   };
 
+  const { t } = useTranslation();
   const isInside = personalStats?.is_currently_inside ?? false;
 
   return (
@@ -140,10 +142,10 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
-            My Attendance & Gym Access
+            {t("memberAttendance.title", "My Attendance & Gym Access")}
           </h1>
           <p className="text-xs text-[var(--text-muted)] mt-0.5">
-            Scan entrance QR passes, track workout consistency, and manage your sessions.
+            {t("memberAttendance.subtitle", "Scan entrance QR passes, track workout consistency, and manage your sessions.")}
           </p>
         </div>
 
@@ -151,11 +153,11 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
           {isInside ? (
             <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1.5 px-3 py-1 font-semibold text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Inside {gymName}
+              {t("memberAttendance.insideGym", "Inside {gymName}", { gymName })}
             </Badge>
           ) : (
             <Badge variant="outline" className="text-[var(--text-muted)] border-[var(--border)] px-3 py-1 text-xs">
-              Outside Gym
+              {t("memberAttendance.outsideGym", "Outside Gym")}
             </Badge>
           )}
         </div>
@@ -179,16 +181,18 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-                  Active Workout Session
+                  {t("memberAttendance.activeSessionTitle", "Active Workout Session")}
                 </span>
-                <h2 className="text-xl font-bold text-[var(--text)]">You're Currently Checked In</h2>
+                <h2 className="text-xl font-bold text-[var(--text)]">
+                  {t("memberAttendance.currentlyCheckedIn", "You're Currently Checked In")}
+                </h2>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Check-In Time
+                  {t("memberAttendance.checkInTime", "Check-In Time")}
                 </span>
                 <p className="text-lg font-bold font-mono text-[var(--text)]">
                   {personalStats?.active_session?.checkInTime
@@ -199,7 +203,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
 
               <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Session Duration
+                  {t("memberAttendance.sessionDuration", "Session Duration")}
                 </span>
                 <p className="text-lg font-bold text-emerald-600 flex items-center gap-1.5">
                   <span>{liveDuration}</span>
@@ -209,7 +213,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
 
               <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Smart Auto Checkout
+                  {t("memberAttendance.smartAutoCheckout", "Smart Auto Checkout")}
                 </span>
                 <p className="text-xs font-semibold text-[var(--text-muted)] pt-1">
                   Active (Max 4h or 10 PM)
@@ -223,7 +227,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
                 className="h-11 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-[var(--primary-foreground)] font-bold text-xs gap-2 shadow-sm"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Check Out Now</span>
+                <span>{t("memberAttendance.checkOutNow", "Check Out Now")}</span>
               </Button>
             </div>
           </div>
@@ -233,13 +237,13 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
             <div className="space-y-2 max-w-md">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 font-bold text-[11px] uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Fast 1-Tap Entry</span>
+                <span>{t("memberAttendance.fastEntry", "Fast 1-Tap Entry")}</span>
               </div>
               <h2 className="text-2xl font-extrabold text-[var(--text)] tracking-tight">
-                Scan Gym QR to Check In
+                {t("memberAttendance.scanToEnter", "Scan Gym QR to Check In")}
               </h2>
               <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Aim your device camera at the reception QR code or kiosk monitor to record your visit in seconds.
+                {t("memberAttendance.scanSubtitle", "Aim your device camera at the reception QR code or kiosk monitor to record your visit in seconds.")}
               </p>
             </div>
 
@@ -252,7 +256,7 @@ export default function MemberAttendancePage(props: { params: Promise<{ workspac
               className="h-13 px-8 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-extrabold text-sm gap-2.5 shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.02]"
             >
               <Scan className="w-5 h-5" />
-              <span>Scan QR / Check In</span>
+              <span>{t("memberAttendance.launchScanner", "Scan QR / Check In")}</span>
             </Button>
           </div>
         )}

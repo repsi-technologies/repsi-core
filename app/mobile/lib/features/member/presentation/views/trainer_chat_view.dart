@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../nutrition/data/coaching_repository.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Trainer ⇄ member messages. With [memberId] (trainer side) it opens that member's thread
 /// directly; otherwise it lists the caller's conversations.
@@ -17,7 +18,7 @@ class TrainerChatView extends ConsumerWidget {
     if (memberId != null) return _OpenThread(memberId: memberId!);
     final convs = ref.watch(conversationsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      appBar: AppBar(title: Text(context.l10n.messages)),
       body: convs.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => _Retry(message: e.toString(), onRetry: () => ref.invalidate(conversationsProvider)),
@@ -27,8 +28,8 @@ class TrainerChatView extends ConsumerWidget {
                   padding: const EdgeInsets.all(24),
                   child: Text(
                     asTrainer
-                        ? 'No conversations yet. Open a client and tap Message.'
-                        : 'Once a trainer is assigned to you, you can message them here.',
+                        ? context.l10n.noConversationsTrainer
+                        : context.l10n.noConversationsMember,
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySecondary,
                   ),
@@ -43,10 +44,10 @@ class TrainerChatView extends ConsumerWidget {
                     final c = rows[i];
                     return ListTile(
                       title: Text(asTrainer ? c.memberName : c.trainerName),
-                      subtitle: Text(c.lastMessage ?? 'No messages yet', maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(c.lastMessage ?? context.l10n.noMessagesYet, maxLines: 1, overflow: TextOverflow.ellipsis),
                       trailing: c.unread > 0
                           ? Semantics(
-                              label: '${c.unread} unread',
+                              label: context.l10n.chatUnread(c.unread),
                               child: CircleAvatar(
                                 radius: 11,
                                 backgroundColor: AppColors.primary,
@@ -79,7 +80,7 @@ class _OpenThread extends ConsumerWidget {
       builder: (context, snap) {
         if (snap.hasData) return ChatThreadView(conversation: snap.data!, asTrainer: true);
         return Scaffold(
-          appBar: AppBar(title: const Text('Messages')),
+          appBar: AppBar(title: Text(context.l10n.messages)),
           body: snap.hasError
               ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(snap.error.toString())))
               : const Center(child: CircularProgressIndicator()),
@@ -150,7 +151,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       _toBottom();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Not sent: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.chatNotSent(e.toString()))));
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -171,7 +172,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 : _messages == null
                     ? const Center(child: CircularProgressIndicator())
                     : _messages!.isEmpty
-                        ? Center(child: Text('Say hello to start the conversation.', style: AppTypography.bodySecondary))
+                        ? Center(child: Text(context.l10n.sayHello, style: AppTypography.bodySecondary))
                         : ListView.builder(
                             controller: _scroll,
                             padding: const EdgeInsets.all(12),
@@ -196,7 +197,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                                         Text(m.body!, style: TextStyle(color: mine ? Colors.white : AppColors.text)),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '${TimeOfDay.fromDateTime(m.createdAt.toLocal()).format(context)}${mine && m.read ? ' · Read' : ''}',
+                                        '${TimeOfDay.fromDateTime(m.createdAt.toLocal()).format(context)}${mine && m.read ? ' · ${context.l10n.chatRead}' : ''}',
                                         style: TextStyle(fontSize: 10, color: mine ? Colors.white70 : AppColors.textSecondary),
                                       ),
                                     ],
@@ -221,11 +222,11 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                             maxLines: 4,
                             textInputAction: TextInputAction.send,
                             onSubmitted: (_) => _send(),
-                            decoration: const InputDecoration(hintText: 'Write a message…', counterText: ''),
+                            decoration: InputDecoration(hintText: context.l10n.writeMessage, counterText: ''),
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Send message',
+                          tooltip: context.l10n.sendMessage,
                           onPressed: _sending ? null : _send,
                           icon: _sending
                               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
@@ -236,7 +237,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                   )
                 : Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Text('This trainer is no longer assigned, so the conversation is read-only.',
+                    child: Text(context.l10n.chatReadOnly,
                         textAlign: TextAlign.center, style: AppTypography.caption),
                   ),
           ),
@@ -258,7 +259,7 @@ class _Retry extends StatelessWidget {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
+            OutlinedButton(onPressed: onRetry, child: Text(context.l10n.commonTryAgain)),
           ]),
         ),
       );

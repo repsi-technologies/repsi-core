@@ -5,6 +5,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
+import '../../../l10n/l10n.dart';
 
 class AdminAnalyticsView extends StatelessWidget {
   const AdminAnalyticsView({super.key});
@@ -17,7 +18,7 @@ class AdminAnalyticsView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Platform Analytics',
+          context.l10n.platformAnalytics,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
@@ -37,7 +38,7 @@ class AdminAnalyticsView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Platform MRR Growth', style: AppTypography.caption),
+                      Text(context.l10n.platformMrrGrowth, style: AppTypography.caption),
                       const SizedBox(height: 6),
                       Text(
                         '₹14,20,000',
@@ -99,13 +100,13 @@ class AdminAnalyticsView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Platform Health Metrics', style: AppTypography.headingSmall.copyWith(fontSize: 16)),
+                      Text(context.l10n.platformHealth, style: AppTypography.headingSmall.copyWith(fontSize: 16)),
                       const SizedBox(height: 14),
-                      _HealthRow(label: 'API Response Time (P95)', value: '64 ms'),
+                      _HealthRow(label: context.l10n.apiResponseTime, value: '64 ms'),
                       const Divider(height: 20),
-                      _HealthRow(label: 'Active Gym Licenses', value: '42 / 50'),
+                      _HealthRow(label: context.l10n.activeGymLicences, value: '42 / 50'),
                       const Divider(height: 20),
-                      _HealthRow(label: 'Total Check-ins (Today)', value: '1,428'),
+                      _HealthRow(label: context.l10n.totalCheckinsToday, value: '1,428'),
                     ],
                   ),
                 ),

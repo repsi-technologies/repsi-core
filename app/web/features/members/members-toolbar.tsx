@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { MemberStatus } from "@/types";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 interface MembersToolbarProps {
   search: string;
@@ -32,11 +33,11 @@ interface MembersToolbarProps {
 }
 
 const statusOptions: Array<{ value: MemberStatus | "all"; label: string }> = [
-  { value: "all", label: "All (except archived)" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-  { value: "suspended", label: "Suspended" },
-  { value: "archived", label: "Archived" },
+  { value: "all", get label() { return tr("members.all_except_archived"); } },
+  { value: "active", get label() { return tr("layout.active"); } },
+  { value: "inactive", get label() { return tr("members.inactive"); } },
+  { value: "suspended", get label() { return tr("members.suspended"); } },
+  { value: "archived", get label() { return tr("members.archived"); } },
 ];
 
 export function MembersToolbar({
@@ -53,12 +54,13 @@ export function MembersToolbar({
   totalCount,
   filteredCount,
 }: MembersToolbarProps) {
+  const { t } = useTranslation();
   const hasFilters = statusFilter !== "all" || planFilter !== "all" || search !== "";
-  const [planOptions, setPlanOptions] = useState<Array<{ value: string; label: string }>>([{ value: "all", label: "All plans" }]);
+  const [planOptions, setPlanOptions] = useState<Array<{ value: string; label: string }>>([{ value: "all", label: t("members.all_plans") }]);
 
   useEffect(() => {
     repsiApi.getMembershipPlans().then((plans) =>
-      setPlanOptions([{ value: "all", label: "All plans" }, ...plans.map((p: any) => ({ value: p.id, label: p.name }))])
+      setPlanOptions([{ value: "all", label: t("members.all_plans") }, ...plans.map((p: any) => ({ value: p.id, label: p.name }))])
     );
   }, []);
 
@@ -69,8 +71,8 @@ export function MembersToolbar({
         {/* Search */}
         <div className="flex-1 min-w-[140px]">
           <Input
-            aria-label="Search members by name, phone, email or member ID"
-            placeholder="Name, phone, email or ID…"
+            aria-label={t("members.search_members_by_name_phone_email")}
+            placeholder={t("members.name_phone_email_or_id")}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             startIcon={<Search className="h-3.5 w-3.5" />}
@@ -88,12 +90,12 @@ export function MembersToolbar({
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
               {statusFilter === "all"
-                ? "Status"
+                ? t("common.status")
                 : statusOptions.find((o) => o.value === statusFilter)?.label}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-44">
-            <DropdownMenuLabel>Filter by status</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("members.filter_by_status")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {statusOptions.map((opt) => (
               <DropdownMenuCheckboxItem
@@ -115,11 +117,11 @@ export function MembersToolbar({
               size="sm"
               className={planFilter !== "all" ? "border-[var(--primary)] text-[var(--primary-dark)] dark:text-[var(--primary-hover)]" : ""}
             >
-              {planFilter === "all" ? "Plan" : planOptions.find((o) => o.value === planFilter)?.label || "Plan"}
+              {planFilter === "all" ? t("members.plan") : planOptions.find((o) => o.value === planFilter)?.label || t("members.plan")}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-40">
-            <DropdownMenuLabel>Filter by plan</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("members.filter_by_plan")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {planOptions.map((opt) => (
               <DropdownMenuCheckboxItem
@@ -143,7 +145,7 @@ export function MembersToolbar({
             }}
             className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors whitespace-nowrap cursor-pointer"
           >
-            Clear
+            {t("members.clear")}
           </button>
         )}
       </div>
@@ -158,29 +160,21 @@ export function MembersToolbar({
 
         {onExportCsv && (
           <Button variant="secondary" size="sm" onClick={onExportCsv} title="Download CSV of all members">
-            <Download className="h-3.5 w-3.5" />
-            Export
-          </Button>
+            {richText(t("members.downloadexport"), { download: <Download className="h-3.5 w-3.5" /> })}</Button>
         )}
 
         {onImportCsv && (
           <Button variant="secondary" size="sm" onClick={onImportCsv} className="border-dashed" title="Upload Excel/CSV member roster">
-            <Upload className="h-3.5 w-3.5" />
-            Import CSV
-          </Button>
+            {richText(t("members.uploadimport_csv"), { upload: <Upload className="h-3.5 w-3.5" /> })}</Button>
         )}
 
         {onInviteMember && (
           <Button size="sm" onClick={onInviteMember} className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]">
-            <Mail className="h-3.5 w-3.5" />
-            Invite Member
-          </Button>
+            {richText(t("members.mailinvite_member"), { mail: <Mail className="h-3.5 w-3.5" /> })}</Button>
         )}
 
         <Button variant="secondary" size="sm" onClick={onAddMember}>
-          <Plus className="h-3.5 w-3.5" />
-          Add Direct
-        </Button>
+          {richText(t("members.plusadd_direct"), { plus: <Plus className="h-3.5 w-3.5" /> })}</Button>
       </div>
     </div>
   );

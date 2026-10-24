@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { repsiApi } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 interface CsvImportModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface CsvImportModalProps {
 }
 
 export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModalProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Please select a CSV file to upload.");
+      setError(t("members.please_select_a_csv_file_to"));
       return;
     }
 
@@ -75,7 +77,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
       setResult(res);
       onSuccess();
     } catch (err: any) {
-      setError(err.message || "Failed to import CSV file. Check format and try again.");
+      setError(err.message || t("members.failed_to_import_csv_file_check"));
     } finally {
       setLoading(false);
     }
@@ -100,10 +102,10 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             </div>
             <div>
               <h2 className="text-lg font-bold text-[var(--text)] tracking-tight">
-                Import Members from CSV
+                {t("members.import_members_from_csv")}
               </h2>
               <p className="text-xs text-[var(--text-muted)]">
-                Onboard your gym members from Excel or previous software
+                {t("members.onboard_your_gym_members_from_excel")}
               </p>
             </div>
           </div>
@@ -119,7 +121,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
         <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs">
           <div className="flex items-center gap-2 text-[var(--text-muted)]">
             <FileText className="w-4 h-4 text-[var(--primary)]" />
-            <span>Need the standard CSV format?</span>
+            <span>{t("members.need_the_standard_csv_format")}</span>
           </div>
           <button
             type="button"
@@ -127,7 +129,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--surface-hover)] text-[var(--text)] hover:text-[var(--primary)] font-semibold text-xs border border-[var(--border)] transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Download Template</span>
+            <span>{t("members.download_template")}</span>
           </button>
         </div>
 
@@ -152,14 +154,13 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 <div>
                   <p className="text-sm font-bold text-[var(--text)]">{file.name}</p>
                   <p className="text-xs text-[var(--text-muted)] mt-1">
-                    {(file.size / 1024).toFixed(1)} KB · Click to change file
-                  </p>
+                    {t("members.countkb_click_to_change_file", undefined, { count: (file.size / 1024).toFixed(1) })}</p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm font-bold text-[var(--text)]">Click or drag CSV here</p>
+                  <p className="text-sm font-bold text-[var(--text)]">{t("members.click_or_drag_csv_here")}</p>
                   <p className="text-xs text-[var(--text-muted)] mt-1">
-                    Supports .csv with Name, Phone, Email, and Plan
+                    {t("members.supports_csv_with_name_phone_email")}
                   </p>
                 </div>
               )}
@@ -178,7 +179,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 onClick={handleClose}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -187,7 +188,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] font-bold text-xs shadow-md disabled:opacity-50 transition-all cursor-pointer"
               >
                 {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>{loading ? "Importing..." : "Start Import"}</span>
+                <span>{loading ? t("members.importing") : t("members.start_import")}</span>
               </button>
             </div>
           </div>
@@ -197,25 +198,24 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
             <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 space-y-1">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <CheckCircle2 className="w-5 h-5" />
-                <span>CSV Import Complete!</span>
+                <span>{t("members.csv_import_complete")}</span>
               </div>
               <p className="text-xs text-[var(--text-muted)]">
-                Processed {result.total_rows} records from your sheet.
-              </p>
+                {t("members.processed_total_rowsrecords_from_your_sheet", undefined, { total_rows: result.total_rows })}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3 text-center">
               <div className="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
                 <p className="text-2xl font-black text-emerald-500">{result.imported}</p>
-                <p className="text-[11px] font-semibold text-[var(--text-muted)]">Imported</p>
+                <p className="text-[11px] font-semibold text-[var(--text-muted)]">{t("members.imported")}</p>
               </div>
               <div className="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
                 <p className="text-2xl font-black text-amber-500">{result.duplicates}</p>
-                <p className="text-[11px] font-semibold text-[var(--text-muted)]">Existing</p>
+                <p className="text-[11px] font-semibold text-[var(--text-muted)]">{t("members.existing")}</p>
               </div>
               <div className="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
                 <p className="text-2xl font-black text-red-500">{result.errors}</p>
-                <p className="text-[11px] font-semibold text-[var(--text-muted)]">Skipped</p>
+                <p className="text-[11px] font-semibold text-[var(--text-muted)]">{t("members.skipped")}</p>
               </div>
             </div>
 
@@ -225,7 +225,7 @@ export function CsvImportModal({ open, onOpenChange, onSuccess }: CsvImportModal
                 onClick={handleClose}
                 className="px-5 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-bold text-xs cursor-pointer shadow-md"
               >
-                Done
+                {t("members.done")}
               </button>
             </div>
           </div>

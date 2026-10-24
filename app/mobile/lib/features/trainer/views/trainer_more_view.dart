@@ -9,6 +9,8 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/my_profile_photo.dart';
+import '../../../l10n/l10n.dart';
+import '../../../shared/widgets/language_selector_sheet.dart';
 
 class TrainerMoreView extends ConsumerWidget {
   const TrainerMoreView({super.key});
@@ -17,13 +19,14 @@ class TrainerMoreView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
     final menuItems = [
-      {'icon': Icons.person_outline_rounded, 'title': 'My Profile'},
-      {'icon': Icons.people_outline_rounded, 'title': 'My Clients'},
-      {'icon': Icons.calendar_today_outlined, 'title': 'My Schedule'},
-      {'icon': Icons.fitness_center_outlined, 'title': 'Workout Templates'},
-      {'icon': Icons.restaurant_outlined, 'title': 'Diet Templates'},
-      {'icon': Icons.notifications_none_rounded, 'title': 'Notifications'},
-      {'icon': Icons.settings_outlined, 'title': 'Settings'},
+      {'icon': Icons.translate_rounded, 'title': context.l10n.commonLanguage, 'id': 'language'},
+      {'icon': Icons.person_outline_rounded, 'title': context.l10n.myProfile},
+      {'icon': Icons.people_outline_rounded, 'title': context.l10n.myClients},
+      {'icon': Icons.calendar_today_outlined, 'title': context.l10n.mySchedule},
+      {'icon': Icons.fitness_center_outlined, 'title': context.l10n.workoutTemplates},
+      {'icon': Icons.restaurant_outlined, 'title': context.l10n.dietTemplates},
+      {'icon': Icons.notifications_none_rounded, 'title': context.l10n.commonNotifications},
+      {'icon': Icons.settings_outlined, 'title': context.l10n.commonSettings},
     ];
 
     return Scaffold(
@@ -32,7 +35,7 @@ class TrainerMoreView extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'More',
+          context.l10n.commonMore,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
@@ -58,7 +61,7 @@ class TrainerMoreView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              user?.fullName ?? 'Trainer',
+                              user?.fullName ?? context.l10n.commonTrainer,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.headingSmall.copyWith(
@@ -69,7 +72,7 @@ class TrainerMoreView extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              [user?.gymName, 'Trainer'].whereType<String>().join(' · '),
+                              [user?.gymName, context.l10n.commonTrainer].whereType<String>().join(' · '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.caption.copyWith(
@@ -95,8 +98,12 @@ class TrainerMoreView extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: RepsiCard(
                       onTap: () {
+                        if (item['id'] == 'language') {
+                          LanguageSelectorSheet.show(context);
+                          return;
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${item['title']} clicked')),
+                          SnackBar(content: Text(context.l10n.comingSoon('${item['title']}'))),
                         );
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
@@ -139,7 +146,7 @@ class TrainerMoreView extends ConsumerWidget {
                       const Icon(Icons.logout_rounded, size: 20, color: AppColors.error),
                       const SizedBox(width: 14),
                       Text(
-                        'Sign Out',
+                        context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

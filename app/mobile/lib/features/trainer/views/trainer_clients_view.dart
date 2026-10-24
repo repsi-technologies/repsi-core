@@ -7,6 +7,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
 import '../../nutrition/data/coaching_repository.dart';
 import 'trainer_client_detail_view.dart';
+import '../../../l10n/l10n.dart';
 
 /// Members currently assigned to the signed-in trainer (from /trainers/me/clients).
 class TrainerClientsView extends ConsumerStatefulWidget {
@@ -24,13 +25,13 @@ class _TrainerClientsViewState extends ConsumerState<TrainerClientsView> {
   Widget build(BuildContext context) {
     final clients = ref.watch(trainerClientsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('My clients')),
+      appBar: AppBar(title: Text(context.l10n.myClients)),
       body: clients.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Padding(padding: const EdgeInsets.all(16), child: Text(e.toString(), textAlign: TextAlign.center)),
-            OutlinedButton(onPressed: () => ref.invalidate(trainerClientsProvider), child: const Text('Try again')),
+            OutlinedButton(onPressed: () => ref.invalidate(trainerClientsProvider), child: Text(context.l10n.commonTryAgain)),
           ]),
         ),
         data: (rows) {
@@ -44,10 +45,10 @@ class _TrainerClientsViewState extends ConsumerState<TrainerClientsView> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                RepsiSearchField(hintText: 'Search clients', onChanged: (v) => setState(() => _query = v)),
+                RepsiSearchField(hintText: context.l10n.searchClients, onChanged: (v) => setState(() => _query = v)),
                 const SizedBox(height: 8),
                 FilterChip(
-                  label: const Text('Active memberships only'),
+                  label: Text(context.l10n.activeMembershipsOnly),
                   selected: _activeOnly,
                   onSelected: (v) => setState(() => _activeOnly = v),
                 ),
@@ -56,7 +57,7 @@ class _TrainerClientsViewState extends ConsumerState<TrainerClientsView> {
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      rows.isEmpty ? 'No members are assigned to you yet.' : 'No clients match your search.',
+                      rows.isEmpty ? context.l10n.noClientsAssigned : context.l10n.noClientsMatch,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodySecondary,
                     ),

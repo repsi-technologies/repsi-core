@@ -40,16 +40,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Add New Trainer'), findsOneWidget);
-    expect(find.text('Full Name *'), findsOneWidget);
-    expect(find.text('Mobile Number *'), findsOneWidget);
-    expect(find.text('Email Address (Optional)'), findsOneWidget);
-    expect(find.text('Specialization / Track'), findsOneWidget);
-    expect(find.text('Save & Onboard Trainer'), findsOneWidget);
+    expect(find.text('Add new trainer'), findsOneWidget);
+    expect(find.text('Full name *'), findsOneWidget);
+    expect(find.text('Mobile number *'), findsOneWidget);
+    expect(find.text('Email address (optional)'), findsOneWidget);
+    expect(find.text('Specialisation'), findsOneWidget);
+    expect(find.text('Save trainer'), findsOneWidget);
 
     // Scroll to submit button and tap
-    await tester.ensureVisible(find.text('Save & Onboard Trainer'));
-    await tester.tap(find.text('Save & Onboard Trainer'));
+    await tester.ensureVisible(find.text('Save trainer'));
+    await tester.tap(find.text('Save trainer'));
     await tester.pumpAndSettle();
 
     expect(find.text('Trainer name is required'), findsOneWidget);

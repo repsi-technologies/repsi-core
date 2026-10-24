@@ -4,15 +4,17 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiSearchField extends StatefulWidget {
-  final String hintText;
+  /// Defaults to "Search…" in the current language.
+  final String? hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final TextEditingController? controller;
 
   const RepsiSearchField({
     super.key,
-    this.hintText = 'Search...',
+    this.hintText,
     this.onChanged,
     this.onClear,
     this.controller,
@@ -73,7 +75,7 @@ class _RepsiSearchFieldState extends State<RepsiSearchField> {
           color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
         ),
         decoration: InputDecoration(
-          hintText: widget.hintText,
+          hintText: widget.hintText ?? context.l10n.commonSearchHint,
           hintStyle: AppTypography.bodyMedium.copyWith(
             color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
           ),

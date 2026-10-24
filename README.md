@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="app/web/public/logos/dark_logo_trans.png" alt="REPSI Logo" width="180" />
+  <img src="app/web/public/logos/repsi-logo-white.png" alt="REPSI Logo" width="180" />
   
   <h3>The Operating System for Modern Gyms & Fitness Businesses</h3>
   
@@ -23,7 +23,7 @@
 
 ---
 
-## 🌟 About REPSI
+## About REPSI
 
 Managing a fitness facility shouldn't mean juggling five different outdated software tools. **REPSI** unifies your entire gym operation into a single, cohesive platform:
 
@@ -34,7 +34,7 @@ Managing a fitness facility shouldn't mean juggling five different outdated soft
 
 ---
 
-## ✨ Key Features in v1.0.1
+## Key Features in v1.0.1
 
 - 🏢 **Multi-Tenancy & Workspace Isolation**: Manage single or multi-branch gym networks under one organization with complete data isolation.
 - 💸 **Direct Manual Payments & Receipt Verification (Zero PG Fees)**: Support owners' direct UPI IDs, merchant QR codes, payment phone numbers, and bank account transfers without gateway transaction fees.

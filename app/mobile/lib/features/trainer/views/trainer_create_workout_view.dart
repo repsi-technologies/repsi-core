@@ -7,6 +7,7 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
+import '../../../l10n/l10n.dart';
 
 class TrainerCreateWorkoutView extends StatefulWidget {
   const TrainerCreateWorkoutView({super.key});
@@ -103,7 +104,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Exercise Library',
+                    context.l10n.exerciseLibrary,
                     style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   IconButton(
@@ -130,7 +131,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                         child: const Icon(Icons.fitness_center_rounded, color: AppColors.primaryDark, size: 20),
                       ),
                       title: Text(exName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                      subtitle: const Text('Compound · Hypertrophy', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      subtitle: Text(context.l10n.compoundHypertrophy, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                       trailing: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary),
                       onTap: () {
                         setState(() {
@@ -147,7 +148,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                         });
                         Navigator.pop(ctx);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Added $exName to workout')),
+                          SnackBar(content: Text(context.l10n.trainerAddedExercise(exName))),
                         );
                       },
                     );
@@ -172,12 +173,12 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
           builder: (dialogCtx, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Assign to Client', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              title: Text(context.l10n.assignToClient, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Assign "${_nameController.text}" to:', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(context.l10n.trainerAssignTo(_nameController.text), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ...clients.map((c) {
                     final isSel = selectedClient == c;
@@ -204,17 +205,17 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 RepsiButton(
-                  text: 'Assign Now',
+                  text: context.l10n.assignNow,
                   size: RepsiButtonSize.small,
                   onPressed: () {
                     Navigator.pop(ctx);
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Upper Body A successfully assigned to $selectedClient!'),
+                        content: Text(context.l10n.trainerAssigned(_nameController.text, selectedClient)),
                         backgroundColor: AppColors.primary,
                       ),
                     );
@@ -240,15 +241,15 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Workout Builder',
+          context.l10n.workoutBuilder,
           style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _showAssignModal,
-            child: const Text(
-              'Assign',
+            child: Text(
+              context.l10n.assignNow,
               style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
             ),
           ),
@@ -267,7 +268,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
               RepsiStaggerItem(
                 index: 0,
                 child: RepsiTextField(
-                  label: 'Program Title',
+                  label: context.l10n.programTitle,
                   controller: _nameController,
                   prefixIcon: const Icon(Icons.fitness_center_rounded, size: 20, color: AppColors.primary),
                 ),
@@ -281,7 +282,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Exercises (${_exercises.length})',
+                      context.l10n.trainerExercisesCount(_exercises.length),
                       style: AppTypography.sectionHeading.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -291,8 +292,8 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                     TextButton.icon(
                       onPressed: _showAddExerciseSheet,
                       icon: const Icon(Icons.add_rounded, size: 18, color: AppColors.primary),
-                      label: const Text(
-                        'Add Exercise',
+                      label: Text(
+                        context.l10n.addExercise,
                         style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 13),
                       ),
                     ),
@@ -359,7 +360,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '${ex['sets']} sets × ${ex['reps']} reps · ${ex['weight']}',
+                                        context.l10n.trainerSetsRepsWeight('${ex['sets']}', '${ex['reps']}', '${ex['weight']}'),
                                         style: AppTypography.caption.copyWith(
                                           color: AppColors.primaryDark,
                                           fontWeight: FontWeight.w600,
@@ -394,8 +395,8 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Rest: ${ex['rest']}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                                  Text('Tempo: ${ex['tempo']}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  Text(context.l10n.trainerRest('${ex['rest']}'), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  Text(context.l10n.trainerTempo('${ex['tempo']}'), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                                   Text(
                                     ex['notes'] as String,
                                     style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
@@ -420,8 +421,8 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Save as Gym Template',
+                        Text(
+                          context.l10n.saveAsTemplate,
                           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.text),
                         ),
                         Switch(
@@ -433,7 +434,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                     ),
                     const SizedBox(height: 10),
                     RepsiButton(
-                      text: 'Assign to Client',
+                      text: context.l10n.assignToClient,
                       leadingIcon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
                       onPressed: _showAssignModal,
                       isFullWidth: true,

@@ -10,6 +10,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_screen_background.dart';
 import '../providers/auth_provider.dart';
 
+import '../../../l10n/l10n.dart';
 class RoleSelectionView extends ConsumerWidget {
   const RoleSelectionView({super.key});
 
@@ -47,7 +48,7 @@ class RoleSelectionView extends ConsumerWidget {
                 RepsiStaggerItem(
                   index: 0,
                   child: Text(
-                    'Choose your workspace',
+                    context.l10n.chooseWorkspace,
                     style: AppTypography.heading.copyWith(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -59,7 +60,7 @@ class RoleSelectionView extends ConsumerWidget {
                 RepsiStaggerItem(
                   index: 1,
                   child: Text(
-                    "Select the organization and workspace you'd like to access",
+                    context.l10n.chooseWorkspaceSubtitle,
                     style: AppTypography.body.copyWith(
                       fontSize: 15,
                       color: AppColors.textSecondary,
@@ -73,8 +74,8 @@ class RoleSelectionView extends ConsumerWidget {
                   index: 2,
                   child: _RoleCard(
                     emoji: '🏢',
-                    title: 'Repsi Fitness — Owner',
-                    subtitle: 'Business command center: revenue, members, attendance & ops',
+                    title: context.l10n.roleOwnerTitle,
+                    subtitle: context.l10n.roleOwnerDesc,
                     tag: 'Indiranagar Hub',
                     iconBgColor: AppColors.primarySoft,
                     onTap: () => _selectRole(context, ref, 'OWNER'),
@@ -87,9 +88,9 @@ class RoleSelectionView extends ConsumerWidget {
                   index: 3,
                   child: _RoleCard(
                     emoji: '🏋️',
-                    title: 'Repsi Fitness — Trainer',
-                    subtitle: 'Coaching workspace: client training, workout & diet builder, chat',
-                    tag: 'Active Coach',
+                    title: context.l10n.roleTrainerTitle,
+                    subtitle: context.l10n.roleTrainerDesc,
+                    tag: context.l10n.roleTrainerBadge,
                     iconBgColor: const Color(0xFFEBF5FF),
                     onTap: () => _selectRole(context, ref, 'TRAINER'),
                   ),
@@ -101,9 +102,9 @@ class RoleSelectionView extends ConsumerWidget {
                   index: 4,
                   child: _RoleCard(
                     emoji: '👤',
-                    title: 'Repsi Fitness — Member',
-                    subtitle: 'Personal fitness companion: streak, workouts, QR check-in & progress',
-                    tag: 'Gold Member',
+                    title: context.l10n.roleMemberTitle,
+                    subtitle: context.l10n.roleMemberDesc,
+                    tag: context.l10n.roleMemberBadge,
                     iconBgColor: const Color(0xFFF0FDF4),
                     onTap: () => _selectRole(context, ref, 'USER'),
                   ),
@@ -115,9 +116,9 @@ class RoleSelectionView extends ConsumerWidget {
                   index: 5,
                   child: _RoleCard(
                     emoji: '🛡️',
-                    title: 'Repsi Platform — Admin',
-                    subtitle: 'Internal administration: gym tenants, accounts & system metrics',
-                    tag: 'Superadmin',
+                    title: context.l10n.roleAdminTitle,
+                    subtitle: context.l10n.roleAdminDesc,
+                    tag: context.l10n.roleAdminBadge,
                     iconBgColor: const Color(0xFFF3E8FF),
                     onTap: () => _selectRole(context, ref, 'ADMIN'),
                   ),

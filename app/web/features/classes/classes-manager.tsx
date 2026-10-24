@@ -9,6 +9,7 @@ import { getAuthUser } from "@/lib/auth";
 import { EmptyBlock, Field, LoadingRow, Modal, Notice, WEEKDAYS, addDays, inputClass, isoDate } from "@/features/fitness/shared";
 import { MemberSearch } from "@/features/classes/member-search";
 import { bookingApi, formatDateTime, type ClassBooking, type ClassSession, type GymClass } from "@/lib/operations-api";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 const MANAGER_ROLES = ["OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN"];
 
@@ -25,9 +26,10 @@ function ClassForm({ trainers, initial, onSaved, onClose }: {
   onSaved: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     name: initial?.name ?? "",
-    category: initial?.category ?? "Strength",
+    category: initial?.category ?? t("classes.strength"),
     capacity: initial?.capacity ?? 20,
     duration_minutes: initial?.duration_minutes ?? 60,
     room: initial?.room ?? "",
@@ -58,49 +60,49 @@ function ClassForm({ trainers, initial, onSaved, onClose }: {
   };
 
   return (
-    <Modal title={initial ? "Edit class" : "New class"} onClose={onClose}>
+    <Modal title={initial ? t("classes.edit_class") : t("classes.new_class")} onClose={onClose}>
       <form onSubmit={submit} className="space-y-3">
         {error && <Notice kind="error">{error}</Notice>}
-        <Field label="Name" htmlFor="class-name">
+        <Field label={t("organization.name")} htmlFor="class-name">
           <input id="class-name" required minLength={2} className={inputClass} value={form.name} onChange={(e) => set("name", e.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Category" htmlFor="class-category">
+          <Field label={t("classes.category")} htmlFor="class-category">
             <input id="class-category" className={inputClass} value={form.category} onChange={(e) => set("category", e.target.value)} />
           </Field>
-          <Field label="Room" htmlFor="class-room">
+          <Field label={t("classes.room")} htmlFor="class-room">
             <input id="class-room" className={inputClass} value={form.room} onChange={(e) => set("room", e.target.value)} />
           </Field>
-          <Field label="Places" htmlFor="class-capacity">
+          <Field label={t("classes.places")} htmlFor="class-capacity">
             <input id="class-capacity" type="number" min={1} max={500} className={inputClass} value={form.capacity}
               onChange={(e) => set("capacity", Number(e.target.value))} />
           </Field>
-          <Field label="Length (minutes)" htmlFor="class-duration">
+          <Field label={t("classes.length_minutes")} htmlFor="class-duration">
             <input id="class-duration" type="number" min={10} max={480} className={inputClass} value={form.duration_minutes}
               onChange={(e) => set("duration_minutes", Number(e.target.value))} />
           </Field>
-          <Field label="Bookings open (hours before)" htmlFor="class-open">
+          <Field label={t("classes.bookings_open_hours_before")} htmlFor="class-open">
             <input id="class-open" type="number" min={1} className={inputClass} value={form.booking_open_hours}
               onChange={(e) => set("booking_open_hours", Number(e.target.value))} />
           </Field>
-          <Field label="Late cancel within (hours)" htmlFor="class-cutoff">
+          <Field label={t("classes.late_cancel_within_hours")} htmlFor="class-cutoff">
             <input id="class-cutoff" type="number" min={0} max={72} className={inputClass} value={form.cancel_cutoff_hours}
               onChange={(e) => set("cancel_cutoff_hours", Number(e.target.value))} />
           </Field>
         </div>
-        <Field label="Default trainer" htmlFor="class-trainer">
+        <Field label={t("classes.default_trainer")} htmlFor="class-trainer">
           <select id="class-trainer" className={inputClass} value={form.trainer_id} onChange={(e) => set("trainer_id", e.target.value)}>
-            <option value="">No trainer</option>
+            <option value="">{t("classes.no_trainer")}</option>
             {trainers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </Field>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={form.waitlist_enabled} onChange={(e) => set("waitlist_enabled", e.target.checked)} />
-          Keep a waitlist when the class is full
+          {t("classes.keep_a_waitlist_when_the_class")}
         </label>
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-          <Button type="submit" size="sm" loading={saving}>{initial ? "Save changes" : "Create class"}</Button>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit" size="sm" loading={saving}>{initial ? t("classes.save_changes") : t("classes.create_class")}</Button>
         </div>
       </form>
     </Modal>
@@ -113,6 +115,7 @@ function ScheduleForm({ gymClass, trainers, onSaved, onClose }: {
   onSaved: (n: number) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [repeat, setRepeat] = useState(false);
   const [date, setDate] = useState(addDays(isoDate(), 1));
   const [time, setTime] = useState("07:00");
@@ -139,28 +142,27 @@ function ScheduleForm({ gymClass, trainers, onSaved, onClose }: {
   };
 
   return (
-    <Modal title={`Schedule ${gymClass.name}`} onClose={onClose}>
+    <Modal title={t("classes.schedule_name", undefined, { name: gymClass.name })} onClose={onClose}>
       <form onSubmit={submit} className="space-y-3">
         {error && <Notice kind="error">{error}</Notice>}
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} /> Repeat weekly
-        </label>
+          {richText(t("classes.inputrepeat_weekly"), { input: <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} /> })}</label>
         <div className="grid grid-cols-2 gap-3">
-          <Field label={repeat ? "From" : "Date"} htmlFor="session-date">
+          <Field label={repeat ? t("classes.from") : t("common.date")} htmlFor="session-date">
             <input id="session-date" type="date" required min={isoDate()} className={inputClass} value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
-          <Field label="Start time" htmlFor="session-time">
+          <Field label={t("classes.start_time")} htmlFor="session-time">
             <input id="session-time" type="time" required className={inputClass} value={time} onChange={(e) => setTime(e.target.value)} />
           </Field>
           {repeat && (
-            <Field label="Until" htmlFor="session-until">
+            <Field label={t("classes.until")} htmlFor="session-until">
               <input id="session-until" type="date" required min={date} className={inputClass} value={until} onChange={(e) => setUntil(e.target.value)} />
             </Field>
           )}
         </div>
         {repeat && (
           <fieldset>
-            <legend className="text-xs font-semibold text-[var(--text-secondary)] mb-1">On</legend>
+            <legend className="text-xs font-semibold text-[var(--text-secondary)] mb-1">{t("classes.on")}</legend>
             <div className="flex flex-wrap gap-1.5">
               {WEEKDAYS.map((d, i) => (
                 <label key={d} className={`cursor-pointer rounded-lg border px-2.5 py-1 text-xs ${days.includes(i) ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary-dark)]" : "border-[var(--border)]"}`}>
@@ -172,16 +174,16 @@ function ScheduleForm({ gymClass, trainers, onSaved, onClose }: {
             </div>
           </fieldset>
         )}
-        <Field label="Trainer" htmlFor="session-trainer">
+        <Field label={t("navItem.trainer")} htmlFor="session-trainer">
           <select id="session-trainer" className={inputClass} value={trainerId} onChange={(e) => setTrainerId(e.target.value)}>
-            <option value="">No trainer</option>
+            <option value="">{t("classes.no_trainer")}</option>
             {trainers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </Field>
-        <p className="text-xs text-[var(--text-muted)]">Times are in the gym's time zone. Trainer clashes are checked automatically.</p>
+        <p className="text-xs text-[var(--text-muted)]">{t("classes.times_are_in_the_gym_s")}</p>
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-          <Button type="submit" size="sm" loading={saving}>Schedule</Button>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit" size="sm" loading={saving}>{t("navItem.schedule")}</Button>
         </div>
       </form>
     </Modal>
@@ -194,6 +196,7 @@ function Roster({ session, canManage, onChanged, onClose }: {
   onChanged: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<ClassBooking[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(() => {
@@ -217,13 +220,12 @@ function Roster({ session, canManage, onChanged, onClose }: {
       <div className="space-y-3">
         {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
         <p className="text-sm text-[var(--text-secondary)]">
-          {session.booked}/{session.capacity} booked · {session.waitlisted} waitlisted
-        </p>
+          {t("classes.booked_capacitybooked_waitlistedwaitlisted", undefined, { booked: session.booked, capacity: session.capacity, waitlisted: session.waitlisted })}</p>
         {session.status === "scheduled" && (
-          <MemberSearch label="Book a member" onPick={(m) => act(() => bookingApi.book(session.id, m.id))} />
+          <MemberSearch label={t("classes.book_a_member")} onPick={(m) => act(() => bookingApi.book(session.id, m.id))} />
         )}
         {rows === null ? <LoadingRow /> : rows.length === 0 ? (
-          <EmptyBlock title="No bookings yet" />
+          <EmptyBlock title={t("classes.no_bookings_yet")} />
         ) : (
           <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
             {rows.map((b) => (
@@ -233,12 +235,12 @@ function Roster({ session, canManage, onChanged, onClose }: {
                   {b.waitlist_position ? <span className="text-[var(--text-muted)]"> · #{b.waitlist_position}</span> : null}
                 </span>
                 <span className="flex items-center gap-2">
-                  <Badge variant={bookingVariant(b.status)}>{b.status.replace("_", " ")}{b.late_cancel ? " (late)" : ""}</Badge>
+                  <Badge variant={bookingVariant(b.status)}>{b.status.replace("_", " ")}{b.late_cancel ? t("classes.late") : ""}</Badge>
                   {b.status === "booked" && (
-                    <Button size="sm" variant="outline" onClick={() => act(() => bookingApi.checkIn(b.id))}>Check in</Button>
+                    <Button size="sm" variant="outline" onClick={() => act(() => bookingApi.checkIn(b.id))}>{t("classes.check_in")}</Button>
                   )}
                   {(b.status === "booked" || b.status === "waitlisted") && (
-                    <Button size="sm" variant="ghost" onClick={() => act(() => bookingApi.cancelBooking(b.id, "Cancelled by staff"))}>Cancel</Button>
+                    <Button size="sm" variant="ghost" onClick={() => act(() => bookingApi.cancelBooking(b.id, "Cancelled by staff"))}>{t("common.cancel")}</Button>
                   )}
                 </span>
               </li>
@@ -255,8 +257,7 @@ function Roster({ session, canManage, onChanged, onClose }: {
                 if (reason && reason.trim().length >= 3) act(() => bookingApi.cancelSession(session.id, reason.trim())).then(onClose);
               }}
             >
-              <XCircle aria-hidden /> Cancel session
-            </Button>
+              {richText(t("classes.xcirclecancel_session"), { xcircle: <XCircle aria-hidden /> })}</Button>
           </div>
         )}
       </div>
@@ -309,22 +310,21 @@ export function ClassesManager() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">Classes</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">Schedule sessions, take bookings and manage waitlists.</p>
+          <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">{tr("nav.classes")}</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{tr("classes.schedule_sessions_take_bookings_and_manage")}</p>
         </div>
         {canManage && (
           <Button size="sm" onClick={() => setEditing("new")}>
-            <Plus aria-hidden /> New class
-          </Button>
+            {richText(tr("classes.plusnew_class"), { plus: <Plus aria-hidden /> })}</Button>
         )}
       </div>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       {notice && <Notice kind="success" onDismiss={() => setNotice(null)}>{notice}</Notice>}
 
       <section aria-labelledby="classes-heading" className="space-y-3">
-        <h2 id="classes-heading" className="text-base font-semibold text-[var(--text)]">Class types</h2>
+        <h2 id="classes-heading" className="text-base font-semibold text-[var(--text)]">{tr("classes.class_types")}</h2>
         {classes === null ? <LoadingRow /> : classes.length === 0 ? (
-          <EmptyBlock title="No classes yet">{canManage ? "Create a class, then schedule its sessions." : "Ask a manager to add classes."}</EmptyBlock>
+          <EmptyBlock title={tr("classes.no_classes_yet")}>{canManage ? tr("classes.create_a_class_then_schedule_its") : tr("classes.ask_a_manager_to_add_classes")}</EmptyBlock>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
             {classes.map((c) => (
@@ -332,16 +332,15 @@ export function ClassesManager() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="font-semibold text-[var(--text)]">{c.name}</h3>
-                    <p className="text-xs text-[var(--text-muted)]">{c.category} · {c.duration_minutes} min · {c.capacity} places</p>
+                    <p className="text-xs text-[var(--text-muted)]">{tr("classes.category_duration_minutesmin_capacityplaces", undefined, { category: c.category, duration_minutes: c.duration_minutes, capacity: c.capacity })}</p>
                   </div>
-                  {c.waitlist_enabled && <Badge variant="outline">Waitlist</Badge>}
+                  {c.waitlist_enabled && <Badge variant="outline">{tr("classes.waitlist")}</Badge>}
                 </div>
                 {canManage && (
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => setScheduling(c)}>
-                      <CalendarPlus aria-hidden /> Schedule
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditing(c)}>Edit</Button>
+                      {richText(tr("classes.calendarplusschedule"), { calendarplus: <CalendarPlus aria-hidden /> })}</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(c)}>{tr("common.edit")}</Button>
                   </div>
                 )}
               </div>
@@ -351,9 +350,9 @@ export function ClassesManager() {
       </section>
 
       <section aria-labelledby="sessions-heading" className="space-y-3">
-        <h2 id="sessions-heading" className="text-base font-semibold text-[var(--text)]">Next 14 days</h2>
+        <h2 id="sessions-heading" className="text-base font-semibold text-[var(--text)]">{tr("classes.next_14_days")}</h2>
         {sessions === null ? <LoadingRow /> : byDay.length === 0 ? (
-          <EmptyBlock title="No sessions scheduled">Use “Schedule” on a class to add one-off or weekly sessions.</EmptyBlock>
+          <EmptyBlock title={tr("classes.no_sessions_scheduled")}>{tr("classes.use_schedule_on_a_class_to")}</EmptyBlock>
         ) : (
           byDay.map(([day, list]) => (
             <div key={day} className="space-y-2">
@@ -389,7 +388,7 @@ export function ClassesManager() {
 
       {editing && (
         <ClassForm trainers={trainers} initial={editing === "new" ? undefined : editing} onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); setNotice("Class saved."); load(); }} />
+          onSaved={() => { setEditing(null); setNotice(tr("classes.class_saved")); load(); }} />
       )}
       {scheduling && (
         <ScheduleForm gymClass={scheduling} trainers={trainers} onClose={() => setScheduling(null)}

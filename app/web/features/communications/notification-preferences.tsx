@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { communicationsApi, type NotificationPreferences } from "@/lib/communications-api";
 import { Notice } from "@/features/fitness/shared";
+import { useTranslation, tr } from "@/lib/i18n";
 
 const ROWS: { key: keyof Omit<NotificationPreferences, "whatsapp_consent_at">; label: string; hint: string }[] = [
-  { key: "in_app_enabled", label: "In-app notifications", hint: "Alerts inside REPSI" },
-  { key: "email_enabled", label: "Email", hint: "Receipts, reminders and announcements by email" },
-  { key: "whatsapp_enabled", label: "WhatsApp", hint: "Opt in to receive WhatsApp messages from this gym" },
-  { key: "announcements_enabled", label: "Announcements", hint: "Gym-wide broadcasts (turn off to stop all of them)" },
+  { key: "in_app_enabled", get label() { return tr("communications.in_app_notifications"); }, get hint() { return tr("communications.alerts_inside_repsi"); } },
+  { key: "email_enabled", get label() { return tr("invite.email"); }, get hint() { return tr("communications.receipts_reminders_and_announcements_by_email"); } },
+  { key: "whatsapp_enabled", get label() { return tr("communications.whatsapp"); }, get hint() { return tr("communications.opt_in_to_receive_whatsapp_messages"); } },
+  { key: "announcements_enabled", get label() { return tr("communications.announcements"); }, get hint() { return tr("communications.gym_wide_broadcasts_turn_off_to"); } },
 ];
 
 export function NotificationPreferencesCard() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
@@ -35,10 +37,10 @@ export function NotificationPreferencesCard() {
 
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3" aria-labelledby="pref-title">
-      <h2 id="pref-title" className="text-sm font-semibold text-[var(--text)]">Notification preferences</h2>
+      <h2 id="pref-title" className="text-sm font-semibold text-[var(--text)]">{t("communications.notification_preferences")}</h2>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       {!prefs ? (
-        <p className="text-sm text-[var(--text-muted)]">Loading…</p>
+        <p className="text-sm text-[var(--text-muted)]">{t("communications.loading")}</p>
       ) : (
         <ul className="divide-y divide-[var(--border)]">
           {ROWS.map((r) => (

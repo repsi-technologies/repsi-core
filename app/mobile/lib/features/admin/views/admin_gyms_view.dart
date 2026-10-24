@@ -5,6 +5,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
+import '../../../l10n/l10n.dart';
 
 class AdminGymsView extends StatefulWidget {
   const AdminGymsView({super.key});
@@ -57,7 +58,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Gyms',
+          context.l10n.navGyms,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
@@ -71,7 +72,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
             children: [
               RepsiStaggerItem(
                 index: 0,
-                child: const RepsiSearchField(hintText: 'Search gyms by name or owner...'),
+                child: RepsiSearchField(hintText: context.l10n.searchGymsHint),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -131,7 +132,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
-                                    'Owner: ${gym['owner']} · ${gym['plan']}',
+                                    context.l10n.adminOwnerPlan('${gym['owner']}', '${gym['plan']}'),
                                     style: AppTypography.caption.copyWith(
                                       color: AppColors.textSecondary,
                                       fontSize: 13,

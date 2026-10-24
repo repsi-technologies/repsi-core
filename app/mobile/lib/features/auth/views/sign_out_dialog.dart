@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../providers/auth_provider.dart';
 
+import '../../../l10n/l10n.dart';
 class SignOutDialog extends ConsumerStatefulWidget {
   const SignOutDialog({super.key});
 
@@ -41,7 +42,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
           _isSigningOut = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to sign out. Please try again.')),
+          SnackBar(content: Text(context.l10n.signOutFailed)),
         );
       }
     }
@@ -54,7 +55,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
     return AlertDialog(
       backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
       title: Text(
-        'Sign out?',
+        context.l10n.signOutTitle,
         style: AppTypography.headingSmall.copyWith(
           color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
         ),
@@ -63,7 +64,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Are you sure you want to sign out of your REPSI owner account?',
+            context.l10n.signOutConfirmOwner,
             style: AppTypography.bodyMedium.copyWith(
               color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
             ),
@@ -77,7 +78,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Signing out...',
+              context.l10n.signingOut,
               style: AppTypography.caption.copyWith(
                 color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
               ),
@@ -91,7 +92,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  'Cancel',
+                  context.l10n.commonCancel,
                   style: TextStyle(
                     color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
@@ -107,7 +108,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Sign Out'),
+                child: Text(context.l10n.commonSignOut),
               ),
             ],
     );

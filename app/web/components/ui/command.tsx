@@ -4,6 +4,7 @@ import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n";
 
 const Command = ({
   className,
@@ -26,9 +27,9 @@ const CommandDialog = ({
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
       <DialogPrimitive.Content className="fixed left-[50%] top-[30%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] rounded-[16px] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-lg)] overflow-hidden duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-        <DialogPrimitive.Title className="sr-only">Command Palette</DialogPrimitive.Title>
+        <DialogPrimitive.Title className="sr-only">{tr("ui.command_palette")}</DialogPrimitive.Title>
         <DialogPrimitive.Description className="sr-only">
-          Search for members, pages, and actions
+          {tr("ui.search_for_members_pages_and_actions")}
         </DialogPrimitive.Description>
         <Command>{children}</Command>
       </DialogPrimitive.Content>

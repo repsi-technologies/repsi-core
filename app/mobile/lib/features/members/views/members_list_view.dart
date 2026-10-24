@@ -16,6 +16,7 @@ import '../../../shared/widgets/repsi_search_field.dart';
 import '../../../shared/widgets/repsi_skeleton.dart';
 import '../../../shared/widgets/repsi_status_badge.dart';
 import '../providers/member_provider.dart';
+import '../../../l10n/l10n.dart';
 
 /// Member directory: search (name, phone, email), membership-state filters, paged rows.
 class MembersListView extends ConsumerStatefulWidget {
@@ -26,7 +27,7 @@ class MembersListView extends ConsumerStatefulWidget {
 }
 
 class _MembersListViewState extends ConsumerState<MembersListView> {
-  static const _filters = [('ALL', 'All'), ('ACTIVE', 'Active'), ('EXPIRING', 'Ending soon'), ('EXPIRED', 'Expired'), ('FROZEN', 'Frozen')];
+  List<(String, String)> get _filters => [('ALL', context.l10n.commonAll), ('ACTIVE', context.l10n.commonActive), ('EXPIRING', context.l10n.endingSoon), ('EXPIRED', context.l10n.commonExpired), ('FROZEN', context.l10n.statusFrozen)];
   final _scroll = ScrollController();
   Timer? _debounce;
 
@@ -66,14 +67,14 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
-        title: Text('Members', style: AppTypography.heading.copyWith(color: text, fontWeight: FontWeight.w700)),
+        title: Text(context.l10n.commonMembers, style: AppTypography.heading.copyWith(color: text, fontWeight: FontWeight.w700)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
             child: FilledButton.icon(
               onPressed: _addMember,
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-              label: const Text('Add'),
+              label: Text(context.l10n.commonAdd),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -89,7 +90,7 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
           Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xs, AppSpacing.xl, AppSpacing.md),
             child: RepsiSearchField(
-              hintText: 'Search name, phone or email',
+              hintText: context.l10n.searchMembersHint,
               onChanged: _onSearch,
               onClear: () => notifier.setSearchQuery(''),
             ),
@@ -133,15 +134,15 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
       return ListView(children: [for (var i = 0; i < 8; i++) RepsiSkeleton.memberListItem()]);
     }
     if (state.errorMessage != null && state.members.isEmpty) {
-      return RepsiErrorState(title: "Couldn't load members", message: state.errorMessage!, onRetry: notifier.fetchMembers);
+      return RepsiErrorState(title: context.l10n.errorLoadMembers, message: state.errorMessage!, onRetry: notifier.fetchMembers);
     }
     if (state.members.isEmpty) {
       final filtered = state.searchQuery.isNotEmpty || state.selectedStatusFilter != 'ALL';
       return RepsiEmptyState(
         icon: filtered ? Icons.search_off_rounded : Icons.group_add_outlined,
-        title: filtered ? 'No members match' : 'No members yet',
-        message: filtered ? 'Try another name, phone number or filter.' : 'Add your first member to start tracking memberships and visits.',
-        actionLabel: filtered ? null : 'Add member',
+        title: filtered ? context.l10n.noMembersMatch : context.l10n.noMembersYet,
+        message: filtered ? context.l10n.tryAnotherSearch : context.l10n.addFirstMember,
+        actionLabel: filtered ? null : context.l10n.addMember,
         onAction: filtered ? null : _addMember,
       );
     }
@@ -174,21 +175,21 @@ class _MemberRow extends StatelessWidget {
 
   const _MemberRow({required this.member, required this.isDark});
 
-  String? _membershipLine() {
+  String? _membershipLine(BuildContext context) {
     final end = member.endDate;
     final plan = member.planName;
     if (end == null) return plan;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final when = DateFormat('d MMM').format(end);
-    final ending = end.isBefore(today) ? 'ended $when' : 'ends $when';
+    final ending = end.isBefore(today) ? context.l10n.memberEnded(when) : context.l10n.memberEnds(when);
     return plan == null ? ending[0].toUpperCase() + ending.substring(1) : '$plan · $ending';
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = member.fullName.isEmpty ? 'Member' : member.fullName;
-    final line = _membershipLine() ?? member.phone ?? member.email;
+    final name = member.fullName.isEmpty ? context.l10n.commonMember : member.fullName;
+    final line = _membershipLine(context) ?? member.phone ?? member.email;
     return InkWell(
       onTap: () => context.push('/members/${member.id}'),
       child: Padding(

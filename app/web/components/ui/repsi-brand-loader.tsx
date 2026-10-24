@@ -3,7 +3,7 @@
 import React from "react";
 import { RepsiRLogo } from "@/components/ui/repsi-r-logo";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation, richText } from "@/lib/i18n";
 
 export interface RepsiBrandLoaderProps {
   /** Optional status text (hidden by default when showText is false) */
@@ -67,7 +67,7 @@ export function RepsiBrandLoader({
       className={`${containerBase} ${exitStyle} ${className}`}
       role="status"
       aria-live="polite"
-      aria-label={error ? `Initialization error: ${error}` : t("common.loadingApp", "Loading REPSI")}
+      aria-label={error ? t("ui.initialization_error_error", undefined, { error }) : t("common.loadingApp", "Loading REPSI")}
     >
       <div className="flex flex-col items-center justify-center max-w-sm w-full mx-auto text-center px-4">
         {/* ───────────────────────────────────────────────────────────── */}
@@ -100,7 +100,7 @@ export function RepsiBrandLoader({
                 isDark ? "text-[#9BA1AC]" : "text-[#858890]"
               }`}
             >
-              GYM MANAGEMENT PLATFORM
+              {t("ui.gym_management_platform")}
             </p>
 
             {message && (
@@ -131,9 +131,7 @@ export function RepsiBrandLoader({
                 onClick={onRetry}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#E25822] hover:bg-[#C94715] text-white transition-colors cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E25822]"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Retry
-              </button>
+                {richText(t("ui.refreshcwretry"), { refreshcw: <RefreshCw className="w-3.5 h-3.5" /> })}</button>
             )}
           </div>
         ) : (

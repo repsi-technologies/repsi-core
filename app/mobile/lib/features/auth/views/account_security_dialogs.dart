@@ -5,6 +5,7 @@ import '../../../app/routes/route_names.dart';
 import '../../../core/api/api_error.dart';
 import '../providers/auth_provider.dart';
 
+import '../../../l10n/l10n.dart';
 /// Change-password dialog. Other devices are signed out by the server; this one stays signed in.
 Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async {
   final current = TextEditingController();
@@ -18,7 +19,7 @@ Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async
     barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => AlertDialog(
-        title: const Text('Change password'),
+        title: Text(context.l10n.changePassword),
         content: Form(
           key: formKey,
           child: Column(
@@ -28,18 +29,18 @@ Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async
                 controller: current,
                 obscureText: true,
                 autofillHints: const [AutofillHints.password],
-                decoration: const InputDecoration(labelText: 'Current password'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Enter your current password' : null,
+                decoration: InputDecoration(labelText: context.l10n.currentPassword),
+                validator: (v) => (v == null || v.isEmpty) ? context.l10n.enterCurrentPassword : null,
               ),
               TextFormField(
                 controller: next,
                 obscureText: true,
                 autofillHints: const [AutofillHints.newPassword],
-                decoration: const InputDecoration(labelText: 'New password', helperText: 'At least 8 characters'),
+                decoration: InputDecoration(labelText: context.l10n.newPassword, helperText: context.l10n.commonAtLeast8Chars),
                 validator: (v) {
-                  if (v == null || v.length < 8) return 'Use at least 8 characters';
-                  if (v.length > 72) return 'Use at most 72 characters';
-                  if (v == current.text) return 'Choose a different password';
+                  if (v == null || v.length < 8) return context.l10n.commonUseAtLeast8Chars;
+                  if (v.length > 72) return context.l10n.passwordMax72;
+                  if (v == current.text) return context.l10n.passwordChooseDifferent;
                   return null;
                 },
               ),
@@ -52,7 +53,7 @@ Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async
           ),
         ),
         actions: [
-          TextButton(onPressed: busy ? null : () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: busy ? null : () => Navigator.pop(ctx, false), child: Text(context.l10n.commonCancel)),
           FilledButton(
             onPressed: busy
                 ? null
@@ -72,7 +73,7 @@ Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async
                       });
                     }
                   },
-            child: Text(busy ? 'Saving…' : 'Update'),
+            child: Text(busy ? context.l10n.commonSaving : context.l10n.commonUpdate),
           ),
         ],
       ),
@@ -83,7 +84,7 @@ Future<void> showChangePasswordDialog(BuildContext context, WidgetRef ref) async
   next.dispose();
   if (changed == true && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password updated. Other devices were signed out.')),
+      SnackBar(content: Text(context.l10n.passwordUpdated)),
     );
   }
 }
@@ -101,26 +102,22 @@ Future<void> showDeleteAccountDialog(BuildContext context, WidgetRef ref) async 
     barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => AlertDialog(
-        title: const Text('Delete your account?'),
+        title: Text(context.l10n.deleteAccountTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'This permanently removes your login, profile details and synced activity data. '
-                'Your gym keeps its own member records (attendance and payments) as required for its accounts. '
-                'This cannot be undone.',
-              ),
+              Text(context.l10n.deleteAccountWarning),
               TextField(
                 controller: password,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password (leave empty for Google-only accounts)'),
+                decoration: InputDecoration(labelText: context.l10n.deleteAccountPasswordLabel),
               ),
               TextField(
                 controller: confirm,
                 textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(labelText: 'Type DELETE to confirm'),
+                decoration: InputDecoration(labelText: context.l10n.deleteAccountTypeConfirm),
                 onChanged: (_) => setState(() {}),
               ),
               if (error != null)
@@ -132,7 +129,7 @@ Future<void> showDeleteAccountDialog(BuildContext context, WidgetRef ref) async 
           ),
         ),
         actions: [
-          TextButton(onPressed: busy ? null : () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: busy ? null : () => Navigator.pop(ctx, false), child: Text(context.l10n.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: busy || confirm.text.trim().toUpperCase() != 'DELETE'
@@ -155,7 +152,7 @@ Future<void> showDeleteAccountDialog(BuildContext context, WidgetRef ref) async 
                       });
                     }
                   },
-            child: Text(busy ? 'Deleting…' : 'Delete account'),
+            child: Text(busy ? context.l10n.commonDeleting : context.l10n.deleteAccount),
           ),
         ],
       ),

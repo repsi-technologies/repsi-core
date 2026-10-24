@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 
@@ -20,7 +21,7 @@ class MemberMembershipView extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Membership',
+          context.l10n.commonMembership,
           style: AppTypography.heading.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
@@ -61,7 +62,7 @@ class MemberMembershipView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Premium Plan',
+                                  context.l10n.premiumPlan,
                                   style: AppTypography.headingSmall.copyWith(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w700,
@@ -76,7 +77,7 @@ class MemberMembershipView extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    'Active',
+                                    context.l10n.commonActive,
                                     style: AppTypography.caption.copyWith(
                                       color: AppColors.primaryDark,
                                       fontWeight: FontWeight.w600,
@@ -95,7 +96,7 @@ class MemberMembershipView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Start Date', style: AppTypography.caption),
+                          Text(context.l10n.membershipStartDate, style: AppTypography.caption),
                           Text('26 Aug 2025', style: AppTypography.labelLarge),
                         ],
                       ),
@@ -103,7 +104,7 @@ class MemberMembershipView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Expires', style: AppTypography.caption),
+                          Text(context.l10n.membershipExpires, style: AppTypography.caption),
                           Text('24 Oct 2025', style: AppTypography.labelLarge),
                         ],
                       ),
@@ -131,19 +132,19 @@ class MemberMembershipView extends StatelessWidget {
                   children: [
                     _ActionTile(
                       icon: Icons.refresh_rounded,
-                      title: 'Renew Membership',
+                      title: context.l10n.renewMembership,
                       onTap: () {},
                     ),
                     const SizedBox(height: 10),
                     _ActionTile(
                       icon: Icons.receipt_long_rounded,
-                      title: 'Payment History',
+                      title: context.l10n.paymentHistory,
                       onTap: () {},
                     ),
                     const SizedBox(height: 10),
                     _ActionTile(
                       icon: Icons.info_outline_rounded,
-                      title: 'Plan Details',
+                      title: context.l10n.membershipDetails,
                       onTap: () {},
                     ),
                   ],
@@ -193,3 +194,4 @@ class _ActionTile extends StatelessWidget {
     );
   }
 }
+

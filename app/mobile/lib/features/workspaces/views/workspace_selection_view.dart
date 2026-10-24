@@ -10,6 +10,7 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/models/workspace_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/workspace_provider.dart';
+import '../../../l10n/l10n.dart';
 
 class WorkspaceSelectionView extends ConsumerStatefulWidget {
   const WorkspaceSelectionView({super.key});
@@ -46,7 +47,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
     final user = ref.watch(authProvider).user;
     final ownerName = (user?.fullName.isNotEmpty == true)
         ? user!.fullName
-        : (user?.email.split('@').first ?? 'Owner');
+        : (user?.email.split('@').first ?? context.l10n.commonOwner);
     final workspaceState = ref.watch(workspaceProvider);
     final workspaces = workspaceState.workspaces;
 
@@ -83,7 +84,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                     ),
                     IconButton(
                       icon: const Icon(Icons.logout_rounded, color: AppColors.textSecondary),
-                      tooltip: 'Log out',
+                      tooltip: context.l10n.commonSignOut,
                       onPressed: () {
                         ref.read(authProvider.notifier).logout();
                       },
@@ -100,7 +101,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Good morning, $ownerName',
+                      context.l10n.workspaceGreeting(ownerName),
                       style: AppTypography.caption.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -109,7 +110,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Choose your workspace',
+                      context.l10n.chooseGym,
                       style: AppTypography.heading.copyWith(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
@@ -118,7 +119,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Select which gym location you would like to view and manage today.',
+                      context.l10n.chooseGymSubtitle,
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -150,12 +151,12 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       const Icon(Icons.fitness_center_outlined, size: 40, color: AppColors.textMuted),
                       const SizedBox(height: 12),
                       Text(
-                        'No gym workspaces found',
+                        context.l10n.noGymsFound,
                         style: AppTypography.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Register your gym on repsi.app to activate your workspace.',
+                        context.l10n.registerGymOnWeb,
                         textAlign: TextAlign.center,
                         style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
                       ),
@@ -210,7 +211,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        gym.isActive ? 'Active' : 'Suspended',
+                                        gym.isActive ? context.l10n.commonActive : context.l10n.commonSuspended,
                                         style: AppTypography.caption.copyWith(
                                           color: AppColors.primaryDark,
                                           fontWeight: FontWeight.w700,
@@ -221,7 +222,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                   ),
                                 ),
                                 Text(
-                                  gym.city ?? 'Gym Workspace',
+                                  gym.city ?? context.l10n.gymWorkspace,
                                   style: AppTypography.caption.copyWith(
                                     color: AppColors.textMuted,
                                     fontWeight: FontWeight.w500,
@@ -240,7 +241,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Slug: ${gym.slug}',
+                              context.l10n.workspaceSlug(gym.slug),
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
@@ -261,7 +262,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        'Open Workspace',
+                                        context.l10n.openWorkspace,
                                         style: AppTypography.bodySmall.copyWith(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
@@ -294,7 +295,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                   child: Column(
                     children: [
                       Text(
-                        'Want to register another gym location?',
+                        context.l10n.registerAnotherGym,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w600,
@@ -303,7 +304,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Gym workspaces must be created on our website repsi.app from a desktop computer.',
+                        context.l10n.createGymOnDesktop,
                         textAlign: TextAlign.center,
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,

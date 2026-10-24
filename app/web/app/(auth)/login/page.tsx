@@ -11,11 +11,13 @@ import { OtpVerification } from "@/components/auth/otp-verification";
 import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi, safeRedirect, type SessionToken } from "@/lib/auth-client";
 import { isValidPhone, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 const inputClass =
   "flex h-10 w-full rounded-[8px] border bg-[var(--surface)] px-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[var(--ring)]";
 
 function LoginForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useSearchParams();
   const redirect = safeRedirect(params.get("redirect"));
@@ -48,7 +50,7 @@ function LoginForm() {
     e.preventDefault();
     setError("");
     if (!email.trim() || !password) {
-      setError("Enter your email or phone number and your password.");
+      setError(t("login.enter_your_email_or_phone_number"));
       return;
     }
     setLoading(true);
@@ -56,7 +58,7 @@ function LoginForm() {
       const looksLikePhone = !email.includes("@");
       finish(await authApi.login(email.trim(), password, looksLikePhone ? "IN" : undefined));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Sign-in failed. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("login.sign_in_failed_please_try_again"));
       setLoading(false);
     }
   }
@@ -66,7 +68,7 @@ function LoginForm() {
     setError("");
     const { national } = splitPhone(phone, country as never);
     if (!national || !isValidPhone(phone, country as never)) {
-      setError("Enter a valid mobile number for the selected country.");
+      setError(t("login.enter_a_valid_mobile_number_for"));
       return;
     }
     setLoading(true);
@@ -77,7 +79,7 @@ function LoginForm() {
       setTestMode(res.test_mode);
       setOtpError("");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't send the code. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("login.couldn_t_send_the_code_please"));
     } finally {
       setLoading(false);
     }
@@ -91,7 +93,7 @@ function LoginForm() {
       const res = await authApi.requestOtp(otpPhone, country);
       setResendIn(res.resend_in);
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Couldn't resend the code.");
+      setOtpError(err instanceof ApiError ? err.message : t("login.couldn_t_resend_the_code"));
     } finally {
       setResending(false);
     }
@@ -114,10 +116,15 @@ function LoginForm() {
       );
       router.push("/signup?continue=1");
     } catch (err) {
-      setOtpError(err instanceof ApiError ? err.message : "Verification failed. Please try again.");
+      setOtpError(err instanceof ApiError ? err.message : t("login.verification_failed_please_try_again"));
       setVerifying(false);
     }
   }
+
+  const isGoogleConfigured = Boolean(
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID &&
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== "placeholder"
+  );
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -126,18 +133,26 @@ function LoginForm() {
       try {
         finish(await authApi.google(tokenResponse.access_token));
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Google sign-in failed. Please try again.");
+        setError(err instanceof ApiError ? err.message : t("login.google_sign_in_failed_please_try"));
         setLoading(false);
       }
     },
-    onError: () => setError("Google sign-in was cancelled or failed."),
+    onError: () => setError(t("login.google_sign_in_was_cancelled_or")),
   });
+
+  function onGoogleClick() {
+    if (!isGoogleConfigured) {
+      setError(t("login.google_sign_in_is_not_configured"));
+      return;
+    }
+    handleGoogleLogin();
+  }
 
   return (
     <div className="w-full max-w-[400px]">
       <div className="mb-6 text-center">
-        <h1 className="text-[28px] font-bold tracking-tight text-[var(--text)] sm:text-[30px]">Welcome back</h1>
-        <p className="mt-1.5 text-[15px] text-[var(--text-muted)]">Sign in to your REPSI workspace</p>
+        <h1 className="text-[28px] font-bold tracking-tight text-[var(--text)] sm:text-[30px]">{t("login.welcome_back")}</h1>
+        <p className="mt-1.5 text-[15px] text-[var(--text-muted)]">{t("login.sign_in_to_your_repsi_workspace")}</p>
       </div>
 
       {otpPhone ? (
@@ -162,7 +177,7 @@ function LoginForm() {
         <div className="space-y-4">
           <button
             type="button"
-            onClick={() => handleGoogleLogin()}
+            onClick={onGoogleClick}
             disabled={loading}
             className="flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--text)] shadow-xs transition-colors hover:bg-[var(--surface-hover)] disabled:opacity-60"
           >
@@ -172,7 +187,7 @@ function LoginForm() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
-            Continue with Google
+            {t("login.continue_with_google")}
           </button>
 
           <div className="relative my-5">
@@ -180,14 +195,14 @@ function LoginForm() {
               <div className="w-full border-t border-[var(--border)]" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-[#F7F9F8] px-3 text-[var(--text-muted)]">or sign in with</span>
+              <span className="bg-[#F7F9F8] px-3 text-[var(--text-muted)]">{t("login.or_sign_in_with")}</span>
             </div>
           </div>
 
-          <div role="tablist" aria-label="Sign-in method" className="grid grid-cols-2 gap-1 rounded-[10px] border border-[var(--border)] bg-[var(--background)] p-1">
+          <div role="tablist" aria-label={t("login.sign_in_method")} className="grid grid-cols-2 gap-1 rounded-[10px] border border-[var(--border)] bg-[var(--background)] p-1">
             {([
-              { id: "email", label: "Email", icon: Mail },
-              { id: "phone", label: "WhatsApp OTP", icon: MessageCircle },
+              { id: "email", label: t("login.email"), icon: Mail },
+              { id: "phone", label: t("login.whatsapp_otp"), icon: MessageCircle },
             ] as const).map((tab) => (
               <button
                 key={tab.id}
@@ -223,7 +238,7 @@ function LoginForm() {
             <form onSubmit={handlePasswordLogin} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[var(--text)]">
-                  Email or phone
+                  {t("login.email_or_phone")}
                 </label>
                 <input
                   id="email"
@@ -238,10 +253,10 @@ function LoginForm() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <label htmlFor="password" className="text-sm font-medium text-[var(--text)]">
-                    Password
+                    {t("login.password")}
                   </label>
                   <Link href="/forgot-password" className="text-xs text-[var(--text-muted)] hover:text-[var(--primary-dark)]">
-                    Forgot password?
+                    {t("login.forgot_password")}
                   </Link>
                 </div>
                 <div className="relative">
@@ -258,19 +273,19 @@ function LoginForm() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? t("login.hide_password") : t("login.show_password")}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
-              <SubmitButton loading={loading} label="Sign in" />
+              <SubmitButton loading={loading} label={t("auth.signIn")} />
             </form>
           ) : (
             <form onSubmit={sendOtp} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="login-phone" className="mb-1.5 block text-sm font-medium text-[var(--text)]">
-                  Mobile number
+                  {t("login.mobile_number")}
                 </label>
                 <PhoneInput
                   id="login-phone"
@@ -281,18 +296,18 @@ function LoginForm() {
                   }}
                   onCountryChange={(c) => setCountry(c.code)}
                 />
-                <p className="mt-1.5 text-xs text-[var(--text-muted)]">We&apos;ll send a one-time code to this number on WhatsApp.</p>
+                <p className="mt-1.5 text-xs text-[var(--text-muted)]">{t("login.we_ll_send_a_one_time")}</p>
               </div>
-              <SubmitButton loading={loading} label="Send code" />
+              <SubmitButton loading={loading} label={t("login.send_code")} />
             </form>
           )}
         </div>
       )}
 
       <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-        Don&apos;t have an account?{" "}
+        {t("login.don_t_have_an_account")}{" "}
         <Link href="/signup" className="font-semibold text-[var(--text)] hover:text-[var(--primary-dark)]">
-          Create one
+          {t("login.create_one")}
         </Link>
       </p>
     </div>
@@ -300,13 +315,14 @@ function LoginForm() {
 }
 
 function SubmitButton({ loading, label }: { loading: boolean; label: string }) {
+  const { t } = useTranslation();
   return (
     <button
       type="submit"
       disabled={loading}
       className="mt-1 inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-xs transition-colors hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading" /> : (
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-label={t("login.loading")} /> : (
         <>
           {label}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden />

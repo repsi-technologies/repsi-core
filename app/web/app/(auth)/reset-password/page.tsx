@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { ApiError, applySession, authApi } from "@/lib/auth-client";
+import { useTranslation } from "@/lib/i18n";
 
 function ResetForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const token = useSearchParams().get("token") || "";
   const [password, setPassword] = useState("");
@@ -17,15 +19,15 @@ function ResetForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 8) return setError("Use at least 8 characters.");
-    if (password !== confirm) return setError("Passwords don't match.");
+    if (password.length < 8) return setError(t("reset_password.use_at_least_8_characters"));
+    if (password !== confirm) return setError(t("reset_password.passwords_don_t_match"));
     setLoading(true);
     setError("");
     try {
       const session = await authApi.resetPassword(token, password);
       router.replace(applySession(session));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't reset your password. Please try again.");
+      setError(err instanceof ApiError ? err.message : t("reset_password.couldn_t_reset_your_password_please"));
       setLoading(false);
     }
   }
@@ -33,9 +35,9 @@ function ResetForm() {
   if (!token) {
     return (
       <div className="w-full max-w-[400px] rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 text-center text-sm">
-        This reset link is incomplete.{" "}
+        {t("reset_password.this_reset_link_is_incomplete")}{" "}
         <Link href="/forgot-password" className="font-medium text-[var(--primary-dark)] hover:underline">
-          Request a new one
+          {t("reset_password.request_a_new_one")}
         </Link>
         .
       </div>
@@ -47,36 +49,36 @@ function ResetForm() {
 
   return (
     <div className="w-full max-w-[400px] space-y-6">
-      <h1 className="text-center text-2xl font-bold tracking-tight text-[var(--text)]">Choose a new password</h1>
+      <h1 className="text-center text-2xl font-bold tracking-tight text-[var(--text)]">{t("reset_password.choose_a_new_password")}</h1>
       <form onSubmit={handleSubmit} noValidate className="space-y-4 rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         {error && (
           <div role="alert" className="rounded-[8px] border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">
             {error}{" "}
             {error.includes("expired") && (
-              <Link href="/forgot-password" className="font-semibold underline">Request a new link</Link>
+              <Link href="/forgot-password" className="font-semibold underline">{t("reset_password.request_a_new_link")}</Link>
             )}
           </div>
         )}
         <div>
-          <label htmlFor="password" className="mb-1.5 block text-sm font-medium">New password</label>
+          <label htmlFor="password" className="mb-1.5 block text-sm font-medium">{t("reset_password.new_password")}</label>
           <div className="relative">
             <input id="password" type={show ? "text" : "password"} autoComplete="new-password" value={password}
               onChange={(e) => setPassword(e.target.value)} className={`${field} pr-10`} />
-            <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"}
+            <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? t("reset_password.hide_password") : t("reset_password.show_password")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
               {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
         <div>
-          <label htmlFor="confirm" className="mb-1.5 block text-sm font-medium">Confirm password</label>
+          <label htmlFor="confirm" className="mb-1.5 block text-sm font-medium">{t("reset_password.confirm_password")}</label>
           <input id="confirm" type={show ? "text" : "password"} autoComplete="new-password" value={confirm}
             onChange={(e) => setConfirm(e.target.value)} className={field} />
         </div>
         <button type="submit" disabled={loading}
           className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] disabled:opacity-60">
           {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-          Save password & sign in
+          {t("reset_password.save_password_sign_in")}
         </button>
       </form>
     </div>

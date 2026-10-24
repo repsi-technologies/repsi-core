@@ -6,6 +6,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_card.dart';
+import '../../../l10n/l10n.dart';
 
 class TrainerSessionsView extends StatefulWidget {
   const TrainerSessionsView({super.key});
@@ -37,7 +38,7 @@ class _TrainerSessionsViewState extends State<TrainerSessionsView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Schedule',
+          context.l10n.navSchedule,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
       ),
@@ -148,11 +149,11 @@ class _TrainerSessionsViewState extends State<TrainerSessionsView> {
                             const Spacer(),
                             if (isStart)
                               RepsiButton(
-                                text: 'Start',
+                                text: context.l10n.start,
                                 size: RepsiButtonSize.small,
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Starting session with ${session['client']}')),
+                                    SnackBar(content: Text(context.l10n.trainerSessionStarting('${session['client']}'))),
                                   );
                                 },
                               )
@@ -165,7 +166,7 @@ class _TrainerSessionsViewState extends State<TrainerSessionsView> {
                                   border: Border.all(color: AppColors.border),
                                 ),
                                 child: Text(
-                                  'Upcoming',
+                                  context.l10n.upcoming,
                                   style: AppTypography.caption.copyWith(
                                     color: AppColors.textSecondary,
                                     fontWeight: FontWeight.w600,

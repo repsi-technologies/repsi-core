@@ -35,6 +35,7 @@ import {
 } from "@/lib/utils";
 import type { Member, MemberStatus, SortDirection } from "@/types";
 import { Users } from "lucide-react";
+import { useTranslation, richText } from "@/lib/i18n";
 
 // ─── Status Badge Mapping ─────────────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ function RowActions({
   member: Member;
   onDelete?: (id: string, name: string) => void;
 }) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const workspace = getWorkspaceFromPath(pathname);
 
@@ -144,40 +146,32 @@ function RowActions({
           variant="ghost"
           size="icon-sm"
           className="opacity-0 group-hover/row:opacity-100 transition-opacity cursor-pointer"
-          aria-label={`Actions for ${member.name}`}
+          aria-label={t("members.actions_for_name", undefined, { name: member.name })}
         >
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuLabel>Member actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("members.member_actions")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={`/${workspace}/members/${member.id}`} className="cursor-pointer">
-            <Eye className="mr-2 h-4 w-4" />
-            View profile
-          </Link>
+            {richText(t("members.eyeview_profile"), { eye: <Eye className="mr-2 h-4 w-4" /> })}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/${workspace}/members/${member.id}`} className="cursor-pointer">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit member
-          </Link>
+            {richText(t("members.editedit_member"), { edit: <Edit className="mr-2 h-4 w-4" /> })}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/${workspace}/members/${member.id}?tab=membership`} className="cursor-pointer">
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Renew membership
-          </Link>
+            {richText(t("members.refreshccwrenew_membership"), { refreshccw: <RefreshCcw className="mr-2 h-4 w-4" /> })}</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-rose-600 dark:text-rose-400 focus:bg-rose-50 dark:focus:bg-rose-950/40 focus:text-rose-700 cursor-pointer"
           onClick={() => onDelete?.(member.id, member.name)}
         >
-          <Trash2 className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
-          Delete member & user
-        </DropdownMenuItem>
+          {richText(t("members.trash2delete_member_user"), { trash2: <Trash2 className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" /> })}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -197,6 +191,7 @@ interface MembersTableProps {
 }
 
 export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember, serverSort, onServerSortChange, footer }: MembersTableProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const workspace = getWorkspaceFromPath(pathname);
   const [localSortColumn, setSortColumn] = useState("name");
@@ -266,8 +261,8 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
         <EmptyState
           mascotPose="members"
           speechBubble="Ready to add your members?"
-          title="No members yet"
-          description="Start building your member list. Your members will appear here once you add them."
+          title={t("members.no_members_yet")}
+          description={t("members.start_building_your_member_list_your")}
           action={{
             label: "+ Add your first member",
             onClick: onAddMember,
@@ -301,7 +296,7 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
           <thead className="border-b border-[var(--border)] bg-[var(--background)]">
             <tr>
               <ColHeader
-                label="Member"
+                label={t("pay.member")}
                 column="name"
                 activeColumn={sortColumn}
                 direction={sortDirection}
@@ -309,14 +304,14 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
                 className="w-64"
               />
               <ColHeader
-                label="Plan"
+                label={t("members.plan")}
                 column="plan"
                 activeColumn={sortColumn}
                 direction={sortDirection}
                 onSort={handleSort}
               />
               <ColHeader
-                label="Status"
+                label={t("common.status")}
                 column="status"
                 activeColumn={sortColumn}
                 direction={sortDirection}
@@ -324,30 +319,30 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
               />
               <th className="px-4 py-3 text-left">
                 <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                  Repsi Access
+                  {t("members.repsi_access")}
                 </span>
               </th>
               <th className="px-4 py-3 text-left">
                 <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                  Phone
+                  {t("members.phone")}
                 </span>
               </th>
               <ColHeader
-                label="Joined"
+                label={t("members.joined")}
                 column="joined"
                 activeColumn={sortColumn}
                 direction={sortDirection}
                 onSort={handleSort}
               />
               <ColHeader
-                label="Expires"
+                label={t("members.expires")}
                 column="expiry"
                 activeColumn={sortColumn}
                 direction={sortDirection}
                 onSort={handleSort}
               />
               <ColHeader
-                label="Last Payment"
+                label={t("members.last_payment")}
                 column="payment"
                 activeColumn={sortColumn}
                 direction={sortDirection}
@@ -403,12 +398,10 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
                 <td className="px-4 py-3">
                   {member.repsiAccess === "Connected" || member.userId ? (
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> Connected
-                    </span>
+                      {richText(t("members.spanconnected"), { span: <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> })}</span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-0.5 rounded-full border border-zinc-200 dark:border-zinc-700/60">
-                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" /> Not connected
-                    </span>
+                      {richText(t("members.spannot_connected"), { span: <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" /> })}</span>
                   )}
                 </td>
 
@@ -463,8 +456,7 @@ export function MembersTable({ members, onAddMember, onImportCsv, onDeleteMember
       <div className="px-4 py-3 border-t border-[var(--border)] bg-[var(--background)]">
         {footer ?? (
           <p className="text-xs text-[var(--text-muted)]">
-            Showing {sorted.length} member{sorted.length !== 1 ? "s" : ""}
-          </p>
+            {t("members.showing_members", undefined, { count: sorted.length })}</p>
         )}
       </div>
     </div>

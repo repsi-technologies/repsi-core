@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_white_logo.dart';
 import '../../auth/providers/auth_provider.dart';
 
+import '../../../l10n/l10n.dart';
 /// Brand splash shown while the saved session is restored. It never blocks: a minimum display
 /// time keeps the animation from flashing, and a safety timer guarantees we move on.
 class SplashView extends ConsumerStatefulWidget {
@@ -162,7 +163,7 @@ class _SplashViewState extends ConsumerState<SplashView> with SingleTickerProvid
                               ? TextButton(
                                   onPressed: _navigate,
                                   child: Text(
-                                    'Taking longer than usual · Tap to continue',
+                                    context.l10n.splashSlow,
                                     textAlign: TextAlign.center,
                                     style: AppTypography.caption.copyWith(color: Colors.white70),
                                   ),
@@ -170,7 +171,7 @@ class _SplashViewState extends ConsumerState<SplashView> with SingleTickerProvid
                               : FadeTransition(
                                   opacity: _taglineFade,
                                   child: Text(
-                                    'Your gym. Your progress.',
+                                    context.l10n.appTagline,
                                     textAlign: TextAlign.center,
                                     style: AppTypography.caption.copyWith(
                                       color: Colors.white54,

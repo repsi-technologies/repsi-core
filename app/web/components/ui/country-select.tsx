@@ -7,6 +7,7 @@ import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCountryOptions, type CountryOption } from "@/lib/countries";
 import type { CountryCode } from "libphonenumber-js/min";
+import { useTranslation } from "@/lib/i18n";
 
 interface CountrySelectProps {
   value: CountryCode | string | null | undefined;
@@ -34,6 +35,7 @@ export function CountrySelect({
   placeholder = "Select country",
   ...rest
 }: CountrySelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const options = useMemo(() => getCountryOptions(), []);
   const selected = options.find((o) => o.code === value);
@@ -47,7 +49,7 @@ export function CountrySelect({
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-describedby={invalid && id ? `${id}-error` : undefined}
-          aria-label={rest["aria-label"] || (display === "dial" ? "Country calling code" : "Country")}
+          aria-label={rest["aria-label"] || (display === "dial" ? t("ui.country_calling_code") : t("ui.country"))}
           className={cn(
             display === "dial"
               ? "flex h-full items-center gap-1.5 pl-3 pr-2 text-sm font-medium text-[var(--text)] outline-none focus-visible:bg-[var(--surface-hover)] disabled:opacity-50"
@@ -87,13 +89,13 @@ export function CountrySelect({
               <Search className="h-4 w-4 shrink-0 text-[var(--text-muted)]" aria-hidden />
               <Command.Input
                 autoFocus
-                placeholder="Search country or code"
+                placeholder={t("ui.search_country_or_code")}
                 className="h-10 w-full bg-transparent text-sm outline-none placeholder:text-[var(--text-muted)]"
               />
             </div>
             <Command.List className="max-h-[min(300px,50vh)] overflow-y-auto overscroll-contain p-1">
               <Command.Empty className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">
-                No country found.
+                {t("ui.no_country_found")}
               </Command.Empty>
               {options.map((o) => (
                 <Command.Item

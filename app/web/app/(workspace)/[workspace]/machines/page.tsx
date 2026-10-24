@@ -3,6 +3,7 @@
 import { useState, use, useEffect } from "react";
 import { repsiApi } from "@/lib/api";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useTranslation } from "@/lib/i18n";
 import { 
   Dumbbell, 
   Plus, 
@@ -33,6 +34,7 @@ export interface GymMachine {
 export default function MachinesManagementPage(props: { params: Promise<{ workspace: string }> }) {
   const params = use(props.params);
   const workspace = params.workspace || "apex-fitness";
+  const { t } = useTranslation();
   const [machines, setMachines] = useState<GymMachine[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,9 +131,11 @@ export default function MachinesManagementPage(props: { params: Promise<{ worksp
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Equipment & Machine Management</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
+            {t("machines.title", "Gym Machines & Equipment")}
+          </h1>
           <p className="text-xs text-[var(--text-muted)] mt-0.5">
-            Track machine status, maintenance logs, and muscle group instructions across {workspace}.
+            {t("machines.subtitle", "Track floor assets, maintenance lifecycle, warranties, and member usage.")}
           </p>
         </div>
 
@@ -140,28 +144,36 @@ export default function MachinesManagementPage(props: { params: Promise<{ worksp
           className="inline-flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold hover:bg-[var(--primary-hover)] transition-all shadow-sm cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          <span>Add New Machine</span>
+          <span>{t("machines.addMachine", "Add New Machine")}</span>
         </button>
       </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-1">
-          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Total Equipment</span>
+          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            {t("machines.totalEquipment", "Total Equipment")}
+          </span>
           <div className="text-2xl font-bold text-[var(--text)]">{machines.length}</div>
           <span className="text-[10px] text-emerald-600 font-medium">100% Asset Tracked</span>
         </div>
 
         <div className="rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-1">
-          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Available Now</span>
+          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            {t("machines.availableNow", "Available Now")}
+          </span>
           <div className="text-2xl font-bold text-emerald-600">
             {machines.filter((m) => m.status === "Available").length}
           </div>
-          <span className="text-[10px] text-[var(--text-muted)]">Ready for workout</span>
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {t("machines.readyForWorkout", "Ready for workout")}
+          </span>
         </div>
 
         <div className="rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-1">
-          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Currently In Use</span>
+          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            {t("machines.currentlyInUse", "Currently In Use")}
+          </span>
           <div className="text-2xl font-bold text-blue-600">
             {machines.filter((m) => m.status === "In Use").length}
           </div>
@@ -169,11 +181,15 @@ export default function MachinesManagementPage(props: { params: Promise<{ worksp
         </div>
 
         <div className="rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-1">
-          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Maintenance / Out</span>
+          <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            {t("machines.underMaintenance", "Under Maintenance")}
+          </span>
           <div className="text-2xl font-bold text-amber-600">
             {machines.filter((m) => m.status === "Maintenance" || m.status === "Out of Service").length}
           </div>
-          <span className="text-[10px] text-amber-600 font-medium">Attention needed</span>
+          <span className="text-[10px] text-amber-600 font-medium">
+            {t("machines.needsService", "Needs service or repair")}
+          </span>
         </div>
       </div>
 

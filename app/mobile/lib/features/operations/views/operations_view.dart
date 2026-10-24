@@ -22,6 +22,7 @@ import '../../../shared/widgets/repsi_skeleton.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../../members/providers/member_provider.dart';
 import '../providers/operations_provider.dart';
+import '../../../l10n/l10n.dart';
 
 /// Front desk: today's attendance with check-in/check-out, the sales pipeline, the gym's live
 /// check-in QR and the team. Everything is read from and written to the API.
@@ -38,11 +39,11 @@ class OperationsView extends ConsumerWidget {
         backgroundColor: canvas,
         appBar: AppBar(
           backgroundColor: canvas,
-          title: Text('Front desk', style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
-          bottom: const TabBar(
+          title: Text(context.l10n.commonFrontDesk, style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
+          bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            tabs: [Tab(text: 'Attendance'), Tab(text: 'Leads'), Tab(text: 'Check-in QR'), Tab(text: 'Team')],
+            tabs: [Tab(text: context.l10n.commonAttendance), Tab(text: context.l10n.leads), Tab(text: context.l10n.checkInQr), Tab(text: context.l10n.team)],
           ),
         ),
         body: const TabBarView(children: [_AttendanceTab(), _LeadsTab(), _QrTab(), _TeamTab()]),
@@ -56,7 +57,7 @@ Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSeco
 Color _surface(bool d) => d ? AppColors.darkSurface : AppColors.surface;
 Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
 
-String _err(Object e) => e is ApiError ? e.message : 'Something went wrong. Please try again.';
+String _err(Object e) => e is ApiError ? e.message : L10n.current.commonSomethingWentWrong;
 
 Widget _skeletonList() => ListView(children: [for (var i = 0; i < 5; i++) RepsiSkeleton.memberListItem()]);
 
@@ -95,16 +96,16 @@ class _AttendanceTab extends ConsumerWidget {
               loading: () => const SizedBox(height: 52),
               error: (_, __) => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Text("Couldn't load today's numbers.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+                child: Text(context.l10n.errorLoadToday, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
               ),
               data: (t) => IntrinsicHeight(
                 child: Row(
                   children: [
-                    _Figure('Inside now', '${t.inside}'),
+                    _Figure(context.l10n.insideNow, '${t.inside}'),
                     VerticalDivider(color: _border(isDark), width: 1),
-                    _Figure('Today', '${t.total}'),
+                    _Figure(context.l10n.commonToday, '${t.total}'),
                     VerticalDivider(color: _border(isDark), width: 1),
-                    _Figure('Avg. stay', t.averageMinutes > 0 ? '${t.averageMinutes}m' : '—'),
+                    _Figure(context.l10n.avgStay, t.averageMinutes > 0 ? '${t.averageMinutes}m' : '—'),
                   ],
                 ),
               ),
@@ -112,21 +113,21 @@ class _AttendanceTab extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           RepsiButton(
-            text: 'Check in a member',
+            text: context.l10n.checkInMember,
             isFullWidth: true,
             leadingIcon: const Icon(Icons.how_to_reg_rounded, size: 20, color: Colors.white),
-            onPressed: () => RepsiBottomSheet.show<void>(context: context, title: 'Check in', child: const _CheckInSheet()),
+            onPressed: () => RepsiBottomSheet.show<void>(context: context, title: context.l10n.commonCheckIn, child: const _CheckInSheet()),
           ),
           const SizedBox(height: AppSpacing.xxl),
-          Text('In the gym now', style: AppTypography.sectionHeading.copyWith(color: _text(isDark), fontSize: 17)),
+          Text(context.l10n.commonInTheGymNow, style: AppTypography.sectionHeading.copyWith(color: _text(isDark), fontSize: 17)),
           const SizedBox(height: AppSpacing.md),
           inside.when(
             loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
-            error: (e, _) => RepsiErrorState(title: "Couldn't load attendance", message: _err(e), onRetry: refresh),
+            error: (e, _) => RepsiErrorState(title: context.l10n.errorLoadAttendance, message: _err(e), onRetry: refresh),
             data: (people) => people.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
-                    child: Text('No one is checked in right now.',
+                    child: Text(context.l10n.commonNoOneCheckedIn,
                         textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
                   )
                 : Container(
@@ -189,7 +190,7 @@ class _InsideRowState extends ConsumerState<_InsideRow> {
     try {
       await ref.read(frontDeskActionsProvider).checkOut(widget.person.attendanceId);
       HapticFeedback.lightImpact();
-      messenger.showSnackBar(SnackBar(content: Text('${widget.person.name} checked out')));
+      messenger.showSnackBar(SnackBar(content: Text(L10n.current.opsCheckedOut(widget.person.name))));
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(_err(e))));
       if (mounted) setState(() => _busy = false);
@@ -207,11 +208,11 @@ class _InsideRowState extends ConsumerState<_InsideRow> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
-      subtitle: Text('In at ${DateFormat.jm().format(p.checkIn)} · ${p.duration}',
+      subtitle: Text(context.l10n.opsInAt(DateFormat.jm().format(p.checkIn), p.duration),
           style: AppTypography.caption.copyWith(color: _secondary(isDark))),
       trailing: _busy
           ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-          : TextButton(onPressed: _checkOut, child: const Text('Check out')),
+          : TextButton(onPressed: _checkOut, child: Text(context.l10n.commonCheckOut)),
     );
   }
 }
@@ -265,7 +266,7 @@ class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
       HapticFeedback.mediumImpact();
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${m.fullName} checked in')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.current.opsCheckedIn(m.fullName))));
     } catch (e) {
       // Access rules (expired membership, already inside) come back as a clear message.
       if (mounted) setState(() => _error = _err(e));
@@ -282,7 +283,7 @@ class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          RepsiSearchField(hintText: 'Search name or phone', onChanged: _search),
+          RepsiSearchField(hintText: context.l10n.searchNameOrPhone, onChanged: _search),
           if (_error != null) ...[
             const SizedBox(height: AppSpacing.md),
             Text(_error!, style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : AppColors.error)),
@@ -293,7 +294,7 @@ class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
                 ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 : _results.isEmpty
                     ? Center(
-                        child: Text('Type at least two letters of a name or phone number.',
+                        child: Text(context.l10n.typeTwoLetters,
                             textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
                       )
                     : ListView.builder(
@@ -307,7 +308,7 @@ class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
                             subtitle: Text(m.status.displayName, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
                             trailing: _busyId == m.id
                                 ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                                : FilledButton.tonal(onPressed: _busyId == null ? () => _checkIn(m) : null, child: const Text('Check in')),
+                                : FilledButton.tonal(onPressed: _busyId == null ? () => _checkIn(m) : null, child: Text(context.l10n.commonCheckIn)),
                           );
                         },
                       ),
@@ -344,7 +345,8 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
             itemCount: leadStages.length,
             separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
             itemBuilder: (context, i) {
-              final (key, label) = leadStages[i];
+              final (key, _) = leadStages[i];
+              final label = leadStageLabel(key);
               final selected = key == _stage;
               return ChoiceChip(
                 label: Text(label),
@@ -364,7 +366,7 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
           child: leads.when(
             loading: _skeletonList,
             error: (e, _) => RepsiErrorState(
-                title: "Couldn't load leads", message: _err(e), onRetry: () => ref.invalidate(leadsProvider(_stage))),
+                title: context.l10n.errorLoadLeads, message: _err(e), onRetry: () => ref.invalidate(leadsProvider(_stage))),
             data: (list) => RefreshIndicator(
               color: AppColors.primary,
               onRefresh: () async => ref.invalidate(leadsProvider(_stage)),
@@ -373,9 +375,9 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
                       const SizedBox(height: AppSpacing.xxxl),
                       RepsiEmptyState(
                         icon: Icons.person_search_outlined,
-                        title: _stage.isEmpty ? 'No leads yet' : 'No leads in this stage',
-                        message: 'Capture walk-ins and enquiries so nobody slips through.',
-                        actionLabel: 'Add lead',
+                        title: _stage.isEmpty ? context.l10n.noLeadsYet : context.l10n.noLeadsInStage,
+                        message: context.l10n.leadsEmptyDesc,
+                        actionLabel: context.l10n.addLead,
                         onAction: () => _addLead(context),
                       ),
                     ])
@@ -393,7 +395,7 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, AppSpacing.md),
             child: RepsiButton(
-              text: 'Add lead',
+              text: context.l10n.addLead,
               isFullWidth: true,
               variant: RepsiButtonVariant.outline,
               leadingIcon: Icon(Icons.add_rounded, size: 20, color: _text(isDark)),
@@ -406,7 +408,7 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
   }
 
   void _addLead(BuildContext context) {
-    RepsiBottomSheet.show<void>(context: context, title: 'New lead', child: const _AddLeadSheet());
+    RepsiBottomSheet.show<void>(context: context, title: context.l10n.newLead, child: const _AddLeadSheet());
   }
 }
 
@@ -423,7 +425,7 @@ class _LeadRow extends StatelessWidget {
     final meta = [
       if (lead.interest != null) lead.interest!,
       lead.source,
-      if (followUp != null && lead.status != 'lost') 'follow up ${DateFormat('d MMM').format(followUp)}',
+      if (followUp != null && lead.status != 'lost') context.l10n.opsFollowUp(DateFormat('d MMM').format(followUp)),
     ].join(' · ');
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 2),
@@ -463,7 +465,16 @@ class _AddLeadSheetState extends ConsumerState<_AddLeadSheet> {
   String _source = 'Walk-in';
   bool _busy = false;
 
+  // Stored on the lead as-is (the web dashboard reports on these values); only the chip label is translated.
   static const _sources = ['Walk-in', 'Instagram', 'Website', 'Referral', 'Google', 'Phone call'];
+
+  String _sourceLabel(String s) => switch (s) {
+        'Walk-in' => context.l10n.sourceWalkIn,
+        'Website' => context.l10n.sourceWebsite,
+        'Referral' => context.l10n.sourceReferral,
+        'Phone call' => context.l10n.sourcePhoneCall,
+        _ => s,
+      };
 
   @override
   void dispose() {
@@ -480,7 +491,7 @@ class _AddLeadSheetState extends ConsumerState<_AddLeadSheet> {
       await ref.read(frontDeskActionsProvider).addLead(name: _name.text, phone: _phone.text, source: _source, interest: _interest.text);
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_name.text.trim()} added to leads')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.current.opsLeadAdded(_name.text.trim()))));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_err(e))));
     } finally {
@@ -499,34 +510,34 @@ class _AddLeadSheetState extends ConsumerState<_AddLeadSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             RepsiTextField(
-              label: 'Name',
+              label: context.l10n.name,
               controller: _name,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
-              validator: (v) => (v ?? '').trim().length < 2 ? 'Enter their name' : null,
+              validator: (v) => (v ?? '').trim().length < 2 ? context.l10n.enterTheirName : null,
             ),
             const SizedBox(height: AppSpacing.lg),
             RepsiTextField(
-              label: 'Mobile number',
+              label: context.l10n.commonMobileNumber,
               controller: _phone,
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.next,
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]'))],
-              validator: (v) => (v ?? '').replaceAll(RegExp(r'\D'), '').length < 10 ? 'Enter a valid mobile number' : null,
+              validator: (v) => (v ?? '').replaceAll(RegExp(r'\D'), '').length < 10 ? context.l10n.commonEnterValidMobile : null,
             ),
             const SizedBox(height: AppSpacing.lg),
-            RepsiTextField(label: 'Interested in (optional)', controller: _interest, hintText: 'e.g. Quarterly plan, PT'),
+            RepsiTextField(label: context.l10n.interestedIn, controller: _interest, hintText: context.l10n.interestedInHint),
             const SizedBox(height: AppSpacing.lg),
             Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
                 for (final s in _sources)
-                  ChoiceChip(label: Text(s), selected: s == _source, onSelected: (_) => setState(() => _source = s)),
+                  ChoiceChip(label: Text(_sourceLabel(s)), selected: s == _source, onSelected: (_) => setState(() => _source = s)),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-            RepsiButton(text: 'Save lead', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
+            RepsiButton(text: context.l10n.saveLead, isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
           ],
         ),
       ),
@@ -544,12 +555,12 @@ class _QrTab extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return ref.watch(gymQrProvider).when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => RepsiErrorState(title: "Couldn't load the check-in QR", message: _err(e), onRetry: () => ref.invalidate(gymQrProvider)),
+          error: (e, _) => RepsiErrorState(title: context.l10n.errorLoadQr, message: _err(e), onRetry: () => ref.invalidate(gymQrProvider)),
           data: (qr) => ListView(
             padding: const EdgeInsets.all(AppSpacing.xl),
             children: [
               Text(
-                'Members scan this with the REPSI app to check themselves in. Show it at the front desk or print it.',
+                context.l10n.qrDesc,
                 style: AppTypography.bodySmall.copyWith(color: _secondary(isDark)),
               ),
               const SizedBox(height: AppSpacing.xl),
@@ -562,7 +573,7 @@ class _QrTab extends ConsumerWidget {
                     border: Border.all(color: _border(isDark)),
                   ),
                   child: Semantics(
-                    label: 'Gym check-in QR code',
+                    label: context.l10n.qrSemantics,
                     image: true,
                     child: QrImageView(data: qr.payload, size: 232, backgroundColor: Colors.white, gapless: true),
                   ),
@@ -571,13 +582,13 @@ class _QrTab extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
               Text(qr.label, textAlign: TextAlign.center, style: AppTypography.labelLarge.copyWith(color: _text(isDark))),
               if (qr.expiresAt != null)
-                Text('Rotates ${DateFormat('d MMM, h:mm a').format(qr.expiresAt!)}',
+                Text(context.l10n.opsQrRotates(DateFormat('d MMM, h:mm a').format(qr.expiresAt!)),
                     textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
               const SizedBox(height: AppSpacing.xl),
               TextButton.icon(
                 onPressed: () => ref.invalidate(gymQrProvider),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Refresh'),
+                label: Text(context.l10n.refresh),
               ),
             ],
           ),
@@ -597,7 +608,7 @@ class _TeamTab extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return ref.watch(teamProvider).when(
           loading: _skeletonList,
-          error: (e, _) => RepsiErrorState(title: "Couldn't load your team", message: _err(e), onRetry: () => ref.invalidate(teamProvider)),
+          error: (e, _) => RepsiErrorState(title: context.l10n.errorLoadTeam, message: _err(e), onRetry: () => ref.invalidate(teamProvider)),
           data: (team) => ListView(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             children: [
@@ -607,13 +618,13 @@ class _TeamTab extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Staff & Trainers (${team.length})',
+                      context.l10n.opsTeamHeader(team.length),
                       style: AppTypography.headingSmall.copyWith(color: _text(isDark), fontWeight: FontWeight.bold),
                     ),
                     ElevatedButton.icon(
                       onPressed: () => context.push(RouteNames.addTrainer),
                       icon: const Icon(Icons.person_add_rounded, size: 16),
-                      label: const Text('Add trainer'),
+                      label: Text(context.l10n.addTrainer),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -630,15 +641,15 @@ class _TeamTab extends ConsumerWidget {
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                   leading: RepsiAvatar(name: p.name, size: 40),
-                  title: Text(p.isSelf ? '${p.name} (you)' : p.name,
+                  title: Text(p.isSelf ? context.l10n.opsYou(p.name) : p.name,
                       style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
                   subtitle: Text(p.email, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
-                  trailing: Text(p.active ? _role(p.role) : 'Inactive',
+                  trailing: Text(p.active ? _role(p.role) : context.l10n.commonInactive,
                       style: AppTypography.caption.copyWith(color: _secondary(isDark), fontWeight: FontWeight.w600)),
                 ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text('Add trainers and manage staff roles directly from your phone.',
+                child: Text(context.l10n.teamDesc,
                     textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
               ),
             ],

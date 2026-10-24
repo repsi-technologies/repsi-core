@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyBlock, LoadingRow, Notice, addDays, isoDate } from "@/features/fitness/shared";
 import { bookingApi, formatDateTime, type ClassBooking, type ClassSession } from "@/lib/operations-api";
+import { useTranslation } from "@/lib/i18n";
 
 /** Member self-service: browse upcoming sessions, book or join the waitlist, cancel. */
 export function MemberClasses() {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<ClassSession[] | null>(null);
   const [mine, setMine] = useState<ClassBooking[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -50,16 +52,16 @@ export function MemberClasses() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">Classes</h1>
-        <p className="text-sm text-[var(--text-muted)] mt-1">Book a place, or join the waitlist when a class is full.</p>
+        <h1 className="text-2xl font-semibold text-[var(--text)] tracking-tight">{t("nav.classes")}</h1>
+        <p className="text-sm text-[var(--text-muted)] mt-1">{t("classes.book_a_place_or_join_the")}</p>
       </div>
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       {notice && <Notice kind="success" onDismiss={() => setNotice(null)}>{notice}</Notice>}
 
       <section aria-labelledby="my-bookings" className="space-y-2">
-        <h2 id="my-bookings" className="text-base font-semibold text-[var(--text)]">My bookings</h2>
+        <h2 id="my-bookings" className="text-base font-semibold text-[var(--text)]">{t("classes.my_bookings")}</h2>
         {mine === null ? <LoadingRow /> : mine.length === 0 ? (
-          <EmptyBlock title="No upcoming bookings" />
+          <EmptyBlock title={t("classes.no_upcoming_bookings")} />
         ) : (
           <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             {mine.map((b) => (
@@ -70,14 +72,14 @@ export function MemberClasses() {
                 </span>
                 <span className="flex items-center gap-2">
                   <Badge variant={b.status === "waitlisted" ? "expiring" : "active"}>
-                    {b.status === "waitlisted" ? `Waitlist #${b.waitlist_position}` : b.status}
+                    {b.status === "waitlisted" ? t("classes.waitlist_waitlist_position", undefined, { waitlist_position: b.waitlist_position }) : b.status}
                   </Badge>
                   {(b.status === "booked" || b.status === "waitlisted") && (
                     <Button size="sm" variant="ghost" loading={busy === b.id}
                       onClick={() => run(b.id, () => bookingApi.cancelBooking(b.id), (x) => x.late_cancel
                         ? "Cancelled. This was a late cancellation and still counts as a class."
                         : "Booking cancelled.")}>
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   )}
                 </span>
@@ -88,9 +90,9 @@ export function MemberClasses() {
       </section>
 
       <section aria-labelledby="upcoming" className="space-y-2">
-        <h2 id="upcoming" className="text-base font-semibold text-[var(--text)]">This week</h2>
+        <h2 id="upcoming" className="text-base font-semibold text-[var(--text)]">{t("classes.this_week")}</h2>
         {sessions === null ? <LoadingRow /> : sessions.length === 0 ? (
-          <EmptyBlock title="No classes scheduled this week" />
+          <EmptyBlock title={t("classes.no_classes_scheduled_this_week")} />
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {sessions.map((s) => {
@@ -105,16 +107,16 @@ export function MemberClasses() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[var(--text-secondary)] flex items-center gap-1.5 tabular-nums">
-                      <Users className="h-4 w-4" aria-hidden /> {full ? "Full" : `${s.spots_left} left`}
+                      <Users className="h-4 w-4" aria-hidden /> {full ? t("classes.full") : `${s.spots_left} left`}
                     </span>
                     {s.my_booking ? (
-                      <Badge variant="active">{s.my_booking.status === "waitlisted" ? "On waitlist" : "Booked"}</Badge>
+                      <Badge variant="active">{s.my_booking.status === "waitlisted" ? t("classes.on_waitlist") : t("classes.booked")}</Badge>
                     ) : (
                       <Button size="sm" variant={full ? "outline" : "default"} loading={busy === s.id}
                         onClick={() => run(s.id, () => bookingApi.book(s.id), (b) => b.status === "waitlisted"
                           ? `Added to the waitlist (#${b.waitlist_position}). We'll notify you if a place opens.`
                           : "You're booked.")}>
-                        {full ? "Join waitlist" : "Book"}
+                        {full ? t("classes.join_waitlist") : t("classes.book")}
                       </Button>
                     )}
                   </div>

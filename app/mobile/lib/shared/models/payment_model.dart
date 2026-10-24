@@ -1,4 +1,5 @@
 import '../../core/api/api_time.dart';
+import '../../l10n/l10n.dart';
 enum PaymentStatus {
   completed,
   pending,
@@ -48,15 +49,15 @@ enum PaymentMethod {
   String get displayName {
     switch (this) {
       case PaymentMethod.cash:
-        return 'Cash';
+        return L10n.current.commonCash;
       case PaymentMethod.upi:
         return 'UPI';
       case PaymentMethod.card:
-        return 'Card';
+        return L10n.current.commonCard;
       case PaymentMethod.netBanking:
-        return 'Net Banking';
+        return L10n.current.commonNetBanking;
       case PaymentMethod.other:
-        return 'Other';
+        return L10n.current.commonOther;
     }
   }
 }

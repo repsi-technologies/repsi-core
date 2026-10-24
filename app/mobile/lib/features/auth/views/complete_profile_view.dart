@@ -10,6 +10,7 @@ import '../post_sign_in.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_layout.dart';
 
+import '../../../l10n/l10n.dart';
 class CompleteProfileArgs {
   final String registrationToken;
   final String phone;
@@ -69,7 +70,7 @@ class _CompleteProfileViewState extends ConsumerState<CompleteProfileView> {
         // The account exists; only the photo is missing. Say so instead of blocking sign-in.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Account created, but your photo didn't upload. You can add it from your profile.")),
+            SnackBar(content: Text(context.l10n.profilePhotoUploadFailed)),
           );
         }
       }
@@ -92,9 +93,9 @@ class _CompleteProfileViewState extends ConsumerState<CompleteProfileView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const AuthHeading(
-                title: 'Almost there!',
-                subtitle: Text('Your number is verified. Add a few details to finish setting up your account.'),
+              AuthHeading(
+                title: context.l10n.completeProfileTitle,
+                subtitle: Text(context.l10n.completeProfileSubtitle),
               ),
               const SizedBox(height: AppSpacing.xxl),
               Center(
@@ -104,7 +105,7 @@ class _CompleteProfileViewState extends ConsumerState<CompleteProfileView> {
                     name: _name.text,
                     previewBytes: _photo?.bytes,
                     busy: _uploadingPhoto,
-                    caption: _photo == null ? 'Add a profile photo (optional)' : 'Tap to change',
+                    caption: _photo == null ? context.l10n.addProfilePhotoOptional : context.l10n.tapToChange,
                     onPicked: (p) => setState(() => _photo = p),
                     onRemove: () => setState(() => _photo = null),
                   ),
@@ -116,41 +117,41 @@ class _CompleteProfileViewState extends ConsumerState<CompleteProfileView> {
                 const SizedBox(height: AppSpacing.lg),
               ],
               RepsiTextField(
-                label: 'Full name',
-                hintText: 'As your gym knows you',
+                label: context.l10n.fullName,
+                hintText: context.l10n.fullNameHint,
                 controller: _name,
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.words,
                 autofillHints: const [AutofillHints.name],
                 prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
-                validator: (v) => (v ?? '').trim().length < 2 ? 'Enter your full name' : null,
+                validator: (v) => (v ?? '').trim().length < 2 ? context.l10n.enterFullName : null,
               ),
               const SizedBox(height: AppSpacing.lg),
               RepsiTextField(
-                label: 'Email',
-                hintText: 'name@example.com',
+                label: context.l10n.commonEmail,
+                hintText: context.l10n.commonEmailHint,
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.email],
                 prefixIcon: const Icon(Icons.mail_outline_rounded, size: 20),
-                validator: (v) => _emailPattern.hasMatch((v ?? '').trim()) ? null : 'Enter a valid email address',
+                validator: (v) => _emailPattern.hasMatch((v ?? '').trim()) ? null : context.l10n.commonEnterValidEmail,
               ),
               const SizedBox(height: AppSpacing.lg),
               RepsiTextField(
-                label: 'Password',
-                hintText: 'At least 8 characters',
+                label: context.l10n.commonPassword,
+                hintText: context.l10n.commonAtLeast8Chars,
                 controller: _password,
                 isPassword: true,
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.newPassword],
                 prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
                 onSubmitted: (_) => _submit(),
-                validator: (v) => (v ?? '').length < 8 ? 'Use at least 8 characters' : null,
+                validator: (v) => (v ?? '').length < 8 ? context.l10n.commonUseAtLeast8Chars : null,
               ),
               const SizedBox(height: AppSpacing.xxl),
               RepsiButton(
-                text: _uploadingPhoto ? 'Uploading photo…' : 'Continue',
+                text: _uploadingPhoto ? context.l10n.uploadingPhoto : context.l10n.commonContinue,
                 isFullWidth: true,
                 isLoading: busy,
                 onPressed: busy ? null : _submit,

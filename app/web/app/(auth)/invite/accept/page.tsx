@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Building2, Eye, EyeOff, Loader2, MapPin } from "lucide-react";
 import { ApiError, apiRequest, apiUrl, applySession, getToken, type SessionToken } from "@/lib/auth-client";
 import { clearAuthCookie, getAuthUser } from "@/lib/auth";
+import { useTranslation, richText } from "@/lib/i18n";
 
 interface InviteInfo {
   email: string;
@@ -28,6 +29,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 function AcceptInvite() {
+  const { t } = useTranslation();
   const router = useRouter();
   const token = useSearchParams().get("token") || "";
   const [info, setInfo] = useState<InviteInfo | null>(null);
@@ -45,13 +47,13 @@ function AcceptInvite() {
       setLoadError("This invitation link is incomplete.");
       return;
     }
-    setSignedInEmail(getToken() ? getAuthUser()?.email || "your current account" : null);
+    setSignedInEmail(getToken() ? getAuthUser()?.email || t("invite.your_current_account") : null);
     apiRequest<InviteInfo>(`/invitations/verify?token=${encodeURIComponent(token)}`, { auth: false })
       .then((data) => {
         setInfo(data);
         setFullName(data.name);
       })
-      .catch((err) => setLoadError(err instanceof ApiError ? err.message : "We couldn't load this invitation."));
+      .catch((err) => setLoadError(err instanceof ApiError ? err.message : t("invite.we_couldn_t_load_this_invitation")));
   }, [token]);
 
   const returnTo = `/invite/accept?token=${encodeURIComponent(token)}`;
@@ -61,8 +63,8 @@ function AcceptInvite() {
     setError("");
     const signedIn = Boolean(signedInEmail);
     if (!signedIn) {
-      if (password.length < 8) return setError("Choose a password with at least 8 characters.");
-      if (password !== confirm) return setError("Passwords don't match.");
+      if (password.length < 8) return setError(t("invite.choose_a_password_with_at_least"));
+      if (password !== confirm) return setError(t("invite.passwords_don_t_match"));
     }
     setSubmitting(true);
     try {
@@ -73,7 +75,7 @@ function AcceptInvite() {
       });
       router.replace(applySession(session));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "We couldn't accept this invitation.");
+      setError(err instanceof ApiError ? err.message : t("invite.we_couldn_t_accept_this_invitation"));
       setSubmitting(false);
     }
   }
@@ -82,17 +84,17 @@ function AcceptInvite() {
     return (
       <div className="w-full max-w-[420px] space-y-4 rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 text-center sm:p-8">
         <AlertCircle className="mx-auto h-10 w-10 text-[var(--primary)]" aria-hidden />
-        <h1 className="text-lg font-semibold">Invitation unavailable</h1>
+        <h1 className="text-lg font-semibold">{t("invite.invitation_unavailable")}</h1>
         <p className="text-sm text-[var(--text-muted)]">{loadError}</p>
         <Link href="/login" className="inline-block text-sm font-medium text-[var(--primary-dark)] hover:underline">
-          Go to sign in
+          {t("invite.go_to_sign_in")}
         </Link>
       </div>
     );
   }
 
   if (!info) {
-    return <Loader2 className="h-6 w-6 animate-spin text-[var(--text-muted)]" aria-label="Loading invitation" />;
+    return <Loader2 className="h-6 w-6 animate-spin text-[var(--text-muted)]" aria-label={t("invite.loading_invitation")} />;
   }
 
   const field =
@@ -109,9 +111,9 @@ function AcceptInvite() {
             <Building2 className="h-6 w-6 text-[var(--primary)]" aria-hidden />
           )}
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Join {info.gym_name}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("invite.join_gym_name", undefined, { gym_name: info.gym_name })}</h1>
         <p className="text-sm text-[var(--text-muted)]">
-          {info.invited_by_name ? `${info.invited_by_name} invited you` : "You've been invited"} as{" "}
+          {info.invited_by_name ? `${info.invited_by_name} invited you` : t("invite.you_ve_been_invited")} as{" "}
           <strong className="text-[var(--text)]">{ROLE_LABEL[info.role] || info.role}</strong>
           {info.branch_names.length > 0 && (
             <>
@@ -132,8 +134,7 @@ function AcceptInvite() {
         {signedInEmail ? (
           <>
             <p className="text-sm">
-              Signed in as <strong>{signedInEmail}</strong>. This invitation is for <strong>{info.email}</strong>.
-            </p>
+              {richText(t("invite.signed_in_as_signedinemail_this_invitation"), { signedInEmail: <strong>{signedInEmail}</strong>, email: <strong>{info.email}</strong> })}</p>
             <button
               type="button"
               onClick={() => accept()}
@@ -141,7 +142,7 @@ function AcceptInvite() {
               className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-              Accept invitation
+              {t("invite.accept_invitation")}
             </button>
             <button
               type="button"
@@ -152,60 +153,58 @@ function AcceptInvite() {
               }}
               className="w-full text-center text-sm text-[var(--text-muted)] hover:text-[var(--primary-dark)]"
             >
-              Use a different account
+              {t("invite.use_a_different_account")}
             </button>
           </>
         ) : info.account_exists ? (
           <>
             <p className="text-sm">
-              <strong>{info.email}</strong> already has a REPSI account. Sign in with Google, WhatsApp, or your password to
-              accept — your existing account and workspaces stay the same.
-            </p>
+              {richText(t("invite.emailalready_has_a_repsi_account_sign"), { email: <strong>{info.email}</strong> })}</p>
             <Link
               href={`/login?redirect=${encodeURIComponent(returnTo)}`}
               className="inline-flex h-10 w-full items-center justify-center rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
             >
-              Sign in to accept
+              {t("invite.sign_in_to_accept")}
             </Link>
           </>
         ) : (
           <form onSubmit={accept} noValidate className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-email">Email</label>
+              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-email">{t("invite.email")}</label>
               <input id="inv-email" value={info.email} readOnly className={`${field} bg-[var(--background)] text-[var(--text-muted)]`} />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-name">Full name</label>
+              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-name">{t("invite.full_name")}</label>
               <input id="inv-name" value={fullName} autoComplete="name" onChange={(e) => setFullName(e.target.value)} className={field} />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-password">Create password</label>
+              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-password">{t("invite.create_password")}</label>
               <div className="relative">
                 <input id="inv-password" type={show ? "text" : "password"} autoComplete="new-password" value={password}
                   onChange={(e) => setPassword(e.target.value)} className={`${field} pr-10`} />
-                <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"}
+                <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? t("invite.hide_password") : t("invite.show_password")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
                   {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">At least 8 characters.</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">{t("invite.at_least_8_characters")}</p>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-confirm">Confirm password</label>
+              <label className="mb-1.5 block text-sm font-medium" htmlFor="inv-confirm">{t("invite.confirm_password")}</label>
               <input id="inv-confirm" type={show ? "text" : "password"} autoComplete="new-password" value={confirm}
                 onChange={(e) => setConfirm(e.target.value)} className={field} />
             </div>
             <button type="submit" disabled={submitting}
               className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] disabled:opacity-60">
               {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-              Create account & join
+              {t("invite.create_account_join")}
             </button>
             <p className="text-center text-xs text-[var(--text-muted)]">
-              Prefer Google?{" "}
+              {t("invite.prefer_google")}{" "}
               <Link href={`/login?redirect=${encodeURIComponent(returnTo)}`} className="font-medium text-[var(--primary-dark)] hover:underline">
-                Sign in with Google
+                {t("invite.sign_in_with_google")}
               </Link>{" "}
-              using {info.email}, then accept.
+              using {info.email}{t("invite.then_accept")}
             </p>
           </form>
         )}

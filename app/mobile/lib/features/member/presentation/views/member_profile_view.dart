@@ -15,6 +15,8 @@ import '../../../auth/widgets/my_profile_photo.dart';
 import '../../../notifications/views/notification_inbox_view.dart';
 import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../../shared/widgets/language_selector_sheet.dart';
 
 class MemberProfileView extends ConsumerWidget {
   const MemberProfileView({super.key});
@@ -25,37 +27,43 @@ class MemberProfileView extends ConsumerWidget {
     final menuItems = [
       {
         'icon': LucideIcons.sparkles,
-        'title': 'AI Workout Coach',
+        'title': context.l10n.aiWorkoutCoach,
         'route': 'aiCoach',
         'badge': 'AI'
       },
       {
         'icon': LucideIcons.receipt,
-        'title': 'Payments & Invoices',
+        'title': context.l10n.paymentsAndInvoices,
         'route': 'payments',
         'badge': null
       },
       {
         'icon': LucideIcons.qrCode,
-        'title': 'Gym Check-in',
+        'title': context.l10n.qrGymCheckIn,
         'route': 'attendance',
         'badge': null
       },
       {
         'icon': LucideIcons.bell,
-        'title': 'Notifications & Alerts',
+        'title': context.l10n.notificationsAndAlerts,
         'route': 'notifications',
         'badge': null
       },
       {
+        'icon': LucideIcons.languages,
+        'title': context.l10n.commonLanguage,
+        'route': 'language',
+        'badge': null
+      },
+      {
         'icon': LucideIcons.keyRound,
-        'title': 'Change Password',
+        'title': context.l10n.changePassword,
         'route': 'password',
         'badge': null
       },
       {
         'icon': LucideIcons.trash2,
-        'title': 'Delete Account',
+        'title': context.l10n.deleteAccount,
         'route': 'delete',
         'badge': null
       },
@@ -63,7 +71,7 @@ class MemberProfileView extends ConsumerWidget {
 
     final user = ref.watch(authProvider).user;
     final userName =
-        (user?.fullName.isNotEmpty == true) ? user!.fullName : 'Member';
+        (user?.fullName.isNotEmpty == true) ? user!.fullName : context.l10n.commonMember;
     final userEmail = user?.email ?? '';
 
     return Scaffold(
@@ -72,7 +80,7 @@ class MemberProfileView extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'More',
+          context.l10n.commonMore,
           style: AppTypography.heading
               .copyWith(fontSize: 20, fontWeight: FontWeight.w700),
         ),
@@ -161,6 +169,8 @@ class MemberProfileView extends ConsumerWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (_) => const QrAttendanceView()));
+                        } else if (route == 'language') {
+                          LanguageSelectorSheet.show(context);
                         } else if (route == 'password') {
                           showChangePasswordDialog(context, ref);
                         } else if (route == 'delete') {
@@ -231,7 +241,7 @@ class MemberProfileView extends ConsumerWidget {
                           size: 20, color: AppColors.error),
                       const SizedBox(width: 14),
                       Text(
-                        'Sign Out',
+                        context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

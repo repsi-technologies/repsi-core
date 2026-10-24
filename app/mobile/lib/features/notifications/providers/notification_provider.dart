@@ -4,6 +4,7 @@ import '../../../core/api/api_endpoints.dart';
 import '../../../core/providers/api_provider.dart';
 import '../models/notification_model.dart';
 
+import '../../../l10n/l10n.dart';
 class NotificationState {
   final bool isLoading;
   final List<NotificationItem> items;
@@ -62,7 +63,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       );
     } catch (_) {
       // Keep whatever was loaded before; never substitute invented notifications.
-      state = state.copyWith(isLoading: false, error: "Couldn't load notifications. Pull to try again.");
+      state = state.copyWith(isLoading: false, error: L10n.current.errorLoadNotifications);
     }
   }
 

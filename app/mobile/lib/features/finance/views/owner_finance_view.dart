@@ -9,6 +9,7 @@ import '../../../shared/widgets/repsi_avatar.dart';
 import '../../../shared/widgets/repsi_error_state.dart';
 import '../../../shared/widgets/repsi_skeleton.dart';
 import '../providers/finance_provider.dart';
+import '../../../l10n/l10n.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 final _compact = NumberFormat.compactCurrency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
@@ -35,7 +36,7 @@ class OwnerFinanceView extends ConsumerWidget {
       backgroundColor: canvas,
       appBar: AppBar(
         backgroundColor: canvas,
-        title: Text('Finance', style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
+        title: Text(context.l10n.commonFinance, style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
       ),
       body: RefreshIndicator(
         color: AppColors.primary,
@@ -63,7 +64,7 @@ Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSeco
 Color _surface(bool d) => d ? AppColors.darkSurface : AppColors.surface;
 Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
 
-String _err(Object e) => e is ApiError ? e.message : 'Check your connection and try again.';
+String _err(Object e) => e is ApiError ? e.message : L10n.current.commonCheckConnection;
 
 BoxDecoration _panel(bool d) => BoxDecoration(
       color: _surface(d),
@@ -93,14 +94,14 @@ class _SummarySection extends ConsumerWidget {
           loading: () => const RepsiSkeleton(
               width: double.infinity, height: 170, borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusCard))),
           error: (e, _) => RepsiErrorState(
-              title: "Couldn't load finance", message: _err(e), onRetry: () => ref.invalidate(financeSummaryProvider)),
+              title: context.l10n.errorLoadFinance, message: _err(e), onRetry: () => ref.invalidate(financeSummaryProvider)),
           data: (s) => Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: _panel(d),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Collected this month', style: AppTypography.caption.copyWith(color: _secondary(d))),
+                Text(context.l10n.collectedThisMonth, style: AppTypography.caption.copyWith(color: _secondary(d))),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
@@ -112,9 +113,9 @@ class _SummarySection extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
-                    _Mini('Expenses', _inr.format(s.expenses), _text(d)),
-                    _Mini('Net', _inr.format(s.net), s.net >= 0 ? (d ? AppColors.darkSuccess : AppColors.success) : (d ? AppColors.darkError : AppColors.error)),
-                    _Mini('Dues to collect', _inr.format(s.pendingDues), s.pendingDues > 0 ? (d ? AppColors.darkWarning : AppColors.warning) : _text(d)),
+                    _Mini(context.l10n.expenses, _inr.format(s.expenses), _text(d)),
+                    _Mini(context.l10n.net, _inr.format(s.net), s.net >= 0 ? (d ? AppColors.darkSuccess : AppColors.success) : (d ? AppColors.darkError : AppColors.error)),
+                    _Mini(context.l10n.duesToCollect, _inr.format(s.pendingDues), s.pendingDues > 0 ? (d ? AppColors.darkWarning : AppColors.warning) : _text(d)),
                   ],
                 ),
               ],
@@ -153,7 +154,7 @@ class _Mini extends StatelessWidget {
 class _CollectionsSection extends ConsumerWidget {
   const _CollectionsSection();
 
-  static const _methods = {'upi': 'UPI', 'cash': 'Cash', 'card': 'Card', 'netbanking': 'Net banking', 'cheque': 'Cheque'};
+  static Map<String, String> _methods(BuildContext context) => {'upi': 'UPI', 'cash': context.l10n.commonCash, 'card': context.l10n.commonCard, 'netbanking': context.l10n.commonNetBanking, 'cheque': context.l10n.commonCheque};
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -161,7 +162,7 @@ class _CollectionsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _title('Collections', d, trailing: 'Last 6 months'),
+        _title(context.l10n.collections, d, trailing: context.l10n.last6Months),
         ref.watch(revenueReportProvider).when(
               loading: () => RepsiSkeleton.chartSkeleton(),
               error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
@@ -173,7 +174,7 @@ class _CollectionsSection extends ConsumerWidget {
                   return Container(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     decoration: _panel(d),
-                    child: Text('No collections recorded in the last six months.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                    child: Text(context.l10n.noCollections, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                   );
                 }
                 return Container(
@@ -228,7 +229,7 @@ class _CollectionsSection extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Row(
                               children: [
-                                SizedBox(width: 92, child: Text(_methods[e.key] ?? e.key, style: AppTypography.bodySmall.copyWith(color: _text(d)))),
+                                SizedBox(width: 92, child: Text(_methods(context)[e.key] ?? e.key, style: AppTypography.bodySmall.copyWith(color: _text(d)))),
                                 Expanded(
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(3),
@@ -274,7 +275,7 @@ class _DuesSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _title('Dues to collect', d, trailing: dues.valueOrNull == null ? null : '${dues.value!.length} members'),
+        _title(context.l10n.duesToCollect, d, trailing: dues.valueOrNull == null ? null : context.l10n.financeMembersCount(dues.value!.length)),
         dues.when(
           loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
           error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
@@ -282,7 +283,7 @@ class _DuesSection extends ConsumerWidget {
               ? Container(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: _panel(d),
-                  child: Text('Nothing outstanding. Every invoice is paid.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                  child: Text(context.l10n.nothingOutstanding, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                 )
               : Container(
                   decoration: _panel(d),
@@ -295,7 +296,7 @@ class _DuesSection extends ConsumerWidget {
                           leading: RepsiAvatar(name: list[i].member, size: 36),
                           title: Text(list[i].member, style: AppTypography.bodySmall.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
                           subtitle: Text(
-                            list[i].daysOverdue > 0 ? '${list[i].daysOverdue} days overdue' : 'Due now',
+                            list[i].daysOverdue > 0 ? context.l10n.financeDaysOverdue(list[i].daysOverdue) : context.l10n.dueNow,
                             style: AppTypography.caption.copyWith(
                                 color: list[i].daysOverdue > 14 ? (d ? AppColors.darkError : AppColors.error) : _secondary(d)),
                           ),
@@ -306,7 +307,7 @@ class _DuesSection extends ConsumerWidget {
                       if (list.length > 8)
                         Padding(
                           padding: const EdgeInsets.all(AppSpacing.md),
-                          child: Text('+ ${list.length - 8} more. Full report on repsi.app',
+                          child: Text(context.l10n.financeMoreOnWeb(list.length - 8),
                               style: AppTypography.caption.copyWith(color: _secondary(d))),
                         ),
                     ],
@@ -327,7 +328,7 @@ class _ExpensesSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _title('Recent expenses', d),
+        _title(context.l10n.recentExpenses, d),
         ref.watch(expensesProvider).when(
               loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
               error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
@@ -335,7 +336,7 @@ class _ExpensesSection extends ConsumerWidget {
                   ? Container(
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       decoration: _panel(d),
-                      child: Text('No expenses recorded yet.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                      child: Text(context.l10n.noExpenses, style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
                     )
                   : Container(
                       decoration: _panel(d),

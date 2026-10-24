@@ -11,6 +11,7 @@ import '../../features/notifications/providers/notification_provider.dart';
 import '../models/workspace_model.dart';
 import 'repsi_avatar.dart';
 
+import '../../l10n/l10n.dart';
 class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String? title;
   final bool showWorkspaceSelector;
@@ -178,7 +179,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
             IconButton(
               onPressed: onNotificationTap ??
                   () => context.push(RouteNames.notifications),
-              tooltip: 'Notifications',
+              tooltip: context.l10n.commonNotifications,
               icon: Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -222,7 +223,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
               GestureDetector(
                 onTap: onProfileTap,
                 child: RepsiAvatar(
-                  name: userFullName ?? 'User',
+                  name: userFullName ?? context.l10n.commonUser,
                   imageUrl: userAvatarUrl,
                   size: 30,
                 ),
@@ -230,7 +231,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
             const SizedBox(width: AppSpacing.xs / 2),
             // Explicit Logout Button
             IconButton(
-              tooltip: 'Logout',
+              tooltip: context.l10n.commonSignOut,
               icon: const Icon(
                 LucideIcons.logOut,
                 size: 19,
@@ -240,19 +241,19 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Logout'),
-                    content: const Text(
-                        'Are you sure you want to log out of REPSI?'),
+                    title: Text(context.l10n.commonSignOut),
+                    content: Text(
+                        context.l10n.signOutConfirmGeneric),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                        child: Text(context.l10n.commonCancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.error),
-                        child: const Text('Logout'),
+                        child: Text(context.l10n.commonSignOut),
                       ),
                     ],
                   ),
@@ -301,7 +302,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Switch Workspace',
+                  context.l10n.switchWorkspace,
                   style: AppTypography.headingSmall.copyWith(
                     color: isDark
                         ? AppColors.darkTextPrimary

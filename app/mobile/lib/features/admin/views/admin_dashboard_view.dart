@@ -4,6 +4,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
+import '../../../l10n/l10n.dart';
 
 class AdminDashboardView extends StatelessWidget {
   const AdminDashboardView({super.key});
@@ -32,7 +33,7 @@ class AdminDashboardView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'System Admin',
+                            context.l10n.systemAdmin,
                             style: AppTypography.heading.copyWith(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -41,7 +42,7 @@ class AdminDashboardView extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Platform-wide metrics & telemetry',
+                            context.l10n.platformMetrics,
                             style: AppTypography.caption.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 13,
@@ -60,7 +61,7 @@ class AdminDashboardView extends StatelessWidget {
                         border: Border.all(color: const Color(0xFFD8B4FE)),
                       ),
                       child: Text(
-                        'Super Admin',
+                        context.l10n.roleAdminBadge,
                         style: AppTypography.caption.copyWith(
                           color: const Color(0xFF9333EA),
                           fontWeight: FontWeight.w700,
@@ -78,21 +79,21 @@ class AdminDashboardView extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      children: const [
+                      children: [
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Total Gyms',
+                            label: context.l10n.totalGyms,
                             value: '42',
-                            subtext: '+3 this month',
+                            subtext: context.l10n.plusThreeThisMonth,
                             icon: Icons.storefront_rounded,
                           ),
                         ),
                         SizedBox(width: 12),
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Active Users',
+                            label: context.l10n.activeUsers,
                             value: '3,840',
-                            subtext: '+12% MoM',
+                            subtext: context.l10n.adminMom('+12'),
                             icon: Icons.people_outline_rounded,
                           ),
                         ),
@@ -100,21 +101,21 @@ class AdminDashboardView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Row(
-                      children: const [
+                      children: [
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Active Members',
+                            label: context.l10n.activeMembers,
                             value: '3,210',
-                            subtext: 'Paying members',
+                            subtext: context.l10n.payingMembers,
                             icon: Icons.card_membership_rounded,
                           ),
                         ),
                         SizedBox(width: 12),
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Trainers',
+                            label: context.l10n.commonTrainers,
                             value: '185',
-                            subtext: 'Across all gyms',
+                            subtext: context.l10n.acrossAllGyms,
                             icon: Icons.fitness_center_rounded,
                           ),
                         ),
@@ -122,12 +123,12 @@ class AdminDashboardView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Row(
-                      children: const [
+                      children: [
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Platform Revenue',
+                            label: context.l10n.platformRevenue,
                             value: '₹14.2L',
-                            subtext: 'MRR this month',
+                            subtext: context.l10n.mrrThisMonth,
                             icon: Icons.account_balance_wallet_outlined,
                             valueColor: AppColors.primaryDark,
                           ),
@@ -135,9 +136,9 @@ class AdminDashboardView extends StatelessWidget {
                         SizedBox(width: 12),
                         Expanded(
                           child: _AdminStatCard(
-                            label: 'Subscriptions',
+                            label: context.l10n.subscriptions,
                             value: '38 Active',
-                            subtext: '4 Trialing',
+                            subtext: context.l10n.adminTrialingCount(4),
                             icon: Icons.star_outline_rounded,
                           ),
                         ),
@@ -166,7 +167,7 @@ class AdminDashboardView extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'All platform services operational',
+                          context.l10n.allServicesOk,
                           style: AppTypography.headingSmall.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -175,7 +176,7 @@ class AdminDashboardView extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '99.98% uptime',
+                        context.l10n.adminUptime('99.98'),
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 12,

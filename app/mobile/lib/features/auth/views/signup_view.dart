@@ -10,6 +10,7 @@ import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/auth_provider.dart';
 
+import '../../../l10n/l10n.dart';
 class SignupView extends ConsumerStatefulWidget {
   const SignupView({super.key});
 
@@ -136,7 +137,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
               ),
               const SizedBox(height: AppSpacing.xl),
               Text(
-                _currentStep == 0 ? 'Create your account' : 'Setup your gym',
+                _currentStep == 0 ? context.l10n.createAccountTitle : context.l10n.joinGymTitle,
                 style: AppTypography.headingLarge.copyWith(
                   color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                 ),
@@ -144,8 +145,8 @@ class _SignupViewState extends ConsumerState<SignupView> {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 _currentStep == 0
-                    ? 'Step 1 of 2: Member profile'
-                    : 'Step 2 of 2: Join your gym',
+                    ? context.l10n.signupStep1
+                    : context.l10n.signupStep2,
                 style: AppTypography.bodySmall.copyWith(
                   color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 ),
@@ -180,20 +181,20 @@ class _SignupViewState extends ConsumerState<SignupView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           RepsiTextField(
-            label: 'Full Name',
-            hintText: 'Alex Morgan',
+            label: context.l10n.fullName,
+            hintText: context.l10n.nameHintExample,
             controller: _fullNameController,
             prefixIcon: Icon(
               LucideIcons.user,
               size: 18,
               color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
             ),
-            validator: (val) => val == null || val.trim().isEmpty ? 'Full name is required' : null,
+            validator: (val) => val == null || val.trim().isEmpty ? context.l10n.fullNameRequired : null,
           ),
           const SizedBox(height: AppSpacing.md),
           RepsiTextField(
-            label: 'Work Email',
-            hintText: 'alex@example.com',
+            label: context.l10n.commonEmail,
+            hintText: context.l10n.commonEmailHint,
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icon(
@@ -202,15 +203,15 @@ class _SignupViewState extends ConsumerState<SignupView> {
               color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
             ),
             validator: (val) {
-              if (val == null || val.trim().isEmpty) return 'Email is required';
-              if (!val.contains('@')) return 'Enter a valid email';
+              if (val == null || val.trim().isEmpty) return context.l10n.emailRequired;
+              if (!val.contains('@')) return context.l10n.commonEnterValidEmail;
               return null;
             },
           ),
           const SizedBox(height: AppSpacing.md),
           RepsiTextField(
-            label: 'Password',
-            hintText: 'At least 8 characters',
+            label: context.l10n.commonPassword,
+            hintText: context.l10n.commonAtLeast8Chars,
             controller: _passwordController,
             isPassword: true,
             prefixIcon: Icon(
@@ -219,14 +220,14 @@ class _SignupViewState extends ConsumerState<SignupView> {
               color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
             ),
             validator: (val) {
-              if (val == null || val.isEmpty) return 'Password is required';
-              if (val.length < 8) return 'Password must be at least 8 characters';
+              if (val == null || val.isEmpty) return context.l10n.passwordRequired;
+              if (val.length < 8) return context.l10n.commonUseAtLeast8Chars;
               return null;
             },
           ),
           const SizedBox(height: AppSpacing.xxl),
           RepsiButton(
-                text: 'Continue to Gym',
+                text: context.l10n.continueToGym,
             onPressed: _handleStep1Submit,
             isFullWidth: true,
             size: RepsiButtonSize.large,
@@ -244,7 +245,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           RepsiTextField(
-            label: 'Gym Slug',
+            label: context.l10n.gymCode,
             hintText: 'iron-paradise',
             controller: _gymNameController,
             prefixIcon: Icon(
@@ -252,7 +253,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
               size: 18,
               color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
             ),
-            validator: (val) => val == null || val.trim().isEmpty ? 'Gym slug is required' : null,
+            validator: (val) => val == null || val.trim().isEmpty ? context.l10n.gymCodeRequired : null,
           ),
           const SizedBox(height: AppSpacing.sm),
           Container(
@@ -268,7 +269,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
-                    'Joining: ${_generatedSlug.isEmpty ? 'your-gym' : _generatedSlug}',
+                    context.l10n.signupJoining(_generatedSlug.isEmpty ? 'your-gym' : _generatedSlug),
                     style: AppTypography.caption.copyWith(
                       fontWeight: FontWeight.w600,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
@@ -280,7 +281,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
           ),
           const SizedBox(height: AppSpacing.md),
           RepsiTextField(
-            label: 'Phone Number (Optional)',
+            label: context.l10n.phoneOptional,
             hintText: '+91 98765 43210',
             controller: _gymPhoneController,
             keyboardType: TextInputType.phone,
@@ -292,8 +293,8 @@ class _SignupViewState extends ConsumerState<SignupView> {
           ),
           const SizedBox(height: AppSpacing.md),
           RepsiTextField(
-            label: 'City (Optional)',
-            hintText: 'Mumbai, Bengaluru, Delhi...',
+            label: context.l10n.cityOptional,
+            hintText: context.l10n.cityHint,
             controller: _gymCityController,
             prefixIcon: Icon(
               LucideIcons.mapPin,
@@ -303,7 +304,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
           ),
           const SizedBox(height: AppSpacing.xxl),
           RepsiButton(
-            text: 'Create Member Account',
+            text: context.l10n.createMemberAccount,
             isLoading: isLoading,
             onPressed: _handleRegister,
             isFullWidth: true,

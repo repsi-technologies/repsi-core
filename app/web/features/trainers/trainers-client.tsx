@@ -8,8 +8,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { InviteDialog } from "@/components/invite-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { repsiApi, ApiMember } from "@/lib/api";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 export function TrainersClient() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const [trainers, setTrainers] = useState<any[]>([]);
   const [members, setMembers] = useState<ApiMember[]>([]);
@@ -61,7 +63,7 @@ export function TrainersClient() {
         name: addTrainerData.name.trim(),
         phone: addTrainerData.phone.trim(),
         email: addTrainerData.email.trim() || undefined,
-        specialization: addTrainerData.specialization.trim() || "General Fitness",
+        specialization: addTrainerData.specialization.trim() || t("trainers.general_fitness"),
         hourly_rate: Number(addTrainerData.hourly_rate) || 0,
         bio: addTrainerData.bio.trim() || undefined,
       });
@@ -76,7 +78,7 @@ export function TrainersClient() {
       });
       loadData();
     } catch (err: any) {
-      setAddError(err.message || "Failed to create trainer");
+      setAddError(err.message || t("trainers.failed_to_create_trainer"));
     } finally {
       setAddingTrainer(false);
     }
@@ -113,7 +115,7 @@ export function TrainersClient() {
       setAssignNotes("");
       loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to assign client");
+      alert(err.message || t("trainers.failed_to_assign_client"));
     } finally {
       setAssigning(false);
     }
@@ -128,19 +130,19 @@ export function TrainersClient() {
       setEditModalOpen(false);
       loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to update trainer");
+      alert(err.message || t("trainers.failed_to_update_trainer"));
     } finally {
       setUpdating(false);
     }
   };
 
   const handleDeleteTrainer = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove trainer "${name}"? Historical client assignments will be preserved.`)) return;
+    if (!confirm(t("trainers.are_you_sure_you_want_to", undefined, { name }))) return;
     try {
       await repsiApi.deleteTrainer(id);
       loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to remove trainer");
+      alert(err.message || t("trainers.failed_to_remove_trainer"));
     }
   };
 
@@ -155,9 +157,9 @@ export function TrainersClient() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Trainers & Coaches</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("trainers.trainers_coaches")}</h1>
           <p className="text-xs text-[var(--text-muted)] mt-1">
-            Manage your certified coaches, client assignments, schedules, and active statuses.
+            {t("trainers.manage_your_certified_coaches_client_assignments")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -166,18 +168,14 @@ export function TrainersClient() {
             onClick={() => setAddModalOpen(true)}
             className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
           >
-            <Plus className="h-3.5 w-3.5" />
-            + Add Trainer
-          </Button>
+            {richText(t("trainers.plus_add_trainer"), { plus: <Plus className="h-3.5 w-3.5" /> })}</Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => setInviteDialogOpen(true)}
             className="gap-1.5 border-[var(--border)] text-[var(--text)] hover:bg-[var(--surface-hover)]"
           >
-            <Mail className="h-3.5 w-3.5" />
-            Invite Trainer
-          </Button>
+            {richText(t("trainers.mailinvite_trainer"), { mail: <Mail className="h-3.5 w-3.5" /> })}</Button>
         </div>
       </div>
 
@@ -186,7 +184,7 @@ export function TrainersClient() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
         <input
           type="text"
-          placeholder="Search trainer by name, specialty, or phone..."
+          placeholder={t("trainers.search_trainer_by_name_specialty_or")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-9 pr-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
@@ -197,14 +195,14 @@ export function TrainersClient() {
       {loading ? (
         <div className="py-12 flex flex-col items-center justify-center text-[var(--text-muted)] gap-2">
           <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
-          <p className="text-xs">Loading gym trainers...</p>
+          <p className="text-xs">{t("trainers.loading_gym_trainers")}</p>
         </div>
       ) : filteredTrainers.length === 0 ? (
         <EmptyState
           mascotPose="fitness"
           speechBubble="Add your gym trainers & coaches!"
-          title="No trainers yet"
-          description="Add your certified trainers and coaches to manage clients, design workouts, and assign protocols."
+          title={t("trainers.no_trainers_yet")}
+          description={t("trainers.add_your_certified_trainers_and_coaches")}
           action={{
             label: "+ Add trainer",
             onClick: () => setAddModalOpen(true),
@@ -236,12 +234,12 @@ export function TrainersClient() {
                     <div>
                       <h3 className="font-bold text-base text-[var(--text)]">{t.name}</h3>
                       <p className="text-xs text-[var(--primary-dark)] dark:text-[var(--primary-hover)] font-medium">
-                        {t.specialization || "General Fitness"}
+                        {t.specialization || tr("trainers.general_fitness")}
                       </p>
                       <div className="flex items-center gap-1 text-[11px] text-[var(--primary-dark)] font-bold mt-0.5">
                         <Star className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                         <span>{t.rating || "4.9"}</span>
-                        <span className="text-[10px] font-normal text-[var(--text-muted)]">(14 member reviews)</span>
+                        <span className="text-[10px] font-normal text-[var(--text-muted)]">{tr("trainers.14_member_reviews")}</span>
                       </div>
                       {t.email && <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{t.email}</p>}
                     </div>
@@ -259,7 +257,7 @@ export function TrainersClient() {
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-[var(--text-secondary)] bg-[var(--background)] p-2.5 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-[var(--primary)]" />
-                    <span className="font-semibold text-[var(--text)]">{t.assigned_clients_count || 0} Clients</span>
+                    <span className="font-semibold text-[var(--text)]">{tr("trainers.valueclients", undefined, { value: t.assigned_clients_count || 0 })}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Phone className="h-3.5 w-3.5 text-[var(--text-muted)]" />
@@ -278,9 +276,7 @@ export function TrainersClient() {
                   }}
                   className="text-xs h-8 gap-1"
                 >
-                  <UserPlus className="h-3.5 w-3.5 text-[var(--primary)]" />
-                  Assign Client
-                </Button>
+                  {richText(tr("trainers.userplusassign_client"), { userplus: <UserPlus className="h-3.5 w-3.5 text-[var(--primary)]" /> })}</Button>
 
                 <div className="flex items-center gap-1">
                   <Button
@@ -291,7 +287,7 @@ export function TrainersClient() {
                       setEditModalOpen(true);
                     }}
                     className="h-8 w-8 p-0"
-                    title="Edit Trainer Details"
+                    title={tr("trainers.edit_trainer_details")}
                   >
                     <Edit3 className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   </Button>
@@ -300,7 +296,7 @@ export function TrainersClient() {
                     size="sm"
                     onClick={() => handleDeleteTrainer(t.id, t.name)}
                     className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                    title="Remove Trainer"
+                    title={tr("trainers.remove_trainer")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -325,9 +321,9 @@ export function TrainersClient() {
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-[var(--text)]">Add New Trainer</h3>
+                <h3 className="text-lg font-bold text-[var(--text)]">{t("trainers.add_new_trainer")}</h3>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Onboard a coach or certified trainer to manage clients and sessions.
+                  {t("trainers.onboard_a_coach_or_certified_trainer")}
                 </p>
               </div>
               <button
@@ -348,12 +344,12 @@ export function TrainersClient() {
             <form onSubmit={handleCreateTrainer} className="space-y-3.5">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text)]">
-                  Full Name <span className="text-red-500">*</span>
+                  {t("trainers.full_name")}{" "}<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Vikram Rathore"
+                  placeholder={t("trainers.e_g_vikram_rathore")}
                   value={addTrainerData.name}
                   onChange={(e) => setAddTrainerData({ ...addTrainerData, name: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
@@ -362,7 +358,7 @@ export function TrainersClient() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text)]">
-                  Mobile Number <span className="text-red-500">*</span>
+                  {t("trainers.mobile_number")}{" "}<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -376,7 +372,7 @@ export function TrainersClient() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text)]">
-                  Email Address <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                  {t("auth.email_address")}{" "}<span className="text-[var(--text-muted)] font-normal">{t("trainers.optional")}</span>
                 </label>
                 <input
                   type="email"
@@ -388,25 +384,25 @@ export function TrainersClient() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--text)]">Specialization / Track</label>
+                <label className="text-xs font-medium text-[var(--text)]">{t("trainers.specialization_track")}</label>
                 <select
                   value={addTrainerData.specialization}
                   onChange={(e) => setAddTrainerData({ ...addTrainerData, specialization: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
                 >
-                  <option value="Strength & Conditioning">Strength & Conditioning</option>
-                  <option value="Personal Training">Personal Training</option>
-                  <option value="HIIT & Functional">HIIT & Functional</option>
-                  <option value="CrossFit">CrossFit</option>
-                  <option value="Yoga & Mobility">Yoga & Mobility</option>
-                  <option value="Rehabilitation">Rehabilitation</option>
-                  <option value="General Fitness">General Fitness</option>
+                  <option value="Strength & Conditioning">{t("trainers.strength_conditioning")}</option>
+                  <option value="Personal Training">{t("trainers.personal_training")}</option>
+                  <option value="HIIT & Functional">{t("trainers.hiit_functional")}</option>
+                  <option value="CrossFit">{t("trainers.crossfit")}</option>
+                  <option value="Yoga & Mobility">{t("trainers.yoga_mobility")}</option>
+                  <option value="Rehabilitation">{t("trainers.rehabilitation")}</option>
+                  <option value="General Fitness">{t("trainers.general_fitness")}</option>
                 </select>
               </div>
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text)]">
-                  Hourly PT Rate (₹) <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                  {t("trainers.hourly_pt_rate")}{" "}<span className="text-[var(--text-muted)] font-normal">{t("trainers.optional")}</span>
                 </label>
                 <input
                   type="number"
@@ -421,11 +417,11 @@ export function TrainersClient() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text)]">
-                  Bio / Certifications <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                  {t("trainers.bio_certifications")}{" "}<span className="text-[var(--text-muted)] font-normal">{t("trainers.optional")}</span>
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Certified ACE Trainer with 5+ years experience..."
+                  placeholder={t("trainers.e_g_certified_ace_trainer_with")}
                   value={addTrainerData.bio}
                   onChange={(e) => setAddTrainerData({ ...addTrainerData, bio: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)] resize-none"
@@ -441,7 +437,7 @@ export function TrainersClient() {
                   disabled={addingTrainer}
                   className="text-xs"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -449,7 +445,7 @@ export function TrainersClient() {
                   disabled={addingTrainer}
                   className="text-xs bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
                 >
-                  {addingTrainer ? "Adding Trainer..." : "Save Trainer"}
+                  {addingTrainer ? t("trainers.adding_trainer") : t("trainers.save_trainer")}
                 </Button>
               </div>
             </form>
@@ -461,20 +457,19 @@ export function TrainersClient() {
       {assignModalOpen && selectedTrainer && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-[var(--text)]">Assign Client to {selectedTrainer.name}</h3>
+            <h3 className="text-lg font-bold text-[var(--text)]">{t("trainers.assign_client_to_name", undefined, { name: selectedTrainer.name })}</h3>
             <p className="text-xs text-[var(--text-muted)]">
-              Select a member from your gym to assign under {selectedTrainer.name}'s training guidance.
-            </p>
+              {t("trainers.select_a_member_from_your_gym", undefined, { name: selectedTrainer.name })}</p>
             <form onSubmit={handleAssignClient} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Select Client / Member</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.select_client_member")}</label>
                 <select
                   value={selectedClientId}
                   onChange={(e) => setSelectedClientId(e.target.value)}
                   className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none"
                   required
                 >
-                  <option value="">-- Choose Member --</option>
+                  <option value="">{t("trainers.choose_member")}</option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name} ({m.phone}) - {m.status.toUpperCase()}
@@ -484,9 +479,9 @@ export function TrainersClient() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Assignment Notes (Optional)</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.assignment_notes_optional")}</label>
                 <textarea
-                  placeholder="e.g. Personal Training Plan - 3 sessions/week"
+                  placeholder={t("trainers.e_g_personal_training_plan_3")}
                   value={assignNotes}
                   onChange={(e) => setAssignNotes(e.target.value)}
                   className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none"
@@ -496,10 +491,10 @@ export function TrainersClient() {
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={() => setAssignModalOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={assigning || !selectedClientId} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]">
-                  {assigning ? "Assigning..." : "Confirm Assignment"}
+                  {assigning ? t("trainers.assigning") : t("trainers.confirm_assignment")}
                 </Button>
               </div>
             </form>
@@ -511,10 +506,10 @@ export function TrainersClient() {
       {editModalOpen && editTrainerData && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-[var(--text)]">Edit Trainer: {editTrainerData.name}</h3>
+            <h3 className="text-lg font-bold text-[var(--text)]">{t("trainers.edit_trainer_name", undefined, { name: editTrainerData.name })}</h3>
             <form onSubmit={handleUpdateTrainer} className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Full Name</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.full_name")}</label>
                 <input
                   type="text"
                   value={editTrainerData.name || ""}
@@ -525,7 +520,7 @@ export function TrainersClient() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Specialization</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.specialization")}</label>
                 <input
                   type="text"
                   value={editTrainerData.specialization || ""}
@@ -535,7 +530,7 @@ export function TrainersClient() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Trainer Status</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.trainer_status")}</label>
                 <select
                   value={editTrainerData.status || "ACTIVE"}
                   onChange={(e) => setEditTrainerData({ ...editTrainerData, status: e.target.value })}
@@ -548,7 +543,7 @@ export function TrainersClient() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text)]">Bio / Notes</label>
+                <label className="text-xs font-semibold text-[var(--text)]">{t("trainers.bio_notes")}</label>
                 <textarea
                   value={editTrainerData.bio || ""}
                   onChange={(e) => setEditTrainerData({ ...editTrainerData, bio: e.target.value })}
@@ -559,10 +554,10 @@ export function TrainersClient() {
 
               <div className="flex items-center justify-end gap-2 pt-3">
                 <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={updating}>
-                  {updating ? "Saving..." : "Save Changes"}
+                  {updating ? t("trainers.saving") : t("common.save")}
                 </Button>
               </div>
             </form>

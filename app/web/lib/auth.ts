@@ -6,6 +6,7 @@
  */
 
 import { API_BASE } from "@/lib/api-base";
+import { clearStorageKeepingLanguage } from "@/lib/i18n/persist";
 
 export interface AuthUser {
   id: string;
@@ -105,8 +106,7 @@ export async function logoutSession(): Promise<void> {
     }
 
     try {
-      localStorage.clear();
-      sessionStorage.clear();
+      clearStorageKeepingLanguage();
     } catch (err) {
       console.warn("Failed to clear browser storage on logout", err);
     }

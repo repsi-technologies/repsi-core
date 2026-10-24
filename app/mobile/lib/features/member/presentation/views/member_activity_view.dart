@@ -11,6 +11,7 @@ import '../../../../shared/widgets/repsi_error_state.dart';
 import '../../../attendance/providers/attendance_provider.dart';
 import '../../../health/data/health_models.dart';
 import '../../../health/providers/health_provider.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Member progress, built only from data the member actually has: Health Connect totals the
 /// backend stores for them and their own gym visits.
@@ -38,7 +39,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Activity', style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700)),
+        title: Text(context.l10n.activity, style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w700)),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -56,7 +57,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
               error: (e, _) => SizedBox(
                 height: 180,
                 child: RepsiErrorState(
-                  message: e is ApiError ? e.message : 'Could not load your gym visits.',
+                  message: e is ApiError ? e.message : context.l10n.errorLoadGymVisits,
                   onRetry: () => ref.invalidate(myAttendanceProvider),
                 ),
               ),
@@ -65,19 +66,19 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gym visits', style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
+                    Text(context.l10n.gymVisits, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _Figure(value: '${a.totalVisits}', label: 'Total'),
-                        _Figure(value: '${a.thisMonthVisits}', label: 'This month'),
-                        _Figure(value: '${a.streakDays}', label: 'Day streak'),
-                        _Figure(value: a.averageDurationMinutes == 0 ? '–' : '${a.averageDurationMinutes}m', label: 'Avg. visit'),
+                        _Figure(value: '${a.totalVisits}', label: context.l10n.commonTotal),
+                        _Figure(value: '${a.thisMonthVisits}', label: context.l10n.commonThisMonth),
+                        _Figure(value: '${a.streakDays}', label: context.l10n.commonDayStreak),
+                        _Figure(value: a.averageDurationMinutes == 0 ? '–' : '${a.averageDurationMinutes}m', label: context.l10n.avgVisit),
                       ],
                     ),
                     const Divider(height: 24),
                     if (a.recentVisits.isEmpty)
-                      Text('No visits yet. Check in at your gym to start your streak.',
+                      Text(context.l10n.noVisitsStartStreak,
                           style: AppTypography.bodySecondary.copyWith(color: AppColors.textSecondary))
                     else
                       for (final v in a.recentVisits.take(8))
@@ -88,7 +89,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
                               const Icon(Icons.fitness_center_rounded, size: 18, color: AppColors.primary),
                               const SizedBox(width: 10),
                               Expanded(child: Text(DateFormat('EEE, d MMM · h:mm a').format(v.checkInTime))),
-                              Text(v.isOpen ? 'In progress' : v.durationLabel,
+                              Text(v.isOpen ? context.l10n.inProgress : v.durationLabel,
                                   style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
                             ],
                           ),
@@ -128,8 +129,8 @@ class _StepsCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Text(
           health.availability == HealthAvailability.unsupported
-              ? 'Step tracking needs an Android phone with Health Connect.'
-              : 'Connect Health Connect from the Home tab to see your steps, distance and active calories here.',
+              ? context.l10n.healthStepsAndroidOnly
+              : context.l10n.healthConnectFromHome,
           style: AppTypography.bodySecondary.copyWith(color: AppColors.textSecondary),
         ),
       );
@@ -142,15 +143,15 @@ class _StepsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Steps this week', style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
+          Text(context.l10n.stepsThisWeek, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
           const SizedBox(height: 4),
-          Text('${nf.format(health.summary.totalSteps)} total · ${nf.format(health.summary.averageSteps)} per day',
+          Text(context.l10n.healthStepsSummary(nf.format(health.summary.totalSteps), nf.format(health.summary.averageSteps)),
               style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 16),
           SizedBox(
             height: 160,
             child: Semantics(
-              label: 'Bar chart of steps for the last seven days',
+              label: context.l10n.stepsChartSemantics,
               child: BarChart(
                 BarChartData(
                   maxY: (maxSteps == 0 ? 1000 : maxSteps * 1.2).toDouble(),

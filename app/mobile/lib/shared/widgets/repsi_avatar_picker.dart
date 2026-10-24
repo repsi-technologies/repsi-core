@@ -8,6 +8,7 @@ import '../../app/theme/app_typography.dart';
 import 'repsi_avatar.dart';
 import 'repsi_bottom_sheet.dart';
 
+import '../../l10n/l10n.dart';
 /// A picked photo, already downscaled on the device (max 1024px, JPEG quality 85) so uploads stay
 /// small on mobile data.
 class PickedPhoto {
@@ -46,15 +47,15 @@ class RepsiAvatarPicker extends StatelessWidget {
   Future<void> _choose(BuildContext context) async {
     final source = await RepsiBottomSheet.show<Object>(
       context: context,
-      title: 'Profile photo',
+      title: context.l10n.avatarTitle,
       child: Builder(
         builder: (ctx) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _SheetAction(icon: Icons.photo_camera_outlined, label: 'Take a photo', onTap: () => Navigator.pop(ctx, ImageSource.camera)),
-            _SheetAction(icon: Icons.photo_library_outlined, label: 'Choose from gallery', onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
+            _SheetAction(icon: Icons.photo_camera_outlined, label: context.l10n.avatarTakePhoto, onTap: () => Navigator.pop(ctx, ImageSource.camera)),
+            _SheetAction(icon: Icons.photo_library_outlined, label: context.l10n.avatarChooseGallery, onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
             if (_hasPhoto && onRemove != null)
-              _SheetAction(icon: Icons.delete_outline_rounded, label: 'Remove photo', destructive: true, onTap: () => Navigator.pop(ctx, 'remove')),
+              _SheetAction(icon: Icons.delete_outline_rounded, label: context.l10n.avatarRemove, destructive: true, onTap: () => Navigator.pop(ctx, 'remove')),
           ],
         ),
       ),
@@ -79,8 +80,8 @@ class RepsiAvatarPicker extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(source == ImageSource.camera
-                ? "Couldn't open the camera. Check REPSI's camera permission in Settings."
-                : "Couldn't open your photos. Check REPSI's photo permission in Settings."),
+                ? context.l10n.avatarCameraError
+                : context.l10n.avatarGalleryError),
           ),
         );
       }
@@ -112,7 +113,7 @@ class RepsiAvatarPicker extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: _hasPhoto ? 'Change profile photo' : 'Add profile photo',
+      label: _hasPhoto ? context.l10n.avatarChange : context.l10n.avatarAdd,
       child: InkWell(
         onTap: busy ? null : () => _choose(context),
         borderRadius: BorderRadius.circular(size),

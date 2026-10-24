@@ -6,6 +6,7 @@ import '../../../shared/models/dashboard_metrics_model.dart';
 import '../services/dashboard_service.dart';
 import '../../../core/api/api_time.dart';
 
+import '../../../l10n/l10n.dart';
 class DashboardState {
   final bool isLoading;
   final DashboardMetricsModel? metrics;
@@ -53,7 +54,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     } on ApiError catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Failed to load dashboard metrics');
+      state = state.copyWith(isLoading: false, errorMessage: L10n.current.errorLoadDashboard);
     }
   }
 }
@@ -82,7 +83,7 @@ class InsideNow {
   });
 
   factory InsideNow.fromJson(Map<String, dynamic> j) => InsideNow(
-        name: j['name']?.toString() ?? 'Member',
+        name: j['name']?.toString() ?? L10n.current.commonMember,
         avatarUrl: j['avatar_url']?.toString(),
         planName: j['plan_name']?.toString(),
         personType: j['person_type']?.toString() ?? 'member',

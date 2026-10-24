@@ -10,20 +10,21 @@ import { PermissionEditor } from "@/components/organization/permission-editor";
 import { ApiError, orgApi, type Branch, type Invitation, type TeamMember } from "@/lib/auth-client";
 import { isValidPhone, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { useTranslation, tr, richText } from "@/lib/i18n";
 
 const INVITE_ROLES: { value: Invitation["role"]; label: string; hint: string; minRole: "MANAGER" | "ADMIN" | "OWNER" }[] = [
-  { value: "trainer", label: "Trainer", hint: "Clients, workouts and schedules", minRole: "MANAGER" },
-  { value: "staff", label: "Front desk / staff", hint: "Check-ins, members and payments", minRole: "MANAGER" },
-  { value: "member", label: "Member", hint: "Member app access", minRole: "MANAGER" },
-  { value: "manager", label: "Branch manager", hint: "Runs assigned branches", minRole: "ADMIN" },
-  { value: "admin", label: "Admin", hint: "Full organization access", minRole: "OWNER" },
+  { value: "trainer", get label() { return tr("navItem.trainer"); }, get hint() { return tr("organization.clients_workouts_and_schedules"); }, minRole: "MANAGER" },
+  { value: "staff", get label() { return tr("organization.front_desk_staff"); }, get hint() { return tr("organization.check_ins_members_and_payments"); }, minRole: "MANAGER" },
+  { value: "member", get label() { return tr("pay.member"); }, get hint() { return tr("organization.member_app_access"); }, minRole: "MANAGER" },
+  { value: "manager", get label() { return tr("organization.branch_manager"); }, get hint() { return tr("organization.runs_assigned_branches"); }, minRole: "ADMIN" },
+  { value: "admin", get label() { return tr("organization.admin"); }, get hint() { return tr("organization.full_organization_access"); }, minRole: "OWNER" },
 ];
 
 const TEAM_ROLES = [
-  { value: "ADMIN", label: "Admin" },
-  { value: "MANAGER", label: "Manager" },
-  { value: "STAFF", label: "Staff" },
-  { value: "TRAINER", label: "Trainer" },
+  { value: "ADMIN", get label() { return tr("organization.admin"); } },
+  { value: "MANAGER", get label() { return tr("organization.manager"); } },
+  { value: "STAFF", get label() { return tr("organization.staff"); } },
+  { value: "TRAINER", get label() { return tr("navItem.trainer"); } },
 ];
 
 const RANK: Record<string, number> = { SUPER_ADMIN: 3, OWNER: 3, ADMIN: 2, MANAGER: 1 };
@@ -48,14 +49,15 @@ function BranchPicker({
   idPrefix: string;
   disabled?: boolean;
 }) {
-  if (branches.length === 0) return <p className="text-sm text-[var(--text-muted)]">No branches yet.</p>;
+  const { t } = useTranslation();
+  if (branches.length === 0) return <p className="text-sm text-[var(--text-muted)]">{t("organization.no_branches_yet_2")}</p>;
   const all = value.length === 0;
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Branch access">
+    <div className="flex flex-wrap gap-2" role="group" aria-label={t("organization.branch_access")}>
       <button type="button" disabled={disabled} onClick={() => onChange([])} aria-pressed={all}
         className={cn("h-8 rounded-full border px-3 text-xs font-medium transition-colors",
           all ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary-dark)]" : "border-[var(--border)] hover:bg-[var(--surface-hover)]")}>
-        All branches
+        {t("organization.all_branches")}
       </button>
       {branches.map((b) => {
         const on = value.includes(b.id);
@@ -80,6 +82,7 @@ interface Props {
 }
 
 export function TeamManager({ myRole, branches, showMembers = true, defaultCountry }: Props) {
+  const { t } = useTranslation();
   const canManage = RANK[myRole] >= 2;
   const canInvite = RANK[myRole] >= 1;
   const [invites, setInvites] = useState<Invitation[] | null>(null);
@@ -101,7 +104,7 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
       setInvites(inv);
       setMembers(team);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't load your team.");
+      setError(err instanceof ApiError ? err.message : t("organization.couldn_t_load_your_team"));
       setInvites([]);
       setMembers([]);
     }
@@ -133,13 +136,13 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
         role: form.role,
         branch_ids: form.branch_ids,
       });
-      setNotice(`Invitation emailed to ${form.email.trim()}.`);
+      setNotice(t("organization.invitation_emailed_to_count", undefined, { count: form.email.trim() }));
       setForm((f) => ({ ...f, name: "", email: "", phone: "" }));
       await load();
     } catch (err) {
       const api = err instanceof ApiError ? err : null;
       setFormErrors(api?.fieldErrors || {});
-      setError(api?.message || "Couldn't send the invitation.");
+      setError(api?.message || t("organization.couldn_t_send_the_invitation"));
     } finally {
       setSending(false);
     }
@@ -154,13 +157,13 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
       setNotice(success);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Action failed.");
+      setError(err instanceof ApiError ? err.message : t("organization.action_failed"));
     } finally {
       setBusy(null);
     }
   }
 
-  const branchName = (id: string) => branches.find((b) => b.id === id)?.name || "Removed branch";
+  const branchName = (id: string) => branches.find((b) => b.id === id)?.name || t("organization.removed_branch");
 
   return (
     <div className="space-y-6">
@@ -169,47 +172,47 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
 
       {canInvite && (
         <form onSubmit={sendInvite} noValidate className="space-y-4 rounded-[12px] border border-[var(--border)] p-4 sm:p-5">
-          <h3 className="flex items-center gap-2 text-sm font-semibold"><Send className="h-4 w-4 text-[var(--primary)]" aria-hidden /> Invite someone</h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold">{richText(t("organization.sendinvite_someone"), { send: <Send className="h-4 w-4 text-[var(--primary)]" aria-hidden /> })}</h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField id="inv-name" label="Name" required error={formErrors.name}>
+            <FormField id="inv-name" label={t("organization.name")} required error={formErrors.name}>
               <TextInput id="inv-name" value={form.name} invalid={Boolean(formErrors.name)} autoComplete="off"
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             </FormField>
-            <FormField id="inv-email" label="Email" required error={formErrors.email}>
+            <FormField id="inv-email" label={t("invite.email")} required error={formErrors.email}>
               <TextInput id="inv-email" type="email" value={form.email} invalid={Boolean(formErrors.email)} autoComplete="off"
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
             </FormField>
-            <FormField id="inv-role" label="Role" required>
+            <FormField id="inv-role" label={t("organization.role")} required>
               <SelectInput id="inv-role" value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as Invitation["role"] }))}>
                 {roleOptions.map((r) => <option key={r.value} value={r.value}>{r.label} — {r.hint}</option>)}
               </SelectInput>
             </FormField>
-            <FormField id="inv-phone" label="Mobile" error={formErrors.phone}>
+            <FormField id="inv-phone" label={t("organization.mobile")} error={formErrors.phone}>
               <PhoneInput id="inv-phone" value={form.phone} error={Boolean(formErrors.phone)} defaultCountry={form.phone_country}
                 onChange={(v) => setForm((f) => ({ ...f, phone: v }))} onCountryChange={(c) => setForm((f) => ({ ...f, phone_country: c.code }))} />
             </FormField>
           </div>
           {form.role !== "admin" && form.role !== "member" && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Branch access</p>
+              <p className="text-sm font-medium">{t("organization.branch_access")}</p>
               <BranchPicker idPrefix="inv-branch" branches={branches} value={form.branch_ids}
                 onChange={(ids) => setForm((f) => ({ ...f, branch_ids: ids }))} />
             </div>
           )}
           <div className="flex justify-end">
-            <PrimaryButton type="submit" loading={sending}><Mail className="h-4 w-4" aria-hidden /> Send invitation</PrimaryButton>
+            <PrimaryButton type="submit" loading={sending}>{richText(t("organization.mailsend_invitation"), { mail: <Mail className="h-4 w-4" aria-hidden /> })}</PrimaryButton>
           </div>
         </form>
       )}
 
       {canInvite && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Invitations</h3>
+          <h3 className="text-sm font-semibold">{t("organization.invitations")}</h3>
           {invites === null ? (
             <div className="h-16 animate-pulse rounded-[12px] bg-[var(--background)]" />
           ) : invites.length === 0 ? (
             <p className="rounded-[12px] border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--text-muted)]">
-              No invitations sent yet.
+              {t("organization.no_invitations_sent_yet")}
             </p>
           ) : (
             <ul className="divide-y divide-[var(--border)] rounded-[12px] border border-[var(--border)]">
@@ -219,7 +222,7 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
                     <p className="truncate text-sm font-medium">{inv.name} <span className="font-normal text-[var(--text-muted)]">· {inv.email}</span></p>
                     <p className="text-xs text-[var(--text-muted)]">
                       <span className="capitalize">{inv.role}</span> ·{" "}
-                      {inv.branch_ids.length ? inv.branch_ids.map(branchName).join(", ") : "All branches"} ·{" "}
+                      {inv.branch_ids.length ? inv.branch_ids.map(branchName).join(", ") : t("organization.all_branches")} ·{" "}
                       {inv.status === "pending" ? `expires ${new Date(inv.expires_at).toLocaleDateString()}` : new Date(inv.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -228,14 +231,12 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
                     {(inv.status === "pending" || inv.status === "expired") && (
                       <button type="button" disabled={busy === inv.id} onClick={() => act(inv.id, () => orgApi.resendInvitation(inv.id), `Invitation re-sent to ${inv.email}.`)}
                         className="inline-flex h-8 items-center gap-1 rounded-[8px] px-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] disabled:opacity-50">
-                        <RefreshCw className="h-3.5 w-3.5" aria-hidden /> Resend
-                      </button>
+                        {richText(t("organization.refreshcwresend"), { refreshcw: <RefreshCw className="h-3.5 w-3.5" aria-hidden /> })}</button>
                     )}
                     {inv.status === "pending" && (
                       <button type="button" disabled={busy === inv.id} onClick={() => act(inv.id, () => orgApi.revokeInvitation(inv.id), "Invitation cancelled.")}
                         className="inline-flex h-8 items-center gap-1 rounded-[8px] px-2 text-xs font-medium text-rose-600 hover:bg-rose-50 disabled:opacity-50">
-                        <X className="h-3.5 w-3.5" aria-hidden /> Cancel
-                      </button>
+                        {richText(t("organization.xcancel"), { x: <X className="h-3.5 w-3.5" aria-hidden /> })}</button>
                     )}
                   </div>
                 </li>
@@ -247,13 +248,13 @@ export function TeamManager({ myRole, branches, showMembers = true, defaultCount
 
       {showMembers && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Team members</h3>
+          <h3 className="text-sm font-semibold">{t("organization.team_members")}</h3>
           {members === null ? (
             <div className="h-16 animate-pulse rounded-[12px] bg-[var(--background)]" />
           ) : members.length === 0 ? (
             <div className="rounded-[12px] border border-dashed border-[var(--border)] px-4 py-8 text-center">
               <Users className="mx-auto h-7 w-7 text-[var(--text-muted)]" aria-hidden />
-              <p className="mt-2 text-sm text-[var(--text-muted)]">No team members yet. Invite trainers and staff above.</p>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">{t("organization.no_team_members_yet_invite_trainers")}</p>
             </div>
           ) : (
             <ul className="space-y-3">
@@ -285,6 +286,7 @@ function MemberRow({
   busy: boolean;
   onSave: (data: { role?: string; branch_ids?: string[]; is_active?: boolean }, msg: string) => void;
 }) {
+  const { t } = useTranslation();
   const [role, setRole] = useState(member.role);
   const [ids, setIds] = useState(member.branch_ids);
   const [showPermissions, setShowPermissions] = useState(false);
@@ -300,13 +302,13 @@ function MemberRow({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">
-            {member.full_name} {member.is_self && <span className="text-xs font-normal text-[var(--text-muted)]">(you)</span>}
-            {!member.is_active && <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">· deactivated</span>}
+            {member.full_name} {member.is_self && <span className="text-xs font-normal text-[var(--text-muted)]">{t("organization.you")}</span>}
+            {!member.is_active && <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">{t("organization.deactivated_2")}</span>}
           </p>
           <p className="truncate text-xs text-[var(--text-muted)]">{member.email}</p>
         </div>
         {canManage ? (
-          <SelectInput aria-label={`Role for ${member.full_name}`} value={role} onChange={(e) => setRole(e.target.value)} className="h-9 sm:w-40">
+          <SelectInput aria-label={t("organization.role_for_full_name", undefined, { full_name: member.full_name })} value={role} onChange={(e) => setRole(e.target.value)} className="h-9 sm:w-40">
             {TEAM_ROLES.filter((r) => r.value !== "ADMIN" || myRole === "OWNER" || myRole === "SUPER_ADMIN").map((r) => (
               <option key={r.value} value={r.value}>{r.label}</option>
             ))}
@@ -317,12 +319,12 @@ function MemberRow({
       </div>
       <div className="mt-3">
         {orgWide ? (
-          <p className="text-xs text-[var(--text-muted)]">Access to all branches</p>
+          <p className="text-xs text-[var(--text-muted)]">{t("organization.access_to_all_branches")}</p>
         ) : canManage ? (
           <BranchPicker idPrefix={`m-${member.id}`} branches={branches} value={ids} onChange={setIds} />
         ) : (
           <p className="text-xs text-[var(--text-muted)]">
-            {member.all_branches ? "All branches" : member.branch_ids.map((id) => branches.find((b) => b.id === id)?.name).filter(Boolean).join(", ")}
+            {member.all_branches ? t("organization.all_branches") : member.branch_ids.map((id) => branches.find((b) => b.id === id)?.name).filter(Boolean).join(", ")}
           </p>
         )}
       </div>
@@ -330,18 +332,17 @@ function MemberRow({
         <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
           <SecondaryButton type="button" className="h-8 px-3 text-xs" aria-expanded={showPermissions}
             onClick={() => setShowPermissions((v) => !v)}>
-            <KeyRound className="h-3.5 w-3.5" aria-hidden /> Permissions
-          </SecondaryButton>
+            {richText(t("organization.keyroundpermissions"), { keyround: <KeyRound className="h-3.5 w-3.5" aria-hidden /> })}</SecondaryButton>
           <SecondaryButton type="button" disabled={busy} className="h-8 px-3 text-xs"
             onClick={() => {
-              if (member.is_active && !confirm(`Deactivate ${member.full_name}? They lose access immediately. Their history, assigned members and attendance records are kept.`)) return;
+              if (member.is_active && !confirm(t("organization.deactivate_full_name_they_lose_access", undefined, { full_name: member.full_name }))) return;
               onSave({ is_active: !member.is_active }, member.is_active ? `${member.full_name} deactivated.` : `${member.full_name} reactivated.`);
             }}>
-            <UserX className="h-3.5 w-3.5" aria-hidden /> {member.is_active ? "Deactivate" : "Reactivate"}
+            <UserX className="h-3.5 w-3.5" aria-hidden /> {member.is_active ? t("organization.deactivate") : t("organization.reactivate")}
           </SecondaryButton>
           <PrimaryButton type="button" disabled={!dirty} loading={busy} className="h-8 px-3 text-xs"
             onClick={() => onSave({ role, branch_ids: orgWide ? [] : ids }, `Access updated for ${member.full_name}.`)}>
-            Save access
+            {t("organization.save_access")}
           </PrimaryButton>
         </div>
       )}

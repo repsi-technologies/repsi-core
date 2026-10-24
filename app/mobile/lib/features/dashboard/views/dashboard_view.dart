@@ -16,6 +16,7 @@ import '../../notifications/providers/notification_provider.dart';
 import '../../workspaces/providers/workspace_provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'owner_search_modal.dart';
+import '../../../l10n/l10n.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
@@ -49,7 +50,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final c = _Palette(isDark);
     final auth = ref.watch(authProvider);
-    final gymName = ref.watch(workspaceProvider).activeWorkspace?.name ?? auth.user?.gymName ?? 'Your gym';
+    final gymName = ref.watch(workspaceProvider).activeWorkspace?.name ?? auth.user?.gymName ?? context.l10n.yourGym;
     final dash = ref.watch(dashboardProvider);
     final metrics = dash.metrics;
 
@@ -84,8 +85,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       ..._loading()
                     else if (metrics == null)
                       RepsiErrorState(
-                        title: "Couldn't load your dashboard",
-                        message: dash.errorMessage ?? 'Check your connection and try again.',
+                        title: context.l10n.errorLoadDashboardTitle,
+                        message: dash.errorMessage ?? context.l10n.commonCheckConnection,
                         onRetry: _refresh,
                       )
                     else ...[
@@ -96,19 +97,18 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       _QuickActions(palette: c),
                       if (metrics.expiringMemberships > 0) ...[
                         const SizedBox(height: AppSpacing.xxl),
-                        _SectionTitle('Needs attention', palette: c),
+                        _SectionTitle(context.l10n.needsAttention, palette: c),
                         _AttentionRow(
                           icon: Icons.event_busy_rounded,
                           tone: isDark ? AppColors.darkWarning : AppColors.warning,
-                          title: '${metrics.expiringMemberships} '
-                              '${metrics.expiringMemberships == 1 ? 'membership ends' : 'memberships end'} in the next 7 days',
-                          subtitle: 'Remind them to renew before access lapses',
+                          title: context.l10n.dashExpiringSoon(metrics.expiringMemberships),
+                          subtitle: context.l10n.remindToRenew,
                           onTap: () => context.go(RouteNames.members),
                           palette: c,
                         ),
                       ],
                       const SizedBox(height: AppSpacing.xxl),
-                      _SectionTitle('Check-ins', trailing: 'Peak ${metrics.attendancePeakHour}', palette: c),
+                      _SectionTitle(context.l10n.checkIns, trailing: context.l10n.dashPeakHour(metrics.attendancePeakHour), palette: c),
                       _AttendanceChart(points: metrics.attendanceChart, palette: c),
                       const SizedBox(height: AppSpacing.xxl),
                       _InsideNowSection(palette: c),
@@ -188,7 +188,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final greeting = now.hour < 12 ? 'Good morning' : (now.hour < 17 ? 'Good afternoon' : 'Good evening');
+    final greeting = now.hour < 12 ? context.l10n.greetingMorning : (now.hour < 17 ? context.l10n.greetingAfternoon : context.l10n.greetingEvening);
     final first = userName.trim().split(' ').first;
     return Row(
       children: [
@@ -197,7 +197,9 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$greeting${first.isEmpty ? '' : ', $first'} · ${DateFormat('EEE d MMM').format(now)}',
+                first.isEmpty
+                    ? context.l10n.dashGreetingLine(greeting, DateFormat('EEE d MMM', L10n.localeName).format(now))
+                    : context.l10n.dashGreetingNameLine(greeting, first, DateFormat('EEE d MMM', L10n.localeName).format(now)),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.caption.copyWith(color: palette.secondary),
@@ -216,12 +218,12 @@ class _Header extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Search',
+          tooltip: context.l10n.commonSearch,
           onPressed: onSearch,
           icon: Icon(Icons.search_rounded, color: palette.text),
         ),
         IconButton(
-          tooltip: unread > 0 ? 'Notifications, $unread unread' : 'Notifications',
+          tooltip: unread > 0 ? context.l10n.dashNotificationsUnread(unread) : context.l10n.commonNotifications,
           onPressed: () => context.push(RouteNames.notifications),
           icon: Badge(
             isLabelVisible: unread > 0,
@@ -232,7 +234,7 @@ class _Header extends StatelessWidget {
         ),
         Semantics(
           button: true,
-          label: 'Account and settings',
+          label: context.l10n.accountAndSettings,
           child: InkWell(
             onTap: () => context.go(RouteNames.more),
             customBorder: const CircleBorder(),
@@ -257,8 +259,8 @@ class _TrialBanner extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final days = trial.daysRemaining;
     final text = trial.isExpired || days <= 0
-        ? 'Your free trial has ended. Choose a plan on repsi.app to keep using REPSI.'
-        : '$days ${days == 1 ? 'day' : 'days'} left in your free trial. Choose a plan on repsi.app anytime.';
+        ? context.l10n.trialEnded
+        : context.l10n.dashTrialDaysLeft(days);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
       child: Container(
@@ -297,8 +299,9 @@ class _RevenueCard extends StatelessWidget {
     final maxV = bars.fold<double>(0, (m, p) => p.value > m ? p.value : m);
 
     return Semantics(
-      label: 'Revenue this month ${_inr.format(metrics.monthlyRevenue)}, '
-          '${up ? 'up' : 'down'} ${growth.abs().toStringAsFixed(1)} percent versus last month',
+      label: up
+          ? context.l10n.dashRevenueSemantics(_inr.format(metrics.monthlyRevenue), growth.abs().toStringAsFixed(1))
+          : context.l10n.dashRevenueSemanticsDown(_inr.format(metrics.monthlyRevenue), growth.abs().toStringAsFixed(1)),
       child: _Surface(
         palette: palette,
         child: ExcludeSemantics(
@@ -309,7 +312,7 @@ class _RevenueCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Revenue this month', style: AppTypography.caption.copyWith(color: palette.secondary)),
+                    Text(context.l10n.revenueThisMonth, style: AppTypography.caption.copyWith(color: palette.secondary)),
                     const SizedBox(height: AppSpacing.xs),
                     FittedBox(
                       fit: BoxFit.scaleDown,
@@ -328,7 +331,7 @@ class _RevenueCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            '${growth.abs().toStringAsFixed(1)}% vs last month',
+                            context.l10n.dashVsLastMonth(growth.abs().toStringAsFixed(1)),
                             style: AppTypography.caption.copyWith(
                               color: up ? palette.success : palette.error,
                               fontWeight: FontWeight.w600,
@@ -412,11 +415,11 @@ class _TodayStrip extends StatelessWidget {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            cell('Check-ins today', metrics.todayAttendance, RouteNames.operations),
+            cell(context.l10n.checkInsToday, metrics.todayAttendance, RouteNames.operations),
             divider(),
-            cell('Active members', metrics.activeMembers, RouteNames.members),
+            cell(context.l10n.activeMembers, metrics.activeMembers, RouteNames.members),
             divider(),
-            cell('Renewals due', metrics.expiringMemberships, RouteNames.members),
+            cell(context.l10n.renewalsDue, metrics.expiringMemberships, RouteNames.members),
           ],
         ),
       ),
@@ -432,10 +435,10 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actions = [
-      (Icons.person_add_alt_1_rounded, 'Add member', () => context.push(RouteNames.addMember)),
-      (Icons.how_to_reg_rounded, 'Attendance', () => context.go(RouteNames.operations)),
-      (Icons.payments_rounded, 'Payments', () => context.go(RouteNames.finance)),
-      (Icons.groups_rounded, 'Members', () => context.go(RouteNames.members)),
+      (Icons.person_add_alt_1_rounded, context.l10n.addMember, () => context.push(RouteNames.addMember)),
+      (Icons.how_to_reg_rounded, context.l10n.commonAttendance, () => context.go(RouteNames.operations)),
+      (Icons.payments_rounded, context.l10n.commonPayments, () => context.go(RouteNames.finance)),
+      (Icons.groups_rounded, context.l10n.commonMembers, () => context.go(RouteNames.members)),
     ];
     return Row(
       children: [
@@ -560,14 +563,13 @@ class _AttendanceChart extends StatelessWidget {
     if (data.isEmpty || total == 0) {
       return _Surface(
         palette: palette,
-        child: Text('No check-ins recorded this week yet.', style: AppTypography.bodySmall.copyWith(color: palette.secondary)),
+        child: Text(context.l10n.noCheckinsThisWeek, style: AppTypography.bodySmall.copyWith(color: palette.secondary)),
       );
     }
     final maxV = data.fold<double>(0, (m, p) => p.value > m ? p.value : m);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     return Semantics(
-      label: 'Check-ins over the last ${data.length} days: '
-          '${data.map((p) => '${p.label} ${p.value.toInt()}').join(', ')}',
+      label: context.l10n.dashCheckinsChartSemantics(data.length, data.map((p) => '${p.label} ${p.value.toInt()}').join(', ')),
       child: _Surface(
         palette: palette,
         padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xl, AppSpacing.md, AppSpacing.md),
@@ -618,7 +620,7 @@ class _AttendanceChart extends StatelessWidget {
                   touchTooltipData: BarTouchTooltipData(
                     getTooltipColor: (_) => palette.dark ? AppColors.darkSurfaceElevated : AppColors.text,
                     getTooltipItem: (group, _, rod, __) => BarTooltipItem(
-                      '${rod.toY.toInt()} check-ins',
+                      context.l10n.dashCheckinsCount(rod.toY.toInt()),
                       AppTypography.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -656,7 +658,7 @@ class _InsideNowSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionTitle('In the gym now', trailing: count == null ? null : '$count checked in', palette: palette),
+        _SectionTitle(context.l10n.commonInTheGymNow, trailing: count == null ? null : context.l10n.dashCheckedInCount(count), palette: palette),
         inside.when(
           loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
           error: (_, __) => _Surface(
@@ -664,10 +666,10 @@ class _InsideNowSection extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text("Couldn't load who's checked in.",
+                  child: Text(context.l10n.errorLoadCheckedIn,
                       style: AppTypography.bodySmall.copyWith(color: palette.secondary)),
                 ),
-                TextButton(onPressed: () => ref.invalidate(currentlyInsideProvider), child: const Text('Retry')),
+                TextButton(onPressed: () => ref.invalidate(currentlyInsideProvider), child: Text(context.l10n.commonRetry)),
               ],
             ),
           ),
@@ -680,7 +682,7 @@ class _InsideNowSection extends ConsumerWidget {
                     Icon(Icons.door_front_door_outlined, color: palette.secondary),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: Text('No one is checked in right now.',
+                      child: Text(context.l10n.commonNoOneCheckedIn,
                           style: AppTypography.bodySmall.copyWith(color: palette.secondary)),
                     ),
                   ],
@@ -704,8 +706,8 @@ class _InsideNowSection extends ConsumerWidget {
                           style: AppTypography.bodySmall.copyWith(color: palette.text, fontWeight: FontWeight.w600)),
                       subtitle: Text(
                         [
-                          if (shown[i].personType != 'member') 'Staff' else if (shown[i].planName != null) shown[i].planName!,
-                          'in since ${DateFormat.jm().format(shown[i].checkInTime)}',
+                          if (shown[i].personType != 'member') context.l10n.commonStaff else if (shown[i].planName != null) shown[i].planName!,
+                          context.l10n.dashInSince(DateFormat.jm().format(shown[i].checkInTime)),
                         ].join(' · '),
                         style: AppTypography.caption.copyWith(color: palette.secondary),
                       ),
@@ -718,7 +720,7 @@ class _InsideNowSection extends ConsumerWidget {
                     TextButton(
                       onPressed: () => context.go(RouteNames.operations),
                       style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                      child: Text('See all ${people.length}', style: AppTypography.button.copyWith(color: palette.accentText)),
+                      child: Text(context.l10n.dashSeeAll(people.length), style: AppTypography.button.copyWith(color: palette.accentText)),
                     ),
                   ],
                 ],

@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "@/lib/i18n";
 
 function CustomTooltip({
   active,
@@ -20,13 +21,14 @@ function CustomTooltip({
   payload?: Array<{ value: number }>;
   label?: string;
 }) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md px-3.5 py-2.5 shadow-lg dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)] text-xs">
       <div className="font-bold text-[var(--text)] mb-1">{label}</div>
       <div className="text-[var(--text-muted)]">
-        Check-ins:{" "}
+        {t("dashboard.check_ins")}{" "}
         <span className="font-bold text-[var(--text)] tabular-nums">
           {payload[0].value}
         </span>
@@ -36,14 +38,15 @@ function CustomTooltip({
 }
 
 export function AttendanceChart({ data }: { data?: Array<{ label: string; value: number }> }) {
+  const { t } = useTranslation();
   const chartData = data || [
-    { label: "Mon", value: 0 },
-    { label: "Tue", value: 0 },
-    { label: "Wed", value: 0 },
-    { label: "Thu", value: 0 },
-    { label: "Fri", value: 0 },
-    { label: "Sat", value: 0 },
-    { label: "Sun", value: 0 },
+    { label: t("dashboard.mon"), value: 0 },
+    { label: t("dashboard.tue"), value: 0 },
+    { label: t("dashboard.wed"), value: 0 },
+    { label: t("dashboard.thu"), value: 0 },
+    { label: t("dashboard.fri"), value: 0 },
+    { label: t("dashboard.sat"), value: 0 },
+    { label: t("dashboard.sun"), value: 0 },
   ];
 
   const totalThisWeek = chartData.reduce((acc, curr) => acc + curr.value, 0);
@@ -53,16 +56,16 @@ export function AttendanceChart({ data }: { data?: Array<{ label: string; value:
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-base font-bold text-[var(--text)] tracking-tight">Attendance</h2>
+          <h2 className="text-base font-bold text-[var(--text)] tracking-tight">{t("nav.attendance")}</h2>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">
-            Daily check-ins this week
+            {t("dashboard.daily_check_ins_this_week")}
           </p>
         </div>
         <div className="text-right">
           <div className="text-xl font-bold text-[var(--text)] tabular-nums">
             {totalThisWeek}
           </div>
-          <div className="text-xs text-[var(--text-muted)] font-medium">Total this week</div>
+          <div className="text-xs text-[var(--text-muted)] font-medium">{t("dashboard.total_this_week")}</div>
         </div>
       </div>
 

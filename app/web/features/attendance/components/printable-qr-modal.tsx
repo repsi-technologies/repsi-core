@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Printer, X, Sparkles, ShieldCheck, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QrCodeView } from "@/components/ui/qr-code-view";
+import { useTranslation } from "@/lib/i18n";
 
 interface PrintableQrModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function PrintableQrModal({
   qrLabel,
   gymLocation = "Main Reception",
 }: PrintableQrModalProps) {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   const handlePrint = () => {
@@ -34,15 +36,15 @@ export function PrintableQrModal({
         {/* Modal Controls (Hidden in Print) */}
         <div className="flex items-center justify-between print:hidden">
           <div>
-            <h2 className="text-lg font-bold text-[var(--text)]">Print Official Gym QR Poster</h2>
+            <h2 className="text-lg font-bold text-[var(--text)]">{t("attendance.print_official_gym_qr_poster")}</h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Display at entrance turnstiles, reception desk, or check-in stands.
+              {t("attendance.display_at_entrance_turnstiles_reception_desk")}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Button onClick={handlePrint} size="sm" className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-semibold shadow-md">
               <Printer className="w-4 h-4" />
-              <span>Print Poster</span>
+              <span>{t("attendance.print_poster")}</span>
             </Button>
             <button
               onClick={onClose}
@@ -62,7 +64,7 @@ export function PrintableQrModal({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-widest">
               <Dumbbell className="w-4 h-4 text-emerald-600" />
-              <span>REPSI GYM ACCESS STATION</span>
+              <span>{t("attendance.repsi_gym_access_station")}</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 uppercase">
@@ -80,10 +82,10 @@ export function PrintableQrModal({
           {/* Call to action */}
           <div className="space-y-1">
             <p className="text-lg font-extrabold text-slate-900 tracking-wide uppercase">
-              SCAN TO CHECK IN
+              {t("attendance.scan_to_check_in")}
             </p>
             <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-              Open the <strong className="text-slate-900">Repsi app</strong> and scan this QR code to mark your attendance.
+              {t("attendance.open_the")}{" "}<strong className="text-slate-900">{t("attendance.repsi_app")}</strong> {t("attendance.and_scan_this_qr_code_to")}
             </p>
           </div>
 
@@ -93,7 +95,7 @@ export function PrintableQrModal({
               value={qrPayload}
               size={240}
               title={gymName}
-              subtitle="Repsi Verified Pass"
+              subtitle={t("attendance.repsi_verified_pass")}
               showDownload={false}
               showCopy={false}
               darkColor="#0f172a"
@@ -105,11 +107,11 @@ export function PrintableQrModal({
           <div className="space-y-3 pt-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Please scan when you enter the gym</span>
+              <span>{t("attendance.please_scan_when_you_enter_the")}</span>
             </div>
 
             <div className="text-[11px] text-slate-400 font-medium">
-              Powered by Repsi • Smart Access & Attendance Platform
+              {t("attendance.powered_by_repsi_smart_access_attendance")}
             </div>
           </div>
         </div>

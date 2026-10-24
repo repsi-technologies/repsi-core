@@ -5,6 +5,7 @@ import '../../../shared/models/attendance_model.dart';
 import '../../../shared/models/member_attendance_model.dart';
 import '../services/attendance_service.dart';
 
+import '../../../l10n/l10n.dart';
 class AttendanceState {
   final bool isLoading;
   final AttendanceSummaryModel? summary;
@@ -53,7 +54,7 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
       state = state.copyWith(
-          isLoading: false, errorMessage: 'Failed to load attendance');
+          isLoading: false, errorMessage: L10n.current.errorLoadAttendance);
     }
   }
 

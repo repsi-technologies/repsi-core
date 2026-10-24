@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
+import '../../../../l10n/l10n.dart';
+import '../exercise_text.dart';
 
 class ExerciseItem {
   final String id;
@@ -364,7 +366,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                   border: Border.all(color: Colors.white24),
                                 ),
                                 child: Text(
-                                  '${item.category.toUpperCase()} • ${item.subMuscle.toUpperCase()}',
+                                  '${exerciseText(context.l10n, item.category)} • ${exerciseText(context.l10n, item.subMuscle)}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 11,
@@ -401,7 +403,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${item.equipment} · ${item.difficulty} · ${item.type}',
+                                '${exerciseText(context.l10n, item.equipment)} · ${exerciseText(context.l10n, item.difficulty)} · ${exerciseText(context.l10n, item.type)}',
                                 style: const TextStyle(color: Colors.white70, fontSize: 13),
                               ),
                             ],
@@ -427,8 +429,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'TARGET MUSCLES',
+                              Text(
+                                context.l10n.targetMuscles,
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
@@ -449,7 +451,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                       border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                                     ),
                                     child: Text(
-                                      'Primary: ${item.subMuscle} (${item.category})',
+                                      context.l10n.exPrimary(exerciseText(context.l10n, item.subMuscle), exerciseText(context.l10n, item.category)),
                                       style: const TextStyle(
                                         color: AppColors.primaryDark,
                                         fontWeight: FontWeight.w700,
@@ -466,7 +468,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                         border: Border.all(color: AppColors.border),
                                       ),
                                       child: Text(
-                                        'Secondary: $m',
+                                        context.l10n.exSecondary(exerciseText(context.l10n, m)),
                                         style: const TextStyle(
                                           color: AppColors.textSecondary,
                                           fontWeight: FontWeight.w500,
@@ -495,10 +497,10 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text('Sets', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.sets, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${item.defaultSets} Sets',
+                                      context.l10n.exSetsCount(item.defaultSets),
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
@@ -520,10 +522,10 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text('Reps', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.reps, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${item.defaultReps} Reps',
+                                      context.l10n.exRepsCount(item.defaultReps),
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
@@ -545,7 +547,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text('Rest', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.rest, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
                                       '${item.defaultRestSec}s',
@@ -575,12 +577,12 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Row(
+                                Row(
                                   children: [
                                     Icon(Icons.verified_rounded, size: 16, color: AppColors.primaryDark),
                                     SizedBox(width: 6),
                                     Text(
-                                      'Why am I doing this? (Coach Arun\'s Note)',
+                                      context.l10n.whyThisExercise,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
@@ -591,7 +593,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  '"${item.trainerNote}"',
+                                  '"${exerciseText(context.l10n, item.trainerNote!)}"',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
@@ -606,8 +608,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         ],
 
                         // Step-by-Step Instructions
-                        const Text(
-                          'How to Perform',
+                        Text(
+                          context.l10n.howToPerform,
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.text),
                         ),
                         const SizedBox(height: 10),
@@ -639,7 +641,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    entry.value,
+                                    exerciseText(context.l10n, entry.value),
                                     style: const TextStyle(
                                       fontSize: 13,
                                       color: AppColors.textSecondary,
@@ -678,7 +680,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 size: 18,
                               ),
                               label: Text(
-                                isFav ? 'Favorited' : 'Favorite',
+                                isFav ? context.l10n.favourited : context.l10n.favourite,
                                 style: TextStyle(
                                   color: isFav ? AppColors.error : AppColors.text,
                                   fontWeight: FontWeight.w700,
@@ -708,7 +710,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 size: 18,
                               ),
                               label: Text(
-                                inBasket ? 'In Workout Plan' : 'Add to Workout',
+                                inBasket ? context.l10n.inWorkoutPlan : context.l10n.addToWorkout,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -737,7 +739,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
   }
 
   void _showWorkoutBuilder() {
-    final workoutNameCtrl = TextEditingController(text: 'My Custom Routine');
+    final workoutNameCtrl = TextEditingController(text: context.l10n.myCustomRoutine);
 
     showModalBottomSheet(
       context: context,
@@ -759,12 +761,12 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(Icons.bolt_rounded, color: AppColors.primary, size: 24),
                           SizedBox(width: 8),
                           Text(
-                            'Workout Builder',
+                            context.l10n.workoutBuilder,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -780,8 +782,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Workout Routine Name',
+                  Text(
+                    context.l10n.routineName,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 6),
@@ -804,15 +806,15 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Selected Exercises (${_workoutBasket.length})',
+                    context.l10n.exSelectedCount(_workoutBasket.length),
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: _workoutBasket.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
-                              'No exercises selected.\nTap "+ Add to Workout" on any exercise card.',
+                              context.l10n.noExercisesSelected,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                             ),
@@ -864,7 +866,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             ),
                                           ),
                                           Text(
-                                            '${ex.defaultSets} sets · ${ex.defaultReps} reps',
+                                            context.l10n.exSetsReps(ex.defaultSets, ex.defaultReps),
                                             style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                                           ),
                                         ],
@@ -903,7 +905,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Text(
-                                          'Workout "${workoutNameCtrl.text}" saved to My Workouts!',
+                                          context.l10n.exWorkoutSaved(workoutNameCtrl.text),
                                           style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
                                       ),
@@ -920,8 +922,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text(
-                        'Save & Create Workout',
+                      child: Text(
+                        context.l10n.saveWorkout,
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
                       ),
                     ),
@@ -945,7 +947,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Exercise Library',
+          context.l10n.exerciseLibrary,
           style: AppTypography.heading.copyWith(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         actions: [
@@ -1003,7 +1005,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                   onChanged: (val) => setState(() => _searchQuery = val),
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
-                    hintText: "Search exercises... (e.g. 'chest dumbbell')",
+                    hintText: context.l10n.searchExercises,
                     hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                     prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
@@ -1046,7 +1048,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                       ),
                       child: Center(
                         child: Text(
-                          cat,
+                          exerciseText(context.l10n, cat),
                           style: TextStyle(
                             color: isSelected ? Colors.white : AppColors.textSecondary,
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
@@ -1083,7 +1085,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textMuted),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text),
                           items: _equipmentOptions
-                              .map((eq) => DropdownMenuItem(value: eq, child: Text(eq, maxLines: 1)))
+                              .map((eq) => DropdownMenuItem(value: eq, child: Text(exerciseText(context.l10n, eq), maxLines: 1, overflow: TextOverflow.ellipsis)))
                               .toList(),
                           onChanged: (val) => setState(() => _selectedEquipment = val ?? 'All Equipment'),
                         ),
@@ -1109,7 +1111,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textMuted),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text),
                           items: _difficultyOptions
-                              .map((d) => DropdownMenuItem(value: d, child: Text(d, maxLines: 1)))
+                              .map((d) => DropdownMenuItem(value: d, child: Text(exerciseText(context.l10n, d), maxLines: 1, overflow: TextOverflow.ellipsis)))
                               .toList(),
                           onChanged: (val) => setState(() => _selectedDifficulty = val ?? 'All Levels'),
                         ),
@@ -1146,7 +1148,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 : null,
                           ),
                           child: Text(
-                            'All (${kExerciseDatabase.length})',
+                            context.l10n.exAllCount(kExerciseDatabase.length),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 11,
@@ -1175,7 +1177,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               const Icon(Icons.favorite_rounded, size: 12, color: AppColors.error),
                               const SizedBox(width: 4),
                               Text(
-                                'Favs (${_favorites.length})',
+                                context.l10n.exFavsCount(_favorites.length),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedTab == 'favorites' ? FontWeight.w800 : FontWeight.w600,
@@ -1205,7 +1207,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               const Icon(Icons.verified_rounded, size: 12, color: AppColors.primary),
                               const SizedBox(width: 4),
                               Text(
-                                'Trainer Cues',
+                                context.l10n.trainerCues,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedTab == 'recommended' ? FontWeight.w800 : FontWeight.w600,
@@ -1232,8 +1234,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         children: [
                           const Icon(Icons.fitness_center_rounded, size: 36, color: AppColors.textMuted),
                           const SizedBox(height: 10),
-                          const Text(
-                            'No exercises match your filters',
+                          Text(
+                            context.l10n.noExercisesMatch,
                             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                           ),
                           const SizedBox(height: 6),
@@ -1248,7 +1250,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 _selectedTab = 'all';
                               });
                             },
-                            child: const Text('Reset All Filters'),
+                            child: Text(context.l10n.resetFilters),
                           ),
                         ],
                       ),
@@ -1303,7 +1305,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             border: Border.all(color: Colors.white24),
                                           ),
                                           child: Text(
-                                            '${ex.category.toUpperCase()} • ${ex.subMuscle.toUpperCase()}',
+                                            '${exerciseText(context.l10n, ex.category)} • ${exerciseText(context.l10n, ex.subMuscle)}',
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 10,
@@ -1319,13 +1321,13 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                 color: AppColors.primaryDark.withValues(alpha: 0.6),
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
-                                              child: const Row(
+                                              child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Icon(Icons.play_arrow_rounded, color: Colors.white, size: 12),
                                                   SizedBox(width: 3),
                                                   Text(
-                                                    'Demo',
+                                                    context.l10n.demo,
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 10,
@@ -1388,7 +1390,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                 borderRadius: BorderRadius.circular(6),
                                               ),
                                               child: Text(
-                                                ex.equipment,
+                                                exerciseText(context.l10n, ex.equipment),
                                                 style: const TextStyle(
                                                   fontSize: 11,
                                                   color: AppColors.textSecondary,
@@ -1404,7 +1406,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                 borderRadius: BorderRadius.circular(6),
                                               ),
                                               child: Text(
-                                                ex.difficulty,
+                                                exerciseText(context.l10n, ex.difficulty),
                                                 style: const TextStyle(
                                                   fontSize: 11,
                                                   color: AppColors.textSecondary,
@@ -1422,7 +1424,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                               const SizedBox(width: 4),
                                               Expanded(
                                                 child: Text(
-                                                  'Coach Arun: "${ex.trainerNote}"',
+                                                  context.l10n.exCoachNote(exerciseText(context.l10n, ex.trainerNote!)),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                   style: const TextStyle(
@@ -1443,7 +1445,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              '${ex.defaultSets} sets · ${ex.defaultReps} reps',
+                                              context.l10n.exSetsReps(ex.defaultSets, ex.defaultReps),
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w700,
@@ -1468,7 +1470,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                     ),
                                                     const SizedBox(width: 4),
                                                     Text(
-                                                      inBasket ? 'Added' : 'Add to Workout',
+                                                      inBasket ? context.l10n.added : context.l10n.addToWorkout,
                                                       style: TextStyle(
                                                         fontSize: 11,
                                                         fontWeight: FontWeight.w700,
@@ -1518,15 +1520,15 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${_workoutBasket.length} Exercises Selected',
+                            context.l10n.exBasketCount(_workoutBasket.length),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: AppColors.text,
                             ),
                           ),
-                          const Text(
-                            'Ready to build custom workout routine',
+                          Text(
+                            context.l10n.readyToBuild,
                             style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                           ),
                         ],
@@ -1535,8 +1537,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                     ElevatedButton.icon(
                       onPressed: _showWorkoutBuilder,
                       icon: const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
-                      label: const Text(
-                        'Build Workout',
+                      label: Text(
+                        context.l10n.buildWorkout,
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13),
                       ),
                       style: ElevatedButton.styleFrom(
