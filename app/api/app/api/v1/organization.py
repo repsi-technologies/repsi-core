@@ -273,6 +273,7 @@ def update_team_member(
 class PermissionOverridesIn(BaseModel):
     grant: list[str] = []
     revoke: list[str] = []
+    preset: Optional[str] = None  # TRAINER_PRESETS key; replaces grant/revoke when set
 
 
 def _team_member_or_404(db: Session, tenant: TenantContext, member_id: str) -> WorkspaceMember:
@@ -303,6 +304,8 @@ def permission_catalog(tenant: TenantContext = Depends(require_roles(*BRANCH_MAN
     return {
         "permissions": [{"key": k, "label": v} for k, v in permissions.PERMISSIONS.items()],
         "role_defaults": {role: sorted(perms) for role, perms in permissions.ROLE_DEFAULTS.items() if role != "SUPER_ADMIN"},
+        "trainer_presets": [{"key": k, "label": v["label"], "permissions": sorted(v["permissions"])}
+                            for k, v in permissions.TRAINER_PRESETS.items()],
     }
 
 
@@ -329,6 +332,13 @@ def set_member_permissions(
     db: Session = Depends(get_db),
 ):
     member = _team_member_or_404(db, tenant, member_id)
+    if data.preset:
+        if data.preset not in permissions.TRAINER_PRESETS:
+            raise HTTPException(status_code=422, detail="Unknown permission preset.")
+        if member.role != UserRole.TRAINER:
+            raise HTTPException(status_code=422, detail="Presets apply to trainers only.")
+        grant, revoke = permissions.preset_overrides("TRAINER", data.preset)
+        data = PermissionOverridesIn(grant=sorted(grant), revoke=sorted(revoke), preset=data.preset)
     unknown = (set(data.grant) | set(data.revoke)) - permissions.ALL
     if unknown:
         raise HTTPException(status_code=422, detail=f"Unknown permission(s): {', '.join(sorted(unknown))}")
@@ -350,7 +360,8 @@ def set_member_permissions(
     after = _permission_view(member)
     record_audit(db, tenant.workspace_id, tenant.user_id, "staff.permissions_changed",
                  resource_type="workspace_member", resource_id=member.id,
-                 details={"before": {"grant": before["grant"], "revoke": before["revoke"]},
+                 details={"preset": data.preset,
+                          "before": {"grant": before["grant"], "revoke": before["revoke"]},
                           "after": {"grant": after["grant"], "revoke": after["revoke"]}})
     db.commit()
     return after

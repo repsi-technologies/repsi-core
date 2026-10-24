@@ -373,6 +373,16 @@ export interface ApiAccessEligibility {
   last_visit: { check_in_time: string; check_out_time?: string | null; method: string } | null;
 }
 
+export interface ApiDietFood { food: string; portion?: string | null; calories?: number | null; protein?: number | null; carbs?: number | null; fat?: number | null }
+export interface ApiDietMeal { slot: string; time?: string | null; title?: string | null; items: ApiDietFood[] }
+export interface ApiDietVersion { id: string; version_number: number; meals: ApiDietMeal[]; totals: { calories: number; protein: number; carbs: number; fat: number }; calories_target: number | null; protein_target: number | null; carbs_target: number | null; fat_target: number | null; water_ml_target: number | null; notes: string | null; change_summary: string | null; created_at: string }
+export interface ApiDietPlan { id: string; name: string; goal: string | null; diet_type: string | null; status: string; can_edit: boolean; current_version_id: string | null; current_version?: ApiDietVersion | null; versions?: { id: string; version_number: number; change_summary: string | null; created_at: string }[]; updated_at: string }
+export interface ApiDietPlanSave { name: string; goal?: string | null; diet_type?: string | null; meals: ApiDietMeal[]; calories_target?: number | null; protein_target?: number | null; water_ml_target?: number | null; notes?: string | null; change_summary?: string | null }
+export interface ApiDietAssignment { id: string; member_id: string; plan_id: string | null; title: string; start_date: string; status: string; ended_on: string | null; version: ApiDietVersion | null }
+export interface ApiAdherence { planned_meals: number; followed: number; modified: number; skipped: number; not_logged: number; adherence_pct: number | null }
+export interface ApiConversation { id: string; member_id: string; trainer_id: string; member_name: string; trainer_name: string; last_message_at: string | null; last_message: string | null; unread: number; can_send: boolean }
+export interface ApiChatMessage { id: string; sender_user_id: string; sender_kind: "trainer" | "member"; body: string | null; attachment_type: string | null; attachment_ref: string | null; read_at: string | null; created_at: string }
+
 export interface ApiStaffPermissions {
   member_id: string;
   role: string;
@@ -622,13 +632,65 @@ export const repsiApi = {
     return memberRequest(`/attendance/${attendanceId}/corrections`, "GET", undefined, "Failed to load corrections");
   },
 
+  // ─── Nutrition & chat ────────────────────────────────────────────────
+
+  async listDietPlans(search?: string): Promise<ApiDietPlan[]> {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    return memberRequest(`/nutrition/plans${qs}`, "GET", undefined, "Failed to load diet plans");
+  },
+
+  async getDietPlan(id: string): Promise<ApiDietPlan> {
+    return memberRequest(`/nutrition/plans/${id}`, "GET", undefined, "Failed to load diet plan");
+  },
+
+  async saveDietPlan(data: ApiDietPlanSave, id?: string): Promise<ApiDietPlan> {
+    return memberRequest(id ? `/nutrition/plans/${id}` : "/nutrition/plans", id ? "PUT" : "POST", data, "Failed to save diet plan");
+  },
+
+  async setDietPlanStatus(id: string, status: "active" | "archived"): Promise<ApiDietPlan> {
+    return memberRequest(`/nutrition/plans/${id}/status`, "POST", { status }, "Failed to update diet plan");
+  },
+
+  async assignDietPlan(memberId: string, planId: string): Promise<ApiDietAssignment> {
+    return memberRequest(`/nutrition/members/${memberId}/assignments`, "POST", { plan_id: planId }, "Failed to assign diet plan");
+  },
+
+  async getDietAssignments(memberId?: string): Promise<ApiDietAssignment[]> {
+    const qs = memberId ? `?member_id=${encodeURIComponent(memberId)}` : "";
+    return memberRequest(`/nutrition/assignments${qs}`, "GET", undefined, "Failed to load diet assignments");
+  },
+
+  async getDietAdherence(memberId: string, days = 7): Promise<ApiAdherence> {
+    return memberRequest(`/nutrition/adherence?member_id=${encodeURIComponent(memberId)}&days=${days}`, "GET", undefined, "Failed to load adherence");
+  },
+
+  async listConversations(): Promise<ApiConversation[]> {
+    return memberRequest("/chat/conversations", "GET", undefined, "Failed to load conversations");
+  },
+
+  async openConversation(data: { member_id?: string; trainer_id?: string }): Promise<ApiConversation> {
+    return memberRequest("/chat/conversations", "POST", data, "Failed to open conversation");
+  },
+
+  async listMessages(conversationId: string): Promise<ApiChatMessage[]> {
+    return memberRequest(`/chat/conversations/${conversationId}/messages`, "GET", undefined, "Failed to load messages");
+  },
+
+  async sendMessage(conversationId: string, body: string, clientRef: string): Promise<ApiChatMessage> {
+    return memberRequest(`/chat/conversations/${conversationId}/messages`, "POST", { body, client_ref: clientRef }, "Failed to send message");
+  },
+
+  async markConversationRead(conversationId: string): Promise<ApiConversation> {
+    return memberRequest(`/chat/conversations/${conversationId}/read`, "POST", undefined, "Failed to update conversation");
+  },
+
   // ─── Staff permissions & audit ───────────────────────────────────────
 
   async getMyPermissions(): Promise<{ role: string; permissions: string[] }> {
     return memberRequest(`/team/me/permissions`, "GET", undefined, "Failed to load permissions");
   },
 
-  async getPermissionCatalog(): Promise<{ permissions: { key: string; label: string }[]; role_defaults: Record<string, string[]> }> {
+  async getPermissionCatalog(): Promise<{ permissions: { key: string; label: string }[]; role_defaults: Record<string, string[]>; trainer_presets: { key: string; label: string; permissions: string[] }[] }> {
     return memberRequest(`/team/permissions/catalog`, "GET", undefined, "Failed to load permissions");
   },
 
@@ -636,7 +698,7 @@ export const repsiApi = {
     return memberRequest(`/team/${memberId}/permissions`, "GET", undefined, "Failed to load permissions");
   },
 
-  async setTeamMemberPermissions(memberId: string, data: { grant: string[]; revoke: string[] }): Promise<ApiStaffPermissions> {
+  async setTeamMemberPermissions(memberId: string, data: { grant: string[]; revoke: string[]; preset?: string }): Promise<ApiStaffPermissions> {
     return memberRequest(`/team/${memberId}/permissions`, "PUT", data, "Failed to update permissions");
   },
 

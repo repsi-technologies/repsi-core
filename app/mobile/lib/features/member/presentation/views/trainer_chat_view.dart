@@ -1,484 +1,265 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../../shared/widgets/repsi_card.dart';
+import '../../../nutrition/data/coaching_repository.dart';
 
-class TrainerChatView extends StatefulWidget {
-  final String initialClient;
-  const TrainerChatView({super.key, this.initialClient = 'Rahul Sharma'});
+/// Trainer ⇄ member messages. With [memberId] (trainer side) it opens that member's thread
+/// directly; otherwise it lists the caller's conversations.
+class TrainerChatView extends ConsumerWidget {
+  final String? memberId;
+  final bool asTrainer;
+  const TrainerChatView({super.key, this.memberId, this.asTrainer = false});
 
   @override
-  State<TrainerChatView> createState() => _TrainerChatViewState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (memberId != null) return _OpenThread(memberId: memberId!);
+    final convs = ref.watch(conversationsProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Messages')),
+      body: convs.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => _Retry(message: e.toString(), onRetry: () => ref.invalidate(conversationsProvider)),
+        data: (rows) => rows.isEmpty
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    asTrainer
+                        ? 'No conversations yet. Open a client and tap Message.'
+                        : 'Once a trainer is assigned to you, you can message them here.',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodySecondary,
+                  ),
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () async => ref.invalidate(conversationsProvider),
+                child: ListView.separated(
+                  itemCount: rows.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final c = rows[i];
+                    return ListTile(
+                      title: Text(asTrainer ? c.memberName : c.trainerName),
+                      subtitle: Text(c.lastMessage ?? 'No messages yet', maxLines: 1, overflow: TextOverflow.ellipsis),
+                      trailing: c.unread > 0
+                          ? Semantics(
+                              label: '${c.unread} unread',
+                              child: CircleAvatar(
+                                radius: 11,
+                                backgroundColor: AppColors.primary,
+                                child: Text('${c.unread}', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                              ),
+                            )
+                          : null,
+                      onTap: () async {
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ChatThreadView(conversation: c, asTrainer: asTrainer)));
+                        ref.invalidate(conversationsProvider);
+                      },
+                    );
+                  },
+                ),
+              ),
+      ),
+    );
+  }
 }
 
-class _TrainerChatViewState extends State<TrainerChatView> {
-  final _messageController = TextEditingController();
-  late String _activeClient;
-
-  final Map<String, List<Map<String, dynamic>>> _conversations = {
-    'Rahul Sharma': [
-      {
-        'sender': 'client',
-        'text': 'Can I move tomorrow\'s session?',
-        'time': '08:42 AM',
-        'isRead': true,
-      },
-      {
-        'sender': 'trainer',
-        'text': 'Yes, 6 PM works well. I updated your schedule slot.',
-        'time': '08:45 AM',
-        'isRead': true,
-      },
-      {
-        'sender': 'trainer',
-        'type': 'workout_card',
-        'title': 'Assigned: Upper Body A',
-        'subtitle': '4 exercises · 45 min · Strength Focus',
-        'time': '08:46 AM',
-        'isRead': true,
-      },
-      {
-        'sender': 'client',
-        'text': 'Perfect! See you at 6 PM.',
-        'time': '08:48 AM',
-        'isRead': true,
-      },
-    ],
-    'Priya Nair': [
-      {
-        'sender': 'client',
-        'text': 'Completed today\'s workout! Glute bridge felt great at 70 kg.',
-        'time': 'Yesterday',
-        'isRead': true,
-      },
-      {
-        'sender': 'trainer',
-        'text': 'Awesome work Priya! Progressive overload paying off. Make sure to hit your 140g protein target today.',
-        'time': 'Yesterday',
-        'isRead': true,
-      },
-    ],
-    'Arjun Nair': [
-      {
-        'sender': 'client',
-        'text': 'Hey Alex, should I do cardio before or after weights tomorrow?',
-        'time': '2 days ago',
-        'isRead': true,
-      },
-      {
-        'sender': 'trainer',
-        'text': 'After weights for 15 mins steady state so your glycogen stays primed for lifting.',
-        'time': '2 days ago',
-        'isRead': true,
-      },
-    ],
-  };
+class _OpenThread extends ConsumerWidget {
+  final String memberId;
+  const _OpenThread({required this.memberId});
 
   @override
-  void initState() {
-    super.initState();
-    _activeClient = widget.initialClient;
-    if (!_conversations.containsKey(_activeClient)) {
-      _activeClient = 'Rahul Sharma';
-    }
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  void _sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return;
-    HapticFeedback.lightImpact();
-
-    setState(() {
-      _conversations[_activeClient]!.add({
-        'sender': 'trainer',
-        'text': text,
-        'time': 'Just now',
-        'isRead': false,
-      });
-      _messageController.clear();
-    });
-  }
-
-  void _sendAttachment(String title, String subtitle, String type) {
-    HapticFeedback.lightImpact();
-    setState(() {
-      _conversations[_activeClient]!.add({
-        'sender': 'trainer',
-        'type': type,
-        'title': title,
-        'subtitle': subtitle,
-        'time': 'Just now',
-        'isRead': false,
-      });
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Attached $title'), backgroundColor: AppColors.primary),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final messages = _conversations[_activeClient] ?? [];
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _activeClient,
-            icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primary),
-            items: _conversations.keys.map((name) {
-              return DropdownMenuItem<String>(
-                value: name,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 14,
-                      backgroundColor: AppColors.primarySoft,
-                      child: Text(
-                        name[0],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryDark,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          name,
-                          style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          'Client · Indiranagar',
-                          style: AppTypography.caption.copyWith(color: AppColors.primary, fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-            onChanged: (val) {
-              if (val != null) setState(() => _activeClient = val);
-            },
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.text),
-            onPressed: () {
-              _showChatOptions();
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Business Retention Notice
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              color: AppColors.surfaceSubtle,
-              child: Row(
-                children: [
-                  const Icon(Icons.shield_outlined, size: 14, color: AppColors.textSecondary),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Official gym coaching channel. Messages retained per Repsi business compliance.',
-                      style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 10),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Messages Stream
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final msg = messages[index];
-                  final isTrainer = msg['sender'] == 'trainer';
-                  final isCard = msg.containsKey('type');
-
-                  return Align(
-                    alignment: isTrainer ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.78,
-                      ),
-                      child: isCard
-                          ? _buildAttachmentBubble(msg, isTrainer)
-                          : _buildTextBubble(msg, isTrainer),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Quick Attachment Bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  _buildAttachChip(
-                    icon: Icons.fitness_center_rounded,
-                    label: 'Workout',
-                    onTap: () => _sendAttachment('Assigned: Upper Body A', '4 sets × 10 reps @ 60kg', 'workout_card'),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildAttachChip(
-                    icon: Icons.restaurant_menu_rounded,
-                    label: 'Diet Plan',
-                    onTap: () => _sendAttachment('Nutrition: Fat Loss 2,100 kcal', '150g P · 220g C · 65g F', 'diet_card'),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildAttachChip(
-                    icon: Icons.calendar_today_rounded,
-                    label: 'PT Slot',
-                    onTap: () => _sendAttachment('Session Booked: Today 6 PM', 'Personal Training confirmed', 'slot_card'),
-                  ),
-                ],
-              ),
-            ),
-
-            // Bottom Input Field
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: AppColors.border)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: 'Message $_activeClient...',
-                          hintStyle: AppTypography.caption.copyWith(color: AppColors.textSecondary),
-                          border: InputBorder.none,
-                        ),
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.send_rounded, color: Colors.white, size: 18),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextBubble(Map<String, dynamic> msg, bool isTrainer) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: isTrainer ? AppColors.primary : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isTrainer ? null : Border.all(color: AppColors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: isTrainer ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Text(
-            msg['text'] as String,
-            style: TextStyle(
-              color: isTrainer ? Colors.white : AppColors.text,
-              fontSize: 14,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                msg['time'] as String,
-                style: TextStyle(
-                  color: isTrainer ? Colors.white70 : AppColors.textSecondary,
-                  fontSize: 10,
-                ),
-              ),
-              if (isTrainer) ...[
-                const SizedBox(width: 4),
-                const Icon(Icons.done_all_rounded, size: 12, color: Colors.white70),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAttachmentBubble(Map<String, dynamic> msg, bool isTrainer) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.attachment_rounded, color: AppColors.primaryDark, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      msg['title'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                    ),
-                    Text(
-                      msg['subtitle'] as String,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Tap to view details', style: TextStyle(fontSize: 11, color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
-                Text(msg['time'] as String, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAttachChip({required IconData icon, required String label, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceSubtle,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: AppColors.primaryDark),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showChatOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person_outline_rounded),
-                title: Text('View $_activeClient Profile'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications_off_outlined),
-                title: const Text('Mute Notifications'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications muted for 8 hours')),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.block_outlined, color: Color(0xFFDC2626)),
-                title: const Text('Report / Restrict Contact', style: TextStyle(color: Color(0xFFDC2626))),
-                onTap: () {
-                  Navigator.pop(ctx);
-                },
-              ),
-            ],
-          ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<Conversation>(
+      future: ref.read(coachingRepositoryProvider).openWithMember(memberId),
+      builder: (context, snap) {
+        if (snap.hasData) return ChatThreadView(conversation: snap.data!, asTrainer: true);
+        return Scaffold(
+          appBar: AppBar(title: const Text('Messages')),
+          body: snap.hasError
+              ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(snap.error.toString())))
+              : const Center(child: CircularProgressIndicator()),
         );
       },
     );
   }
+}
+
+class ChatThreadView extends ConsumerStatefulWidget {
+  final Conversation conversation;
+  final bool asTrainer;
+  const ChatThreadView({super.key, required this.conversation, required this.asTrainer});
+
+  @override
+  ConsumerState<ChatThreadView> createState() => _ChatThreadViewState();
+}
+
+class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
+  final _controller = TextEditingController();
+  final _scroll = ScrollController();
+  List<ThreadMessage>? _messages;
+  String? _error;
+  bool _sending = false;
+  String? _pendingRef; // reused on retry so a resend never duplicates
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final rows = await ref.read(coachingRepositoryProvider).messages(widget.conversation.id);
+      if (!mounted) return;
+      setState(() {
+        _messages = rows;
+        _error = null;
+      });
+      _toBottom();
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    }
+  }
+
+  void _toBottom() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      });
+
+  Future<void> _send() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty || _sending) return;
+    _pendingRef ??= newClientRef();
+    setState(() => _sending = true);
+    try {
+      final msg = await ref.read(coachingRepositoryProvider).send(widget.conversation.id, text, _pendingRef!);
+      _pendingRef = null;
+      _controller.clear();
+      setState(() => _messages = [...?_messages, msg]);
+      _toBottom();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Not sent: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.conversation;
+    final myKind = widget.asTrainer ? 'trainer' : 'member';
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.asTrainer ? c.memberName : c.trainerName)),
+      body: Column(
+        children: [
+          Expanded(
+            child: _error != null
+                ? _Retry(message: _error!, onRetry: _load)
+                : _messages == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : _messages!.isEmpty
+                        ? Center(child: Text('Say hello to start the conversation.', style: AppTypography.bodySecondary))
+                        : ListView.builder(
+                            controller: _scroll,
+                            padding: const EdgeInsets.all(12),
+                            itemCount: _messages!.length,
+                            itemBuilder: (_, i) {
+                              final m = _messages![i];
+                              final mine = m.senderKind == myKind;
+                              return Align(
+                                alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+                                child: Container(
+                                  constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.75),
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: mine ? AppColors.primary : AppColors.surfaceSecondary,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (m.body != null)
+                                        Text(m.body!, style: TextStyle(color: mine ? Colors.white : AppColors.text)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${TimeOfDay.fromDateTime(m.createdAt.toLocal()).format(context)}${mine && m.read ? ' · Read' : ''}',
+                                        style: TextStyle(fontSize: 10, color: mine ? Colors.white70 : AppColors.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+          ),
+          SafeArea(
+            top: false,
+            child: c.canSend
+                ? Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            maxLength: 4000,
+                            minLines: 1,
+                            maxLines: 4,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _send(),
+                            decoration: const InputDecoration(hintText: 'Write a message…', counterText: ''),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Send message',
+                          onPressed: _sending ? null : _send,
+                          icon: _sending
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.send, color: AppColors.primary),
+                        ),
+                      ],
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text('This trainer is no longer assigned, so the conversation is read-only.',
+                        textAlign: TextAlign.center, style: AppTypography.caption),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Retry extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _Retry({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
+          ]),
+        ),
+      );
 }

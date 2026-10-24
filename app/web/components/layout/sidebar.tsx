@@ -36,6 +36,7 @@ import {
   TicketPercent,
   LifeBuoy,
   FileText,
+  Salad,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -72,7 +73,6 @@ const ownerNavGroups: NavGroupDef[] = [
     items: [
       { label: "CRM & Leads", path: "/crm", icon: Target },
       { label: "Website Builder", path: "/website", icon: Globe },
-      { label: "Chat & Messages", path: "/chat", icon: MessageSquare },
     ],
   },
   {
@@ -87,6 +87,7 @@ const ownerNavGroups: NavGroupDef[] = [
       { label: "Receipts & Day Close", path: "/payments/finance", icon: Receipt },
       { label: "Offers & Coupons", path: "/memberships/offers", icon: TicketPercent },
       { label: "Workouts", path: "/workouts", icon: Dumbbell },
+      { label: "Diet Plans", path: "/nutrition", icon: Salad },
       { label: "Equipment", path: "/machines", icon: Wrench },
     ],
   },
@@ -119,6 +120,7 @@ const trainerNavGroups: NavGroupDef[] = [
       { label: "Attendance & QR Pass", path: "/trainer/attendance", icon: QrCode },
       { label: "Clients", path: "/trainer/clients", icon: Users },
       { label: "Workouts", path: "/trainer/workouts", icon: Dumbbell },
+      { label: "Diet Plans", path: "/trainer/nutrition", icon: Salad },
       { label: "Schedule", path: "/trainer/schedule", icon: Calendar },
       { label: "Classes", path: "/trainer/classes", icon: CalendarCheck },
       { label: "Messages", path: "/chat", icon: MessageSquare },

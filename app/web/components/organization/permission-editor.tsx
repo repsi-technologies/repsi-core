@@ -11,6 +11,7 @@ import { repsiApi, type ApiStaffPermissions } from "@/lib/api";
  */
 export function PermissionEditor({ memberId, onClose }: { memberId: string; onClose: () => void }) {
   const [catalog, setCatalog] = useState<{ key: string; label: string }[] | null>(null);
+  const [presets, setPresets] = useState<{ key: string; label: string; permissions: string[] }[]>([]);
   const [current, setCurrent] = useState<ApiStaffPermissions | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
@@ -21,6 +22,7 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
     Promise.all([repsiApi.getPermissionCatalog(), repsiApi.getTeamMemberPermissions(memberId)])
       .then(([cat, perms]) => {
         setCatalog(cat.permissions);
+        setPresets(cat.trainer_presets || []);
         setCurrent(perms);
         setSelected(new Set(perms.effective));
       })
@@ -47,7 +49,9 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
     try {
       const grant = [...selected].filter((p) => !defaults.has(p));
       const revoke = [...defaults].filter((p) => !selected.has(p));
-      const updated = await repsiApi.setTeamMemberPermissions(memberId, { grant, revoke });
+      // Send the preset key when the selection is exactly a preset, so the audit log names it.
+      const preset = presets.find((p) => p.permissions.length === selected.size && p.permissions.every((k) => selected.has(k)));
+      const updated = await repsiApi.setTeamMemberPermissions(memberId, preset && current.role === "TRAINER" ? { grant: [], revoke: [], preset: preset.key } : { grant, revoke });
       setCurrent(updated);
       setSelected(new Set(updated.effective));
       setSaved(true);
@@ -68,6 +72,22 @@ export function PermissionEditor({ memberId, onClose }: { memberId: string; onCl
       <p className="text-xs text-[var(--text-muted)]">
         Checked items are what this person can do. Bold items are the defaults for the {current.role.toLowerCase()} role.
       </p>
+      {current.role === "TRAINER" && presets.length > 0 && !current.locked && (
+        <label className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-secondary)]">
+          Apply a trainer preset
+          <select
+            className="h-8 rounded-[8px] border border-[var(--border)] bg-[var(--surface)] px-2 text-xs text-[var(--text)]"
+            value=""
+            onChange={(e) => {
+              const preset = presets.find((p) => p.key === e.target.value);
+              if (preset) { setSaved(false); setSelected(new Set(preset.permissions)); }
+            }}
+          >
+            <option value="">Choose…</option>
+            {presets.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+          </select>
+        </label>
+      )}
       <fieldset className="grid gap-2 sm:grid-cols-2">
         <legend className="sr-only">Permissions</legend>
         {catalog.map((p) => (

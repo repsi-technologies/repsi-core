@@ -7,7 +7,7 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import 'trainer_client_detail_view.dart';
 import 'trainer_create_workout_view.dart';
-import 'trainer_diet_plan_view.dart';
+import 'trainer_clients_view.dart';
 import 'trainer_sessions_view.dart';
 import '../../member/presentation/views/trainer_chat_view.dart';
 
@@ -205,7 +205,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const TrainerDietPlanView()),
+                            MaterialPageRoute(builder: (_) => const TrainerClientsView()),
                           );
                         },
                       ),
@@ -221,7 +221,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const TrainerChatView()),
+                            MaterialPageRoute(builder: (_) => const TrainerChatView(asTrainer: true)),
                           );
                         },
                       ),
@@ -463,7 +463,7 @@ class _TrainerHomeViewState extends State<TrainerHomeView> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const TrainerChatView(),
+                                          builder: (_) => const TrainerChatView(asTrainer: true),
                                         ),
                                       );
                                     },

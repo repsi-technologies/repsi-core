@@ -2,25 +2,42 @@
 
 import { useCallback, useEffect, useState, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Calendar, ChevronLeft, Loader2, Lock, MessageSquare, Plus } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { repsiApi } from "@/lib/api";
 import { MemberTraining } from "@/features/fitness/member-training";
+import { MemberNutrition } from "@/features/nutrition/member-nutrition";
 import { Field, inputClass, LoadingRow, Modal, Notice, StatusBadge } from "@/features/fitness/shared";
 
 interface Client { client_id: string; name: string; email?: string | null; phone?: string | null; membership_status?: string; assigned_at?: string }
 interface Note { id: string; content: string; created_at: string }
 interface PtSession { id: string; title: string; scheduled_at: string; status: string; duration_minutes: number }
 
-type Tab = "training" | "notes" | "sessions";
+type Tab = "training" | "nutrition" | "notes" | "sessions";
 
 export default function TrainerClientDetailPage(props: { params: Promise<{ workspace: string; id: string }> }) {
   const { workspace, id: clientId } = use(props.params);
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("training");
+  const [opening, setOpening] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const openChat = async () => {
+    setOpening(true);
+    setChatError(null);
+    try {
+      await repsiApi.openConversation({ member_id: clientId });
+      router.push(`/${workspace}/chat`);
+    } catch (err) {
+      setChatError((err as Error).message);
+      setOpening(false);
+    }
+  };
 
   useEffect(() => {
     repsiApi.getCurrentTrainerClients()
@@ -54,11 +71,14 @@ export default function TrainerClientDetailPage(props: { params: Promise<{ works
                 <p className="text-xs text-[var(--text-muted)] truncate">{[client.email, client.phone].filter(Boolean).join(" · ")}</p>
               </div>
             </div>
-            <Link href={`/${workspace}/chat`}><Button size="sm" variant="outline"><MessageSquare /> Message</Button></Link>
+            <div className="flex flex-col items-end gap-1">
+              <Button size="sm" variant="outline" onClick={openChat} disabled={opening}>{opening ? <Loader2 className="animate-spin" /> : <MessageSquare />} Message</Button>
+              {chatError && <p className="text-xs text-red-600" role="alert">{chatError}</p>}
+            </div>
           </Card>
 
           <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-[var(--border)]">
-            {([["training", "Training"], ["notes", "Private notes"], ["sessions", "1:1 sessions"]] as [Tab, string][]).map(([id, label]) => (
+            {([["training", "Training"], ["nutrition", "Nutrition"], ["notes", "Private notes"], ["sessions", "1:1 sessions"]] as [Tab, string][]).map(([id, label]) => (
               <button key={id} role="tab" type="button" aria-selected={tab === id} onClick={() => setTab(id)}
                 className={`px-3 py-2 text-sm whitespace-nowrap border-b-2 ${tab === id ? "border-[var(--primary)] font-semibold text-[var(--text)]" : "border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"}`}>
                 {label}
@@ -67,6 +87,7 @@ export default function TrainerClientDetailPage(props: { params: Promise<{ works
           </div>
 
           {tab === "training" && <MemberTraining memberId={clientId} />}
+          {tab === "nutrition" && <MemberNutrition memberId={clientId} />}
           {tab === "notes" && <NotesTab clientId={clientId} />}
           {tab === "sessions" && <SessionsTab clientId={clientId} clientName={client.name} />}
         </>

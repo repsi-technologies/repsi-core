@@ -48,6 +48,9 @@ PERMISSIONS: dict[str, str] = {
     "payments.manage": "Record payments, refunds and day-end reconciliation",
     "documents.manage": "Upload and manage member documents",
     "support.manage": "Raise and follow support requests with REPSI",
+    "nutrition.manage": "Create and edit diet plans",
+    "nutrition.assign": "Assign diet plans to members and review meal logs",
+    "chat.use": "Message assigned members",
 }
 
 ALL = frozenset(PERMISSIONS)
@@ -61,18 +64,42 @@ ROLE_DEFAULTS: dict[str, frozenset] = {
         "members.view", "members.manage", "trainers.assign", "schedules.manage", "payments.view",
         "records.export", "audit.view", "exercises.manage", "programs.manage", "workouts.assign",
         "communications.manage", "dashboard.view", "reports.view", "classes.manage", "bookings.manage",
-        "equipment.manage", "payments.manage", "documents.manage",
+        "equipment.manage", "payments.manage", "documents.manage", "nutrition.manage", "nutrition.assign",
     }),
     "STAFF": frozenset({
         "attendance.view", "attendance.record", "members.view", "members.manage", "payments.view",
         "dashboard.view", "bookings.manage", "documents.manage",
     }),
     # Trainers only reach their own assigned clients; the relationship check lives in the fitness service.
-    "TRAINER": frozenset({"exercises.manage", "programs.manage", "workouts.assign", "bookings.manage"}),
+    "TRAINER": frozenset({"exercises.manage", "programs.manage", "workouts.assign", "bookings.manage",
+                          "nutrition.manage", "nutrition.assign", "chat.use"}),
     "USER": frozenset(),
 }
 
 UNRESTRICTED_ROLES = {"OWNER", "SUPER_ADMIN"}
+
+# Reusable presets for TRAINER-role staff. Applying one stores the difference from the TRAINER
+# defaults as grant/revoke overrides, so the same delegation checks apply as for manual edits.
+# Presets never widen member reach: trainers still only see members assigned to them.
+_COACH = frozenset({"exercises.manage", "programs.manage", "workouts.assign", "bookings.manage", "chat.use"})
+_NUTRITION = frozenset({"nutrition.manage", "nutrition.assign"})
+TRAINER_PRESETS: dict[str, dict] = {
+    "personal_trainer": {"label": "Personal Trainer", "permissions": _COACH},
+    "senior_trainer": {"label": "Senior Trainer", "permissions": _COACH | _NUTRITION},
+    "head_trainer": {"label": "Head Trainer", "permissions": _COACH | _NUTRITION | {"schedules.manage", "reports.view"}},
+    "group_instructor": {"label": "Group Class Instructor", "permissions": frozenset({"bookings.manage", "chat.use"})},
+    "nutrition_coach": {"label": "Nutrition Coach", "permissions": _NUTRITION | {"chat.use"}},
+    "assistant_trainer": {"label": "Assistant Trainer", "permissions": frozenset({"bookings.manage"})},
+    "trainer_admin": {"label": "Trainer Administrator", "permissions": _COACH | _NUTRITION | {
+        "schedules.manage", "reports.view", "trainers.manage", "trainers.assign", "records.export"}},
+}
+
+
+def preset_overrides(role: str, preset: str) -> tuple[set, set]:
+    """grant/revoke overrides that turn `role`'s defaults into exactly the preset's permissions."""
+    target = TRAINER_PRESETS[preset]["permissions"]
+    base = ROLE_DEFAULTS.get(role.upper(), frozenset())
+    return set(target - base), set(base - target)
 
 
 def parse_overrides(raw: Optional[str]) -> tuple[set, set]:
