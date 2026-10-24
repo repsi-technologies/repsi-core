@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/api/api_time.dart';
 
 enum NotificationType {
   announcement,
@@ -79,7 +80,7 @@ class NotificationItem {
       actionUrl: json['action_url']?.toString(),
       isRead: json['is_read'] == true,
       createdAt: json['created_at'] != null
-          ? (DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now())
+          ? (parseApiDateTime(json['created_at']) ?? DateTime.now())
           : DateTime.now(),
       type: inferredType,
     );

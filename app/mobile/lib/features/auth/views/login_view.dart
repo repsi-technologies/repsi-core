@@ -220,6 +220,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
+            layoutBuilder: (current, previous) => Stack(
+              alignment: Alignment.topLeft,
+              children: [...previous, if (current != null) current],
+            ),
             child: AuthHeading(
               key: ValueKey(_emailMode),
               title: _emailMode ? 'Welcome back' : "Let's get started",

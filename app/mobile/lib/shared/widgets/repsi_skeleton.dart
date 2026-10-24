@@ -26,8 +26,8 @@ class RepsiSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final baseColor = isDark ? const Color(0xFF1E2824) : const Color(0xFFEAEFEA);
-    final highlightColor = isDark ? const Color(0xFF283630) : const Color(0xFFF7FAF7);
+    final baseColor = isDark ? AppColors.darkSurfaceSecondary : AppColors.surfaceSecondary;
+    final highlightColor = isDark ? AppColors.darkBorderStrong : AppColors.background;
 
     return Shimmer.fromColors(
       baseColor: baseColor,

@@ -1,4 +1,6 @@
-enum MemberStatus { active, expiring, expired, frozen, cancelled }
+/// What staff need to see at a glance: membership state for active accounts (from the real end
+/// date), or the account state when the account itself is blocked.
+enum MemberStatus { active, expiring, expired, frozen, cancelled, inactive, suspended }
 
 extension MemberStatusLabels on MemberStatus {
   String get displayName {
@@ -13,6 +15,10 @@ extension MemberStatusLabels on MemberStatus {
         return 'Frozen';
       case MemberStatus.cancelled:
         return 'Cancelled';
+      case MemberStatus.inactive:
+        return 'Inactive';
+      case MemberStatus.suspended:
+        return 'Suspended';
     }
   }
 }
@@ -79,28 +85,42 @@ class MemberModel {
       gender: json['gender']?.toString(),
       dateOfBirth: json['date_of_birth']?.toString(),
       emergencyContact: json['emergency_contact']?.toString(),
-        status: json['status'] != null ? _statusFromJson(json['status']?.toString()) : MemberStatus.active,
+      status: _statusFromJson(json['status']?.toString(), _endDate(json)),
       joinedDate: json['joined_date']?.toString(),
       trainerId: json['trainer_id']?.toString(),
       notes: json['notes']?.toString(),
-      planName: json['plan_name']?.toString() ?? 'Monthly Standard',
-      expiryDate: json['expiry_date']?.toString() ?? 'In 24 days',
+      planName: json['plan_name']?.toString(),
+      // The API sends `membership_end_date` (yyyy-MM-dd); never invent one when it is missing.
+      expiryDate: (json['membership_end_date'] ?? json['expiry_date'])?.toString(),
     );
   }
 
-  static MemberStatus _statusFromJson(String? value) {
+  static DateTime? _endDate(Map<String, dynamic> json) =>
+      DateTime.tryParse((json['membership_end_date'] ?? json['expiry_date'])?.toString() ?? '');
+
+  static MemberStatus _statusFromJson(String? value, DateTime? endDate) {
     switch (value?.toUpperCase()) {
-      case 'EXPIRING':
-        return MemberStatus.expiring;
-      case 'EXPIRED':
-        return MemberStatus.expired;
+      case 'INACTIVE':
+      case 'ARCHIVED':
+        return MemberStatus.inactive;
+      case 'SUSPENDED':
+        return MemberStatus.suspended;
       case 'FROZEN':
         return MemberStatus.frozen;
       case 'CANCELLED':
         return MemberStatus.cancelled;
-      default:
-        return MemberStatus.active;
+      case 'EXPIRED':
+        return MemberStatus.expired;
+      case 'EXPIRING':
+        return MemberStatus.expiring;
     }
+    if (endDate != null) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (endDate.isBefore(today)) return MemberStatus.expired;
+      if (!endDate.isAfter(today.add(const Duration(days: 7)))) return MemberStatus.expiring;
+    }
+    return MemberStatus.active;
   }
 
   Map<String, dynamic> toJson() {

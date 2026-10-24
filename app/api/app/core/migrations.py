@@ -259,6 +259,8 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
         ("locale", "VARCHAR(16)"),
         ("opening_hours", "TEXT"),
         ("closed_dates", "TEXT"),
+        # Sales demo gym (scripts/seed_demo.py): outbound messages and risky actions are blocked.
+        ("is_demo", false_default),
     ])
     _add_missing_columns(conn, inspector, "gym_locations", [
         ("address_line2", "VARCHAR(255)"),

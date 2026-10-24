@@ -55,7 +55,6 @@ class RouteNames {
   static const String classes = '/classes';
   static const String workouts = '/workouts';
   static const String exerciseLibrary = '/member/exercises';
-  static const String websiteBuilder = '/website-builder';
   static const String reports = '/reports';
   static const String analytics = '/analytics';
   static const String settings = '/settings';
@@ -64,5 +63,4 @@ class RouteNames {
   // AI & Advanced Features
   static const String aiCoach = '/ai/coach';
   static const String aiInsights = '/ai/insights';
-  static const String memberDocuments = '/member/documents';
 }

@@ -37,9 +37,25 @@ class RepsiStatusBadge extends StatelessWidget {
         fg = AppColors.badgeFrozenFg;
         break;
       case MemberStatus.cancelled:
+      case MemberStatus.inactive:
         bg = AppColors.badgeCancelledBg;
         fg = AppColors.badgeCancelledFg;
         break;
+      case MemberStatus.suspended:
+        bg = AppColors.badgeExpiredBg;
+        fg = AppColors.badgeExpiredFg;
+        break;
+    }
+
+    if (Theme.of(context).brightness == Brightness.dark) {
+      // Light badge tints disappear on dark surfaces: use the dark semantic tokens instead.
+      fg = switch (status) {
+        MemberStatus.active => AppColors.darkSuccess,
+        MemberStatus.expiring => AppColors.darkWarning,
+        MemberStatus.expired || MemberStatus.suspended => AppColors.darkError,
+        _ => AppColors.darkInfo,
+      };
+      bg = fg.withValues(alpha: 0.16);
     }
 
     return Container(

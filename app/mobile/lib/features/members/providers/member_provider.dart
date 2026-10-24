@@ -10,8 +10,12 @@ class MemberListState {
   final String searchQuery;
   final String selectedStatusFilter; // ALL, ACTIVE, EXPIRING, EXPIRED
   final String? errorMessage;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   const MemberListState({
+    this.hasMore = false,
+    this.isLoadingMore = false,
     this.isLoading = false,
     this.members = const [],
     this.searchQuery = '',
@@ -26,8 +30,12 @@ class MemberListState {
     String? selectedStatusFilter,
     String? errorMessage,
     bool clearError = false,
+    bool? hasMore,
+    bool? isLoadingMore,
   }) {
     return MemberListState(
+      hasMore: hasMore ?? this.hasMore,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isLoading: isLoading ?? this.isLoading,
       members: members ?? this.members,
       searchQuery: searchQuery ?? this.searchQuery,
@@ -57,12 +65,36 @@ class MemberListNotifier extends StateNotifier<MemberListState> {
       final list = await _service.getMembers(
         search: state.searchQuery,
         status: state.selectedStatusFilter,
+        limit: _pageSize,
       );
-      state = state.copyWith(isLoading: false, members: list);
+      state = state.copyWith(isLoading: false, members: list, hasMore: list.length == _pageSize);
     } on ApiError catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Failed to load members');
+    }
+  }
+
+  static const _pageSize = 50;
+
+  /// Appends the next page; a full page means there may be more.
+  Future<void> loadMore() async {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+    state = state.copyWith(isLoadingMore: true);
+    try {
+      final next = await _service.getMembers(
+        search: state.searchQuery,
+        status: state.selectedStatusFilter,
+        skip: state.members.length,
+        limit: _pageSize,
+      );
+      state = state.copyWith(
+        isLoadingMore: false,
+        members: [...state.members, ...next],
+        hasMore: next.length == _pageSize,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoadingMore: false);
     }
   }
 

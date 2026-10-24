@@ -1,3 +1,4 @@
+import '../../core/api/api_time.dart';
 class MembershipPlanModel {
   final String id;
   final String workspaceId;
@@ -34,7 +35,7 @@ class MembershipPlanModel {
       currency: json['currency'] as String? ?? 'INR',
       isActive: json['is_active'] as bool? ?? true,
       features: (json['features'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
+      createdAt: json['created_at'] != null ? parseApiDateTime(json['created_at']) : null,
     );
   }
 

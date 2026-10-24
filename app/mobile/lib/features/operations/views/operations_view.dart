@@ -1,1125 +1,621 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../../app/routes/route_names.dart';
+import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/animations/repsi_press.dart';
-import '../../../shared/widgets/repsi_badge.dart';
+import '../../../core/api/api_error.dart';
+import '../../../shared/models/member_model.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
+import '../../../shared/widgets/repsi_bottom_sheet.dart';
 import '../../../shared/widgets/repsi_button.dart';
-import '../../../shared/widgets/repsi_card.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../../workspaces/providers/workspace_provider.dart';
+import '../../../shared/widgets/repsi_empty_state.dart';
+import '../../../shared/widgets/repsi_error_state.dart';
+import '../../../shared/widgets/repsi_search_field.dart';
+import '../../../shared/widgets/repsi_skeleton.dart';
+import '../../../shared/widgets/repsi_text_field.dart';
+import '../../members/providers/member_provider.dart';
+import '../providers/operations_provider.dart';
 
-class OperationsView extends ConsumerStatefulWidget {
+/// Front desk: today's attendance with check-in/check-out, the sales pipeline, the gym's live
+/// check-in QR and the team. Everything is read from and written to the API.
+class OperationsView extends ConsumerWidget {
   const OperationsView({super.key});
 
   @override
-  ConsumerState<OperationsView> createState() => _OperationsViewState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        backgroundColor: canvas,
+        appBar: AppBar(
+          backgroundColor: canvas,
+          title: Text('Front desk', style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
+          bottom: const TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: [Tab(text: 'Attendance'), Tab(text: 'Leads'), Tab(text: 'Check-in QR'), Tab(text: 'Team')],
+          ),
+        ),
+        body: const TabBarView(children: [_AttendanceTab(), _LeadsTab(), _QrTab(), _TeamTab()]),
+      ),
+    );
+  }
 }
 
-class _OperationsViewState extends ConsumerState<OperationsView> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+Color _text(bool d) => d ? AppColors.darkText : AppColors.text;
+Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSecondary;
+Color _surface(bool d) => d ? AppColors.darkSurface : AppColors.surface;
+Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
+
+String _err(Object e) => e is ApiError ? e.message : 'Something went wrong. Please try again.';
+
+Widget _skeletonList() => ListView(children: [for (var i = 0; i < 5; i++) RepsiSkeleton.memberListItem()]);
+
+// ─── Attendance ──────────────────────────────────────────────────────────────
+
+class _AttendanceTab extends ConsumerWidget {
+  const _AttendanceTab();
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final today = ref.watch(attendanceTodayProvider);
+    final inside = ref.watch(insideListProvider);
+
+    Future<void> refresh() async {
+      ref.invalidate(attendanceTodayProvider);
+      ref.invalidate(insideListProvider);
+      await ref.read(insideListProvider.future).catchError((_) => <InsidePerson>[]);
+    }
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: refresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            decoration: BoxDecoration(
+              color: _surface(isDark),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+              border: Border.all(color: _border(isDark)),
+            ),
+            child: today.when(
+              loading: () => const SizedBox(height: 52),
+              error: (_, __) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Text("Couldn't load today's numbers.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+              ),
+              data: (t) => IntrinsicHeight(
+                child: Row(
+                  children: [
+                    _Figure('Inside now', '${t.inside}'),
+                    VerticalDivider(color: _border(isDark), width: 1),
+                    _Figure('Today', '${t.total}'),
+                    VerticalDivider(color: _border(isDark), width: 1),
+                    _Figure('Avg. stay', t.averageMinutes > 0 ? '${t.averageMinutes}m' : '—'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          RepsiButton(
+            text: 'Check in a member',
+            isFullWidth: true,
+            leadingIcon: const Icon(Icons.how_to_reg_rounded, size: 20, color: Colors.white),
+            onPressed: () => RepsiBottomSheet.show<void>(context: context, title: 'Check in', child: const _CheckInSheet()),
+          ),
+          const SizedBox(height: AppSpacing.xxl),
+          Text('In the gym now', style: AppTypography.sectionHeading.copyWith(color: _text(isDark), fontSize: 17)),
+          const SizedBox(height: AppSpacing.md),
+          inside.when(
+            loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
+            error: (e, _) => RepsiErrorState(title: "Couldn't load attendance", message: _err(e), onRetry: refresh),
+            data: (people) => people.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                    child: Text('No one is checked in right now.',
+                        textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: _surface(isDark),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+                      border: Border.all(color: _border(isDark)),
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < people.length; i++) ...[
+                          if (i > 0) Divider(height: 1, indent: 64, color: _border(isDark)),
+                          _InsideRow(key: ValueKey(people[i].attendanceId), person: people[i]),
+                        ],
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class _Figure extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _Figure(this.label, this.value);
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value, style: AppTypography.tabularNumber(fontSize: 22, fontWeight: FontWeight.w700, color: _text(isDark))),
+          Text(label, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+        ],
+      ),
+    );
+  }
+}
+
+class _InsideRow extends ConsumerStatefulWidget {
+  final InsidePerson person;
+
+  const _InsideRow({super.key, required this.person});
+
+  @override
+  ConsumerState<_InsideRow> createState() => _InsideRowState();
+}
+
+class _InsideRowState extends ConsumerState<_InsideRow> {
+  bool _busy = false;
+
+  Future<void> _checkOut() async {
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(frontDeskActionsProvider).checkOut(widget.person.attendanceId);
+      HapticFeedback.lightImpact();
+      messenger.showSnackBar(SnackBar(content: Text('${widget.person.name} checked out')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(_err(e))));
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-    final activeSlug = authState.activeWorkspaceSlug ?? 'Live Workspace';
-    final gymName = ref.watch(workspaceProvider).activeWorkspace?.name ?? activeSlug;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final p = widget.person;
+    return ListTile(
+      contentPadding: const EdgeInsets.only(left: AppSpacing.lg, right: AppSpacing.sm),
+      leading: RepsiAvatar(name: p.name, imageUrl: p.avatarUrl, size: 36),
+      title: Text(p.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+      subtitle: Text('In at ${DateFormat.jm().format(p.checkIn)} · ${p.duration}',
+          style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+      trailing: _busy
+          ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          : TextButton(onPressed: _checkOut, child: const Text('Check out')),
+    );
+  }
+}
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
+class _CheckInSheet extends ConsumerStatefulWidget {
+  const _CheckInSheet();
+
+  @override
+  ConsumerState<_CheckInSheet> createState() => _CheckInSheetState();
+}
+
+class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
+  Timer? _debounce;
+  List<MemberModel> _results = const [];
+  bool _searching = false;
+  String? _busyId;
+  String? _error;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _search(String q) {
+    _debounce?.cancel();
+    if (q.trim().length < 2) {
+      setState(() => _results = const []);
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 300), () async {
+      setState(() => _searching = true);
+      try {
+        final list = await ref.read(memberServiceProvider).getMembers(search: q, limit: 20);
+        if (mounted) setState(() => _results = list);
+      } catch (e) {
+        if (mounted) setState(() => _error = _err(e));
+      } finally {
+        if (mounted) setState(() => _searching = false);
+      }
+    });
+  }
+
+  Future<void> _checkIn(MemberModel m) async {
+    setState(() {
+      _busyId = m.id;
+      _error = null;
+    });
+    try {
+      await ref.read(frontDeskActionsProvider).checkIn(m.id);
+      HapticFeedback.mediumImpact();
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${m.fullName} checked in')));
+    } catch (e) {
+      // Access rules (expired membership, already inside) come back as a clear message.
+      if (mounted) setState(() => _error = _err(e));
+    } finally {
+      if (mounted) setState(() => _busyId = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.6,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          RepsiSearchField(hintText: 'Search name or phone', onChanged: _search),
+          if (_error != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(_error!, style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : AppColors.error)),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: _searching
+                ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
+                : _results.isEmpty
+                    ? Center(
+                        child: Text('Type at least two letters of a name or phone number.',
+                            textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+                      )
+                    : ListView.builder(
+                        itemCount: _results.length,
+                        itemBuilder: (context, i) {
+                          final m = _results[i];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: RepsiAvatar(name: m.fullName, imageUrl: m.avatarUrl, size: 36),
+                            title: Text(m.fullName, style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+                            subtitle: Text(m.status.displayName, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+                            trailing: _busyId == m.id
+                                ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                                : FilledButton.tonal(onPressed: _busyId == null ? () => _checkIn(m) : null, child: const Text('Check in')),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Leads ───────────────────────────────────────────────────────────────────
+
+class _LeadsTab extends ConsumerStatefulWidget {
+  const _LeadsTab();
+
+  @override
+  ConsumerState<_LeadsTab> createState() => _LeadsTabState();
+}
+
+class _LeadsTabState extends ConsumerState<_LeadsTab> {
+  String _stage = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final leads = ref.watch(leadsProvider(_stage));
+    return Column(
+      children: [
+        SizedBox(
+          height: 56,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, AppSpacing.xs),
+            itemCount: leadStages.length,
+            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+            itemBuilder: (context, i) {
+              final (key, label) = leadStages[i];
+              final selected = key == _stage;
+              return ChoiceChip(
+                label: Text(label),
+                selected: selected,
+                showCheckmark: false,
+                onSelected: (_) => setState(() => _stage = key),
+                selectedColor: AppColors.primary,
+                labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: selected ? Colors.white : _text(isDark)),
+                backgroundColor: _surface(isDark),
+                side: BorderSide(color: selected ? AppColors.primary : _border(isDark)),
+                shape: const StadiumBorder(),
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: leads.when(
+            loading: _skeletonList,
+            error: (e, _) => RepsiErrorState(
+                title: "Couldn't load leads", message: _err(e), onRetry: () => ref.invalidate(leadsProvider(_stage))),
+            data: (list) => RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () async => ref.invalidate(leadsProvider(_stage)),
+              child: list.isEmpty
+                  ? ListView(children: [
+                      const SizedBox(height: AppSpacing.xxxl),
+                      RepsiEmptyState(
+                        icon: Icons.person_search_outlined,
+                        title: _stage.isEmpty ? 'No leads yet' : 'No leads in this stage',
+                        message: 'Capture walk-ins and enquiries so nobody slips through.',
+                        actionLabel: 'Add lead',
+                        onAction: () => _addLead(context),
+                      ),
+                    ])
+                  : ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 96),
+                      itemCount: list.length,
+                      separatorBuilder: (_, __) => Divider(height: 1, indent: AppSpacing.xl, color: _border(isDark)),
+                      itemBuilder: (context, i) => _LeadRow(lead: list[i]),
+                    ),
+            ),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, AppSpacing.md),
+            child: RepsiButton(
+              text: 'Add lead',
+              isFullWidth: true,
+              variant: RepsiButtonVariant.outline,
+              leadingIcon: Icon(Icons.add_rounded, size: 20, color: _text(isDark)),
+              onPressed: () => _addLead(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _addLead(BuildContext context) {
+    RepsiBottomSheet.show<void>(context: context, title: 'New lead', child: const _AddLeadSheet());
+  }
+}
+
+class _LeadRow extends StatelessWidget {
+  final LeadItem lead;
+
+  const _LeadRow({required this.lead});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final followUp = lead.nextFollowUp;
+    final overdue = followUp != null && followUp.isBefore(DateTime.now()) && lead.status != 'converted' && lead.status != 'lost';
+    final meta = [
+      if (lead.interest != null) lead.interest!,
+      lead.source,
+      if (followUp != null && lead.status != 'lost') 'follow up ${DateFormat('d MMM').format(followUp)}',
+    ].join(' · ');
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 2),
+      leading: RepsiAvatar(name: lead.name, size: 40),
+      title: Text(lead.name.isEmpty ? lead.phone : lead.name,
+          style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+      subtitle: Text(meta,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.caption.copyWith(
+            color: overdue ? (isDark ? AppColors.darkWarning : AppColors.warning) : _secondary(isDark),
+          )),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSecondary,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        ),
+        child: Text(leadStageLabel(lead.status), style: AppTypography.caption.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+      ),
+    );
+  }
+}
+
+class _AddLeadSheet extends ConsumerStatefulWidget {
+  const _AddLeadSheet();
+
+  @override
+  ConsumerState<_AddLeadSheet> createState() => _AddLeadSheetState();
+}
+
+class _AddLeadSheetState extends ConsumerState<_AddLeadSheet> {
+  final _form = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _phone = TextEditingController();
+  final _interest = TextEditingController();
+  String _source = 'Walk-in';
+  bool _busy = false;
+
+  static const _sources = ['Walk-in', 'Instagram', 'Website', 'Referral', 'Google', 'Phone call'];
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    _interest.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_busy || !_form.currentState!.validate()) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(frontDeskActionsProvider).addLead(name: _name.text, phone: _phone.text, source: _source, interest: _interest.text);
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_name.text.trim()} added to leads')));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_err(e))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Form(
+        key: _form,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header: Operations
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.pageHorizontalPadding,
-                16,
-                AppSpacing.pageHorizontalPadding,
-                8,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Operations',
-                          style: AppTypography.heading.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.text,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Attendance, CRM, QR & Staff RBAC',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: AppColors.primarySoft,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 7,
-                          height: 7,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          gymName,
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.primaryDark,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            RepsiTextField(
+              label: 'Name',
+              controller: _name,
+              textCapitalization: TextCapitalization.words,
+              textInputAction: TextInputAction.next,
+              validator: (v) => (v ?? '').trim().length < 2 ? 'Enter their name' : null,
             ),
-
-            // Segmented Top Tab Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.pageHorizontalPadding,
-                vertical: 8,
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border, width: 1),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: AppColors.primaryDark,
-                  unselectedLabelColor: AppColors.textSecondary,
-                  labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, fontSize: 12),
-                  unselectedLabelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 12),
-                  tabs: const [
-                    Tab(text: 'Attendance'),
-                    Tab(text: 'CRM Leads'),
-                    Tab(text: 'QR System'),
-                    Tab(text: 'Staff & RBAC'),
-                  ],
-                ),
-              ),
+            const SizedBox(height: AppSpacing.lg),
+            RepsiTextField(
+              label: 'Mobile number',
+              controller: _phone,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.next,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]'))],
+              validator: (v) => (v ?? '').replaceAll(RegExp(r'\D'), '').length < 10 ? 'Enter a valid mobile number' : null,
             ),
-
-            // Tab Views
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildAttendanceTab(),
-                  _buildCrmTab(),
-                  _buildQrHubTab(),
-                  _buildStaffRbacTab(),
-                ],
-              ),
+            const SizedBox(height: AppSpacing.lg),
+            RepsiTextField(label: 'Interested in (optional)', controller: _interest, hintText: 'e.g. Quarterly plan, PT'),
+            const SizedBox(height: AppSpacing.lg),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                for (final s in _sources)
+                  ChoiceChip(label: Text(s), selected: s == _source, onSelected: (_) => setState(() => _source = s)),
+              ],
             ),
+            const SizedBox(height: AppSpacing.xl),
+            RepsiButton(text: 'Save lead', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
           ],
         ),
       ),
     );
   }
+}
 
-  // -------------------------------------------------------------
-  // 1. FAST ATTENDANCE TAB
-  // -------------------------------------------------------------
-  Widget _buildAttendanceTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageHorizontalPadding,
-        vertical: 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Today's Stats Banner
-          RepsiCard(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Attendance Today',
-                      style: AppTypography.headingSmall.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const RepsiBadge(
-                      label: '83.6% Turnout',
-                      variant: RepsiBadgeVariant.active,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _buildStatCol('Check-ins', '184', AppColors.primary),
-                    _buildDivider(),
-                    _buildStatCol('Present', '184', AppColors.text),
-                    _buildDivider(),
-                    _buildStatCol('Expected', '220', AppColors.textSecondary),
-                    _buildDivider(),
-                    _buildStatCol('Peak Hour', '6-8 PM', const Color(0xFF2563EB)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+// ─── Check-in QR ─────────────────────────────────────────────────────────────
 
-          // Primary Speed Actions
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: RepsiPress(
-                  onTap: () => context.push(RouteNames.checkIn),
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 22),
-                        const SizedBox(width: 8),
-                        Text(
-                          'SCAN MEMBER QR',
-                          style: AppTypography.button.copyWith(
-                            color: Colors.white,
-                            fontSize: 13.5,
-                            letterSpacing: 0.3,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 2,
-                child: RepsiPress(
-                  onTap: () => _showManualCheckInSheet(context),
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border, width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Manual Check-in',
-                      style: AppTypography.button.copyWith(
-                        color: AppColors.text,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+class _QrTab extends ConsumerWidget {
+  const _QrTab();
 
-          // Live Activity Feed
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(gymQrProvider).when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => RepsiErrorState(title: "Couldn't load the check-in QR", message: _err(e), onRetry: () => ref.invalidate(gymQrProvider)),
+          data: (qr) => ListView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
             children: [
               Text(
-                'Live Check-in Stream',
-                style: AppTypography.headingSmall.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.text,
-                ),
+                'Members scan this with the REPSI app to check themselves in. Show it at the front desk or print it.',
+                style: AppTypography.bodySmall.copyWith(color: _secondary(isDark)),
               ),
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    'Real-time',
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _recentCheckins.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final c = _recentCheckins[index];
-              return RepsiCard(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: AppColors.primarySoft,
-                      child: Text(
-                        c['name']![0],
-                        style: const TextStyle(
-                          color: AppColors.primaryDark,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            c['name']!,
-                            style: AppTypography.bodySmall.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.text,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${c['plan']} • Gate: ${c['gate']}',
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          c['time']!,
-                          style: AppTypography.caption.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.text,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const RepsiBadge(
-                          label: 'Checked in',
-                          variant: RepsiBadgeVariant.active,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // 2. CRM PIPELINE TAB
-  // -------------------------------------------------------------
-  Widget _buildCrmTab() {
-    final stages = [
-      {'name': 'NEW LEADS', 'count': 23, 'color': const Color(0xFF2563EB)},
-      {'name': 'CONTACTED', 'count': 14, 'color': const Color(0xFFF59E0B)},
-      {'name': 'TRIAL', 'count': 8, 'color': const Color(0xFF8B5CF6)},
-      {'name': 'CONVERTED', 'count': 32, 'color': AppColors.primary},
-    ];
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageHorizontalPadding,
-        vertical: 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Pipeline Summary Bar
-          Row(
-            children: stages.map((s) {
-              return Expanded(
+              const SizedBox(height: AppSpacing.xl),
+              Center(
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border, width: 1),
+                    color: Colors.white, // QR codes need a light quiet zone in either theme
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                    border: Border.all(color: _border(isDark)),
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '${s['count']}',
-                        style: AppTypography.headingSmall.copyWith(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: s['color'] as Color,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        s['name'] as String,
-                        style: AppTypography.caption.copyWith(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                  child: Semantics(
+                    label: 'Gym check-in QR code',
+                    image: true,
+                    child: QrImageView(data: qr.payload, size: 232, backgroundColor: Colors.white, gapless: true),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-
-          // Lead Automation Pipeline Banner
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Automated Follow-up Flow Active',
-                        style: AppTypography.caption.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryDark,
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        'Welcome Msg → Day 1 Follow-up → Trial Reminder → Offer',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 10.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Configure',
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.primaryDark,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Action Row: Add Lead
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Recent Leads',
-                style: AppTypography.headingSmall.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.text,
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(qr.label, textAlign: TextAlign.center, style: AppTypography.labelLarge.copyWith(color: _text(isDark))),
+              if (qr.expiresAt != null)
+                Text('Rotates ${DateFormat('d MMM, h:mm a').format(qr.expiresAt!)}',
+                    textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+              const SizedBox(height: AppSpacing.xl),
               TextButton.icon(
-                onPressed: () => _showAddLeadDialog(context),
-                icon: const Icon(Icons.add_rounded, size: 16, color: AppColors.primary),
-                label: Text(
-                  '+ Add Lead',
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Lead Cards
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _leads.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final lead = _leads[index];
-              return RepsiCard(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: const Color(0xFFEBF5FF),
-                              child: Text(
-                                lead['name']![0],
-                                style: const TextStyle(
-                                  color: Color(0xFF2563EB),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  lead['name']!,
-                                  style: AppTypography.bodySmall.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.text,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  'Source: ${lead['source']}',
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.textMuted,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        RepsiBadge(
-                          label: lead['stage']!,
-                          variant: lead['stage'] == 'Trial'
-                              ? RepsiBadgeVariant.expiring
-                              : (lead['stage'] == 'Contacted' ? RepsiBadgeVariant.frozen : RepsiBadgeVariant.active),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.fitness_center_rounded, size: 14, color: AppColors.textSecondary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Interest: ${lead['interest']}',
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.text,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            lead['lastContact']!,
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.textMuted,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.phone_outlined, size: 14, color: AppColors.primaryDark),
-                            label: const Text('Call', style: TextStyle(fontSize: 12)),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: const BorderSide(color: AppColors.border),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF2563EB)),
-                            label: const Text('Message', style: TextStyle(fontSize: 12)),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: const BorderSide(color: AppColors.border),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                            ),
-                            child: const Text('Follow-up', style: TextStyle(fontSize: 12, color: Colors.white)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // 3. QR HUB TAB
-  // -------------------------------------------------------------
-  Widget _buildQrHubTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageHorizontalPadding,
-        vertical: 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Main Check-in QR Card
-          RepsiCard(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Gym Check-in QR',
-                          style: AppTypography.headingSmall.copyWith(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.text,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Indiranagar Main Hub',
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const RepsiBadge(
-                      label: '● Active',
-                      variant: RepsiBadgeVariant.active,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // QR Display Container
-                Container(
-                  width: 190,
-                  height: 190,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.qr_code_2_rounded,
-                          size: 130,
-                          color: AppColors.text,
-                        ),
-                        Text(
-                          'repsi.app/qr/indiranagar',
-                          style: AppTypography.caption.copyWith(
-                            fontSize: 9.5,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Members scan this code with their Repsi app to mark entry',
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 11.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 18),
-                // 4 QR Action Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildQrActionButton(Icons.refresh_rounded, 'Refresh', () {}),
-                    _buildQrActionButton(Icons.download_rounded, 'Download', () {}),
-                    _buildQrActionButton(Icons.print_rounded, 'Print', () {}),
-                    _buildQrActionButton(Icons.fullscreen_rounded, 'Full Screen', () {}),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Multiple Dedicated QR Types
-          Text(
-            'Specialized QR Stations',
-            style: AppTypography.headingSmall.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          _buildQrTypeRow('Branch Entrance QR', 'Front gate auto-turnstile access', Icons.door_front_door_outlined),
-          const SizedBox(height: 8),
-          _buildQrTypeRow('Class Check-in QR', 'Group studio & CrossFit check-in', Icons.groups_rounded),
-          const SizedBox(height: 8),
-          _buildQrTypeRow('PT Session QR', '1-on-1 trainer credit deduction', Icons.sports_gymnastics_rounded),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQrActionButton(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: AppColors.primaryDark, size: 20),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: AppTypography.caption.copyWith(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQrTypeRow(String title, String desc, IconData icon) {
-    return RepsiCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: AppColors.text, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.text,
-                  ),
-                ),
-                Text(
-                  desc,
-                  style: AppTypography.caption.copyWith(
-                    fontSize: 11,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.qr_code_rounded, color: AppColors.primary, size: 22),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // 4. STAFF & RBAC TAB
-  // -------------------------------------------------------------
-  Widget _buildStaffRbacTab() {
-    final user = ref.watch(authProvider).user;
-    final ownerName = (user?.fullName.isNotEmpty == true) ? user!.fullName : 'Owner';
-    final ownerEmail = user?.email ?? 'owner@repsi.app';
-
-    final staff = [
-      {'name': ownerName, 'role': 'Owner', 'email': ownerEmail, 'permissions': 'Full Root Access'},
-      {'name': 'Vikram Rathore', 'role': 'Manager', 'email': 'vikram@staff.internal', 'permissions': 'Members, Payments, Ops'},
-      {'name': 'Arun Kumar', 'role': 'Trainer', 'email': 'arun@trainer.internal', 'permissions': 'Client Training, Workouts'},
-    ];
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageHorizontalPadding,
-        vertical: 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Staff & Granular Permissions',
-                style: AppTypography.headingSmall.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.text,
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.person_add_rounded, size: 16, color: AppColors.primary),
-                label: Text(
-                  '+ Add Staff',
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: staff.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final s = staff[index];
-              return RepsiCard(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          s['name']!,
-                          style: AppTypography.bodySmall.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.text,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: s['role'] == 'Owner' ? AppColors.primarySoft : const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            s['role']!,
-                            style: AppTypography.caption.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: s['role'] == 'Owner' ? AppColors.primaryDark : AppColors.text,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      s['email']!,
-                      style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11.5),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'Permissions: ${s['permissions']}',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // Helpers
-  // -------------------------------------------------------------
-  Widget _buildStatCol(String label, String value, Color color) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: AppTypography.headingSmall.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: AppTypography.caption.copyWith(
-              fontSize: 10.5,
-              color: AppColors.textMuted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      width: 1,
-      height: 28,
-      color: AppColors.border,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-    );
-  }
-
-  void _showManualCheckInSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Manual Member Check-in',
-                style: AppTypography.headingSmall.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter Member Phone or ID...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 16),
-              RepsiButton(
-                text: 'Record Check-in',
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Member check-in recorded successfully.')),
-                  );
-                },
-                isFullWidth: true,
+                onPressed: () => ref.invalidate(gymQrProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Refresh'),
               ),
             ],
           ),
         );
-      },
-    );
   }
+}
 
-  void _showAddLeadDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add New Lead'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(decoration: const InputDecoration(labelText: 'Full Name')),
-            const SizedBox(height: 8),
-            TextField(decoration: const InputDecoration(labelText: 'Phone Number')),
-            const SizedBox(height: 8),
-            TextField(decoration: const InputDecoration(labelText: 'Interest (e.g. Strength, Weight Loss)')),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Lead added to CRM pipeline.')),
-              );
-            },
-            child: const Text('Save Lead'),
+// ─── Team ────────────────────────────────────────────────────────────────────
+
+class _TeamTab extends ConsumerWidget {
+  const _TeamTab();
+
+  static String _role(String r) => r.isEmpty ? '' : r[0] + r.substring(1).toLowerCase().replaceAll('_', ' ');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(teamProvider).when(
+          loading: _skeletonList,
+          error: (e, _) => RepsiErrorState(title: "Couldn't load your team", message: _err(e), onRetry: () => ref.invalidate(teamProvider)),
+          data: (team) => ListView(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            children: [
+              for (final p in team)
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  leading: RepsiAvatar(name: p.name, size: 40),
+                  title: Text(p.isSelf ? '${p.name} (you)' : p.name,
+                      style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+                  subtitle: Text(p.email, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+                  trailing: Text(p.active ? _role(p.role) : 'Inactive',
+                      style: AppTypography.caption.copyWith(color: _secondary(isDark), fontWeight: FontWeight.w600)),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Text('Invite staff and change roles or permissions on repsi.app.',
+                    textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
   }
-
-  final List<Map<String, String>> _recentCheckins = const [
-    {'name': 'Rahul Sharma', 'plan': 'Gold Membership', 'gate': 'Main Turnstile', 'time': '08:42 AM'},
-    {'name': 'Priya Nair', 'plan': 'Platinum Pass', 'gate': 'Studio A', 'time': '08:35 AM'},
-    {'name': 'Arjun Mehta', 'plan': 'PT Monthly', 'gate': 'Main Turnstile', 'time': '08:16 AM'},
-    {'name': 'Kavita Sundaram', 'plan': 'Silver Plan', 'gate': 'Studio B', 'time': '07:54 AM'},
-  ];
-
-  final List<Map<String, String>> _leads = const [
-    {'name': 'Arjun Nair', 'interest': 'Weight Training', 'source': 'Instagram Ads', 'stage': 'Trial', 'lastContact': 'Yesterday'},
-    {'name': 'Sneha Rao', 'interest': 'HIIT & Weight Loss', 'source': 'Friend Referral', 'stage': 'Contacted', 'lastContact': '2 days ago'},
-    {'name': 'Deepak Verma', 'interest': 'Personal Training', 'source': 'Walk-in', 'stage': 'New Leads', 'lastContact': 'Today, 10 AM'},
-  ];
 }

@@ -1,3 +1,4 @@
+import '../../core/api/api_time.dart';
 enum PaymentStatus {
   completed,
   pending,
@@ -100,8 +101,8 @@ class PaymentModel {
       planName: json['plan_name'] as String?,
       notes: json['notes'] as String?,
       paidAt: json['paid_at'] != null
-          ? DateTime.parse(json['paid_at'].toString())
-          : (json['created_at'] != null ? DateTime.parse(json['created_at'].toString()) : DateTime.now()),
+          ? parseApiDateTime(json['paid_at'])!
+          : (json['created_at'] != null ? parseApiDateTime(json['created_at'])! : DateTime.now()),
     );
   }
 

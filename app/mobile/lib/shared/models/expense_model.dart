@@ -1,3 +1,4 @@
+import '../../core/api/api_time.dart';
 class ExpenseModel {
   final String id;
   final String workspaceId;
@@ -29,7 +30,7 @@ class ExpenseModel {
       notes: json['notes'] as String?,
       expenseDate: json['expense_date'] != null
           ? DateTime.parse(json['expense_date'].toString())
-          : (json['created_at'] != null ? DateTime.parse(json['created_at'].toString()) : DateTime.now()),
+          : (json['created_at'] != null ? parseApiDateTime(json['created_at'])! : DateTime.now()),
       receiptUrl: json['receipt_url'] as String?,
     );
   }

@@ -114,3 +114,22 @@ Moving existing local uploads to S3: copy `private_storage/` to the bucket under
 
 `scripts/load_test.py` (see its `--help`). Run it against staging PostgreSQL with several workers
 (`--allow-remote`), never against production.
+
+## 8. Sales demo gym
+
+`cd app/api && python -m scripts.seed_demo --yes` creates the demo login (`DEMO_ACCOUNT_EMAIL`, default
+`demo@repsi.app`, password `DEMO_ACCOUNT_PASSWORD` from `.env`) and the `repsi-demo` gym, flagged `is_demo`.
+It is on Enterprise as complimentary access with unlimited members, staff, trainers and branches, and holds
+~140 members with renewal history, receipts, part-paid dues, 60 days of check-ins, trainers, classes,
+expenses and leads.
+
+Isolation (`app/core/demo.py`): tenant scoping keeps it apart from every real gym; email, WhatsApp, SMS
+and push from it are recorded as `skipped_demo` and never sent; account security, billing, payment
+gateways and settings, invitations, website publishing, support tickets, team roles, rename/deregister,
+onboarding and logo uploads return 403 `DEMO_RESTRICTED`; password reset emails are never sent for it.
+The demo login is an owner, not a platform admin, so it cannot see other gyms.
+
+Re-running updates the password and plan; sample data is only created once. Prospects can edit the demo
+data, so plan a periodic refresh (not automated yet). The seeder refuses to reuse an email or slug
+that belongs to a real account or gym.
+

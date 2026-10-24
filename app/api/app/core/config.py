@@ -94,6 +94,10 @@ class Settings(BaseSettings):
     CLOUDINARY_FOLDER: str = "repsi"
     CLOUDINARY_TIMEOUT_SECONDS: float = 20.0
     AVATAR_MAX_BYTES: int = 5 * 1024 * 1024
+    # Sales demo account (scripts/seed_demo.py). The password lives only in .env; empty disables seeding.
+    DEMO_ACCOUNT_EMAIL: str = "demo@repsi.app"
+    DEMO_ACCOUNT_PASSWORD: str = ""
+    DEMO_WORKSPACE_SLUG: str = "repsi-demo"
 
     # SMS for essential alerts: "none", "msg91" (India, DLT template ids) or "twilio"
     SMS_PROVIDER: str = "none"

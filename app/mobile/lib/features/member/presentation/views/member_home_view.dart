@@ -16,7 +16,7 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../../health/data/health_models.dart';
 import '../../../health/providers/health_provider.dart';
 import '../../data/member_self_provider.dart';
-import 'member_payments_view.dart';
+import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
 import '../../../ai/views/ai_workout_coach_view.dart';
 
@@ -110,7 +110,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const MemberPaymentsView())),
+                              builder: (_) => const MembershipPaymentsView())),
                     ),
                   ),
                   const SizedBox(width: 8),

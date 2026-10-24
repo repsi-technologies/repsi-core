@@ -46,6 +46,14 @@ class ApiError implements Exception {
             statusCode: response.statusCode,
             code: 'API_ERROR',
           );
+        } else if (detail is Map && detail['message'] != null) {
+          // Structured refusals: DEMO_RESTRICTED, PLAN_LIMIT_REACHED, FEATURE_NOT_IN_PLAN, ...
+          return ApiError(
+            message: detail['message'].toString(),
+            statusCode: response.statusCode,
+            code: detail['error_code']?.toString() ?? 'API_ERROR',
+            details: detail,
+          );
         } else if (detail is List && detail.isNotEmpty) {
           final messages = detail.map((item) {
             if (item is Map && item.containsKey('msg')) {

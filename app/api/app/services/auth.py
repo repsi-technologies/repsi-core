@@ -581,6 +581,10 @@ class AuthService:
         user = self.get_by_email(email)
         if user is None or not user.is_active:
             return  # Same response either way; no account enumeration.
+        from app.core.demo import is_demo_email
+
+        if is_demo_email(user.email):
+            return  # The shared demo login's password is managed in .env only.
         raw = secrets.token_urlsafe(32)
         now = datetime.now(timezone.utc)
         self.db.query(PasswordResetToken).filter(

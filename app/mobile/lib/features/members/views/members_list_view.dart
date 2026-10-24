@@ -1,17 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/models/member_model.dart';
-import '../../../shared/widgets/repsi_badge.dart';
-import '../../../shared/widgets/repsi_card.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
+import '../../../shared/widgets/repsi_empty_state.dart';
+import '../../../shared/widgets/repsi_error_state.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
+import '../../../shared/widgets/repsi_skeleton.dart';
+import '../../../shared/widgets/repsi_status_badge.dart';
 import '../providers/member_provider.dart';
-import 'member_detail_view.dart';
 
+/// Member directory: search (name, phone, email), membership-state filters, paged rows.
 class MembersListView extends ConsumerStatefulWidget {
   const MembersListView({super.key});
 
@@ -20,292 +26,202 @@ class MembersListView extends ConsumerStatefulWidget {
 }
 
 class _MembersListViewState extends ConsumerState<MembersListView> {
-  int _selectedFilter = 0;
-  final List<String> _filters = ['All', 'Active', 'Expiring', 'Expired', 'Frozen'];
+  static const _filters = [('ALL', 'All'), ('ACTIVE', 'Active'), ('EXPIRING', 'Ending soon'), ('EXPIRED', 'Expired'), ('FROZEN', 'Frozen')];
+  final _scroll = ScrollController();
+  Timer? _debounce;
 
-  RepsiBadgeVariant _getBadgeVariant(MemberStatus status) {
-    switch (status) {
-      case MemberStatus.active:
-        return RepsiBadgeVariant.active;
-      case MemberStatus.expiring:
-        return RepsiBadgeVariant.expiring;
-      case MemberStatus.expired:
-        return RepsiBadgeVariant.expired;
-      case MemberStatus.frozen:
-        return RepsiBadgeVariant.frozen;
-      case MemberStatus.cancelled:
-        return RepsiBadgeVariant.neutral;
-    }
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(() {
+      if (_scroll.position.extentAfter < 400) ref.read(memberListProvider.notifier).loadMore();
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _onSearch(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () => ref.read(memberListProvider.notifier).setSearchQuery(value));
+  }
+
+  Future<void> _addMember() async {
+    await context.push(RouteNames.addMember);
+    if (mounted) ref.read(memberListProvider.notifier).fetchMembers();
   }
 
   @override
   Widget build(BuildContext context) {
-    final memberState = ref.watch(memberListProvider);
-    final members = memberState.members;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final state = ref.watch(memberListProvider);
+    final notifier = ref.read(memberListProvider.notifier);
+    final text = isDark ? AppColors.darkText : AppColors.text;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Members CRM',
-          style: AppTypography.heading.copyWith(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+        title: Text('Members', style: AppTypography.heading.copyWith(color: text, fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.text),
-            onPressed: () => ref.read(memberListProvider.notifier).fetchMembers(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_add_outlined, color: AppColors.primary),
-            onPressed: () async {
-              await context.push(RouteNames.addMember);
-              if (mounted) {
-                ref.read(memberListProvider.notifier).fetchMembers();
-              }
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.md),
+            child: FilledButton.icon(
+              onPressed: _addMember,
+              icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+              label: const Text('Add'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(0, 40),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusButton)),
+              ),
+            ),
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xs, AppSpacing.xl, AppSpacing.md),
+            child: RepsiSearchField(
+              hintText: 'Search name, phone or email',
+              onChanged: _onSearch,
+              onClear: () => notifier.setSearchQuery(''),
+            ),
+          ),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+              itemCount: _filters.length,
+              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+              itemBuilder: (context, i) {
+                final (key, label) = _filters[i];
+                final selected = state.selectedStatusFilter == key;
+                return ChoiceChip(
+                  label: Text(label),
+                  selected: selected,
+                  showCheckmark: false,
+                  onSelected: (_) => notifier.setStatusFilter(key),
+                  labelStyle: AppTypography.caption.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : text,
+                  ),
+                  selectedColor: AppColors.primary,
+                  backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                  side: BorderSide(color: selected ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.border)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusPill)),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(child: _body(state, notifier, isDark)),
+        ],
+      ),
+    );
+  }
+
+  Widget _body(MemberListState state, MemberListNotifier notifier, bool isDark) {
+    if (state.isLoading && state.members.isEmpty) {
+      return ListView(children: [for (var i = 0; i < 8; i++) RepsiSkeleton.memberListItem()]);
+    }
+    if (state.errorMessage != null && state.members.isEmpty) {
+      return RepsiErrorState(title: "Couldn't load members", message: state.errorMessage!, onRetry: notifier.fetchMembers);
+    }
+    if (state.members.isEmpty) {
+      final filtered = state.searchQuery.isNotEmpty || state.selectedStatusFilter != 'ALL';
+      return RepsiEmptyState(
+        icon: filtered ? Icons.search_off_rounded : Icons.group_add_outlined,
+        title: filtered ? 'No members match' : 'No members yet',
+        message: filtered ? 'Try another name, phone number or filter.' : 'Add your first member to start tracking memberships and visits.',
+        actionLabel: filtered ? null : 'Add member',
+        onAction: filtered ? null : _addMember,
+      );
+    }
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: notifier.fetchMembers,
+      child: ListView.separated(
+        controller: _scroll,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
+        itemCount: state.members.length + (state.isLoadingMore ? 1 : 0),
+        separatorBuilder: (_, __) => Divider(height: 1, indent: 76, color: isDark ? AppColors.darkBorder : AppColors.border),
+        itemBuilder: (context, i) {
+          if (i >= state.members.length) {
+            return const Padding(
+              padding: EdgeInsets.all(AppSpacing.lg),
+              child: Center(child: SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.2))),
+            );
+          }
+          return _MemberRow(member: state.members[i], isDark: isDark);
+        },
+      ),
+    );
+  }
+}
+
+class _MemberRow extends StatelessWidget {
+  final MemberModel member;
+  final bool isDark;
+
+  const _MemberRow({required this.member, required this.isDark});
+
+  String? _membershipLine() {
+    final end = member.endDate;
+    final plan = member.planName;
+    if (end == null) return plan;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final when = DateFormat('d MMM').format(end);
+    final ending = end.isBefore(today) ? 'ended $when' : 'ends $when';
+    return plan == null ? ending[0].toUpperCase() + ending.substring(1) : '$plan · $ending';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final name = member.fullName.isEmpty ? 'Member' : member.fullName;
+    final line = _membershipLine() ?? member.phone ?? member.email;
+    return InkWell(
+      onTap: () => context.push('/members/${member.id}'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+        child: Row(
           children: [
-            // Search Input
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.pageHorizontalPadding,
-                vertical: 6,
-              ),
-              child: RepsiSearchField(
-                hintText: 'Search by name, email or phone...',
-                onChanged: (val) {
-                  ref.read(memberListProvider.notifier).setSearchQuery(val);
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Horizontal Filter Chips
-            SizedBox(
-              height: 38,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding),
-                itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final isSelected = index == _selectedFilter;
-                  return ChoiceChip(
-                    label: Text(_filters[index]),
-                    selected: isSelected,
-                    selectedColor: AppColors.primarySoft,
-                    backgroundColor: Colors.white,
-                    labelStyle: AppTypography.caption.copyWith(
-                      color: isSelected ? AppColors.primaryDark : AppColors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                    side: BorderSide(
-                      color: isSelected ? AppColors.primary : AppColors.border,
-                      width: isSelected ? 1.5 : 1,
-                    ),
-                    onSelected: (_) {
-                      setState(() => _selectedFilter = index);
-                      final filterKey = index == 0 ? 'ALL' : _filters[index].toUpperCase();
-                      ref.read(memberListProvider.notifier).setStatusFilter(filterKey);
-                    },
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Member Cards List
+            RepsiAvatar(name: name, imageUrl: member.avatarUrl, size: 44),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: RefreshIndicator(
-                color: AppColors.primary,
-                onRefresh: () async {
-                  await ref.read(memberListProvider.notifier).fetchMembers();
-                },
-                child: memberState.isLoading && members.isEmpty
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                    : members.isEmpty
-                        ? ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 40),
-                            children: [
-                              Center(
-                                child: Container(
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: AppColors.border),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.people_outline_rounded, size: 48, color: AppColors.textMuted),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        'No members registered yet',
-                                        style: AppTypography.headingSmall.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        'Members registered through the website or added by you will appear here automatically.',
-                                        textAlign: TextAlign.center,
-                                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primary,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                        onPressed: () async {
-                                          await context.push(RouteNames.addMember);
-                                          if (context.mounted) {
-                                            ref.read(memberListProvider.notifier).fetchMembers();
-                                          }
-                                        },
-                                        icon: const Icon(Icons.person_add_outlined, size: 18),
-                                        label: const Text('Add Member'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : ListView.separated(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.pageHorizontalPadding,
-                              vertical: 4,
-                            ),
-                            itemCount: members.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 10),
-                            itemBuilder: (context, index) {
-                              final m = members[index];
-                              final displayName = '${m.firstName} ${m.lastName}'.trim();
-                              final displayInitial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'M';
-                              final statusLabel = m.status.displayName;
-                              final badgeVariant = _getBadgeVariant(m.status);
-
-                              return RepsiCard(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => MemberDetailView(memberId: m.id),
-                                    ),
-                                  );
-                                },
-                                padding: const EdgeInsets.all(14),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: AppColors.primarySoft,
-                                          child: Text(
-                                            displayInitial,
-                                            style: const TextStyle(
-                                              color: AppColors.primaryDark,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      displayName,
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: AppTypography.bodySmall.copyWith(
-                                                        fontWeight: FontWeight.w700,
-                                                        fontSize: 15,
-                                                        color: AppColors.text,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  RepsiBadge(
-                                                    label: statusLabel,
-                                                    variant: badgeVariant,
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                '${m.planName ?? "General Membership"} • ${m.email}',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: AppTypography.caption.copyWith(
-                                                  color: AppColors.textSecondary,
-                                                  fontSize: 11.5,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.background,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.schedule_rounded, size: 13, color: AppColors.textMuted),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                m.expiryDate != null ? 'Expires: ${m.expiryDate}' : 'Active membership',
-                                                style: AppTypography.caption.copyWith(
-                                                  color: m.status == MemberStatus.expiring || m.status == MemberStatus.expired
-                                                      ? AppColors.error
-                                                      : AppColors.textSecondary,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 11,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (m.phone != null && m.phone!.isNotEmpty)
-                                            Text(
-                                              m.phone!,
-                                              style: AppTypography.caption.copyWith(
-                                                color: AppColors.textMuted,
-                                                fontSize: 11,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.body.copyWith(
+                      color: isDark ? AppColors.darkText : AppColors.text,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (line.isNotEmpty)
+                    Text(
+                      line,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                    ),
+                ],
               ),
             ),
+            const SizedBox(width: AppSpacing.sm),
+            RepsiStatusBadge(status: member.status),
           ],
         ),
       ),

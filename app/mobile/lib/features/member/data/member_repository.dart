@@ -4,6 +4,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../shared/models/fitness_models.dart';
 import '../../../shared/models/workout_models.dart';
+import '../../../core/api/api_time.dart';
 
 class MemberRepository {
   final ApiClient _apiClient;
@@ -106,7 +107,7 @@ class MemberRepository {
     final payments = response.data ?? const [];
     return payments.map((item) {
       final payment = Map<String, dynamic>.from(item as Map);
-      final paidAt = DateTime.tryParse(payment['paid_at'] as String? ?? '');
+      final paidAt = parseApiDateTime(payment['paid_at']);
       if (paidAt == null) return null;
       final status = (payment['status'] as String? ?? 'unknown').split('.').last;
       final method = (payment['method'] as String? ?? 'unknown').split('.').last;

@@ -37,27 +37,33 @@ class AuthLayout extends StatelessWidget {
               builder: (context, constraints) => SingleChildScrollView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.sm, AppSpacing.xxl, AppSpacing.xxl),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight - AppSpacing.xxl - AppSpacing.sm),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          height: 48,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: leading ??
-                                (showBack && context.canPop()
-                                    ? _BackButton(onPressed: () => context.pop())
-                                    : const SizedBox.shrink()),
+                // Phone-width column, centred on tablets and in landscape.
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - AppSpacing.xxl - AppSpacing.sm,
+                      maxWidth: 440,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(
+                            height: 48,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: leading ??
+                                  (showBack && context.canPop()
+                                      ? _BackButton(onPressed: () => context.pop())
+                                      : const SizedBox.shrink()),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        child,
-                        const Spacer(),
-                        if (footer != null) ...[const SizedBox(height: AppSpacing.xxl), footer!],
-                      ],
+                          const SizedBox(height: AppSpacing.lg),
+                          child,
+                          const Spacer(),
+                          if (footer != null) ...[const SizedBox(height: AppSpacing.xxl), footer!],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -179,7 +185,8 @@ class _IndiaFlag extends StatelessWidget {
                   child: Container(
                     width: 4,
                     height: 4,
-                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: const Color(0xFF000080), width: 0.8)),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, border: Border.all(color: const Color(0xFF000080), width: 0.8)),
                   ),
                 ),
               ),

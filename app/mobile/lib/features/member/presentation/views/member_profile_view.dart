@@ -13,7 +13,7 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/views/account_security_dialogs.dart';
 import '../../../auth/widgets/my_profile_photo.dart';
 import '../../../notifications/views/notification_inbox_view.dart';
-import 'member_payments_view.dart';
+import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
 
 class MemberProfileView extends ConsumerWidget {
@@ -155,7 +155,7 @@ class MemberProfileView extends ConsumerWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const MemberPaymentsView()));
+                                  builder: (_) => const MembershipPaymentsView()));
                         } else if (route == 'attendance') {
                           Navigator.push(
                               context,

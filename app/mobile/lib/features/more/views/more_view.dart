@@ -2,583 +2,246 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/animations/repsi_stagger.dart';
-import '../../../shared/widgets/repsi_card.dart';
+import '../../../core/providers/api_provider.dart';
+import '../../../core/providers/theme_provider.dart';
+import '../../../shared/widgets/repsi_bottom_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../auth/views/sign_out_dialog.dart';
+import '../../auth/widgets/my_profile_photo.dart';
+import '../../members/providers/member_detail_provider.dart';
+import '../../workspaces/providers/workspace_provider.dart';
 
+final _branchesProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final list = (await ref.watch(apiClientProvider).get('/branches')).data as List<dynamic>? ?? const [];
+  return list.whereType<Map<String, dynamic>>().toList();
+});
+
+/// Owner account and settings. Only destinations that exist in the app are listed; everything
+/// that is managed on the web is one clearly labelled link.
 class MoreView extends ConsumerWidget {
   const MoreView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final d = Theme.of(context).brightness == Brightness.dark;
+    final canvas = d ? AppColors.darkBackground : AppColors.background;
     final user = ref.watch(authProvider).user;
-    final ownerName = (user?.fullName.isNotEmpty == true)
-        ? user!.fullName
-        : (user?.email.split('@').first ?? 'Owner');
+    final gym = ref.watch(workspaceProvider).activeWorkspace?.name ?? user?.gymName;
+    final theme = ref.watch(themeNotifierProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: canvas,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'More',
-          style: AppTypography.heading
-              .copyWith(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
+        backgroundColor: canvas,
+        title: Text('More', style: AppTypography.heading.copyWith(color: _text(d), fontWeight: FontWeight.w700)),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pageHorizontalPadding,
-            vertical: 12,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xs, AppSpacing.xl, AppSpacing.xxxl),
+        children: [
+          Row(
             children: [
-              // User / Gym Profile Card
-              RepsiStaggerItem(
-                index: 0,
-                child: RepsiCard(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primarySoft,
-                          border:
-                              Border.all(color: AppColors.primary, width: 1.5),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.storefront_rounded,
-                              color: AppColors.primaryDark, size: 24),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ownerName,
-                              style: AppTypography.headingSmall.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.text,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Gym Owner · Repsi Fitness Hubs',
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // SECTION 1: BUSINESS
-              RepsiStaggerItem(
-                index: 1,
-                child: _buildSection(
-                  title: 'Business',
-                  items: [
-                    {
-                      'icon': Icons.account_tree_outlined,
-                      'title': 'Branches',
-                      'badge': '3 Active'
-                    },
-                    {
-                      'icon': Icons.badge_outlined,
-                      'title': 'Staff Management',
-                      'badge': '8 Staff'
-                    },
-                    {
-                      'icon': Icons.security_rounded,
-                      'title': 'Roles & Permissions',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.card_membership_rounded,
-                      'title': 'Membership Plans',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.sports_gymnastics_rounded,
-                      'title': 'Classes & Schedules',
-                      'badge': null
-                    },
+              const MyProfilePhoto(size: 60),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(user?.fullName ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.sectionHeading.copyWith(color: _text(d))),
+                    Text(
+                      [if (gym != null) gym, _role(user?.role)].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.caption.copyWith(color: _secondary(d)),
+                    ),
+                    if (user?.email.isNotEmpty == true)
+                      Text(user!.email, style: AppTypography.caption.copyWith(color: _secondary(d))),
                   ],
-                  context: context,
                 ),
               ),
-              const SizedBox(height: 18),
-
-              // SECTION 2: FINANCE
-              RepsiStaggerItem(
-                index: 2,
-                child: _buildSection(
-                  title: 'Finance',
-                  items: [
-                    {
-                      'icon': Icons.currency_rupee_rounded,
-                      'title': 'Payments & Collections',
-                      'badge': '₹2.84L'
-                    },
-                    {
-                      'icon': Icons.receipt_long_outlined,
-                      'title': 'GST Invoices',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.account_balance_wallet_outlined,
-                      'title': 'Expenses & Payroll',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.bar_chart_rounded,
-                      'title': 'Financial P&L Reports',
-                      'badge': null
-                    },
-                  ],
-                  context: context,
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // SECTION 3: GROWTH & AI
-              RepsiStaggerItem(
-                index: 3,
-                child: _buildSection(
-                  title: 'Growth & Intelligence',
-                  items: [
-                    {
-                      'icon': Icons.auto_awesome_rounded,
-                      'title': 'AI Business Insights',
-                      'badge': 'AI'
-                    },
-                    {
-                      'icon': Icons.filter_alt_outlined,
-                      'title': 'CRM Lead Pipeline',
-                      'badge': '23 Leads'
-                    },
-                    {
-                      'icon': Icons.campaign_outlined,
-                      'title': 'Automated Campaigns',
-                      'badge': '3 Active'
-                    },
-                    {
-                      'icon': Icons.card_giftcard_rounded,
-                      'title': 'Referrals & Rewards',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.local_offer_outlined,
-                      'title': 'Seasonal Offers',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.bolt_rounded,
-                      'title': 'Automation Rules',
-                      'badge': '3 Rules'
-                    },
-                  ],
-                  context: context,
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // SECTION 4: ONLINE
-              RepsiStaggerItem(
-                index: 4,
-                child: _buildSection(
-                  title: 'Online',
-                  items: [
-                    {
-                      'icon': Icons.language_rounded,
-                      'title': 'Website Builder',
-                      'badge': 'Published'
-                    },
-                    {
-                      'icon': Icons.perm_media_outlined,
-                      'title': 'Content & Media CMS',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.qr_code_2_rounded,
-                      'title': 'QR Codes Station',
-                      'badge': null
-                    },
-                  ],
-                  context: context,
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // SECTION 5: SYSTEM
-              RepsiStaggerItem(
-                index: 5,
-                child: _buildSection(
-                  title: 'System',
-                  items: [
-                    {
-                      'icon': Icons.extension_outlined,
-                      'title': 'Integrations (Health, Razorpay, WA)',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.notifications_none_rounded,
-                      'title': 'Notifications Center',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.lock_outline_rounded,
-                      'title': 'Security & Audit Logs',
-                      'badge': null
-                    },
-                    {
-                      'icon': Icons.settings_outlined,
-                      'title': 'Settings',
-                      'badge': null
-                    },
-                  ],
-                  context: context,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Sign Out Button
-              RepsiStaggerItem(
-                index: 6,
-                child: RepsiCard(
-                  onTap: () async {
-                    final shouldLogout = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Sign Out'),
-                        content: const Text(
-                            'Are you sure you want to sign out of Repsi?'),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Cancel')),
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Sign Out',
-                                style: TextStyle(color: Colors.red)),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (shouldLogout == true) {
-                      await ref.read(authProvider.notifier).logout();
-                      if (context.mounted) {
-                        context.go(RouteNames.login);
-                      }
-                    }
-                  },
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.logout_rounded,
-                          color: Color(0xFFDC2626), size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Sign Out',
-                        style: TextStyle(
-                          color: Color(0xFFDC2626),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.xxl),
+          _Group(title: 'Your gym', items: [
+            _Item(Icons.insights_rounded, 'Business insights', onTap: () => context.push(RouteNames.aiInsights)),
+            _Item(Icons.notifications_none_rounded, 'Notifications', onTap: () => context.push(RouteNames.notifications)),
+            _Item(Icons.store_mall_directory_outlined, 'Branches', onTap: () => _showBranches(context)),
+            _Item(Icons.card_membership_outlined, 'Membership plans', onTap: () => _showPlans(context)),
+          ]),
+          _Group(title: 'App', items: [
+            _Item(
+              Icons.dark_mode_outlined,
+              'Dark mode',
+              trailing: Switch(
+                value: theme == AppThemeMode.dark,
+                onChanged: (on) => ref.read(themeNotifierProvider.notifier).setTheme(on ? AppThemeMode.dark : AppThemeMode.light),
+              ),
+            ),
+          ]),
+          _Group(title: 'On the web', items: [
+            _Item(
+              Icons.open_in_new_rounded,
+              'Billing, staff roles, reports and website',
+              subtitle: 'Manage these on repsi.app',
+              onTap: () {
+                Clipboard.setData(const ClipboardData(text: 'https://repsi.app'));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied: https://repsi.app')));
+              },
+            ),
+          ]),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            onPressed: () => SignOutDialog.show(context),
+            icon: Icon(Icons.logout_rounded, color: d ? AppColors.darkError : AppColors.error),
+            label: Text('Sign out', style: AppTypography.button.copyWith(color: d ? AppColors.darkError : AppColors.error)),
+            style: OutlinedButton.styleFrom(side: BorderSide(color: _border(d))),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required List<Map<String, dynamic>> items,
-    required BuildContext context,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
-            title.toUpperCase(),
-            style: AppTypography.caption.copyWith(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ),
-        RepsiCard(
-          padding: EdgeInsets.zero,
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(
-              height: 1,
-              thickness: 1,
-              indent: 52,
-              color: AppColors.border,
-            ),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return ListTile(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  _handleMenuTap(context, item['title'] as String);
-                },
-                leading: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    size: 18,
-                    color: AppColors.primaryDark,
-                  ),
-                ),
-                title: Text(
-                  item['title'] as String,
-                  style: AppTypography.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: AppColors.text,
-                  ),
-                ),
-                trailing: Row(
+  static String _role(String? role) {
+    final r = (role ?? '').toLowerCase().replaceAll('_', ' ');
+    return r.isEmpty ? '' : r[0].toUpperCase() + r.substring(1);
+  }
+
+  void _showBranches(BuildContext context) {
+    RepsiBottomSheet.show<void>(
+      context: context,
+      title: 'Branches',
+      child: Consumer(
+        builder: (context, ref, _) {
+          final d = Theme.of(context).brightness == Brightness.dark;
+          return ref.watch(_branchesProvider).when(
+                loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: Center(child: CircularProgressIndicator())),
+                error: (_, __) => Text("Couldn't load branches.", style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                data: (list) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (item['badge'] != null) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSubtle,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppColors.border),
+                    for (final b in list)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.store_mall_directory_outlined, color: _secondary(d)),
+                        title: Text(b['name']?.toString() ?? 'Branch',
+                            style: AppTypography.body.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
+                        subtitle: Text(
+                          [b['address_line1'], b['city']].where((v) => v != null && v.toString().isNotEmpty).join(' · '),
+                          style: AppTypography.caption.copyWith(color: _secondary(d)),
                         ),
-                        child: Text(
-                          item['badge'] as String,
-                          style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryDark),
-                        ),
+                        trailing: b['is_primary'] == true
+                            ? Text('Main', style: AppTypography.caption.copyWith(color: _secondary(d), fontWeight: FontWeight.w600))
+                            : null,
                       ),
-                      const SizedBox(width: 6),
-                    ],
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      size: 20,
-                      color: AppColors.textMuted,
-                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text('Add or edit branches on repsi.app.', style: AppTypography.caption.copyWith(color: _secondary(d))),
                   ],
                 ),
               );
-            },
-          ),
-        ),
-      ],
+        },
+      ),
     );
   }
 
-  void _handleMenuTap(BuildContext context, String title) {
-    if (title.contains('Website Builder')) {
-      context.push(RouteNames.websiteBuilder);
-    } else if (title.contains('AI') || title.contains('Insights')) {
-      context.push(RouteNames.aiInsights);
-    } else if (title.contains('Notification')) {
-      context.push(RouteNames.notifications);
-    } else if (title.contains('Automation')) {
-      _showAutomationsModal(context);
-    } else if (title.contains('Roles') || title.contains('Staff')) {
-      context.push(RouteNames.operations);
-    } else if (title.contains('Branches')) {
-      _showBranchesModal(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Opened $title module')),
-      );
-    }
-  }
-
-  void _showAutomationsModal(BuildContext context) {
-    showModalBottomSheet(
+  void _showPlans(BuildContext context) {
+    final inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    RepsiBottomSheet.show<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Automation Workflows',
-                style: AppTypography.heading
-                    .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              const Text('Automated actions based on triggers',
-                  style:
-                      TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-              const SizedBox(height: 16),
-              const _AutomationRuleTile(
-                trigger: 'WHEN Membership expires in 7 days',
-                action:
-                    'THEN Send notification + WhatsApp renewal offer + Create task',
-              ),
-              const SizedBox(height: 10),
-              const _AutomationRuleTile(
-                trigger: 'WHEN Member has not visited for 14 days',
-                action:
-                    'THEN Notify assigned trainer + Create retention follow-up task',
-              ),
-              const SizedBox(height: 10),
-              const _AutomationRuleTile(
-                trigger: 'WHEN Payment fails',
-                action:
-                    'THEN Notify member + Notify owner + Auto-retry payment in 24h',
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showBranchesModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('My Businesses: Repsi Fitness',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              SizedBox(height: 14),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading:
-                    Icon(Icons.location_on_rounded, color: AppColors.primary),
-                title: Text('Indiranagar Hub',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text('1,248 members · ₹84,200 today'),
-                trailing:
-                    Icon(Icons.check_circle_rounded, color: AppColors.primary),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.location_on_outlined,
-                    color: AppColors.textSecondary),
-                title: Text('Koramangala Center',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('842 members · ₹52,300 today'),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.location_on_outlined,
-                    color: AppColors.textSecondary),
-                title: Text('Whitefield Arena',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('531 members · ₹31,800 today'),
-              ),
-            ],
-          ),
-        );
-      },
+      title: 'Membership plans',
+      child: Consumer(
+        builder: (context, ref, _) {
+          final d = Theme.of(context).brightness == Brightness.dark;
+          return ref.watch(membershipPlansProvider).when(
+                loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: Center(child: CircularProgressIndicator())),
+                error: (_, __) => Text("Couldn't load plans.", style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                data: (plans) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (plans.isEmpty)
+                      Text('No plans yet. Create plans on repsi.app.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                    for (final p in plans)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(p.name, style: AppTypography.body.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
+                        subtitle: Text('${p.months} ${p.months == 1 ? 'month' : 'months'}',
+                            style: AppTypography.caption.copyWith(color: _secondary(d))),
+                        trailing: Text(inr.format(p.price),
+                            style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w600, color: _text(d))),
+                      ),
+                  ],
+                ),
+              );
+        },
+      ),
     );
   }
 }
 
-class _AutomationRuleTile extends StatelessWidget {
-  final String trigger;
-  final String action;
+Color _text(bool d) => d ? AppColors.darkText : AppColors.text;
+Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSecondary;
+Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
 
-  const _AutomationRuleTile({required this.trigger, required this.action});
+class _Item {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onTap;
+  final Widget? trailing;
+
+  const _Item(this.icon, this.title, {this.subtitle, this.onTap, this.trailing});
+}
+
+class _Group extends StatelessWidget {
+  final String title;
+  final List<_Item> items;
+
+  const _Group({required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceSubtle,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
+    final d = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.bolt_rounded,
-                  size: 16, color: Color(0xFFD97706)),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  trigger,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                      color: AppColors.text),
-                ),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.sm),
+            child: Semantics(
+              header: true,
+              child: Text(title, style: AppTypography.caption.copyWith(color: _secondary(d), fontWeight: FontWeight.w600)),
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            action,
-            style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          Material(
+            color: d ? AppColors.darkSurface : AppColors.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+              side: BorderSide(color: _border(d)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0) Divider(height: 1, indent: 56, color: _border(d)),
+                  ListTile(
+                    onTap: items[i].onTap,
+                    leading: Icon(items[i].icon, color: _secondary(d)),
+                    title: Text(items[i].title, style: AppTypography.body.copyWith(color: _text(d), fontWeight: FontWeight.w500)),
+                    subtitle: items[i].subtitle == null
+                        ? null
+                        : Text(items[i].subtitle!, style: AppTypography.caption.copyWith(color: _secondary(d))),
+                    trailing: items[i].trailing ?? (items[i].onTap != null ? Icon(Icons.chevron_right_rounded, color: _secondary(d)) : null),
+                  ),
+                ],
+              ],
+            ),
           ),
         ],
       ),

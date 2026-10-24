@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
-from datetime import date
-from sqlalchemy import or_, false
+from datetime import date, timedelta
+from sqlalchemy import and_, or_, false
 from app.models.member import Member, Membership, MembershipPlan, MemberStatus
 from app.repositories.base import BaseTenantRepository
 
@@ -24,10 +24,14 @@ class MemberRepository(BaseTenantRepository[Member]):
                 Member.id == query.strip(),
             ))
         if status and status.lower() != "all":
-            try:
-                q = q.filter(Member.status == MemberStatus(status.lower()))
-            except ValueError:
-                return q.filter(false())
+            membership_filter = self._membership_state_filter(status.lower())
+            if membership_filter is not None:
+                q = q.filter(membership_filter)
+            else:
+                try:
+                    q = q.filter(Member.status == MemberStatus(status.lower()))
+                except ValueError:
+                    return q.filter(false())
         elif not include_archived:
             q = q.filter(Member.status != MemberStatus.ARCHIVED)
         if plan_id:
@@ -69,9 +73,42 @@ class MemberRepository(BaseTenantRepository[Member]):
             .count()
         )
 
-    def count_expiring(self) -> int:
+    @staticmethod
+    def _membership_state_filter(status: str):
+        """`expiring`, `expired` and `frozen` describe the membership, not the account (Member.status
+        only holds active/inactive/suspended/archived), so they are matched on memberships. Rows that
+        still carry the legacy account value keep matching too."""
+        today = date.today()
+        current = and_(Membership.status.in_([MemberStatus.ACTIVE, MemberStatus.FROZEN]), Membership.end_date >= today)
+        if status == "expiring":
+            return or_(Member.status == MemberStatus.EXPIRING, Member.memberships.any(and_(
+                Membership.status == MemberStatus.ACTIVE,
+                Membership.end_date >= today,
+                Membership.end_date <= today + timedelta(days=7),
+            )))
+        if status == "expired":
+            return or_(Member.status == MemberStatus.EXPIRED, and_(
+                Member.status == MemberStatus.ACTIVE,
+                Member.memberships.any(),
+                ~Member.memberships.any(current),
+            ))
+        if status == "frozen":
+            return or_(Member.status == MemberStatus.FROZEN, Member.memberships.any(and_(
+                Membership.status == MemberStatus.FROZEN, Membership.end_date >= today)))
+        return None
+
+    def count_expiring(self, days: int = 7) -> int:
+        """Members whose active membership ends within `days` (same window as /memberships/run-expiry).
+        Member.status is the account status, so the legacy EXPIRING value is never set on members."""
+        today = date.today()
         return (
-            self.db.query(Member)
-            .filter(Member.workspace_id == self.workspace_id, Member.status == MemberStatus.EXPIRING)
+            self.db.query(Membership.member_id)
+            .filter(
+                Membership.workspace_id == self.workspace_id,
+                Membership.status == MemberStatus.ACTIVE,
+                Membership.end_date >= today,
+                Membership.end_date <= today + timedelta(days=days),
+            )
+            .distinct()
             .count()
         )

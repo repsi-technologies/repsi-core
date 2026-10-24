@@ -1,3 +1,4 @@
+import '../../core/api/api_time.dart';
 /// One gym visit as returned by `/attendance/member/me` (`AttendanceResponse`).
 class VisitModel {
   final String id;
@@ -17,10 +18,10 @@ class VisitModel {
   factory VisitModel.fromJson(Map<String, dynamic> json) {
     return VisitModel(
       id: json['id']?.toString() ?? '',
-      checkInTime: DateTime.parse(json['check_in_time'].toString()).toLocal(),
+      checkInTime: parseApiDateTime(json['check_in_time'])!,
       checkOutTime: json['check_out_time'] == null
           ? null
-          : DateTime.tryParse(json['check_out_time'].toString())?.toLocal(),
+          : parseApiDateTime(json['check_out_time']),
       durationLabel: json['duration_formatted']?.toString() ?? '',
     );
   }
@@ -60,7 +61,7 @@ class MemberAttendance {
       streakDays: _int(json['current_streak_days']),
       lastVisit: json['last_visit_time'] == null
           ? null
-          : DateTime.tryParse(json['last_visit_time'].toString())?.toLocal(),
+          : parseApiDateTime(json['last_visit_time']),
       activeVisit:
           active is Map<String, dynamic> ? VisitModel.fromJson(active) : null,
       recentVisits: [

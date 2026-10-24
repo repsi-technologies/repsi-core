@@ -1,482 +1,363 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/widgets/repsi_badge.dart';
-import '../../../shared/widgets/repsi_card.dart';
-import '../../../shared/widgets/language_selector_sheet.dart';
+import '../../../core/api/api_error.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
+import '../../../shared/widgets/repsi_error_state.dart';
+import '../../../shared/widgets/repsi_skeleton.dart';
+import '../providers/finance_provider.dart';
 
-class OwnerFinanceView extends StatefulWidget {
+final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+final _compact = NumberFormat.compactCurrency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
+
+/// Owner finance: this month's money in and out, who owes what, collections by month and method,
+/// and recent expenses. Payments are recorded from a member's profile.
+class OwnerFinanceView extends ConsumerWidget {
   const OwnerFinanceView({super.key});
 
   @override
-  State<OwnerFinanceView> createState() => _OwnerFinanceViewState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
+
+    Future<void> refresh() async {
+      ref.invalidate(financeSummaryProvider);
+      ref.invalidate(duesProvider);
+      ref.invalidate(revenueReportProvider);
+      ref.invalidate(expensesProvider);
+      await ref.read(financeSummaryProvider.future).catchError((_) => const FinanceSummary(revenue: 0, expenses: 0, net: 0, pendingDues: 0));
+    }
+
+    return Scaffold(
+      backgroundColor: canvas,
+      appBar: AppBar(
+        backgroundColor: canvas,
+        title: Text('Finance', style: AppTypography.heading.copyWith(color: _text(isDark), fontWeight: FontWeight.w700)),
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: refresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xs, AppSpacing.xl, AppSpacing.xxxl),
+          children: const [
+            _SummarySection(),
+            SizedBox(height: AppSpacing.xxl),
+            _CollectionsSection(),
+            SizedBox(height: AppSpacing.xxl),
+            _DuesSection(),
+            SizedBox(height: AppSpacing.xxl),
+            _ExpensesSection(),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _OwnerFinanceViewState extends State<OwnerFinanceView> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+Color _text(bool d) => d ? AppColors.darkText : AppColors.text;
+Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSecondary;
+Color _surface(bool d) => d ? AppColors.darkSurface : AppColors.surface;
+Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 5, vsync: this);
-  }
+String _err(Object e) => e is ApiError ? e.message : 'Check your connection and try again.';
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _showRecordPaymentSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Collect & Record Payment', style: AppTypography.headingSmall.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
-            TextField(decoration: InputDecoration(hintText: 'Member Name or ID', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
-            const SizedBox(height: 10),
-            TextField(decoration: InputDecoration(hintText: 'Amount (₹)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
-            const SizedBox(height: 10),
-            TextField(decoration: InputDecoration(hintText: 'Payment Mode (Cash, UPI, Card)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment recorded and GST invoice generated.')));
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size(double.infinity, 44)),
-              child: const Text('Confirm Payment', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
+BoxDecoration _panel(bool d) => BoxDecoration(
+      color: _surface(d),
+      borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+      border: Border.all(color: _border(d)),
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Finance & Revenue',
-          style: AppTypography.heading.copyWith(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded, color: AppColors.primary),
-            onPressed: () => LanguageSelectorSheet.show(context),
-            tooltip: 'Language',
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_card_rounded, color: AppColors.primary),
-            onPressed: () => _showRecordPaymentSheet(context),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Overview Card
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding),
-              child: RepsiCard(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Total Net Revenue (This Month)', style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12.5)),
-                        const RepsiBadge(label: '↑ 14.2% MoM', variant: RepsiBadgeVariant.active),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '₹2,84,500',
-                      style: AppTypography.display.copyWith(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.text),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        _buildMetricCol('Revenue', '₹2,84,500', AppColors.primaryDark),
-                        _buildDivider(),
-                        _buildMetricCol('Expenses', '₹92,400', const Color(0xFFE5484D)),
-                        _buildDivider(),
-                        _buildMetricCol('Outstanding', '₹38,000', const Color(0xFFD97706)),
-                        _buildDivider(),
-                        _buildMetricCol('Refunds', '₹4,200', AppColors.textSecondary),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Tab Bar: Payments | Invoices & GST | Expenses | Reports
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: AppColors.primaryDark,
-                  unselectedLabelColor: AppColors.textSecondary,
-                  labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, fontSize: 11.5),
-                  unselectedLabelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 11.5),
-                  tabs: const [
-                    Tab(text: 'Payments'),
-                    Tab(text: 'Verification (1)'),
-                    Tab(text: 'Invoices & GST'),
-                    Tab(text: 'Expenses'),
-                    Tab(text: 'P&L Reports'),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Tab View
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildPaymentsSection(),
-                  _buildVerificationSection(),
-                  _buildInvoicesSection(),
-                  _buildExpensesSection(),
-                  _buildReportsSection(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentsSection() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 8),
-      children: [
-        // Payment Method Breakdown Cards
-        Row(
-          children: [
-            Expanded(child: _buildMethodCard('UPI (Cashfree)', '₹1,54,000', '54%', const Color(0xFF2563EB))),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMethodCard('Cash', '₹62,000', '22%', AppColors.primaryDark)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMethodCard('Cards', '₹48,000', '17%', const Color(0xFF8B5CF6))),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMethodCard('NetBank', '₹20,500', '7%', const Color(0xFF0D9488))),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Text('Recent Transactions', style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
-
-        _buildTxRow('Rahul Sharma', 'Gold Annual Plan', '₹18,000', 'UPI • Cashfree', 'Today, 08:21 AM'),
-        _buildTxRow('Priya Nair', 'Monthly Standard', '₹2,499', 'Credit Card', 'Today, 07:45 AM'),
-        _buildTxRow('Kavita S', 'PT 10-Session Pack', '₹8,500', 'Cash', 'Yesterday, 06:12 PM'),
-        _buildTxRow('Arjun Mehta', 'Silver Quarterly', '₹6,200', 'UPI • GPay', '25 Sep, 11:30 AM'),
-      ],
-    );
-  }
-
-  Widget _buildInvoicesSection() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 8),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('GST Invoices (18% Slab)', style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
-            TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.download_rounded, size: 16),
-              label: const Text('Export Tally/Excel'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        _buildInvoiceCard('INV-2026-0841', 'Rahul Sharma', '₹18,000', 'GST: ₹2,745 (18%)', '24 Sep 2026'),
-        _buildInvoiceCard('INV-2026-0840', 'Priya Nair', '₹2,499', 'GST: ₹381 (18%)', '24 Sep 2026'),
-        _buildInvoiceCard('INV-2026-0839', 'Kavita Sundaram', '₹8,500', 'GST: ₹1,296 (18%)', '23 Sep 2026'),
-      ],
-    );
-  }
-
-  Widget _buildExpensesSection() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 8),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Operational Expenses', style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
-            TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.add_rounded, size: 16, color: AppColors.error),
-              label: const Text('+ Record Expense', style: TextStyle(color: AppColors.error)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        _buildExpenseRow('Facility Rent', 'Indiranagar Gym Floor', '₹50,000', 'Paid 01 Sep'),
-        _buildExpenseRow('Trainer Payroll', '4 Full-time Trainers', '₹28,000', 'Paid 05 Sep'),
-        _buildExpenseRow('Equipment Maintenance', 'Technogym Treadmills AMC', '₹8,000', 'Paid 12 Sep'),
-        _buildExpenseRow('Electricity & Utilities', 'BESCOM Power Bill', '₹4,500', 'Paid 18 Sep'),
-        _buildExpenseRow('Digital Marketing', 'Instagram & Meta Ads', '₹1,900', 'Paid 22 Sep'),
-      ],
-    );
-  }
-
-  Widget _buildReportsSection() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 8),
-      children: [
-        RepsiCard(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Monthly Profit & Loss Summary', style: AppTypography.headingSmall.copyWith(fontSize: 16, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 12),
-              _buildReportLine('Gross Revenue', '₹2,84,500', AppColors.primaryDark),
-              _buildReportLine('Total Operational Expenses', '- ₹92,400', const Color(0xFFE5484D)),
-              _buildReportLine('Refunds & Chargebacks', '- ₹4,200', AppColors.textSecondary),
-              const Divider(height: 20, color: AppColors.border),
-              _buildReportLine('Net Operating Profit', '₹1,87,900', AppColors.primaryDark, isBold: true),
-              const SizedBox(height: 4),
-              Text('Net Profit Margin: 66.0% • Collections Rate: 92.4%', style: AppTypography.caption.copyWith(color: AppColors.textMuted)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMethodCard(String method, String amount, String share, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.border)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(method, style: AppTypography.caption.copyWith(fontSize: 10.5, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 4),
-          Text(amount, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, fontSize: 12.5, color: color)),
-          Text(share, style: AppTypography.caption.copyWith(fontSize: 10, color: AppColors.textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTxRow(String member, String plan, String amount, String mode, String time) {
-    return RepsiCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(member, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700)),
-              Text('$plan • $mode', style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(amount, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
-              Text(time, style: AppTypography.caption.copyWith(color: AppColors.textMuted, fontSize: 10.5)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInvoiceCard(String invNo, String member, String total, String gst, String date) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 8),
+Widget _title(String text, bool d, {String? trailing}) => Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Row(
         children: [
-          const Icon(Icons.receipt_long_rounded, color: AppColors.primary, size: 24),
-          const SizedBox(width: 12),
           Expanded(
+            child: Semantics(header: true, child: Text(text, style: AppTypography.sectionHeading.copyWith(color: _text(d), fontSize: 17))),
+          ),
+          if (trailing != null) Text(trailing, style: AppTypography.caption.copyWith(color: _secondary(d))),
+        ],
+      ),
+    );
+
+class _SummarySection extends ConsumerWidget {
+  const _SummarySection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(financeSummaryProvider).when(
+          loading: () => const RepsiSkeleton(
+              width: double.infinity, height: 170, borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusCard))),
+          error: (e, _) => RepsiErrorState(
+              title: "Couldn't load finance", message: _err(e), onRetry: () => ref.invalidate(financeSummaryProvider)),
+          data: (s) => Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: _panel(d),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$invNo • $member', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700)),
-                Text('$gst • Date: $date', style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
+                Text('Collected this month', style: AppTypography.caption.copyWith(color: _secondary(d))),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(_inr.format(s.revenue),
+                      style: AppTypography.tabularNumber(fontSize: 32, fontWeight: FontWeight.w700, color: _text(d)).copyWith(letterSpacing: -0.8)),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Divider(height: 1, color: _border(d)),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    _Mini('Expenses', _inr.format(s.expenses), _text(d)),
+                    _Mini('Net', _inr.format(s.net), s.net >= 0 ? (d ? AppColors.darkSuccess : AppColors.success) : (d ? AppColors.darkError : AppColors.error)),
+                    _Mini('Dues to collect', _inr.format(s.pendingDues), s.pendingDues > 0 ? (d ? AppColors.darkWarning : AppColors.warning) : _text(d)),
+                  ],
+                ),
               ],
             ),
           ),
-          Text(total, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: AppColors.text)),
-        ],
-      ),
-    );
+        );
   }
+}
 
-  Widget _buildExpenseRow(String category, String desc, String amount, String date) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(category, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700)),
-              Text('$desc • $date', style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
-            ],
-          ),
-          Text(amount, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFFE5484D))),
-        ],
-      ),
-    );
-  }
+class _Mini extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
 
-  Widget _buildReportLine(String label, String value, Color color, {bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500, fontSize: isBold ? 14.5 : 13, color: AppColors.text)),
-          Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.w800 : FontWeight.w600, fontSize: isBold ? 15 : 13.5, color: color)),
-        ],
-      ),
-    );
-  }
+  const _Mini(this.label, this.value, this.color);
 
-  Widget _buildMetricCol(String label, String value, Color color) {
+  @override
+  Widget build(BuildContext context) {
+    final d = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, fontSize: 13, color: color)),
-          const SizedBox(height: 2),
-          Text(label, style: AppTypography.caption.copyWith(fontSize: 10, color: AppColors.textMuted)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value, style: AppTypography.tabularNumber(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
+          ),
+          Text(label, style: AppTypography.caption.copyWith(color: _secondary(d))),
         ],
       ),
     );
   }
+}
 
-  Widget _buildDivider() {
-    return Container(width: 1, height: 24, color: AppColors.border, margin: const EdgeInsets.symmetric(horizontal: 6));
+class _CollectionsSection extends ConsumerWidget {
+  const _CollectionsSection();
+
+  static const _methods = {'upi': 'UPI', 'cash': 'Cash', 'card': 'Card', 'netbanking': 'Net banking', 'cheque': 'Cheque'};
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _title('Collections', d, trailing: 'Last 6 months'),
+        ref.watch(revenueReportProvider).when(
+              loading: () => RepsiSkeleton.chartSkeleton(),
+              error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+              data: (r) {
+                final periods = r.periods.length > 6 ? r.periods.sublist(r.periods.length - 6) : r.periods;
+                final maxV = periods.fold<double>(0, (m, p) => p.collected > m ? p.collected : m);
+                final methodTotal = r.byMethod.values.fold<double>(0, (s, v) => s + v);
+                if (periods.isEmpty || maxV == 0) {
+                  return Container(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    decoration: _panel(d),
+                    child: Text('No collections recorded in the last six months.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                  );
+                }
+                return Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: _panel(d),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        label: periods.map((p) => '${_monthLabel(p.period)} ${_inr.format(p.collected)}').join(', '),
+                        child: ExcludeSemantics(
+                          child: SizedBox(
+                            height: 140,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                for (var i = 0; i < periods.length; i++)
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(_compact.format(periods[i].collected),
+                                              maxLines: 1,
+                                              style: AppTypography.caption.copyWith(color: _secondary(d), fontSize: 10.5)),
+                                          const SizedBox(height: 4),
+                                          Container(
+                                            height: 4 + 88 * (periods[i].collected / maxV),
+                                            decoration: BoxDecoration(
+                                              color: i == periods.length - 1 ? AppColors.primary : AppColors.primary.withValues(alpha: 0.35),
+                                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(_monthLabel(periods[i].period), style: AppTypography.caption.copyWith(color: _secondary(d), fontSize: 11)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (methodTotal > 0) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Divider(height: 1, color: _border(d)),
+                        const SizedBox(height: AppSpacing.md),
+                        for (final e in (r.byMethod.entries.toList()..sort((a, b) => b.value.compareTo(a.value))))
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 92, child: Text(_methods[e.key] ?? e.key, style: AppTypography.bodySmall.copyWith(color: _text(d)))),
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(3),
+                                    child: LinearProgressIndicator(
+                                      value: e.value / methodTotal,
+                                      minHeight: 6,
+                                      color: AppColors.primary,
+                                      backgroundColor: d ? AppColors.darkSurfaceElevated : AppColors.surfaceSecondary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 48,
+                                  child: Text('${(100 * e.value / methodTotal).round()}%',
+                                      textAlign: TextAlign.right, style: AppTypography.tabularNumber(fontSize: 12, fontWeight: FontWeight.w500, color: _secondary(d))),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+      ],
+    );
   }
 
-  Widget _buildVerificationSection() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding, vertical: 8),
+  static String _monthLabel(String period) {
+    final dt = DateTime.tryParse('$period-01');
+    return dt == null ? period : DateFormat('MMM').format(dt);
+  }
+}
+
+class _DuesSection extends ConsumerWidget {
+  const _DuesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = Theme.of(context).brightness == Brightness.dark;
+    final dues = ref.watch(duesProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.warningSoft,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.shield_rounded, color: AppColors.warning, size: 20),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Approving manual receipts verifies funds against your bank/UPI statement and immediately restores member check-in access.',
-                  style: TextStyle(fontSize: 11, color: Colors.brown, fontWeight: FontWeight.w600),
+        _title('Dues to collect', d, trailing: dues.valueOrNull == null ? null : '${dues.value!.length} members'),
+        dues.when(
+          loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
+          error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+          data: (list) => list.isEmpty
+              ? Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: _panel(d),
+                  child: Text('Nothing outstanding. Every invoice is paid.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                )
+              : Container(
+                  decoration: _panel(d),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < list.length && i < 8; i++) ...[
+                        if (i > 0) Divider(height: 1, indent: 64, color: _border(d)),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          leading: RepsiAvatar(name: list[i].member, size: 36),
+                          title: Text(list[i].member, style: AppTypography.bodySmall.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
+                          subtitle: Text(
+                            list[i].daysOverdue > 0 ? '${list[i].daysOverdue} days overdue' : 'Due now',
+                            style: AppTypography.caption.copyWith(
+                                color: list[i].daysOverdue > 14 ? (d ? AppColors.darkError : AppColors.error) : _secondary(d)),
+                          ),
+                          trailing: Text(_inr.format(list[i].balance),
+                              style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w700, color: _text(d))),
+                        ),
+                      ],
+                      if (list.length > 8)
+                        Padding(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          child: Text('+ ${list.length - 8} more. Full report on repsi.app',
+                              style: AppTypography.caption.copyWith(color: _secondary(d))),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
         ),
-        const SizedBox(height: 12),
-        RepsiCard(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Member Payment (M001)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: AppColors.warningSoft, borderRadius: BorderRadius.circular(4)),
-                    child: const Text('Pending Review', style: TextStyle(color: AppColors.warning, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text('Invoice #INV-2026-0042 • Monthly Plan', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('₹1,500 via UPI Transfer', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primaryDark)),
-                  Text('Ref: 428910284920', style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AppColors.textMuted)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Payment approved! Member access activated.'), backgroundColor: AppColors.primary),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size(0, 36)),
-                      child: const Text('Approve & Activate', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+}
+
+class _ExpensesSection extends ConsumerWidget {
+  const _ExpensesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _title('Recent expenses', d),
+        ref.watch(expensesProvider).when(
+              loading: () => Column(children: [for (var i = 0; i < 3; i++) RepsiSkeleton.memberListItem()]),
+              error: (e, _) => Text(_err(e), style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+              data: (list) => list.isEmpty
+                  ? Container(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: _panel(d),
+                      child: Text('No expenses recorded yet.', style: AppTypography.bodySmall.copyWith(color: _secondary(d))),
+                    )
+                  : Container(
+                      decoration: _panel(d),
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < list.length && i < 8; i++) ...[
+                            if (i > 0) Divider(height: 1, indent: AppSpacing.lg, color: _border(d)),
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                              title: Text(list[i].title, style: AppTypography.bodySmall.copyWith(color: _text(d), fontWeight: FontWeight.w600)),
+                              subtitle: Text(
+                                '${list[i].category[0].toUpperCase()}${list[i].category.substring(1)} · ${DateFormat('d MMM').format(list[i].date)}',
+                                style: AppTypography.caption.copyWith(color: _secondary(d)),
+                              ),
+                              trailing: Text(_inr.format(list[i].amount),
+                                  style: AppTypography.tabularNumber(fontSize: 14, fontWeight: FontWeight.w600, color: _text(d))),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Submission rejected. Member notified.'), backgroundColor: AppColors.error),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(side: const BorderSide(color: AppColors.error), minimumSize: const Size(0, 36)),
-                      child: const Text('Reject', style: TextStyle(color: AppColors.error, fontSize: 12, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
       ],
     );
   }

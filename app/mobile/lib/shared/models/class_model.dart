@@ -1,3 +1,4 @@
+import '../../core/api/api_time.dart';
 class FitnessClassModel {
   final String id;
   final String workspaceId;
@@ -34,10 +35,10 @@ class FitnessClassModel {
       trainerId: json['trainer_id']?.toString(),
       trainerName: json['trainer_name'] as String? ?? json['trainer']?['full_name'] as String?,
       startTime: json['start_time'] != null
-          ? DateTime.parse(json['start_time'].toString())
+          ? parseApiDateTime(json['start_time'])!
           : DateTime.now(),
       endTime: json['end_time'] != null
-          ? DateTime.parse(json['end_time'].toString())
+          ? parseApiDateTime(json['end_time'])!
           : DateTime.now().add(const Duration(hours: 1)),
       capacity: (json['capacity'] as num?)?.toInt() ?? 20,
       enrolledCount: (json['enrolled_count'] as num?)?.toInt() ?? (json['booked_count'] as num?)?.toInt() ?? 0,

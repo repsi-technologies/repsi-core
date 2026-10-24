@@ -13,16 +13,17 @@ class MemberService {
     String? search,
     String? status,
     int skip = 0,
-    int limit = 50,
+    int limit = 100,
   }) async {
     try {
       final response = await _apiClient.get(
         ApiEndpoints.members,
+        // The API pages with page/page_size (max 100) and searches with `query`.
         queryParameters: {
-          'skip': skip,
-          'limit': limit,
-          if (search != null && search.isNotEmpty) 'search': search.trim(),
-          if (status != null && status.isNotEmpty && status != 'ALL') 'status': status.toUpperCase(),
+          'page': skip ~/ limit + 1,
+          'page_size': limit,
+          if (search != null && search.trim().isNotEmpty) 'query': search.trim(),
+          if (status != null && status.isNotEmpty && status != 'ALL') 'status': status.toLowerCase(),
         },
       );
       final rawList = response.data;

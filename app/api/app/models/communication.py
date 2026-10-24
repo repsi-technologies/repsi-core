@@ -3,7 +3,7 @@ Member/staff communication: reusable message templates, per-user notification pr
 broadcasts to selected audiences, and one delivery-log row per recipient per channel.
 
 Delivery statuses: queued, sent, failed, skipped_not_configured, skipped_opt_out,
-skipped_no_contact, skipped_no_consent. A row is "sent" only after the channel
+skipped_no_contact, skipped_no_consent, skipped_demo (the sales demo gym). A row is "sent" only after the channel
 (in-app insert, SMTP accept, provider HTTP 2xx) acknowledged it.
 """
 from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
@@ -14,7 +14,7 @@ from app.models.base import TenantMixin, TimestampMixin, generate_uuid
 CHANNELS = ("in_app", "email", "whatsapp", "sms", "push")
 DELIVERY_STATUSES = (
     "queued", "sent", "failed",
-    "skipped_not_configured", "skipped_opt_out", "skipped_no_contact", "skipped_no_consent",
+    "skipped_not_configured", "skipped_opt_out", "skipped_no_contact", "skipped_no_consent", "skipped_demo",
 )
 # Broadcasts created by the platform (super admin) use this workspace id, like platform audit logs.
 PLATFORM_WORKSPACE_ID = "platform"

@@ -1,552 +1,786 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/animations/repsi_press.dart';
-import '../../../shared/widgets/repsi_badge.dart';
-import '../../../shared/widgets/repsi_card.dart';
+import '../../../core/api/api_error.dart';
+import '../../../shared/models/member_model.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
+import '../../../shared/widgets/repsi_bottom_sheet.dart';
+import '../../../shared/widgets/repsi_button.dart';
+import '../../../shared/widgets/repsi_error_state.dart';
+import '../../../shared/widgets/repsi_skeleton.dart';
+import '../../../shared/widgets/repsi_status_badge.dart';
+import '../../../shared/widgets/repsi_text_field.dart';
+import '../providers/member_detail_provider.dart';
 
-class MemberDetailView extends ConsumerStatefulWidget {
+final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+final _day = DateFormat('d MMM yyyy');
+
+/// Staff view of one member: membership, visits, payments, notes and the full lifecycle history,
+/// with renew, record-payment and add-note actions. Every value comes from the API for [memberId].
+class MemberDetailView extends ConsumerWidget {
   final String memberId;
 
-  const MemberDetailView({
-    super.key,
-    required this.memberId,
-  });
+  const MemberDetailView({super.key, required this.memberId});
 
   @override
-  ConsumerState<MemberDetailView> createState() => _MemberDetailViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final member = ref.watch(memberDetailProvider(memberId));
+    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
 
-class _MemberDetailViewState extends ConsumerState<MemberDetailView> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 7, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _showActionSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.edit_outlined, color: AppColors.primary),
-                title: const Text('Edit Member Profile'),
-                onTap: () => Navigator.pop(ctx),
-              ),
-              ListTile(
-                leading: const Icon(Icons.ac_unit_rounded, color: Color(0xFF2563EB)),
-                title: const Text('Freeze Membership (Vacation/Medical)'),
-                onTap: () => Navigator.pop(ctx),
-              ),
-              ListTile(
-                leading: const Icon(Icons.upgrade_rounded, color: Color(0xFF8B5CF6)),
-                title: const Text('Upgrade / Change Tier'),
-                onTap: () => Navigator.pop(ctx),
-              ),
-              ListTile(
-                leading: const Icon(Icons.fitness_center_rounded, color: AppColors.primaryDark),
-                title: const Text('Assign / Change Personal Trainer'),
-                onTap: () => Navigator.pop(ctx),
-              ),
-              ListTile(
-                leading: const Icon(Icons.block_rounded, color: AppColors.error),
-                title: const Text('Suspend / Disable Account', style: TextStyle(color: AppColors.error)),
-                onTap: () => Navigator.pop(ctx),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.text),
-            onPressed: () => _showActionSheet(context),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Member Header Card (Rahul Sharma ● Active Gold Membership Expires 24 Oct)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontalPadding),
-              child: RepsiCard(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 26,
-                          backgroundColor: AppColors.primarySoft,
-                          child: Text(
-                            'RS',
-                            style: TextStyle(
-                              color: AppColors.primaryDark,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Rahul Sharma',
-                                    style: AppTypography.headingSmall.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.text,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const RepsiBadge(
-                                    label: 'Active',
-                                    variant: RepsiBadgeVariant.active,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Gold Membership • Expires 24 Oct 2026',
-                                style: AppTypography.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                'Indiranagar Hub • Member since Jan 2025',
-                                style: AppTypography.caption.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    // Quick Action Buttons: [ Call ] [ Message ] [ Renew ]
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.phone_outlined, size: 16, color: AppColors.primaryDark),
-                            label: const Text('Call', style: TextStyle(fontSize: 12.5)),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: const BorderSide(color: AppColors.border),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Color(0xFF2563EB)),
-                            label: const Text('Message', style: TextStyle(fontSize: 12.5)),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: const BorderSide(color: AppColors.border),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                            ),
-                            child: const Text('Renew', style: TextStyle(fontSize: 12.5, color: Colors.white)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 7 Tab Bar: Overview | Payments | Attendance | PT | Fitness | Documents | Activity
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: AppColors.primary,
-                indicatorWeight: 3,
-                labelColor: AppColors.primaryDark,
-                unselectedLabelColor: AppColors.textSecondary,
-                labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, fontSize: 13),
-                unselectedLabelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 13),
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Payments'),
-                  Tab(text: 'Attendance'),
-                  Tab(text: 'PT'),
-                  Tab(text: 'Fitness'),
-                  Tab(text: 'Documents'),
-                  Tab(text: 'Activity'),
-                ],
-              ),
-            ),
-
-            // Tab Views
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildOverviewTab(),
-                  _buildPaymentsTab(),
-                  _buildAttendanceTab(),
-                  _buildPtTab(),
-                  _buildFitnessTab(),
-                  _buildDocumentsTab(),
-                  _buildActivityTab(),
-                ],
-              ),
-            ),
+      backgroundColor: canvas,
+      appBar: AppBar(backgroundColor: canvas, title: const Text('Member')),
+      body: member.when(
+        loading: () => ListView(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          children: const [
+            RepsiSkeleton(width: double.infinity, height: 120, borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusCard))),
+            SizedBox(height: AppSpacing.lg),
+            RepsiSkeleton(width: double.infinity, height: 200, borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusCard))),
           ],
         ),
+        error: (e, _) => RepsiErrorState(
+          title: "Couldn't load this member",
+          message: e is ApiError ? e.message : 'Check your connection and try again.',
+          onRetry: () => ref.invalidate(memberDetailProvider(memberId)),
+        ),
+        data: (m) => DefaultTabController(
+          length: 4,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, _) => [
+              SliverToBoxAdapter(child: _Header(member: m, isDark: isDark)),
+              SliverPersistentHeader(pinned: true, delegate: _TabsHeader(isDark: isDark)),
+            ],
+            body: TabBarView(
+              children: [
+                _OverviewTab(member: m),
+                _PaymentsTab(memberId: m.id),
+                _VisitsTab(memberId: m.id),
+                _HistoryTab(memberId: m.id),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
+}
 
-  // 1. Overview Tab
-  Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
+/// "+919000020069" reads as "+91 90000 20069"; anything else is shown as stored.
+String _phone(String raw) {
+  final digits = raw.replaceAll(RegExp(r'\D'), '');
+  if (digits.length == 12 && digits.startsWith('91')) return '+91 ${digits.substring(2, 7)} ${digits.substring(7)}';
+  if (digits.length == 10) return '${digits.substring(0, 5)} ${digits.substring(5)}';
+  return raw;
+}
+
+Color _text(bool d) => d ? AppColors.darkText : AppColors.text;
+Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSecondary;
+Color _surface(bool d) => d ? AppColors.darkSurface : AppColors.surface;
+Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
+
+class _Header extends ConsumerWidget {
+  final MemberModel member;
+  final bool isDark;
+
+  const _Header({required this.member, required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final name = member.fullName.isEmpty ? 'Member' : member.fullName;
+    final contact = [if (member.phone?.isNotEmpty == true) _phone(member.phone!), if (member.email.isNotEmpty) member.email];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Expanded(child: _buildMetricTile('Attendance', '82%', AppColors.primary)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildMetricTile('Visits', '24 visits', AppColors.text)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildMetricTile('Last Visit', 'Today', const Color(0xFF2563EB))),
+              RepsiAvatar(name: name, imageUrl: member.avatarUrl, size: 64),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: AppTypography.heading.copyWith(fontSize: 22, color: _text(isDark), fontWeight: FontWeight.w700)),
+                    const SizedBox(height: AppSpacing.xs),
+                    RepsiStatusBadge(status: member.status),
+                  ],
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          if (contact.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                for (final c in contact)
+                  ActionChip(
+                    avatar: Icon(c.contains('@') ? Icons.mail_outline_rounded : Icons.call_outlined, size: 16, color: _secondary(isDark)),
+                    label: Text(c, style: AppTypography.caption.copyWith(color: _text(isDark))),
+                    tooltip: 'Copy',
+                    backgroundColor: _surface(isDark),
+                    side: BorderSide(color: _border(isDark)),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: c));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Copied $c')));
+                    },
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
-              Expanded(child: _buildMetricTile('Tier', 'Gold', AppColors.text)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildMetricTile('Trainer', 'Alex', AppColors.text)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildMetricTile('Outstanding', '₹0', AppColors.primaryDark)),
-            ],
-          ),
-          const SizedBox(height: 18),
-
-          Text('Owner Quick Actions', style: AppTypography.headingSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildActionChip(Icons.ac_unit_rounded, 'Freeze Membership', () {}),
-              _buildActionChip(Icons.autorenew_rounded, 'Renew Plan', () {}),
-              _buildActionChip(Icons.swap_horiz_rounded, 'Upgrade/Downgrade', () {}),
-              _buildActionChip(Icons.person_add_alt_rounded, 'Assign Trainer', () {}),
-              _buildActionChip(Icons.credit_card_rounded, 'Add Payment', () {}),
-              _buildActionChip(Icons.description_outlined, 'Generate Invoice', () {}),
+              Expanded(
+                child: RepsiButton(
+                  text: 'Renew',
+                  leadingIcon: const Icon(Icons.autorenew_rounded, size: 18, color: Colors.white),
+                  onPressed: () => _showRenew(context, ref, member),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: RepsiButton(
+                  text: 'Payment',
+                  variant: RepsiButtonVariant.outline,
+                  leadingIcon: Icon(Icons.currency_rupee_rounded, size: 18, color: _text(isDark)),
+                  onPressed: () => _showRecordPayment(context, ref, member),
+                ),
+              ),
             ],
           ),
         ],
       ),
     );
   }
+}
 
-  // 2. Payments Tab
-  Widget _buildPaymentsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        _buildPaymentItem('Gold Membership Renewal', '₹2,499', '24 Sep 2026', 'Paid via UPI (Cashfree)', RepsiBadgeVariant.active),
-        _buildPaymentItem('Personal Training 10-Pack', '₹8,500', '10 Aug 2026', 'Paid via Card', RepsiBadgeVariant.active),
-        _buildPaymentItem('Locker Rental Deposit', '₹500', '15 Jan 2026', 'Paid in Cash', RepsiBadgeVariant.active),
-      ],
-    );
-  }
+class _TabsHeader extends SliverPersistentHeaderDelegate {
+  final bool isDark;
+  _TabsHeader({required this.isDark});
 
-  // 3. Attendance Tab
-  Widget _buildAttendanceTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        _buildAttendanceRow('Today', '07:14 AM', 'Main Gate Turnstile (QR Scan)'),
-        _buildAttendanceRow('Yesterday', '07:22 AM', 'Main Gate Turnstile (QR Scan)'),
-        _buildAttendanceRow('25 Sep 2026', '06:58 AM', 'Studio A (Class Check-in)'),
-        _buildAttendanceRow('24 Sep 2026', '07:30 AM', 'Main Gate Turnstile (Manual)'),
-        _buildAttendanceRow('22 Sep 2026', '07:10 AM', 'Main Gate Turnstile (QR Scan)'),
-      ],
-    );
-  }
+  @override
+  double get minExtent => 48;
+  @override
+  double get maxExtent => 48;
 
-  // 4. PT Tab
-  Widget _buildPtTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        RepsiCard(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Assigned Coach: Alex Morgan', style: AppTypography.headingSmall.copyWith(fontSize: 16, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text('PT Package: 12 Sessions (6 remaining)', style: AppTypography.bodySmall.copyWith(color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.calendar_month_rounded, size: 16, color: Colors.white),
-                label: const Text('Book Next Session', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 5. Fitness Tab
-  Widget _buildFitnessTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        RepsiCard(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Current Physical Stats', style: AppTypography.headingSmall.copyWith(fontSize: 16, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Weight: 78.4 kg (↓ 3.7 kg)'),
-                  Text('BMI: 24.8 (Normal)'),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Chest: 102 cm'),
-                  Text('Waist: 84 cm'),
-                  Text('Arms: 35 cm'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 6. Documents Tab
-  Widget _buildDocumentsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        _buildDocRow('Aadhaar ID Proof (Verified)', 'Uploaded 15 Jan 2025'),
-        _buildDocRow('Gym Liability & Health Waiver', 'Signed digitally 15 Jan 2025'),
-        _buildDocRow('Medical Clearance Certificate', 'Valid till Dec 2026'),
-      ],
-    );
-  }
-
-  // 7. Activity Tab
-  Widget _buildActivityTab() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.pageHorizontalPadding),
-      children: [
-        _buildActivityRow('Membership Renewed', '₹2,499 paid online by member', '24 Sep, 08:02 AM'),
-        _buildActivityRow('PT Session Completed', 'Chest & Triceps with Alex', '23 Sep, 09:00 AM'),
-        _buildActivityRow('WhatsApp Notification Sent', '7-day renewal reminder delivered', '22 Sep, 10:00 AM'),
-      ],
-    );
-  }
-
-  // Helper widgets
-  Widget _buildMetricTile(String label, String value, Color color) {
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border, width: 1),
+      color: isDark ? AppColors.darkBackground : AppColors.background,
+      child: const TabBar(
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        tabs: [Tab(text: 'Overview'), Tab(text: 'Payments'), Tab(text: 'Visits'), Tab(text: 'History')],
       ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_TabsHeader old) => old.isDark != isDark;
+}
+
+class _Panel extends StatelessWidget {
+  final String? title;
+  final Widget child;
+  final Widget? action;
+
+  const _Panel({this.title, required this.child, this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: _surface(isDark),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        border: Border.all(color: _border(isDark)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (title != null) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(title!, style: AppTypography.labelLarge.copyWith(color: _text(isDark))),
+                ),
+                if (action != null) action!,
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+Widget _kv(String k, String v, bool isDark) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 120, child: Text(k, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark)))),
+          Expanded(child: Text(v, style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w500))),
+        ],
+      ),
+    );
+
+Widget _loadingList() => ListView(children: [for (var i = 0; i < 4; i++) RepsiSkeleton.memberListItem()]);
+
+Widget _errorRetry(WidgetRef ref, ProviderOrFamily provider) => RepsiErrorState(
+      title: "Couldn't load this",
+      message: 'Check your connection and try again.',
+      onRetry: () => ref.invalidate(provider),
+    );
+
+class _OverviewTab extends ConsumerWidget {
+  final MemberModel member;
+
+  const _OverviewTab({required this.member});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final visits = ref.watch(memberVisitsProvider(member.id));
+    final notes = ref.watch(memberNotesProvider(member.id));
+    final end = member.endDate;
+    final joined = member.startDate;
+
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      children: [
+        _Panel(
+          title: 'Membership',
+          child: Column(
+            children: [
+              _kv('Plan', member.planName ?? 'No plan', isDark),
+              _kv(end != null && end.isBefore(DateTime.now()) ? 'Ended' : 'Ends', end != null ? _day.format(end) : '—', isDark),
+              _kv('Member since', joined != null ? _day.format(joined) : '—', isDark),
+              if (member.gender?.isNotEmpty == true) _kv('Gender', member.gender![0].toUpperCase() + member.gender!.substring(1), isDark),
+              if (member.emergencyContact?.isNotEmpty == true) _kv('Emergency contact', member.emergencyContact!, isDark),
+            ],
+          ),
+        ),
+        _Panel(
+          title: 'Visits',
+          child: visits.when(
+            loading: () => const SizedBox(height: 56, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+            error: (_, __) => Text("Couldn't load visits.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+            data: (v) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _Stat(label: 'This month', value: '${v.thisMonth}'),
+                    _Stat(label: 'This week', value: '${v.thisWeek}'),
+                    _Stat(label: 'Total', value: '${v.total}'),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  v.insideNow
+                      ? 'In the gym now'
+                      : v.lastVisit != null
+                          ? 'Last visit ${DateFormat('d MMM, h:mm a').format(v.lastVisit!)}'
+                          : 'No visits yet',
+                  style: AppTypography.caption.copyWith(
+                    color: v.insideNow ? (isDark ? AppColors.darkSuccess : AppColors.success) : _secondary(isDark),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        _Panel(
+          title: 'Notes',
+          action: TextButton.icon(
+            onPressed: () => _showAddNote(context, ref, member.id),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Add'),
+          ),
+          child: notes.when(
+            loading: () => const SizedBox(height: 40),
+            error: (_, __) => Text("Couldn't load notes.", style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
+            data: (list) => list.isEmpty
+                ? Text('No notes yet. Add context the front desk should know.',
+                    style: AppTypography.bodySmall.copyWith(color: _secondary(isDark)))
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final n in list.take(5))
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(n.body, style: AppTypography.bodySmall.copyWith(color: _text(isDark))),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${n.author ?? 'Staff'} · ${DateFormat('d MMM').format(n.createdAt)}',
+                                style: AppTypography.caption.copyWith(color: _secondary(isDark)),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _Stat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.caption.copyWith(fontSize: 10.5, color: AppColors.textMuted)),
-          const SizedBox(height: 2),
-          Text(value, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: color, fontSize: 13.5)),
+          Text(value, style: AppTypography.tabularNumber(fontSize: 22, fontWeight: FontWeight.w700, color: _text(isDark))),
+          Text(label, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
         ],
       ),
     );
   }
+}
 
-  Widget _buildActionChip(IconData icon, String label, VoidCallback onTap) {
-    return RepsiPress(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
+class _PaymentsTab extends ConsumerWidget {
+  final String memberId;
+
+  const _PaymentsTab({required this.memberId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(memberPaymentsListProvider(memberId)).when(
+          loading: _loadingList,
+          error: (_, __) => _errorRetry(ref, memberPaymentsListProvider(memberId)),
+          data: (list) {
+            if (list.isEmpty) {
+              return _EmptyTab(icon: Icons.receipt_long_outlined, text: 'No payments recorded for this member yet.');
+            }
+            final total = list.where((p) => p.status == 'success').fold<double>(0, (s, p) => s + p.amount);
+            return ListView(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              children: [
+                Text('${_inr.format(total)} paid across ${list.length} ${list.length == 1 ? 'payment' : 'payments'}',
+                    style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+                const SizedBox(height: AppSpacing.md),
+                _Panel(
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < list.length; i++) ...[
+                        if (i > 0) Divider(height: AppSpacing.xl, color: _border(isDark)),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${_day.format(list[i].paidAt)} · ${_method(list[i].method)}',
+                                    style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    [if (list[i].receiptNumber != null) list[i].receiptNumber!, if (list[i].notes != null) list[i].notes!]
+                                        .join(' · '),
+                                    style: AppTypography.caption.copyWith(color: _secondary(isDark)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(_inr.format(list[i].amount),
+                                    style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w700, color: _text(isDark))),
+                                if (list[i].status != 'success')
+                                  Text(list[i].status[0].toUpperCase() + list[i].status.substring(1),
+                                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : AppColors.error)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+  }
+
+  static String _method(String m) => const {
+        'upi': 'UPI',
+        'card': 'Card',
+        'cash': 'Cash',
+        'netbanking': 'Net banking',
+        'cheque': 'Cheque',
+      }[m] ??
+      m;
+}
+
+class _VisitsTab extends ConsumerWidget {
+  final String memberId;
+
+  const _VisitsTab({required this.memberId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(memberVisitsProvider(memberId)).when(
+          loading: _loadingList,
+          error: (_, __) => _errorRetry(ref, memberVisitsProvider(memberId)),
+          data: (v) {
+            if (v.recent.isEmpty) return _EmptyTab(icon: Icons.event_available_outlined, text: 'No visits recorded yet.');
+            return ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              itemCount: v.recent.length,
+              separatorBuilder: (_, __) => Divider(height: 1, indent: AppSpacing.xl, color: _border(isDark)),
+              itemBuilder: (context, i) {
+                final s = v.recent[i];
+                final time = DateFormat('h:mm a');
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  title: Text(DateFormat('EEE, d MMM').format(s.checkIn),
+                      style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+                  subtitle: Text(
+                    s.checkOut == null ? 'In since ${time.format(s.checkIn)}' : '${time.format(s.checkIn)} – ${time.format(s.checkOut!)}',
+                    style: AppTypography.caption.copyWith(color: _secondary(isDark)),
+                  ),
+                  trailing: Text(s.duration,
+                      style: AppTypography.tabularNumber(fontSize: 13, fontWeight: FontWeight.w500, color: _secondary(isDark))),
+                );
+              },
+            );
+          },
+        );
+  }
+}
+
+class _HistoryTab extends ConsumerWidget {
+  final String memberId;
+
+  const _HistoryTab({required this.memberId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ref.watch(memberHistoryProvider(memberId)).when(
+          loading: _loadingList,
+          error: (_, __) => _errorRetry(ref, memberHistoryProvider(memberId)),
+          data: (list) {
+            if (list.isEmpty) return _EmptyTab(icon: Icons.history_rounded, text: 'No history yet.');
+            return ListView.builder(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              itemCount: list.length,
+              itemBuilder: (context, i) {
+                final e = list[i];
+                final last = i == list.length - 1;
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: e.source == 'membership' ? AppColors.primary : _border(isDark),
+                              ),
+                            ),
+                            if (!last) Expanded(child: Container(width: 2, color: _border(isDark))),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                e.newEndDate != null ? '${e.label} · until ${_day.format(e.newEndDate!)}' : e.label,
+                                style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                [DateFormat('d MMM yyyy, h:mm a').format(e.createdAt), e.actorName ?? 'System', if (e.reason != null) e.reason!]
+                                    .join(' · '),
+                                style: AppTypography.caption.copyWith(color: _secondary(isDark)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+  }
+}
+
+class _EmptyTab extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _EmptyTab({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xxxl),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: AppColors.primaryDark),
-            const SizedBox(width: 5),
-            Text(label, style: AppTypography.caption.copyWith(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.text)),
+            Icon(icon, size: 36, color: _secondary(isDark)),
+            const SizedBox(height: AppSpacing.md),
+            Text(text, textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: _secondary(isDark))),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildPaymentItem(String title, String amount, String date, String method, RepsiBadgeVariant variant) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+// ─── Actions ─────────────────────────────────────────────────────────────────
+
+void _showError(BuildContext context, Object e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(e is ApiError ? e.message : 'Something went wrong. Please try again.')),
+  );
+}
+
+Future<void> _showRenew(BuildContext context, WidgetRef ref, MemberModel member) async {
+  final plans = await ref.read(membershipPlansProvider.future).catchError((Object e) {
+    if (context.mounted) _showError(context, e);
+    return <PlanOption>[];
+  });
+  if (!context.mounted || plans.isEmpty) return;
+  final current = plans.where((p) => p.name == member.planName).firstOrNull ?? plans.first;
+  await RepsiBottomSheet.show<void>(
+    context: context,
+    title: 'Renew membership',
+    child: _RenewSheet(member: member, plans: plans, initial: current),
+  );
+}
+
+class _RenewSheet extends ConsumerStatefulWidget {
+  final MemberModel member;
+  final List<PlanOption> plans;
+  final PlanOption initial;
+
+  const _RenewSheet({required this.member, required this.plans, required this.initial});
+
+  @override
+  ConsumerState<_RenewSheet> createState() => _RenewSheetState();
+}
+
+class _RenewSheetState extends ConsumerState<_RenewSheet> {
+  late PlanOption _plan = widget.initial;
+  bool _busy = false;
+
+  Future<void> _confirm() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(memberActionsProvider).renew(widget.member.id, _plan.id);
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${widget.member.firstName} renewed on ${_plan.name}. Record the payment when it is collected.')),
+      );
+    } catch (e) {
+      if (mounted) _showError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RadioGroup<PlanOption>(
+          groupValue: _plan,
+          onChanged: (p) => setState(() => _plan = p ?? _plan),
+          child: Column(
             children: [
-              Text(title, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700)),
-              Text('$date • $method', style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
+              for (final p in widget.plans)
+                RadioListTile<PlanOption>(
+                  value: p,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(p.name, style: AppTypography.body.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+                  subtitle: Text('${p.months} ${p.months == 1 ? 'month' : 'months'}',
+                      style: AppTypography.caption.copyWith(color: _secondary(isDark))),
+                  secondary: Text(_inr.format(p.price),
+                      style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w600, color: _text(isDark))),
+                ),
             ],
           ),
-          Text(amount, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
-        ],
-      ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        RepsiButton(text: 'Renew for ${_inr.format(_plan.price)}', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _confirm),
+      ],
     );
+  }
+}
+
+Future<void> _showRecordPayment(BuildContext context, WidgetRef ref, MemberModel member) {
+  return RepsiBottomSheet.show<void>(
+    context: context,
+    title: 'Record payment',
+    child: _PaymentSheet(member: member),
+  );
+}
+
+class _PaymentSheet extends ConsumerStatefulWidget {
+  final MemberModel member;
+
+  const _PaymentSheet({required this.member});
+
+  @override
+  ConsumerState<_PaymentSheet> createState() => _PaymentSheetState();
+}
+
+class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
+  final _form = GlobalKey<FormState>();
+  final _amount = TextEditingController();
+  final _notes = TextEditingController();
+  String _method = 'upi';
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _notes.dispose();
+    super.dispose();
   }
 
-  Widget _buildAttendanceRow(String day, String time, String gate) {
-    return RepsiCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(day, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
-                Text(gate, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
-              ],
-            ),
-          ),
-          Text(time, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.text)),
-        ],
-      ),
-    );
+  Future<void> _save() async {
+    if (_busy || !_form.currentState!.validate()) return;
+    setState(() => _busy = true);
+    try {
+      final amount = double.parse(_amount.text.trim());
+      await ref.read(memberActionsProvider).recordPayment(widget.member.id, amount, _method, notes: _notes.text);
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_inr.format(amount)} recorded for ${widget.member.firstName}')));
+    } catch (e) {
+      if (mounted) _showError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
-  Widget _buildDocRow(String title, String subtitle) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          const Icon(Icons.verified_rounded, color: AppColors.primary, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
-                Text(subtitle, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Form(
+        key: _form,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            RepsiTextField(
+              label: 'Amount (₹)',
+              controller: _amount,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
+              validator: (v) {
+                final n = double.tryParse((v ?? '').trim());
+                return n == null || n <= 0 ? 'Enter the amount received' : null;
+              },
             ),
-          ),
-          const Icon(Icons.download_rounded, color: AppColors.textMuted, size: 20),
-        ],
+            const SizedBox(height: AppSpacing.lg),
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(value: 'upi', label: Text('UPI')),
+                ButtonSegment(value: 'cash', label: Text('Cash')),
+                ButtonSegment(value: 'card', label: Text('Card')),
+              ],
+              selected: {_method},
+              onSelectionChanged: (s) => setState(() => _method = s.first),
+              showSelectedIcon: false,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            RepsiTextField(label: 'Note (optional)', controller: _notes, hintText: 'e.g. Quarterly renewal, UPI ref'),
+            const SizedBox(height: AppSpacing.xl),
+            RepsiButton(text: 'Save payment', isFullWidth: true, isLoading: _busy, onPressed: _busy ? null : _save),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildActivityRow(String title, String subtitle, String time) {
-    return RepsiCard(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+Future<void> _showAddNote(BuildContext context, WidgetRef ref, String memberId) {
+  final controller = TextEditingController();
+  return RepsiBottomSheet.show<void>(
+    context: context,
+    title: 'Add note',
+    child: Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            margin: const EdgeInsets.only(top: 5),
-            decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
-                Text(subtitle, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11)),
-                Text(time, style: AppTypography.caption.copyWith(color: AppColors.textMuted, fontSize: 10.5)),
-              ],
+          RepsiTextField(controller: controller, hintText: 'What should staff know?', maxLines: 4, minLines: 3),
+          const SizedBox(height: AppSpacing.lg),
+          Builder(
+            builder: (ctx) => RepsiButton(
+              text: 'Save note',
+              isFullWidth: true,
+              onPressed: () async {
+                if (controller.text.trim().isEmpty) return;
+                try {
+                  await ref.read(memberActionsProvider).addNote(memberId, controller.text);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                } catch (e) {
+                  if (ctx.mounted) _showError(ctx, e);
+                }
+              },
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  ).whenComplete(controller.dispose);
 }

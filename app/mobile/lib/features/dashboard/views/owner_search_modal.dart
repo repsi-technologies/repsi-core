@@ -21,6 +21,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   Timer? _debounceTimer;
 
   bool _isLoading = false;
+  String? _searchError;
   String _query = '';
 
   List<Map<String, dynamic>> _members = [];
@@ -36,94 +37,13 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   ];
 
   static const List<Map<String, dynamic>> _staticFeatures = [
-    {
-      'id': 'attendance',
-      'title': 'Attendance',
-      'description': 'Check-in records and daily attendance',
-      'category': 'Operations',
-      'icon': Icons.qr_code_scanner_rounded,
-      'route': RouteNames.operations,
-    },
-    {
-      'id': 'members',
-      'title': 'Members',
-      'description': 'Manage member profiles and memberships',
-      'category': 'Directory',
-      'icon': Icons.people_outline_rounded,
-      'route': RouteNames.members,
-    },
-    {
-      'id': 'trainers',
-      'title': 'Trainers',
-      'description': 'Fitness coaches, schedules, and clients',
-      'category': 'Directory',
-      'icon': Icons.sports_gymnastics_rounded,
-      'route': RouteNames.operations,
-    },
-    {
-      'id': 'memberships',
-      'title': 'Memberships',
-      'description': 'Subscription packages and pricing',
-      'category': 'Plans',
-      'icon': Icons.card_membership_rounded,
-      'route': RouteNames.finance,
-    },
-    {
-      'id': 'classes',
-      'title': 'Classes',
-      'description': 'Group sessions and class timetables',
-      'category': 'Operations',
-      'icon': Icons.calendar_month_outlined,
-      'route': RouteNames.operations,
-    },
-    {
-      'id': 'workouts',
-      'title': 'Workouts',
-      'description': 'Exercise library, plans, and routines',
-      'category': 'Training',
-      'icon': Icons.fitness_center_rounded,
-      'route': RouteNames.exerciseLibrary,
-    },
-    {
-      'id': 'reports',
-      'title': 'Reports',
-      'description': 'Revenue, attendance & retention metrics',
-      'category': 'Analytics',
-      'icon': Icons.bar_chart_rounded,
-      'route': RouteNames.finance,
-    },
-    {
-      'id': 'equipment',
-      'title': 'Equipment',
-      'description': 'Machines, maintenance, and QR tags',
-      'category': 'Operations',
-      'icon': Icons.handyman_outlined,
-      'route': RouteNames.operations,
-    },
-    {
-      'id': 'crm',
-      'title': 'CRM & Leads',
-      'description': 'Lead pipeline and trial conversion',
-      'category': 'Growth',
-      'icon': Icons.contact_phone_outlined,
-      'route': RouteNames.operations,
-    },
-    {
-      'id': 'website',
-      'title': 'Website Builder',
-      'description': 'Customize public gym landing page',
-      'category': 'Online',
-      'icon': Icons.language_rounded,
-      'route': RouteNames.websiteBuilder,
-    },
-    {
-      'id': 'settings',
-      'title': 'Settings',
-      'description': 'Gym profile, roles, and preferences',
-      'category': 'System',
-      'icon': Icons.settings_outlined,
-      'route': RouteNames.more,
-    },
+    {'id': 'attendance', 'title': 'Attendance', 'description': 'Check members in and out, see who is inside', 'category': 'Front desk', 'icon': Icons.how_to_reg_rounded, 'route': RouteNames.operations},
+    {'id': 'members', 'title': 'Members', 'description': 'Profiles, memberships and renewals', 'category': 'Members', 'icon': Icons.groups_rounded, 'route': RouteNames.members},
+    {'id': 'leads', 'title': 'Leads', 'description': 'Enquiries, trials and follow-ups', 'category': 'Front desk', 'icon': Icons.person_search_rounded, 'route': RouteNames.operations},
+    {'id': 'finance', 'title': 'Finance', 'description': 'Collections, dues and expenses', 'category': 'Finance', 'icon': Icons.payments_rounded, 'route': RouteNames.finance},
+    {'id': 'insights', 'title': 'Business insights', 'description': 'What changed and what to do next', 'category': 'Insights', 'icon': Icons.insights_rounded, 'route': RouteNames.aiInsights},
+    {'id': 'notifications', 'title': 'Notifications', 'description': 'Alerts and announcements', 'category': 'Account', 'icon': Icons.notifications_none_rounded, 'route': RouteNames.notifications},
+    {'id': 'settings', 'title': 'Settings', 'description': 'Profile, branches, plans and appearance', 'category': 'Account', 'icon': Icons.settings_outlined, 'route': RouteNames.more},
   ];
 
   @override
@@ -174,73 +94,6 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       return title.contains(qLower) || desc.contains(qLower) || cat.contains(qLower);
     }).toList();
 
-    // Default mock results for instantaneous parity & offline resilience
-    final fallbackMembers = <Map<String, dynamic>>[
-      {
-        'id': 'mem-1024',
-        'name': 'Nitheesh',
-        'code': 'REP-00124',
-        'status': 'Active',
-        'phone': '+91 98765 43210',
-        'plan': 'Annual Pro',
-        'attendance_count': '18 visits this month',
-      },
-      {
-        'id': 'mem-1025',
-        'name': 'Priya Sharma',
-        'code': 'REP-00125',
-        'status': 'Active',
-        'phone': '+91 98450 11223',
-        'plan': 'Pro 3 Months',
-        'attendance_count': '14 visits this month',
-      },
-      {
-        'id': 'mem-1026',
-        'name': 'Rahul Verma',
-        'code': 'REP-00126',
-        'status': 'Expiring Soon',
-        'phone': '+91 97112 33445',
-        'plan': 'Starter Monthly',
-        'attendance_count': '9 visits this month',
-      },
-      {
-        'id': 'mem-1027',
-        'name': 'Arjun Nair',
-        'code': 'REP-00127',
-        'status': 'Active',
-        'phone': '+91 99001 22334',
-        'plan': 'Annual Pro',
-        'attendance_count': '22 visits this month',
-      },
-    ].where((m) {
-      final name = (m['name'] as String).toLowerCase();
-      final code = (m['code'] as String).toLowerCase();
-      final phone = (m['phone'] as String).toLowerCase();
-      return name.contains(qLower) || code.contains(qLower) || phone.contains(qLower);
-    }).toList();
-
-    final fallbackTrainers = <Map<String, dynamic>>[
-      {
-        'id': 'tr-201',
-        'name': 'Coach Arun Kumar',
-        'code': 'TR-101',
-        'specialization': 'Strength & Conditioning',
-        'phone': '+91 98440 99881',
-      },
-      {
-        'id': 'tr-202',
-        'name': 'Alex Vance',
-        'code': 'TR-102',
-        'specialization': 'HIIT & Mobility',
-        'phone': '+91 98220 55443',
-      },
-    ].where((t) {
-      final name = (t['name'] as String).toLowerCase();
-      final code = (t['code'] as String).toLowerCase();
-      final spec = (t['specialization'] as String).toLowerCase();
-      return name.contains(qLower) || code.contains(qLower) || spec.contains(qLower);
-    }).toList();
-
     try {
       final apiClient = ref.read(apiClientProvider);
       final res = await apiClient.get<Map<String, dynamic>>(
@@ -254,21 +107,23 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
         final apiTrainers = List<Map<String, dynamic>>.from(data['trainers'] ?? []);
 
         setState(() {
-          _members = apiMembers.isNotEmpty ? apiMembers : fallbackMembers;
-          _trainers = apiTrainers.isNotEmpty ? apiTrainers : fallbackTrainers;
+          _members = apiMembers;
+          _trainers = apiTrainers;
+          _searchError = null;
           _features = matchedFeatures;
           _isLoading = false;
         });
         return;
       }
     } catch (_) {
-      // Graceful fallback to client-filtered list
+      // Fall through: only screens and actions can be matched offline.
     }
 
     if (mounted) {
       setState(() {
-        _members = fallbackMembers;
-        _trainers = fallbackTrainers;
+        _members = [];
+        _trainers = [];
+        _searchError = "Couldn't search members and trainers. Check your connection.";
         _features = matchedFeatures;
         _isLoading = false;
       });
@@ -291,7 +146,9 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       _saveRecentSearch(recentTerm);
     }
     Navigator.of(context).pop();
-    context.push(route);
+    // Bottom-navigation tabs are switched to, not stacked on top of each other.
+    const tabs = {RouteNames.dashboard, RouteNames.members, RouteNames.operations, RouteNames.finance, RouteNames.more};
+    tabs.contains(route) ? context.go(route) : context.push(route);
   }
 
   void _openMemberProfile(String memberId, String memberName) {
@@ -303,7 +160,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   void _openMemberAttendance(String memberId, String memberName) {
     _saveRecentSearch(memberName);
     Navigator.of(context).pop();
-    context.push(RouteNames.operations);
+    context.push('/members/$memberId');
   }
 
   @override
@@ -575,12 +432,13 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
               const SizedBox(height: 12),
               Text(
-                'No matching results for "$_query"',
+                _searchError != null ? 'Search unavailable' : 'No results for "$_query"',
+                textAlign: TextAlign.center,
                 style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, color: AppColors.text),
               ),
               const SizedBox(height: 6),
               Text(
-                'Try searching member name, code (REP-00124), phone number, or feature name like Attendance or Website Builder.',
+                _searchError ?? 'Search by member name, phone number or member code, or a screen like Attendance.',
                 textAlign: TextAlign.center,
                 style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
               ),

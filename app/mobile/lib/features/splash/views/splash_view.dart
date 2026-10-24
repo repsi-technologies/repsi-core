@@ -57,7 +57,7 @@ class _SplashViewState extends ConsumerState<SplashView> with SingleTickerProvid
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    precacheImage(const AssetImage('assets/logos/repsi_reverse_white.png'), context).catchError((_) {});
+    precacheImage(const AssetImage('assets/logos/repsi-logo-white.png'), context).catchError((_) {});
   }
 
   void _navigateIfReady() {

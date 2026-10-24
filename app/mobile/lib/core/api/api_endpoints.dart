@@ -38,6 +38,8 @@ class ApiEndpoints {
   static const String attendanceCheckIn = checkIn;
   static const String attendanceCheckOut = checkOut;
   static const String attendanceSummary = '/attendance/summary';
+  static const String attendanceCurrentlyInside = '/attendance/currently-inside';
+  static const String trialStatus = '/billing/trial-status';
   static const String attendanceScanQr = '/attendance/scan-qr';
   static const String myAttendance = '/attendance/member/me';
   static const String myAttendancePass = '/attendance/member/me/pass';
@@ -61,6 +63,7 @@ class ApiEndpoints {
   // Notifications
   static const String notifications = '/notifications';
   static String markNotificationRead(String id) => '/notifications/$id/read';
+  static const String markAllNotificationsRead = '/notifications/mark-all-read';
   static const String notificationPreferences = '/notifications/preferences';
   static const String registerDevice = '/notifications/devices';
 

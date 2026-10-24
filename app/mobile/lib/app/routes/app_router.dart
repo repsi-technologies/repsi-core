@@ -13,7 +13,6 @@ import '../../features/auth/views/verify_otp_view.dart';
 import '../../features/dashboard/views/dashboard_view.dart';
 import '../../features/finance/views/owner_finance_view.dart';
 import '../../features/member/presentation/views/exercise_library_view.dart';
-import '../../features/member/presentation/views/member_documents_view.dart';
 import '../../features/member/presentation/views/member_shell_view.dart';
 import '../../features/member/presentation/views/qr_attendance_view.dart';
 import '../../features/members/views/add_member_view.dart';
@@ -23,7 +22,6 @@ import '../../features/more/views/more_view.dart';
 import '../../features/notifications/views/notification_inbox_view.dart';
 import '../../features/onboarding/views/onboarding_view.dart';
 import '../../features/operations/views/operations_view.dart';
-import '../../features/operations/views/website_builder_mobile_view.dart';
 import '../../features/shell/views/app_shell_view.dart';
 import '../../features/splash/views/splash_view.dart';
 import '../../features/trainer/views/trainer_shell_view.dart';
@@ -223,16 +221,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // Website Builder route
-      GoRoute(
-        path: RouteNames.websiteBuilder,
-        pageBuilder: (context, state) => buildRepsiPageTransition(
-          context: context,
-          state: state,
-          child: const WebsiteBuilderMobileView(),
-        ),
-      ),
-
       // Notifications route
       GoRoute(
         path: RouteNames.notifications,
@@ -260,16 +248,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           context: context,
           state: state,
           child: const AiInsightsView(),
-        ),
-      ),
-
-      // Member Documents route
-      GoRoute(
-        path: RouteNames.memberDocuments,
-        pageBuilder: (context, state) => buildRepsiPageTransition(
-          context: context,
-          state: state,
-          child: const MemberDocumentsView(),
         ),
       ),
 

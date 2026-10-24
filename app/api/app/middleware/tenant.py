@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import Header, HTTPException, Request, status, Depends
 from jose import JWTError, jwt
 from app.core.config import settings
+from app.core.demo import refuse_if_demo_restricted
 from app.core.security import decode_access_token
 
 
@@ -124,6 +125,7 @@ def get_current_tenant(
                     detail="Access denied. You do not have an active account in this gym workspace.",
                 )
             _refuse_if_suspended(ws, request)
+            refuse_if_demo_restricted(ws, request)
             role = member.role.value if hasattr(member.role, "value") else str(member.role)
             return TenantContext(workspace_id=actual_ws_id, user_id=user_id, role=role, session_id=session_id)
 
@@ -133,7 +135,9 @@ def get_current_tenant(
             WorkspaceMember.is_active == True,
         ).first()
         if first_member:
-            _refuse_if_suspended(db.get(Workspace, first_member.workspace_id), request)
+            first_ws = db.get(Workspace, first_member.workspace_id)
+            _refuse_if_suspended(first_ws, request)
+            refuse_if_demo_restricted(first_ws, request)
             resolved_role = first_member.role.value if hasattr(first_member.role, "value") else str(first_member.role)
             return TenantContext(
                 workspace_id=first_member.workspace_id, user_id=user_id, role=resolved_role, session_id=session_id

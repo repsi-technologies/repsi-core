@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_press.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_empty_state.dart';
+import '../../../shared/widgets/repsi_error_state.dart';
 import '../models/notification_model.dart';
 import '../providers/notification_provider.dart';
 
@@ -15,12 +16,10 @@ class NotificationInboxView extends ConsumerStatefulWidget {
   const NotificationInboxView({super.key});
 
   @override
-  ConsumerState<NotificationInboxView> createState() =>
-      _NotificationInboxViewState();
+  ConsumerState<NotificationInboxView> createState() => _NotificationInboxViewState();
 }
 
-class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
-    with SingleTickerProviderStateMixin {
+class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -127,8 +126,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
                       if (state.unreadCount > 0) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(10),
@@ -154,31 +152,35 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildNotificationList(state.items, notifier, isDark),
-          _buildNotificationList(
-            state.items.where((n) => !n.isRead).toList(),
-            notifier,
-            isDark,
-          ),
-          _buildNotificationList(
-            state.items
-                .where((n) => n.type == NotificationType.billing)
-                .toList(),
-            notifier,
-            isDark,
-          ),
-          _buildNotificationList(
-            state.items
-                .where((n) => n.type == NotificationType.announcement)
-                .toList(),
-            notifier,
-            isDark,
-          ),
-        ],
-      ),
+      body: state.items.isEmpty && state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : state.items.isEmpty && state.error != null
+              ? RepsiErrorState(
+                  title: 'Notifications unavailable',
+                  message: state.error!,
+                  onRetry: notifier.fetchNotifications,
+                )
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildNotificationList(state.items, notifier, isDark),
+                    _buildNotificationList(
+                      state.items.where((n) => !n.isRead).toList(),
+                      notifier,
+                      isDark,
+                    ),
+                    _buildNotificationList(
+                      state.items.where((n) => n.type == NotificationType.billing).toList(),
+                      notifier,
+                      isDark,
+                    ),
+                    _buildNotificationList(
+                      state.items.where((n) => n.type == NotificationType.announcement).toList(),
+                      notifier,
+                      isDark,
+                    ),
+                  ],
+                ),
     );
   }
 
@@ -219,26 +221,21 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
             index: index,
             child: Dismissible(
               key: Key(item.id),
-              direction: DismissDirection.endToStart,
+              direction: item.isRead ? DismissDirection.none : DismissDirection.endToStart,
+              // Swiping marks as read (the server keeps every notification; nothing is deleted).
+              confirmDismiss: (_) async {
+                notifier.markAsRead(item.id);
+                return false;
+              },
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
                 decoration: BoxDecoration(
-                  color: AppColors.error,
+                  color: isDark ? AppColors.darkSuccess : AppColors.success,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
                 ),
-                child: const Icon(LucideIcons.trash2,
-                    color: Colors.white, size: 22),
+                child: const Icon(LucideIcons.check, color: Colors.white, size: 22),
               ),
-              onDismissed: (_) {
-                notifier.removeNotification(item.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Notification removed'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
               child: RepsiPress(
                 onTap: () {
                   if (!item.isRead) {
@@ -250,9 +247,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
                   decoration: BoxDecoration(
                     color: item.isRead
                         ? (isDark ? AppColors.darkSurface : AppColors.surface)
-                        : (isDark
-                            ? const Color(0xFF2C2420)
-                            : const Color(0xFFFFF7F2)),
+                        : (isDark ? AppColors.darkPrimarySoft : AppColors.primarySoft),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
                     border: Border.all(
                       color: item.isRead
@@ -292,12 +287,8 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
                                     item.title,
                                     style: AppTypography.headingSmall.copyWith(
                                       fontSize: 14.5,
-                                      fontWeight: item.isRead
-                                          ? FontWeight.w600
-                                          : FontWeight.w700,
-                                      color: isDark
-                                          ? AppColors.darkText
-                                          : AppColors.text,
+                                      fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w700,
+                                      color: isDark ? AppColors.darkText : AppColors.text,
                                     ),
                                   ),
                                 ),
@@ -319,9 +310,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
                               item.message,
                               style: AppTypography.bodySecondary.copyWith(
                                 fontSize: 13,
-                                color: isDark
-                                    ? AppColors.darkTextSecondary
-                                    : AppColors.textSecondary,
+                                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -329,9 +318,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView>
                               item.timeAgo(),
                               style: AppTypography.caption.copyWith(
                                 fontSize: 11,
-                                color: isDark
-                                    ? AppColors.darkTextMuted
-                                    : AppColors.textMuted,
+                                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                               ),
                             ),
                           ],

@@ -393,6 +393,10 @@ def dispatch_queued_deliveries(db: Session, broadcast_id: Optional[str] = None, 
             email=(m.email if m else u.email if u else None), phone=(m.phone if m else u.phone if u else None),
         )
         d.attempts = (d.attempts or 0) + 1
+        if ws is not None and ws.is_demo:
+            # The sales demo gym never reaches real inboxes or phones (app/core/demo.py).
+            d.status, d.error = "skipped_demo", "Demo gym: messages are recorded but not sent"
+            continue
         if d.broadcast_id and b is None:
             d.status, d.error = "failed", "Broadcast no longer exists"
             continue

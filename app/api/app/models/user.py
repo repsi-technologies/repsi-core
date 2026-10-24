@@ -49,6 +49,8 @@ class Workspace(Base, TimestampMixin):
     onboarding_completed = Column(Boolean, default=False, nullable=False)
     onboarding_step = Column(Integer, default=1, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    # Sales demo gym: messages are recorded but never sent, and account/billing changes are refused (app/core/demo.py).
+    is_demo = Column(Boolean, default=False, nullable=False)
     last_name_changed_at = Column(DateTime, nullable=True)
     name_change_count = Column(Integer, default=0, nullable=False)
 
