@@ -74,6 +74,7 @@ class MoreView extends ConsumerWidget {
             _Item(Icons.notifications_none_rounded, 'Notifications', onTap: () => context.push(RouteNames.notifications)),
             _Item(Icons.store_mall_directory_outlined, 'Branches', onTap: () => _showBranches(context)),
             _Item(Icons.card_membership_outlined, 'Membership plans', onTap: () => _showPlans(context)),
+            _Item(Icons.person_add_outlined, 'Add trainer', subtitle: 'Onboard gym coach or PT', onTap: () => context.push(RouteNames.addTrainer)),
           ]),
           _Group(title: 'App', items: [
             _Item(

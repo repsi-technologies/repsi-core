@@ -24,6 +24,7 @@ import '../../features/onboarding/views/onboarding_view.dart';
 import '../../features/operations/views/operations_view.dart';
 import '../../features/shell/views/app_shell_view.dart';
 import '../../features/splash/views/splash_view.dart';
+import '../../features/trainer/views/add_trainer_view.dart';
 import '../../features/trainer/views/trainer_shell_view.dart';
 import '../../features/workspaces/views/workspace_selection_view.dart';
 import '../../shared/animations/repsi_page_transition.dart';
@@ -208,6 +209,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           context: context,
           state: state,
           child: const AddMemberView(),
+        ),
+      ),
+
+      // Add Trainer shortcut
+      GoRoute(
+        path: RouteNames.addTrainer,
+        pageBuilder: (context, state) => buildRepsiPageTransition(
+          context: context,
+          state: state,
+          child: const AddTrainerView(),
         ),
       ),
 

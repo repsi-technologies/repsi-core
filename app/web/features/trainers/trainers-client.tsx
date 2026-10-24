@@ -17,9 +17,22 @@ export function TrainersClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
+  // Add Trainer Modal state
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addTrainerData, setAddTrainerData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    specialization: "Strength & Conditioning",
+    hourly_rate: 0,
+    bio: "",
+  });
+  const [addingTrainer, setAddingTrainer] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+
   useEffect(() => {
     if (searchParams.get("new") === "true") {
-      setInviteDialogOpen(true);
+      setAddModalOpen(true);
     }
   }, [searchParams]);
 
@@ -34,6 +47,40 @@ export function TrainersClient() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editTrainerData, setEditTrainerData] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
+
+  const handleCreateTrainer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addTrainerData.name.trim() || !addTrainerData.phone.trim()) {
+      setAddError("Full Name and Phone Number are required.");
+      return;
+    }
+    setAddingTrainer(true);
+    setAddError(null);
+    try {
+      await repsiApi.createTrainer({
+        name: addTrainerData.name.trim(),
+        phone: addTrainerData.phone.trim(),
+        email: addTrainerData.email.trim() || undefined,
+        specialization: addTrainerData.specialization.trim() || "General Fitness",
+        hourly_rate: Number(addTrainerData.hourly_rate) || 0,
+        bio: addTrainerData.bio.trim() || undefined,
+      });
+      setAddModalOpen(false);
+      setAddTrainerData({
+        name: "",
+        phone: "",
+        email: "",
+        specialization: "Strength & Conditioning",
+        hourly_rate: 0,
+        bio: "",
+      });
+      loadData();
+    } catch (err: any) {
+      setAddError(err.message || "Failed to create trainer");
+    } finally {
+      setAddingTrainer(false);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -116,8 +163,17 @@ export function TrainersClient() {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            onClick={() => setInviteDialogOpen(true)}
+            onClick={() => setAddModalOpen(true)}
             className="gap-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            + Add Trainer
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setInviteDialogOpen(true)}
+            className="gap-1.5 border-[var(--border)] text-[var(--text)] hover:bg-[var(--surface-hover)]"
           >
             <Mail className="h-3.5 w-3.5" />
             Invite Trainer
@@ -151,7 +207,7 @@ export function TrainersClient() {
           description="Add your certified trainers and coaches to manage clients, design workouts, and assign protocols."
           action={{
             label: "+ Add trainer",
-            onClick: () => setInviteDialogOpen(true),
+            onClick: () => setAddModalOpen(true),
           }}
           guideTitle="How to onboard trainers"
           guideSteps={[
@@ -262,6 +318,144 @@ export function TrainersClient() {
         defaultRole="trainer"
         onSuccess={loadData}
       />
+
+      {/* Direct Add Trainer Modal */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-[var(--text)]">Add New Trainer</h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  Onboard a coach or certified trainer to manage clients and sessions.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAddModalOpen(false)}
+                className="p-1 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
+              >
+                ✕
+              </button>
+            </div>
+
+            {addError && (
+              <div className="p-3 text-xs rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
+                {addError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateTrainer} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Vikram Rathore"
+                  value={addTrainerData.name}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, name: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">
+                  Mobile Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="+91 98450 12345"
+                  value={addTrainerData.phone}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, phone: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">
+                  Email Address <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="email"
+                  placeholder="trainer@example.com"
+                  value={addTrainerData.email}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">Specialization / Track</label>
+                <select
+                  value={addTrainerData.specialization}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, specialization: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                >
+                  <option value="Strength & Conditioning">Strength & Conditioning</option>
+                  <option value="Personal Training">Personal Training</option>
+                  <option value="HIIT & Functional">HIIT & Functional</option>
+                  <option value="CrossFit">CrossFit</option>
+                  <option value="Yoga & Mobility">Yoga & Mobility</option>
+                  <option value="Rehabilitation">Rehabilitation</option>
+                  <option value="General Fitness">General Fitness</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">
+                  Hourly PT Rate (₹) <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="50"
+                  placeholder="e.g. 800"
+                  value={addTrainerData.hourly_rate || ""}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, hourly_rate: Number(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text)]">
+                  Bio / Certifications <span className="text-[var(--text-muted)] font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Certified ACE Trainer with 5+ years experience..."
+                  value={addTrainerData.bio}
+                  onChange={(e) => setAddTrainerData({ ...addTrainerData, bio: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)] resize-none"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAddModalOpen(false)}
+                  disabled={addingTrainer}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={addingTrainer}
+                  className="text-xs bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-dark)]"
+                >
+                  {addingTrainer ? "Adding Trainer..." : "Save Trainer"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Assign Client Modal */}
       {assignModalOpen && selectedTrainer && (

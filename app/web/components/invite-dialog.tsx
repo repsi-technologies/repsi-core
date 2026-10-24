@@ -63,6 +63,16 @@ export function InviteDialog({
     password?: string;
   } | null>(null);
 
+  useEffect(() => {
+    if (open) {
+      setRole(defaultRole);
+      setError(null);
+      setEmailError(null);
+      setPhoneError(null);
+      setSuccessMsg(null);
+    }
+  }, [open, defaultRole]);
+
   const generatePassword = () => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
@@ -75,8 +85,14 @@ export function InviteDialog({
 
   // Existing REPSI accounts can be invited: acceptance joins their existing account.
   const handleEmailBlur = () => {
-    if (!email.trim() || !/^S+@S+.S+$/.test(email)) {
-      setEmailError(email.trim() ? "Invalid email format" : "Email is required");
+    if (mode === "invite" || email.trim().length > 0) {
+      if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) {
+        setEmailError(email.trim() ? "Invalid email format" : "Email is required");
+      } else {
+        setEmailError(null);
+      }
+    } else {
+      setEmailError(null);
     }
   };
 
@@ -86,8 +102,18 @@ export function InviteDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) {
-      setError("Please fill in all mandatory fields (*)");
+    if (!name.trim()) {
+      setError("Please fill in full name (*)");
+      return;
+    }
+
+    if (mode === "invite" && !email.trim()) {
+      setError("Please fill in email address for invitation (*)");
+      return;
+    }
+
+    if (mode === "direct" && !email.trim() && !phone.trim()) {
+      setError("Please provide at least an email address or mobile number (*)");
       return;
     }
 
@@ -155,7 +181,7 @@ export function InviteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[460px] p-6 border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-xl rounded-[20px]">
+      <DialogContent className="sm:max-w-[460px] max-h-[90vh] overflow-y-auto p-4 sm:p-6 border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-xl rounded-[20px]">
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-[var(--primary-soft)] text-[var(--text)] flex items-center justify-center shrink-0 border border-[var(--border)]">
@@ -290,11 +316,11 @@ export function InviteDialog({
               </div>
             </div>
 
-            {/* Mandatory Email Address with onBlur DB Check */}
+            {/* Mandatory Email Address for Invite, Optional for Direct Add if phone given */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="inv-email" className="text-xs font-medium text-[var(--text)]">
-                  Email Address <span className="text-red-500">*</span>
+                  Email Address {mode === "invite" ? <span className="text-red-500">*</span> : <span className="text-[var(--text-muted)] font-normal">(Optional if phone provided)</span>}
                 </Label>
                 {checkingEmail && (
                   <span className="text-[10px] text-emerald-600 flex items-center gap-1">
@@ -317,7 +343,7 @@ export function InviteDialog({
                   className={`pl-9 h-9 bg-[var(--surface)] border-[var(--border)] text-[var(--text)] text-xs placeholder:text-[var(--text-muted)] rounded-xl focus-visible:ring-1 focus-visible:ring-[var(--ring)] ${
                     emailError ? "border-red-500 focus-visible:ring-red-500" : ""
                   }`}
-                  required
+                  required={mode === "invite"}
                 />
               </div>
               {emailError && <p className="text-[11px] text-red-500 font-medium">{emailError}</p>}

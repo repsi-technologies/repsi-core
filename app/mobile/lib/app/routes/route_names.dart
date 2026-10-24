@@ -52,6 +52,7 @@ class RouteNames {
   static const String recordPayment = '/payments/record';
   static const String expenses = '/expenses';
   static const String trainers = '/trainers';
+  static const String addTrainer = '/trainers/add';
   static const String classes = '/classes';
   static const String workouts = '/workouts';
   static const String exerciseLibrary = '/member/exercises';

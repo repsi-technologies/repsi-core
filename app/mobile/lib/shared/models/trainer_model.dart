@@ -29,7 +29,7 @@ class TrainerModel {
     return TrainerModel(
       id: json['id']?.toString() ?? '',
       workspaceId: json['workspace_id']?.toString() ?? '',
-      fullName: json['full_name'] as String? ?? 'Trainer',
+      fullName: (json['full_name'] ?? json['name']) as String? ?? 'Trainer',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String?,
       specialization: json['specialization'] as String?,

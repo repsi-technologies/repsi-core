@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
@@ -599,6 +601,31 @@ class _TeamTab extends ConsumerWidget {
           data: (team) => ListView(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Staff & Trainers (${team.length})',
+                      style: AppTypography.headingSmall.copyWith(color: _text(isDark), fontWeight: FontWeight.bold),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => context.push(RouteNames.addTrainer),
+                      icon: const Icon(Icons.person_add_rounded, size: 16),
+                      label: const Text('Add trainer'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusSm)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
               for (final p in team)
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
@@ -611,7 +638,7 @@ class _TeamTab extends ConsumerWidget {
                 ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text('Invite staff and change roles or permissions on repsi.app.',
+                child: Text('Add trainers and manage staff roles directly from your phone.',
                     textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: _secondary(isDark))),
               ),
             ],

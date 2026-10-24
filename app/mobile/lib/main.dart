@@ -6,6 +6,7 @@ import 'app/routes/app_router.dart';
 import 'app/theme/app_theme.dart';
 import 'core/providers/session_reset.dart';
 import 'core/providers/storage_provider.dart';
+import 'core/providers/theme_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
 
 Future<void> main() async {
@@ -31,12 +32,13 @@ class RepsiApp extends ConsumerWidget {
     ref.listen(authProvider.select((s) => s.user?.id), (previous, next) {
       if (previous != null && previous != next) resetSessionProviders(ref);
     });
+    final themeMode = ref.watch(themeNotifierProvider);
     return MaterialApp.router(
       title: 'REPSI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.light,
+      themeMode: themeMode.toThemeMode(),
       routerConfig: ref.watch(appRouterProvider),
     );
   }

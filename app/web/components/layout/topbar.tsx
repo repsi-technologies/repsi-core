@@ -34,7 +34,7 @@ import { api } from "@/lib/api";
 // ─── Theme Toggle ─────────────────────────────────────────────────────────────
 
 function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,8 @@ function ThemeToggle() {
     return <div className="h-9 w-9 rounded-[8px] bg-[var(--border)] animate-pulse" />;
   }
 
-  const isDark = theme === "dark";
+  const currentTheme = resolvedTheme || theme;
+  const isDark = currentTheme === "dark";
 
   return (
     <Button 

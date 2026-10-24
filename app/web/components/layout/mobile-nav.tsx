@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 import { navGroupsForRole } from "./sidebar";
 import { getAuthUser } from "@/lib/auth";
 import { apiUrl } from "@/lib/auth-client";
-import { X, Building2, Menu } from "lucide-react";
+import { useTheme } from "next-themes";
+import { X, Building2, Menu, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
 
@@ -19,6 +20,7 @@ interface MobileNavProps {
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
   const workspace = getWorkspaceFromPath(pathname);
+  const { theme, setTheme, resolvedTheme } = useTheme();
   // Same role-based menus as the desktop sidebar; resolved after mount (auth lives in the browser).
   const [role, setRole] = useState<string | null>(null);
   useEffect(() => setRole(getAuthUser()?.role || "OWNER"), []);
@@ -196,14 +198,29 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
 
         {/* Footer */}
         <div className="p-3 border-t border-[var(--border)]">
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-[8px] bg-[var(--background)]">
-            <div className="w-7 h-7 rounded-full bg-[var(--primary-soft)] flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-semibold text-[var(--primary-dark)] dark:text-[var(--primary-hover)]">NK</span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-[8px] bg-[var(--background)] flex-1 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-[var(--primary-soft)] flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-semibold text-[var(--primary-dark)] dark:text-[var(--primary-hover)]">NK</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[var(--text)] truncate">Gym Owner</p>
+                <p className="text-[10px] text-[var(--text-muted)] truncate">{role || "Owner"}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-[var(--text)] truncate">Gym Owner</p>
-              <p className="text-[10px] text-[var(--text-muted)] truncate">Owner</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setTheme((resolvedTheme || theme) === "dark" ? "light" : "dark")}
+              className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] border border-[var(--border)] bg-[var(--background)] text-[var(--text)] hover:bg-[var(--nav-hover-bg)] transition-colors cursor-pointer"
+              aria-label="Toggle theme"
+              title={(resolvedTheme || theme) === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {(resolvedTheme || theme) === "dark" ? (
+                <Sun className="h-4 w-4 text-[var(--primary)]" />
+              ) : (
+                <Moon className="h-4 w-4 text-[var(--primary)]" />
+              )}
+            </button>
           </div>
         </div>
       </div>
