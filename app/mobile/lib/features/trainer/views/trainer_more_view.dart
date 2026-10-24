@@ -8,12 +8,14 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../auth/widgets/my_profile_photo.dart';
 
 class TrainerMoreView extends ConsumerWidget {
   const TrainerMoreView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
     final menuItems = [
       {'icon': Icons.person_outline_rounded, 'title': 'My Profile'},
       {'icon': Icons.people_outline_rounded, 'title': 'My Clients'},
@@ -49,25 +51,14 @@ class TrainerMoreView extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: AppColors.primarySoft,
-                        child: const Text(
-                          'AK',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryDark,
-                          ),
-                        ),
-                      ),
+                      const MyProfilePhoto(size: 52),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Arun Kumar',
+                              user?.fullName ?? 'Trainer',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.headingSmall.copyWith(
@@ -78,7 +69,7 @@ class TrainerMoreView extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Certified Trainer · 18 Clients',
+                              [user?.gymName, 'Trainer'].whereType<String>().join(' · '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.caption.copyWith(

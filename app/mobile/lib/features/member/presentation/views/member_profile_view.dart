@@ -11,6 +11,7 @@ import '../../../../shared/widgets/repsi_card.dart';
 import '../../../ai/views/ai_workout_coach_view.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/views/account_security_dialogs.dart';
+import '../../../auth/widgets/my_profile_photo.dart';
 import '../../../notifications/views/notification_inbox_view.dart';
 import 'member_payments_view.dart';
 import 'qr_attendance_view.dart';
@@ -64,13 +65,6 @@ class MemberProfileView extends ConsumerWidget {
     final userName =
         (user?.fullName.isNotEmpty == true) ? user!.fullName : 'Member';
     final userEmail = user?.email ?? '';
-    final initials = userName
-        .trim()
-        .split(' ')
-        .map((p) => p.isNotEmpty ? p[0] : '')
-        .take(2)
-        .join()
-        .toUpperCase();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -99,18 +93,7 @@ class MemberProfileView extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: AppColors.primarySoft,
-                        child: Text(
-                          initials.isNotEmpty ? initials : 'M',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryDark,
-                          ),
-                        ),
-                      ),
+                      const MyProfilePhoto(size: 52),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(

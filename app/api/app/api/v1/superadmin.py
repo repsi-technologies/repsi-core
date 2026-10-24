@@ -1019,6 +1019,14 @@ def get_system_health(
     store = storage_health()
     metrics.append(SystemHealthMetric(component=f"File storage ({store['backend']})", status=store["status"],
                                       details=store.get("error") or "Private uploads, receipts and documents"))
+    from app.core.images import images_health
+
+    img = images_health()
+    metrics.append(SystemHealthMetric(
+        component="Image hosting (Cloudinary)", status=img["status"],
+        details=img.get("error") or ("Logos and profile photos are served from Cloudinary" if img["backend"] == "cloudinary"
+                                     else "Logos and profile photos use file storage (set CLOUDINARY_URL)"),
+    ))
     metrics.append(configured("SMS", sms_configured(), f"Provider {settings.SMS_PROVIDER}",
                               "SMS alerts are not sent (no provider configured)"))
     metrics.append(configured("Push (FCM)", push_configured(), f"Project {settings.FCM_PROJECT_ID}",

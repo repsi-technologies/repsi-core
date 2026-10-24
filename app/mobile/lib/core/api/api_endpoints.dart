@@ -9,6 +9,10 @@ class ApiEndpoints {
   static const String logout = '/auth/logout';
   static const String changePassword = '/auth/me/password';
   static const String deleteAccount = '/auth/me';
+  static const String phoneOtpRequest = '/auth/otp/request';
+  static const String phoneOtpVerify = '/auth/otp/verify';
+  static const String signup = '/auth/signup';
+  static const String myAvatar = '/auth/me/avatar';
 
   // Workspaces
   static const String workspaces = '/workspaces';

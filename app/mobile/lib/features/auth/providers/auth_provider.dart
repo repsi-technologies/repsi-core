@@ -222,6 +222,53 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Checks a WhatsApp code. Signs in when the phone belongs to an account; otherwise returns the
+  /// registration token for [completePhoneSignup] and leaves the user signed out.
+  Future<PhoneVerification> verifyPhoneOtp({required String phone, required String code}) async {
+    final result = await _authService.verifyPhoneOtp(phone: phone, code: code);
+    final session = result.session;
+    if (session != null) {
+      try {
+        await _establishSession(session);
+      } catch (_) {
+        await _storage.clearAll();
+        rethrow;
+      }
+    }
+    return result;
+  }
+
+  Future<bool> completePhoneSignup({
+    required String registrationToken,
+    required String fullName,
+    required String email,
+    required String password,
+  }) {
+    if (state.status == AuthStatus.loading) return Future.value(false);
+    return _guarded(() async {
+      final response = await _authService.signupWithVerifiedPhone(
+        registrationToken: registrationToken,
+        fullName: fullName,
+        email: email,
+        password: password,
+      );
+      await _establishSession(response);
+    }, 'We could not create your account. Please try again.');
+  }
+
+  /// Replaces the profile photo; the server's copy of the profile becomes the cached one.
+  Future<void> updateAvatar(List<int> bytes, String filename) async {
+    final user = await _authService.uploadAvatar(bytes, filename);
+    await _storage.saveUser(user);
+    if (mounted && state.isAuthenticated) state = state.copyWith(user: user);
+  }
+
+  Future<void> removeAvatar() async {
+    final user = await _authService.removeAvatar();
+    await _storage.saveUser(user);
+    if (mounted && state.isAuthenticated) state = state.copyWith(user: user);
+  }
+
   Future<bool> register({
     required String fullName,
     required String email,

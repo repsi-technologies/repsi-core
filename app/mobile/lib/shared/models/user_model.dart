@@ -1,3 +1,5 @@
+import '../../app/config/app_config.dart';
+
 enum UserRole {
   owner,
   admin,
@@ -58,13 +60,16 @@ class UserModel {
   final String role;
   final String? workspaceId;
 
-  String? get avatarUrl => null;
+  final String? avatarUrl;
+  final String? gymName;
 
   UserModel({
     required this.id,
     required this.email,
     required this.fullName,
     this.phone,
+    this.avatarUrl,
+    this.gymName,
     required this.isSuperadmin,
     required this.isActive,
     this.role = 'OWNER',
@@ -77,6 +82,8 @@ class UserModel {
       email: json['email']?.toString() ?? '',
       fullName: json['full_name']?.toString() ?? 'User',
       phone: json['phone']?.toString(),
+      avatarUrl: AppConfig.resolveMediaUrl(json['avatar_url']?.toString()),
+      gymName: json['gym_name']?.toString(),
       isSuperadmin: json['is_superadmin'] == true,
       isActive: json['is_active'] != false,
       role: json['role']?.toString() ?? 'OWNER',
@@ -90,6 +97,8 @@ class UserModel {
       'email': email,
       'full_name': fullName,
       'phone': phone,
+      'avatar_url': avatarUrl,
+      'gym_name': gymName,
       'is_superadmin': isSuperadmin,
       'is_active': isActive,
       'role': role,
@@ -102,6 +111,8 @@ class UserModel {
     String? email,
     String? fullName,
     String? phone,
+    String? avatarUrl,
+    bool clearAvatar = false,
     bool? isSuperadmin,
     bool? isActive,
     String? role,
@@ -112,6 +123,8 @@ class UserModel {
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
       phone: phone ?? this.phone,
+      avatarUrl: clearAvatar ? null : (avatarUrl ?? this.avatarUrl),
+      gymName: gymName,
       isSuperadmin: isSuperadmin ?? this.isSuperadmin,
       isActive: isActive ?? this.isActive,
       role: role ?? this.role,

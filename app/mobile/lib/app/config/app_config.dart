@@ -29,6 +29,16 @@ class AppConfig {
     return trimmed;
   }
 
+  /// Absolute URL for media the API returns. Cloudinary URLs are already absolute; files served by
+  /// the API itself come back as paths (`/api/v1/...`) and are resolved against the API origin.
+  static String? resolveMediaUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (!url.startsWith('/')) return null;
+    final origin = Uri.parse(baseUrl);
+    return origin.replace(path: url, query: null).toString();
+  }
+
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 30);
 }

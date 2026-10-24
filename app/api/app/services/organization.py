@@ -5,9 +5,7 @@ The Workspace row is the single source of truth for business settings; branches 
 GymLocation rows (which attendance already uses); branch access is BranchAssignment rows.
 """
 import json
-import os
 import re
-import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -36,23 +34,17 @@ from app.schemas.organization import (
 )
 from app.services.auth import RESERVED_SLUGS, AuthService
 from app.services.billing import BillingService
-from app.core.storage import get_storage
-from app.services.manual_payment import UPLOADS_BASE_DIR, _detect_mime_type
+from app.core.images import ImageUploadFailed, delete_image, read_local_image, upload_image, validate_image
 from app.services.workspace_moderation import WorkspaceModerationService
 
 ORG_WIDE_ROLES = {"OWNER", "ADMIN", "SUPER_ADMIN"}
 ONBOARDING_STEPS = ("business", "preferences", "branches", "team", "launch")
 LOGO_MAX_BYTES = 2 * 1024 * 1024
-LOGO_DIR = os.path.join(UPLOADS_BASE_DIR, "logos")
 
 
-def _logo_filename(logo_url: Optional[str]) -> Optional[str]:
-    """The stored file name inside a logo URL we issued (/api/v1/organization/<ws>/logo/<name>)."""
-    if not logo_url or "/logo/" not in logo_url:
-        return None
-    name = logo_url.rsplit("/", 1)[-1]
-    return name if re.fullmatch(r"[0-9a-f]{32}\.(png|jpg|webp)", name) else None
-_EXT = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}
+def _logo_url_prefix(workspace_id: str) -> str:
+    """Where logos kept on the storage backend are served from (Cloudinary URLs are stored as-is)."""
+    return f"/api/v1/organization/{workspace_id}/logo"
 
 
 def _country_name(code: Optional[str]) -> Optional[str]:
@@ -284,48 +276,31 @@ class OrganizationService:
     def save_logo(self, ws: Workspace, data: bytes, role: str) -> Workspace:
         if role not in ORG_WIDE_ROLES:
             raise HTTPException(status_code=403, detail="Only owners and admins can change the logo.")
-        if not data:
-            raise HTTPException(status_code=400, detail="Choose an image to upload.")
-        if len(data) > LOGO_MAX_BYTES:
-            raise HTTPException(status_code=413, detail="Logo must be 2 MB or smaller.")
-        mime = _detect_mime_type(data)
-        if mime not in _EXT:
-            raise HTTPException(status_code=415, detail="Logo must be a PNG, JPG or WebP image.")
-        previous = _logo_filename(ws.logo_url)
-        name = f"{uuid.uuid4().hex}.{_EXT[mime]}"
-        get_storage().put(f"logos/{ws.id}/{name}", data, mime)
-        if previous:
-            try:
-                get_storage().delete(f"logos/{ws.id}/{previous}")
-            except Exception:
-                pass
-        ws.logo_url = f"/api/v1/organization/{ws.id}/logo/{name}"
+        mime = validate_image(data, LOGO_MAX_BYTES, "Logo")
+        previous = ws.logo_url
+        try:
+            ws.logo_url = upload_image(f"logos/{ws.id}", data, mime, _logo_url_prefix(ws.id))
+        except ImageUploadFailed:
+            raise HTTPException(status_code=502, detail="We couldn't upload the logo. Please try again.")
         self.db.commit()
         self.db.refresh(ws)
+        delete_image(previous, f"logos/{ws.id}", _logo_url_prefix(ws.id))
         return ws
 
     def remove_logo(self, ws: Workspace, role: str) -> Workspace:
         if role not in ORG_WIDE_ROLES:
             raise HTTPException(status_code=403, detail="Only owners and admins can change the logo.")
-        previous = _logo_filename(ws.logo_url)
-        if previous:
-            try:
-                get_storage().delete(f"logos/{ws.id}/{previous}")
-            except Exception:
-                pass
+        previous = ws.logo_url
         ws.logo_url = None
         self.db.commit()
+        delete_image(previous, f"logos/{ws.id}", _logo_url_prefix(ws.id))
         return ws
 
     @staticmethod
     def logo_bytes(workspace_id: str, filename: str) -> Optional[tuple[bytes, str]]:
-        if not re.fullmatch(r"[0-9a-f]{32}\.(png|jpg|webp)", filename) or not re.fullmatch(r"[0-9a-zA-Z-]{1,64}", workspace_id):
+        if not re.fullmatch(r"[0-9a-zA-Z-]{1,64}", workspace_id):
             return None
-        data = get_storage().get(f"logos/{workspace_id}/{filename}")
-        if data is None:
-            return None
-        mime = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp"}[filename.rsplit(".", 1)[1]]
-        return data, mime
+        return read_local_image(f"logos/{workspace_id}", filename)
 
     # ─── Branches ─────────────────────────────────────────────────────────
 

@@ -20,13 +20,13 @@ class AppSpacing {
   static const double xxl = space24;
   static const double xxxl = space32;
 
-  // Corner Radii: 12 - 18px
-  static const double radiusSm = 10.0;
-  static const double radiusDefault = 14.0;
-  static const double radiusInput = 14.0;
+  // Corner Radii: restrained, close to the web scale (8 / 12). Controls 12, cards 14, sheets 20.
+  static const double radiusSm = 8.0;
+  static const double radiusDefault = 12.0;
+  static const double radiusInput = 12.0;
   static const double radiusButton = 12.0;
-  static const double radiusCard = 16.0;
-  static const double radiusLg = 18.0;
+  static const double radiusCard = 14.0;
+  static const double radiusLg = 16.0;
   static const double radiusSheet = 20.0;
   static const double radiusPill = 999.0;
   static const double radiusMd = radiusInput;

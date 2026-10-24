@@ -197,6 +197,7 @@ class AuthService:
             email=str(user.email),
             full_name=str(user.full_name),
             phone=phone_val,
+            avatar_url=user.avatar_url or None,
             is_superadmin=bool(user.is_superadmin),
             is_active=bool(user.is_active),
             role=role,
@@ -669,9 +670,13 @@ class AuthService:
         user.phone_e164 = None
         user.phone_verified = False
         user.email_verified = False
+        previous_avatar = user.avatar_url
         user.avatar_url = None
         user.hashed_password = UNUSABLE_PASSWORD
         self.db.commit()
+        from app.core.images import delete_image
+
+        delete_image(previous_avatar, f"avatars/{user.id}", f"/api/v1/auth/avatars/{user.id}")
         self.revoke_all_sessions(user.id, "account_deleted")
 
     # ─── Owner-created Member / Trainer records ───────────────────────────

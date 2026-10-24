@@ -10,6 +10,18 @@ class AppColors {
   static const Color primarySoft = Color(0xFFFDF1EB);
   static const Color primaryLight = Color(0xFFFDF1EB);
 
+  // ─── Ink (brand moments: splash, onboarding) ────────────────────────────────
+  // Near-black canvas for full-bleed brand screens. Working screens use the dark theme below.
+  static const Color ink = Color(0xFF101114);
+  static const Color inkSurface = Color(0xFF191B20);
+  static const Color inkBorder = Color(0xFF2A2D33);
+  static const Color inkText = Color(0xFFF4F4F5);
+  static const Color inkTextSecondary = Color(0xFFA1A1AA);
+  // Brighter orange for accent text and marks on ink only: on white it fails contrast, so buttons
+  // and links on light surfaces keep `primary`.
+  static const Color primaryBright = Color(0xFFFF6B1A);
+  static const Color whatsapp = Color(0xFF25D366);
+
   // ─── Light Surfaces & Neutrals ──────────────────────────────────────────────
   static const Color background = Color(0xFFF7F7F5);
   static const Color surface = Color(0xFFFFFFFF);

@@ -84,6 +84,16 @@ class Settings(BaseSettings):
     STORAGE_S3_ACCESS_KEY_ID: str = ""
     STORAGE_S3_SECRET_ACCESS_KEY: str = ""
     MEMBER_DOCUMENT_MAX_BYTES: int = 10 * 1024 * 1024
+    # Public images (gym logos, profile photos) go to Cloudinary when configured, otherwise to the
+    # storage backend above. Private files (documents, receipts, payment QR) never go to Cloudinary.
+    # Either CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name> or the three parts.
+    CLOUDINARY_URL: str = ""
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+    CLOUDINARY_FOLDER: str = "repsi"
+    CLOUDINARY_TIMEOUT_SECONDS: float = 20.0
+    AVATAR_MAX_BYTES: int = 5 * 1024 * 1024
 
     # SMS for essential alerts: "none", "msg91" (India, DLT template ids) or "twilio"
     SMS_PROVIDER: str = "none"

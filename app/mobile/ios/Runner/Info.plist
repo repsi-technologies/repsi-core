@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>REPSI uses the camera to scan your gym's QR code for check-in.</string>
+	<string>REPSI uses the camera to scan your gym's QR code for check-in and to take your profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>REPSI uses your photos only when you choose a profile photo.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

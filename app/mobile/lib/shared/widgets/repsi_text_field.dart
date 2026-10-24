@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
@@ -23,6 +24,9 @@ class RepsiTextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
   final bool shakeOnError;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
+  final TextCapitalization textCapitalization;
 
   const RepsiTextField({
     super.key,
@@ -44,6 +48,9 @@ class RepsiTextField extends StatefulWidget {
     this.textInputAction,
     this.focusNode,
     this.shakeOnError = true,
+    this.inputFormatters,
+    this.autofillHints,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -180,6 +187,9 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
               onChanged: widget.onChanged,
               onFieldSubmitted: widget.onSubmitted,
               validator: widget.validator,
+              inputFormatters: widget.inputFormatters,
+              autofillHints: widget.autofillHints,
+              textCapitalization: widget.textCapitalization,
               style: AppTypography.body.copyWith(
                 color: isDark ? AppColors.darkText : AppColors.text,
               ),

@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     phone: str | None = None
+    avatar_url: str | None = None
     is_superadmin: bool
     is_active: bool
     role: str | None = None

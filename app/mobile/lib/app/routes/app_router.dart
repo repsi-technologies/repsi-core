@@ -5,9 +5,9 @@ import '../../features/admin/views/admin_shell_view.dart';
 import '../../features/ai/views/ai_insights_view.dart';
 import '../../features/ai/views/ai_workout_coach_view.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/auth/views/complete_profile_view.dart';
 import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
-import '../../features/auth/views/set_new_password_view.dart';
 import '../../features/auth/views/signup_view.dart';
 import '../../features/auth/views/verify_otp_view.dart';
 import '../../features/dashboard/views/dashboard_view.dart';
@@ -141,18 +141,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.verifyOtp,
+        // Only reachable after a code was requested; a restored or deep-linked URL starts over.
+        redirect: (_, state) => state.extra is VerifyOtpArgs ? null : RouteNames.login,
         pageBuilder: (context, state) => buildRepsiPageTransition(
           context: context,
           state: state,
-          child: VerifyOtpView(email: state.extra as String?),
+          child: VerifyOtpView(args: state.extra! as VerifyOtpArgs),
         ),
       ),
       GoRoute(
-        path: RouteNames.setNewPassword,
+        path: RouteNames.completeProfile,
+        redirect: (_, state) => state.extra is CompleteProfileArgs ? null : RouteNames.login,
         pageBuilder: (context, state) => buildRepsiPageTransition(
           context: context,
           state: state,
-          child: const SetNewPasswordView(),
+          child: CompleteProfileView(args: state.extra! as CompleteProfileArgs),
         ),
       ),
       GoRoute(

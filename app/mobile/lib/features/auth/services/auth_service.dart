@@ -49,6 +49,34 @@ class AuthResponse {
   }
 }
 
+/// A WhatsApp code was sent. [phone] is the normalised E.164 number to verify against.
+class PhoneOtpChallenge {
+  final String phone;
+  final int expiresIn;
+  final int resendIn;
+  final bool testMode;
+
+  const PhoneOtpChallenge({required this.phone, required this.expiresIn, required this.resendIn, this.testMode = false});
+
+  factory PhoneOtpChallenge.fromJson(Map<String, dynamic> json) => PhoneOtpChallenge(
+        phone: json['phone']?.toString() ?? '',
+        expiresIn: (json['expires_in'] as num?)?.toInt() ?? 600,
+        resendIn: (json['resend_in'] as num?)?.toInt() ?? 30,
+        testMode: json['test_mode'] == true,
+      );
+}
+
+/// Result of checking a WhatsApp code: either a session for an existing account, or a short-lived
+/// registration token that proves the phone was verified, for finishing sign-up.
+class PhoneVerification {
+  final AuthResponse? session;
+  final String? registrationToken;
+
+  const PhoneVerification({this.session, this.registrationToken});
+
+  bool get needsRegistration => session == null;
+}
+
 class AuthService {
   final ApiClient _apiClient;
 
@@ -136,6 +164,63 @@ class AuthService {
     } on DioException catch (e) {
       throw ApiError.fromDioException(e);
     }
+  }
+
+  Future<PhoneOtpChallenge> requestPhoneOtp({required String phone, String country = 'IN'}) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.phoneOtpRequest,
+      data: {'phone': phone.trim(), 'country': country},
+    );
+    return PhoneOtpChallenge.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<PhoneVerification> verifyPhoneOtp({required String phone, required String code, String country = 'IN'}) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.phoneOtpVerify,
+      data: {'phone': phone, 'country': country, 'code': code},
+    );
+    final data = response.data as Map<String, dynamic>;
+    if (data['status'] == 'authenticated' && data['token'] is Map<String, dynamic>) {
+      return PhoneVerification(session: AuthResponse.fromJson(data['token'] as Map<String, dynamic>));
+    }
+    final token = data['registration_token']?.toString();
+    if (token == null || token.isEmpty) {
+      throw ApiError(message: 'Verification did not complete. Please request a new code.');
+    }
+    return PhoneVerification(registrationToken: token);
+  }
+
+  /// Creates the account for a phone verified with [verifyPhoneOtp].
+  Future<AuthResponse> signupWithVerifiedPhone({
+    required String registrationToken,
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.signup,
+      data: {
+        'registration_token': registrationToken,
+        'full_name': fullName.trim(),
+        'email': email.trim(),
+        'password': password,
+      },
+    );
+    return AuthResponse.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Uploads a profile photo (JPEG/PNG/WebP, already resized on the device) and returns the profile.
+  Future<UserModel> uploadAvatar(List<int> bytes, String filename) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.myAvatar,
+      data: FormData.fromMap({'file': MultipartFile.fromBytes(bytes, filename: filename)}),
+    );
+    return UserModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<UserModel> removeAvatar() async {
+    final response = await _apiClient.delete(ApiEndpoints.myAvatar);
+    return UserModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<UserModel> getMe() async {

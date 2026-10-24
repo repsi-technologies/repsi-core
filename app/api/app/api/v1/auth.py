@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import re
+
+from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.images import ImageUploadFailed, delete_image, read_local_image, upload_image, validate_image
 from app.core.phone import normalize_phone, require_phone
 from app.core.rate_limit import client_ip, enforce_rate_limit
 from app.middleware.tenant import TenantContext, get_current_tenant, get_current_user
@@ -252,6 +256,60 @@ def update_user_language(
     user.preferred_language = lang
     db.commit()
     return {"status": "success", "language": lang}
+
+
+# ─── Profile photo ───────────────────────────────────────────────────────
+
+def _avatar_url_prefix(user_id: str) -> str:
+    """Where photos kept on the storage backend are served from (Cloudinary URLs are stored as-is)."""
+    return f"/api/v1/auth/avatars/{user_id}"
+
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    request: Request,
+    file: UploadFile = File(...),
+    tenant: TenantContext = Depends(get_current_tenant),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Sets the signed-in user's profile photo (Cloudinary when configured)."""
+    _limit(request, "avatar", 20, 3600, user.id)
+    data = await file.read(settings.AVATAR_MAX_BYTES + 1)
+    mime = validate_image(data, settings.AVATAR_MAX_BYTES, "Profile photo")
+    previous = user.avatar_url
+    try:
+        user.avatar_url = upload_image(f"avatars/{user.id}", data, mime, _avatar_url_prefix(user.id))
+    except ImageUploadFailed:
+        raise HTTPException(status_code=502, detail="We couldn't upload your photo. Please try again.")
+    db.commit()
+    delete_image(previous, f"avatars/{user.id}", _avatar_url_prefix(user.id))
+    response, _, _ = AuthService(db).describe_user(user, tenant.workspace_id or None)
+    return response
+
+
+@router.delete("/me/avatar", response_model=UserResponse)
+def delete_avatar(
+    tenant: TenantContext = Depends(get_current_tenant),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    previous = user.avatar_url
+    user.avatar_url = None
+    db.commit()
+    delete_image(previous, f"avatars/{user.id}", _avatar_url_prefix(user.id))
+    response, _, _ = AuthService(db).describe_user(user, tenant.workspace_id or None)
+    return response
+
+
+@router.get("/avatars/{user_id}/{filename}", include_in_schema=False)
+def get_avatar(user_id: str, filename: str):
+    """Photos on the storage backend, under unguessable names (same model as gym logos)."""
+    found = read_local_image(f"avatars/{user_id}", filename) if re.fullmatch(r"[0-9a-zA-Z-]{1,64}", user_id) else None
+    if not found:
+        raise HTTPException(status_code=404, detail="Photo not found.")
+    data, mime = found
+    return Response(content=data, media_type=mime, headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
 
 @router.get("/me/identities", response_model=IdentitySummary)

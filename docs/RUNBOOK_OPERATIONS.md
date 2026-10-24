@@ -101,6 +101,7 @@ All of these are off by default. Without configuration every attempt is logged a
 | Provider | Settings | Extra package |
 |---|---|---|
 | S3-compatible storage | `STORAGE_BACKEND=s3`, `STORAGE_S3_BUCKET`, `STORAGE_S3_REGION`, `STORAGE_S3_ENDPOINT_URL` (R2/MinIO), `STORAGE_S3_ACCESS_KEY_ID`, `STORAGE_S3_SECRET_ACCESS_KEY` | `boto3` |
+| Image hosting (Cloudinary) | `CLOUDINARY_URL=cloudinary://<key>:<secret>@<cloud>` (or `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`), optional `CLOUDINARY_FOLDER` (default `repsi`). Only public images: gym logos and profile photos. Documents, receipts and payment QR stay in file storage | — (uses httpx) |
 | SMS | `SMS_PROVIDER=msg91` + `MSG91_AUTH_KEY`, `MSG91_SENDER_ID` (DLT template ids on `sms` message templates), or `SMS_PROVIDER=twilio` + `TWILIO_*` | — |
 | Push | `FCM_PROJECT_ID`, `FCM_SERVICE_ACCOUNT_FILE` (path to service-account JSON, outside git) | — (google-auth already installed) |
 | Error monitoring | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE` | `sentry-sdk` |

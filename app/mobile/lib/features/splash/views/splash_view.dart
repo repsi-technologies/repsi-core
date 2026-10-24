@@ -18,7 +18,7 @@ class SplashView extends ConsumerStatefulWidget {
 }
 
 class _SplashViewState extends ConsumerState<SplashView> with SingleTickerProviderStateMixin {
-  static const _backdrop = Color(0xFF111214);
+  static const _backdrop = AppColors.ink;
 
   late final AnimationController _controller;
   late final Animation<double> _fade;

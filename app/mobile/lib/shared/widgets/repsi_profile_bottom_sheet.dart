@@ -8,7 +8,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/views/sign_out_dialog.dart';
-import 'repsi_avatar.dart';
+import '../../features/auth/widgets/my_profile_photo.dart';
 
 class RepsiProfileBottomSheet extends ConsumerWidget {
   const RepsiProfileBottomSheet({super.key});
@@ -67,11 +67,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             // User info
             Row(
               children: [
-                RepsiAvatar(
-                  name: user?.fullName ?? 'Owner',
-                  imageUrl: user?.avatarUrl,
-                  size: 48,
-                ),
+                const MyProfilePhoto(size: 52),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -85,7 +81,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'Apex Fitness • Owner',
+                        [user?.gymName, _roleLabel(user?.role)].whereType<String>().join(' · '),
                         style: AppTypography.caption.copyWith(
                           color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                         ),
@@ -149,4 +145,11 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
       ),
     );
   }
+}
+
+String? _roleLabel(String? role) {
+  final r = role?.trim();
+  if (r == null || r.isEmpty) return null;
+  final words = r.toLowerCase().split('_');
+  return words.map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
 }

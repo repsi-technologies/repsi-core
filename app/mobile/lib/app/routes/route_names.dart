@@ -6,7 +6,7 @@ class RouteNames {
   static const String verifyEmail = '/auth/verify-email';
   static const String forgotPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
-  static const String setNewPassword = '/auth/set-new-password';
+  static const String completeProfile = '/auth/complete-profile';
   static const String selectRole = '/auth/select-role';
   static const String selectWorkspace = '/auth/select-workspace';
 

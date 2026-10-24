@@ -6,15 +6,21 @@ import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/animations/repsi_stagger.dart';
+import '../../../core/api/api_error.dart';
 import '../../../shared/widgets/google_logo_icon.dart';
+import '../../../shared/widgets/repsi_bottom_sheet.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_error_banner.dart';
-import '../../../shared/widgets/repsi_screen_background.dart';
-import '../../../shared/widgets/repsi_white_logo.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
+import '../../../shared/widgets/repsi_white_logo.dart';
+import '../../../shared/widgets/whatsapp_mark.dart';
+import '../post_sign_in.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/auth_layout.dart';
+import 'verify_otp_view.dart';
 
+/// Sign-in entry. Mobile number + WhatsApp code is the default; email/password and Google stay
+/// available for accounts that use them.
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
 
@@ -23,206 +29,70 @@ class LoginView extends ConsumerStatefulWidget {
 }
 
 class _LoginViewState extends ConsumerState<LoginView> {
-  final _formKey = GlobalKey<FormState>();
+  final _phoneFormKey = GlobalKey<FormState>();
+  final _emailFormKey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
-  static const _ink = Color(0xFF111214);
+
+  bool _emailMode = false;
+  bool _sendingCode = false;
+  String? _phoneError;
   bool _lastMethodWasGoogle = false;
+
+  static final _indianMobile = RegExp(r'^[6-9]\d{9}$');
 
   @override
   void dispose() {
+    _phoneController.dispose();
     _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _showWebsiteRegisterModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primarySoft,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.language_rounded, color: AppColors.primaryDark, size: 28),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Register on repsi.app',
-                    style: AppTypography.headingSmall.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.text,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Owner accounts and gym workspaces must be created on our website. The mobile app is strictly for authenticating and managing existing Owner workspaces.',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  RepsiButton(
-                    text: 'Go to repsi.app',
-                    isFullWidth: true,
-                    leadingIcon: const Icon(Icons.open_in_new_rounded, size: 18, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Clipboard.setData(const ClipboardData(text: 'https://repsi.app'));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Website link copied: https://repsi.app'),
-                          backgroundColor: AppColors.primaryDark,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: Text(
-                      'Cancel',
-                      style: AppTypography.caption.copyWith(
-                        color: AppColors.textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // ─── WhatsApp code ──────────────────────────────────────────────────────
 
-  void _showAccountNotFoundDialog({required String title, required String message}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Colors.white,
-        title: Row(
-          children: [
-            const Icon(Icons.account_circle_outlined, color: AppColors.error, size: 26),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTypography.headingSmall.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Try again'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              _showWebsiteRegisterModal();
-            },
-            child: const Text('Go to repsi.app'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _routePostLogin() {
-    final authState = ref.read(authProvider);
-    final user = authState.user;
-    final role = user?.role.toUpperCase();
-
-    if (role == 'TRAINER' || role == 'USER' || role == 'MEMBER' || role == 'ADMIN' || role == 'SUPER_ADMIN') {
-      context.go(RouteNames.roleDashboard(user?.role));
-      return;
+  Future<void> _sendCode() async {
+    if (_sendingCode || !_phoneFormKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    HapticFeedback.lightImpact();
+    final number = _phoneController.text.trim();
+    setState(() {
+      _sendingCode = true;
+      _phoneError = null;
+    });
+    try {
+      final challenge = await ref.read(authServiceProvider).requestPhoneOtp(phone: number);
+      if (!mounted) return;
+      context.push(RouteNames.verifyOtp, extra: VerifyOtpArgs(challenge: challenge, nationalNumber: number));
+    } on ApiError catch (e) {
+      if (mounted) setState(() => _phoneError = e.message);
+    } catch (_) {
+      if (mounted) setState(() => _phoneError = "We couldn't send the code. Please try again.");
+    } finally {
+      if (mounted) setState(() => _sendingCode = false);
     }
-
-    // Owner accounts proceed directly to their workspace dashboard
-    if (authState.activeWorkspaceId != null && authState.activeWorkspaceId!.isNotEmpty) {
-      context.go(RouteNames.dashboard);
-      return;
-    }
-
-    context.go(RouteNames.selectWorkspace);
   }
+
+  // ─── Email and Google ───────────────────────────────────────────────────
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_emailFormKey.currentState!.validate()) return;
     _lastMethodWasGoogle = false;
     FocusScope.of(context).unfocus();
     HapticFeedback.lightImpact();
-
-    final identifier = _identifierController.text.trim();
-    final pass = _passwordController.text;
-
     final success = await ref.read(authProvider.notifier).login(
-          email: identifier,
-          password: pass,
+          email: _identifierController.text.trim(),
+          password: _passwordController.text,
         );
-
-    if (mounted) {
-      if (success) {
-        _routePostLogin();
-      } else {
-        final errorMsg = ref.read(authProvider).errorMessage ?? 'Failed to sign in. Please check your credentials.';
-        if (errorMsg.toLowerCase().contains('not found') || errorMsg.toLowerCase().contains('no owner account')) {
-          _showAccountNotFoundDialog(
-            title: 'Account not found',
-            message: "We couldn't find a Repsi owner account with those details.\n\nPlease check your email/mobile number or register from the Repsi website.",
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMsg),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      }
+    if (!mounted) return;
+    if (success) {
+      goAfterSignIn(context, ref.read(authProvider));
+    } else {
+      _explainFailure(
+        ref.read(authProvider).errorMessage ?? 'Failed to sign in. Please check your credentials.',
+        "We couldn't find a REPSI account with those details. Check your email or mobile number, or sign in with a WhatsApp code.",
+      );
     }
   }
 
@@ -231,259 +101,283 @@ class _LoginViewState extends ConsumerState<LoginView> {
     FocusScope.of(context).unfocus();
     HapticFeedback.lightImpact();
     final success = await ref.read(authProvider.notifier).loginWithGoogle();
-    if (mounted) {
-      if (success) {
-        _routePostLogin();
-      } else {
-        final errorMsg = ref.read(authProvider).errorMessage ?? 'Google Sign-In was not completed.';
-        if (errorMsg.contains('Account not found') || errorMsg.contains('register')) {
-          _showAccountNotFoundDialog(
-            title: 'Account not found',
-            message: "We couldn't find a Repsi owner account linked to this Google account.\n\nPlease register your Repsi account from the website first.",
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMsg),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      }
+    if (!mounted) return;
+    if (success) {
+      goAfterSignIn(context, ref.read(authProvider));
+    } else {
+      final message = ref.read(authProvider).errorMessage;
+      if (message == null) return; // cancelled by the user
+      _explainFailure(
+        message,
+        "We couldn't find a REPSI account linked to this Google account. Sign in with your mobile number instead.",
+      );
     }
   }
 
+  void _explainFailure(String message, String notFoundMessage) {
+    final lower = message.toLowerCase();
+    if (lower.contains('not found') || lower.contains('no owner account') || lower.contains('register')) {
+      _showAccountNotFound(notFoundMessage);
+    }
+    // Other errors are shown in the banner above the form.
+  }
+
+  void _showAccountNotFound(String message) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Account not found'),
+        content: Text(message),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Try again')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _emailMode = false);
+            },
+            child: const Text('Use mobile number'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOwnerSignup() {
+    RepsiBottomSheet.show<void>(
+      context: context,
+      title: 'Set up a new gym',
+      child: Builder(
+        builder: (ctx) {
+          final isDark = Theme.of(ctx).brightness == Brightness.dark;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Gym businesses are created on the REPSI website, where you choose a plan and set up your branches. '
+                'Once it is ready, sign in here with the same mobile number.',
+                style: AppTypography.bodySecondary.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+              ),
+              const SizedBox(height: AppSpacing.xxl),
+              RepsiButton(
+                text: 'Copy repsi.app link',
+                isFullWidth: true,
+                leadingIcon: const Icon(Icons.link_rounded, size: 18, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Clipboard.setData(const ClipboardData(text: 'https://repsi.app'));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied: https://repsi.app')));
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ─── Layout ─────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final authState = ref.watch(authProvider);
-    final isLoading = authState.status == AuthStatus.loading;
+    final signingIn = authState.status == AuthStatus.loading;
     // Also shown after an expired session, where the status is `unauthenticated` with a message.
-    final isError = authState.errorMessage != null &&
-        (authState.status == AuthStatus.error || authState.status == AuthStatus.unauthenticated);
+    final authError = authState.errorMessage != null &&
+            (authState.status == AuthStatus.error || authState.status == AuthStatus.unauthenticated)
+        ? authState.errorMessage
+        : null;
+    final textColor = isDark ? AppColors.darkText : AppColors.text;
+    final secondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: RepsiScreenBackground(
-          imagePath: 'assets/images/main_splash1.png',
-          imageOpacity: 0.05,
-          child: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pageHorizontalPadding,
-                  vertical: 24,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Brand header
-                      RepsiStaggerItem(
-                        index: 0,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
-                          decoration: BoxDecoration(
-                            color: _ink,
-                            borderRadius: BorderRadius.circular(28),
-                            gradient: RadialGradient(
-                              center: const Alignment(0.9, -1.1),
-                              radius: 1.3,
-                              colors: [Color.alphaBlend(AppColors.primary.withValues(alpha: 0.4), _ink), _ink],
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              const RepsiWhiteLogo(height: 54),
-                              const SizedBox(height: 22),
-                              Text(
-                                'Welcome back',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.heading.copyWith(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Sign in to check in, track your activity and manage your membership.',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.body.copyWith(
-                                  fontSize: 14,
-                                  height: 1.4,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      if (isError) ...[
-                        RepsiErrorBanner(
-                          title: 'Notice',
-                          message: authState.errorMessage!,
-                          onRetry: isLoading || _lastMethodWasGoogle ? null : _handleLogin,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-
-                      // Stagger 2: Email or Mobile Field
-                      RepsiStaggerItem(
-                        index: 2,
-                        child: RepsiTextField(
-                          label: 'Email or mobile number',
-                          hintText: 'name@example.com or phone',
-                          controller: _identifierController,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Email or mobile number is required';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Stagger 3: Password Field + Forgot Password
-                      RepsiStaggerItem(
-                        index: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            RepsiTextField(
-                              label: 'Password',
-                              hintText: '••••••••',
-                              controller: _passwordController,
-                              isPassword: true,
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) => _handleLogin(),
-                              prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
-                              validator: (val) {
-                                if (val == null || val.isEmpty) {
-                                  return 'Password is required';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap: () => context.push(RouteNames.forgotPassword),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Text(
-                                    'Forgot password?',
-                                    style: AppTypography.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Stagger 4: Sign in → Button
-                      RepsiStaggerItem(
-                        index: 4,
-                        child: RepsiButton(
-                          text: 'Sign in →',
-                          isLoading: isLoading,
-                          onPressed: isLoading ? null : _handleLogin,
-                          isFullWidth: true,
-                          size: RepsiButtonSize.large,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Stagger 5: Divider "or continue with"
-                      RepsiStaggerItem(
-                        index: 5,
-                        child: Row(
-                          children: [
-                            const Expanded(child: Divider(color: AppColors.border)),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'or continue with',
-                                style: AppTypography.caption.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            const Expanded(child: Divider(color: AppColors.border)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Stagger 6: Continue with Google
-                      RepsiStaggerItem(
-                        index: 6,
-                        child: RepsiButton(
-                          text: 'Continue with Google',
-                          variant: RepsiButtonVariant.outline,
-                          isFullWidth: true,
-                          size: RepsiButtonSize.large,
-                          leadingIcon: const GoogleLogoIcon(size: 18),
-                          onPressed: isLoading ? null : _handleGoogleLogin,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Stagger 7: Don't have an account? Register on repsi.app
-                      RepsiStaggerItem(
-                        index: 7,
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an account? ",
-                              style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: _showWebsiteRegisterModal,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Text(
-                                  'Register on repsi.app',
-                                  style: AppTypography.bodySmall.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+    return AuthLayout(
+      showBack: false,
+      leading: RepsiWhiteLogo(height: 44, color: textColor),
+      footer: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('Setting up a new gym? ', style: AppTypography.bodySmall.copyWith(color: secondary)),
+          InkWell(
+            onTap: _showOwnerSignup,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+              child: Text(
+                'Start on repsi.app',
+                style: AppTypography.bodySmall.copyWith(
+                  color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: AuthHeading(
+              key: ValueKey(_emailMode),
+              title: _emailMode ? 'Welcome back' : "Let's get started",
+              subtitle: Text(
+                _emailMode
+                    ? 'Sign in with the email or mobile number and password on your account.'
+                    : "Enter your mobile number and we'll send a verification code on WhatsApp.",
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xxxl),
+          if (authError != null) ...[
+            RepsiErrorBanner(
+              icon: Icons.info_outline_rounded,
+              message: authError,
+              onRetry: _emailMode && !signingIn && !_lastMethodWasGoogle ? _handleLogin : null,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: _emailMode ? _emailForm(signingIn, secondary) : _phoneForm(),
+          ),
+          const SizedBox(height: AppSpacing.xxl),
+          _OrDivider(color: secondary),
+          const SizedBox(height: AppSpacing.xxl),
+          RepsiButton(
+            text: 'Continue with Google',
+            variant: RepsiButtonVariant.outline,
+            isFullWidth: true,
+            leadingIcon: const GoogleLogoIcon(size: 18),
+            onPressed: signingIn || _sendingCode ? null : _handleGoogleLogin,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextButton(
+            onPressed: signingIn || _sendingCode ? null : () => setState(() => _emailMode = !_emailMode),
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: textColor),
+            child: Text(
+              _emailMode ? 'Use mobile number instead' : 'Sign in with email and password',
+              style: AppTypography.button.copyWith(color: textColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _phoneForm() {
+    return Form(
+      key: _phoneFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          RepsiTextField(
+            label: 'Mobile number',
+            hintText: '98765 43210',
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.send,
+            autofillHints: const [AutofillHints.telephoneNumberNational],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+            prefixIcon: const IndiaDialCode(),
+            onSubmitted: (_) => _sendCode(),
+            onChanged: (_) {
+              if (_phoneError != null) setState(() => _phoneError = null);
+            },
+            validator: (value) {
+              final v = value?.trim() ?? '';
+              if (v.isEmpty) return 'Enter your mobile number';
+              if (!_indianMobile.hasMatch(v)) return 'Enter a valid 10-digit mobile number';
+              return null;
+            },
+          ),
+          if (_phoneError != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(_phoneError!, style: AppTypography.caption.copyWith(color: AppColors.error)),
+          ],
+          const SizedBox(height: AppSpacing.xl),
+          RepsiButton(
+            text: 'Send code on WhatsApp',
+            isFullWidth: true,
+            isLoading: _sendingCode,
+            leadingIcon: const WhatsAppMark(size: 20),
+            onPressed: _sendingCode ? null : _sendCode,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emailForm(bool signingIn, Color secondary) {
+    return Form(
+      key: _emailFormKey,
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            RepsiTextField(
+              label: 'Email or mobile number',
+              hintText: 'name@example.com',
+              controller: _identifierController,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.username, AutofillHints.email],
+              prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
+              validator: (val) => val == null || val.trim().isEmpty ? 'Email or mobile number is required' : null,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            RepsiTextField(
+              label: 'Password',
+              controller: _passwordController,
+              isPassword: true,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.password],
+              onSubmitted: (_) => _handleLogin(),
+              prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+              validator: (val) => val == null || val.isEmpty ? 'Password is required' : null,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => context.push(RouteNames.forgotPassword),
+                style: TextButton.styleFrom(foregroundColor: secondary, minimumSize: const Size(44, 44)),
+                child: Text('Forgot password?', style: AppTypography.caption.copyWith(color: secondary, fontWeight: FontWeight.w600)),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            RepsiButton(
+              text: 'Sign in',
+              isLoading: signingIn && !_lastMethodWasGoogle,
+              onPressed: signingIn ? null : _handleLogin,
+              isFullWidth: true,
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  final Color color;
+
+  const _OrDivider({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Text('or', style: AppTypography.caption.copyWith(color: color)),
+        ),
+        const Expanded(child: Divider()),
+      ],
     );
   }
 }
