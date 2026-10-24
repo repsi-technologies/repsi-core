@@ -197,45 +197,24 @@ jobs:
         run: |
           mkdir -p final-release
           find all-assets -type f -exec cp {} final-release/ \;
-          echo "Final release binaries (clean list):"
+          echo "Final release binaries (clean consumer list):"
           ls -la final-release/
 
-      - name: Purge old assets from release
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const tag = '${{ github.event.inputs.tag_name || github.ref_name }}';
-            try {
-              const release = await github.rest.repos.getReleaseByTag({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag: tag
-              });
-              if (release && release.data && release.data.assets && release.data.assets.length > 0) {
-                console.log(`Found ${release.data.assets.length} existing assets. Cleaning up old build scripts and duplicates...`);
-                for (const asset of release.data.assets) {
-                  console.log(`Deleting old asset: ${asset.name} (id: ${asset.id})`);
-                  try {
-                    await github.rest.repos.deleteReleaseAsset({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      asset_id: asset.id
-                    });
-                  } catch (e) {
-                    console.log(`Could not delete asset ${asset.name}:`, e.message);
-                  }
-                }
-              }
-            } catch (err) {
-              console.log('No prior release to clean:', err.message);
-            }
-
-      - name: Create or Update GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
-          name: Repsi ${{ github.event.inputs.tag_name || github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          files: final-release/*
+      - name: Publish files to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.inputs.tag_name || github.ref_name }}"
+          echo "Publishing all binaries to release $TAG..."
+          
+          # Upload all binaries directly to the release
+          gh release upload "$TAG" final-release/* --clobber || {
+            echo "Release $TAG not found. Creating it..."
+            gh release create "$TAG" final-release/* --title "Repsi $TAG" --generate-notes
+          }
+          
+          # Ensure release is marked as public (not draft, not pre-release)
+          gh release edit "$TAG" --draft=false --prerelease=false --title "Repsi $TAG" || true
+          
+          echo "Successfully published release $TAG:"
+          gh release view "$TAG"
