@@ -32,6 +32,8 @@ class MessageTemplate(Base, TimestampMixin, TenantMixin):
     body = Column(Text, nullable=False)  # placeholders: {{first_name}}, {{gym_name}}
     # Approved WhatsApp template / AiSensy API campaign name. WhatsApp sends require it.
     provider_template_name = Column(String(150), nullable=True)
+    # One template per language; sends pick the recipient's language, then the gym default, then English.
+    language = Column(String(10), nullable=False, default="en")
     is_active = Column(Boolean, nullable=False, default=True)
     created_by = Column(String(64), nullable=True)
 
@@ -96,6 +98,7 @@ class NotificationDelivery(Base, TimestampMixin, TenantMixin):
     body = Column(Text, nullable=True)
     provider_template_name = Column(String(150), nullable=True)
     template_params = Column(JSON, nullable=True)
+    language = Column(String(10), nullable=True)
 
 
 class DeviceToken(Base, TimestampMixin, TenantMixin):

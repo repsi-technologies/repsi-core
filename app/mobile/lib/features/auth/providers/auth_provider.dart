@@ -107,6 +107,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Called if initial session check takes too long or user proceeds past splash.
+  void forceResolveSession() {
+    if (state.status == AuthStatus.initial) {
+      state = state.copyWith(status: AuthStatus.unauthenticated, clearError: true);
+    }
+  }
+
   Future<void> _refreshUserProfile() async {
     try {
       final me = await _authService.getMe();

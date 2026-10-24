@@ -9,6 +9,8 @@ from typing import Literal, Optional
 import phonenumbers
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
+from app.core.i18n import normalize_language
+
 DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 _SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,58}[a-z0-9])$")
@@ -144,6 +146,8 @@ class PreferencesIn(BaseModel):
     timezone: str
     currency: str = Field(min_length=3, max_length=3)
     locale: str = Field(default="en-IN", max_length=16)
+    # Omitted -> unchanged. Members without their own preference see and receive this language.
+    default_language: Optional[str] = Field(default=None, max_length=10)
     opening_hours: OpeningHours
     closed_dates: list[ClosedDate] = Field(default_factory=list, max_length=100)
 
@@ -168,6 +172,16 @@ class PreferencesIn(BaseModel):
         if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?$", v.strip()):
             raise ValueError("Select a valid language/region.")
         return v.strip()
+
+    @field_validator("default_language")
+    @classmethod
+    def _lang(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        lang = normalize_language(v)
+        if not lang:
+            raise ValueError("Select a supported language.")
+        return lang
 
     @field_validator("closed_dates")
     @classmethod
@@ -200,6 +214,7 @@ class OrganizationProfileOut(BaseModel):
     timezone: Optional[str] = None
     currency: Optional[str] = None
     locale: Optional[str] = None
+    default_language: str = "en"
     opening_hours: Optional[dict] = None
     closed_dates: list[dict] = []
     onboarding_completed: bool = False

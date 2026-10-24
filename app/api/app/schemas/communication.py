@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.core.i18n import normalize_language
 
 Channel = Literal["in_app", "email", "whatsapp"]
 Segment = Literal[
@@ -90,6 +92,15 @@ class TemplateCreate(BaseModel):
     subject: Optional[str] = Field(None, max_length=255)
     body: str = Field(min_length=2, max_length=4000)
     provider_template_name: Optional[str] = Field(None, max_length=150, pattern=r"^[A-Za-z0-9_\-\s]+$")
+    language: str = Field("en", max_length=10)
+
+    @field_validator("language")
+    @classmethod
+    def _language(cls, v: str) -> str:
+        lang = normalize_language(v)
+        if not lang:
+            raise ValueError("Unsupported language.")
+        return lang
 
 
 class TemplateUpdate(BaseModel):
@@ -98,6 +109,17 @@ class TemplateUpdate(BaseModel):
     body: Optional[str] = Field(None, min_length=2, max_length=4000)
     provider_template_name: Optional[str] = Field(None, max_length=150, pattern=r"^[A-Za-z0-9_\-\s]+$")
     is_active: Optional[bool] = None
+    language: Optional[str] = Field(None, max_length=10)
+
+    @field_validator("language")
+    @classmethod
+    def _language(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        lang = normalize_language(v)
+        if not lang:
+            raise ValueError("Unsupported language.")
+        return lang
 
 
 class TemplateResponse(BaseModel):
@@ -110,6 +132,7 @@ class TemplateResponse(BaseModel):
     subject: Optional[str] = None
     body: str
     provider_template_name: Optional[str] = None
+    language: str = "en"
     is_active: bool
     created_at: datetime
 

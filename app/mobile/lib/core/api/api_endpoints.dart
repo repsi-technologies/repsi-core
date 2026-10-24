@@ -5,6 +5,7 @@ class ApiEndpoints {
   static const String register = '/auth/register';
   static const String registerMember = '/auth/register/member';
   static const String me = '/auth/me';
+  static const String myLanguage = '/auth/me/language';
   static const String forgotPassword = '/auth/forgot-password';
   static const String logout = '/auth/logout';
   static const String changePassword = '/auth/me/password';

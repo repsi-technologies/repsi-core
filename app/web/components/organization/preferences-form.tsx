@@ -15,6 +15,7 @@ import {
 } from "@/lib/auth-client";
 import { CURRENCIES, REGION_DEFAULTS, listTimezones } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
 
 const LOCALES = [
   { value: "en-IN", label: "English (India)" },
@@ -180,6 +181,12 @@ export function PreferencesForm({ profile, submitLabel, disabled, onSubmit }: Pr
             {LOCALES.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
           </SelectInput>
         </FormField>
+        <FormField id="pref-language" label="Default member language" hint="Used for members who haven't picked a language, including their WhatsApp and email messages.">
+          <SelectInput id="pref-language" value={form.default_language || "en"} disabled={disabled}
+            onChange={(e) => { setForm((f) => ({ ...f, default_language: e.target.value })); setSaved(false); }}>
+            {SUPPORTED_LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.nativeName} · {l.label}</option>)}
+          </SelectInput>
+        </FormField>
       </div>
 
       <div className="space-y-2">
@@ -244,6 +251,7 @@ function fromProfile(p?: OrganizationProfile | null): PreferencesInput {
     timezone: p?.timezone || region.timezone,
     currency: p?.currency || region.currency,
     locale: p?.locale || region.locale,
+    default_language: p?.default_language || "en",
     opening_hours: p?.opening_hours || defaultHours(),
     closed_dates: p?.closed_dates || [],
   };

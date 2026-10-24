@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { LanguageProvider } from "@/lib/i18n";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
 import { DynamicPageTitle } from "@/components/layout/dynamic-page-title";
 
 export const viewport: Viewport = {
@@ -67,6 +68,31 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+        />
+        {/*
+          Indic script fallbacks. Google Fonts serves these with unicode-range, so a browser only
+          downloads a script's font files when text in that script is on the page.
+        */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap"
+        />
+        {/* Sets <html lang/dir> from the saved language before hydration (see lib/i18n). */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var lang = localStorage.getItem('repsi_preferred_locale');
+                  if (lang && ${JSON.stringify(SUPPORTED_LANGUAGES.map((l) => l.code))}.indexOf(lang) !== -1) {
+                    document.documentElement.lang = lang;
+                    document.documentElement.dir = ${JSON.stringify(SUPPORTED_LANGUAGES.filter((l) => l.dir === "rtl").map((l) => l.code))}.indexOf(lang) !== -1 ? 'rtl' : 'ltr';
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
         />
         {/*
           Inline script to prevent flash of incorrect theme.

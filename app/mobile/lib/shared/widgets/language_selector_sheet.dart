@@ -79,15 +79,7 @@ class LanguageSelectorSheet extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      lang == AppLanguage.en
-                          ? 'EN'
-                          : lang == AppLanguage.ta
-                              ? 'த'
-                              : lang == AppLanguage.ml
-                                  ? 'മ'
-                                  : lang == AppLanguage.kn
-                                      ? 'ಕ'
-                                      : 'తె',
+                      lang.badge,
                       style: TextStyle(
                         color: isSelected ? Colors.white : AppColors.primaryDark,
                         fontWeight: FontWeight.w700,

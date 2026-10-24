@@ -30,6 +30,7 @@ import { logoutSession, getAuthUser } from "@/lib/auth";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ function ThemeToggle() {
 
 function UserMenu({ workspace }: { workspace?: string }) {
   const [loggingOut, setLoggingOut] = useState(false);
+  const { t } = useTranslation();
   const [user, setUser] = useState<{ name: string; email: string; role?: string } | null>(null);
 
   useEffect(() => {
@@ -135,17 +137,17 @@ function UserMenu({ workspace }: { workspace?: string }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link href={`/${currentWorkspace}/settings`} className="w-full">
-            Account
+            {t("user.account", "Account")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link href={`/${currentWorkspace}/settings`} className="w-full">
-            Settings
+            {t("nav.settings", "Settings")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link href="/help" className="w-full">
-            Help Center
+            {t("user.help", "Help Center")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -154,7 +156,7 @@ function UserMenu({ workspace }: { workspace?: string }) {
           disabled={loggingOut}
           className="text-rose-500 hover:text-rose-600 focus:text-rose-500 focus:bg-rose-500/10 cursor-pointer flex items-center justify-between"
         >
-          <span>{loggingOut ? "Signing out..." : "Sign out"}</span>
+          <span>{loggingOut ? t("user.signingOut", "Signing out...") : t("user.signOut", "Sign out")}</span>
           <span className="text-xs font-mono opacity-60">⌘Q</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -175,6 +177,7 @@ interface TopbarProps {
 export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
   const params = useParams();
   const workspace = params?.workspace as string | undefined;
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [showGettingStarted, setShowGettingStarted] = useState(false);
 
@@ -243,7 +246,7 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
           variant="ghost"
           size="icon"
           className="md:hidden"
-          aria-label="Search"
+          aria-label={t("common.search", "Search")}
         >
           <Search className="h-4 w-4" />
         </Button>

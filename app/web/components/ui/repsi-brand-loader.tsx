@@ -3,6 +3,7 @@
 import React from "react";
 import { RepsiRLogo } from "@/components/ui/repsi-r-logo";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export interface RepsiBrandLoaderProps {
   /** Optional status text (hidden by default when showText is false) */
@@ -46,6 +47,7 @@ export function RepsiBrandLoader({
   className = "",
 }: RepsiBrandLoaderProps) {
   const isDark = variant === "dark";
+  const { t } = useTranslation();
 
   const containerBg = isDark ? "bg-[#17191C] text-[#FAF9F6]" : "bg-[#FAF9F6] text-[#191919]";
 
@@ -65,7 +67,7 @@ export function RepsiBrandLoader({
       className={`${containerBase} ${exitStyle} ${className}`}
       role="status"
       aria-live="polite"
-      aria-label={error ? `Initialization error: ${error}` : "Loading REPSI"}
+      aria-label={error ? `Initialization error: ${error}` : t("common.loadingApp", "Loading REPSI")}
     >
       <div className="flex flex-col items-center justify-center max-w-sm w-full mx-auto text-center px-4">
         {/* ───────────────────────────────────────────────────────────── */}

@@ -47,8 +47,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           location.startsWith('/auth') || location == RouteNames.onboarding;
 
       // Only the initial session restore parks users on the splash; a sign-in attempt
-      // (`loading`) must leave the login form on screen.
+      // (`loading`) must leave the login form on screen. If user proceeds to onboarding/login, allow it.
       if (auth.status == AuthStatus.initial) {
+        if (isAuthRoute) return null;
         return location == RouteNames.splash ? null : RouteNames.splash;
       }
 

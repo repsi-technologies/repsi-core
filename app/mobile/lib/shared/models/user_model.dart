@@ -62,6 +62,7 @@ class UserModel {
 
   final String? avatarUrl;
   final String? gymName;
+  final String? preferredLanguage;
 
   UserModel({
     required this.id,
@@ -74,6 +75,7 @@ class UserModel {
     required this.isActive,
     this.role = 'OWNER',
     this.workspaceId,
+    this.preferredLanguage,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class UserModel {
       isActive: json['is_active'] != false,
       role: json['role']?.toString() ?? 'OWNER',
       workspaceId: json['workspace_id']?.toString(),
+      preferredLanguage: json['preferred_language']?.toString(),
     );
   }
 
@@ -103,6 +106,7 @@ class UserModel {
       'is_active': isActive,
       'role': role,
       'workspace_id': workspaceId,
+      'preferred_language': preferredLanguage,
     };
   }
 
@@ -129,6 +133,7 @@ class UserModel {
       isActive: isActive ?? this.isActive,
       role: role ?? this.role,
       workspaceId: workspaceId ?? this.workspaceId,
+      preferredLanguage: preferredLanguage,
     );
   }
 }

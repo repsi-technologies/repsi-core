@@ -29,7 +29,11 @@ class SecureStorageService {
   }
 
   Future<String?> getToken() async {
-    return await _secureStorage.read(key: _tokenKey);
+    try {
+      return await _secureStorage.read(key: _tokenKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> saveRefreshToken(String token) =>

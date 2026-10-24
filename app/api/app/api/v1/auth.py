@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.i18n import SUPPORTED_LANGUAGES, normalize_language
 from app.core.images import ImageUploadFailed, delete_image, read_local_image, upload_image, validate_image
 from app.core.phone import normalize_phone, require_phone
 from app.core.rate_limit import client_ip, enforce_rate_limit
@@ -46,7 +47,14 @@ from app.services.otp import PURPOSE_AUTH, PURPOSE_LINK, EmailOtpService, PhoneO
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-VALID_LANGUAGES = ["en", "ta", "ml", "kn", "te"]
+VALID_LANGUAGES = SUPPORTED_LANGUAGES
+
+
+def _validated_language(value: str) -> str:
+    lang = normalize_language(value)
+    if not lang:
+        raise HTTPException(status_code=422, detail=f"Unsupported language. Choose one of: {', '.join(SUPPORTED_LANGUAGES)}.")
+    return lang
 
 
 def _limit(request: Request, name: str, limit: int, window: int, extra: str = "") -> None:
@@ -233,8 +241,7 @@ def update_profile(
     if req.full_name is not None:
         user.full_name = " ".join(req.full_name.split())
     if req.preferred_language is not None:
-        lang = req.preferred_language.lower().strip()
-        user.preferred_language = lang if lang in VALID_LANGUAGES else "en"
+        user.preferred_language = _validated_language(req.preferred_language)
     db.commit()
     response, _, _ = AuthService(db).describe_user(user, tenant.workspace_id or None)
     return response
@@ -250,9 +257,7 @@ def update_user_language(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    lang = req.language.lower().strip()
-    if lang not in VALID_LANGUAGES:
-        lang = "en"
+    lang = _validated_language(req.language)
     user.preferred_language = lang
     db.commit()
     return {"status": "success", "language": lang}

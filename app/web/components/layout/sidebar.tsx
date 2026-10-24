@@ -43,6 +43,7 @@ import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
 import { getAuthUser, AuthUser } from "@/lib/auth";
 import { apiUrl, orgApi } from "@/lib/auth-client";
 import { useEffect } from "react";
+import { navLabelKey, useTranslation } from "@/lib/i18n";
 
 // ─── Navigation Structure ─────────────────────────────────────────────────────
 
@@ -352,6 +353,8 @@ function NavLink({
   href: string;
 }) {
   const Icon = item.icon;
+  const { t } = useTranslation();
+  const label = t(navLabelKey(item.label), item.label);
 
   const linkContent = (
     <Link
@@ -376,7 +379,7 @@ function NavLink({
             : "text-[var(--text-muted)]"
         )}
       />
-      {!collapsed && <span>{item.label}</span>}
+      {!collapsed && <span>{label}</span>}
     </Link>
   );
 
@@ -384,7 +387,7 @@ function NavLink({
     return (
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-        <TooltipContent side="right">{item.label}</TooltipContent>
+        <TooltipContent side="right">{label}</TooltipContent>
       </Tooltip>
     );
   }
@@ -404,6 +407,7 @@ export function navGroupsForRole(role: string | null | undefined): NavGroupDef[]
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -462,7 +466,7 @@ export function Sidebar() {
               {!collapsed && (
                 <div className="px-3 mb-1">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
-                    {group.title}
+                    {t(navLabelKey(group.title), group.title)}
                   </span>
                 </div>
               )}

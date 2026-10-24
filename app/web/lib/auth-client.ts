@@ -6,6 +6,7 @@
 import { getAuthCookie, loginSession, type AuthUser } from "@/lib/auth";
 
 import { API_BASE } from "@/lib/api-base";
+import { applyAccountLanguage } from "@/lib/i18n/persist";
 
 export class ApiError extends Error {
   status: number;
@@ -96,6 +97,7 @@ export interface SessionUser {
   phone_verified: boolean;
   onboarding_required: boolean;
   is_superadmin: boolean;
+  preferred_language?: string | null;
 }
 
 export interface SessionToken {
@@ -173,6 +175,7 @@ export interface OrganizationProfile {
   timezone?: string | null;
   currency?: string | null;
   locale?: string | null;
+  default_language?: string | null;
   opening_hours?: OpeningHours | null;
   closed_dates: { date: string; label: string }[];
   onboarding_completed: boolean;
@@ -270,6 +273,7 @@ export function applySession(token: SessionToken): string {
     onboardingRequired: Boolean(token.onboarding_required),
   };
   loginSession(token.access_token, authUser, slug, token.refresh_token);
+  applyAccountLanguage(u?.preferred_language);
   return token.next_path || (slug ? `/${slug}/dashboard` : "/onboarding");
 }
 
@@ -354,6 +358,8 @@ export interface PreferencesInput {
   timezone: string;
   currency: string;
   locale: string;
+  /** Language for members without their own preference, and for their WhatsApp/email messages. */
+  default_language?: string;
   opening_hours: OpeningHours;
   closed_dates: { date: string; label: string }[];
 }

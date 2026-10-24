@@ -6,11 +6,15 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { navLabelKey, useTranslation } from "@/lib/i18n";
+import { LanguageSelector } from "@/components/language-selector";
 
 export function MarketingNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useTranslation();
+  const tr = (label: string) => t(navLabelKey(label), label);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -139,18 +143,18 @@ export function MarketingNav() {
             {navItems.map((item) => {
               return item.href ? (
                 <Link
-                  key={item.title}
+                  key={tr(item.title)}
                   href={item.href}
                   className={`text-sm font-semibold transition-colors py-2 px-1 ${defaultLinkClass}`}
                 >
-                  {item.title}
+                  {tr(item.title)}
                 </Link>
               ) : (
-                <div key={item.title} className="relative group">
+                <div key={tr(item.title)} className="relative group">
                   <button
                     className={`flex items-center gap-1 text-sm font-semibold transition-colors py-2 cursor-pointer ${defaultLinkClass}`}
                   >
-                    <span>{item.title}</span>
+                    <span>{tr(item.title)}</span>
                     <ChevronDown className="w-3.5 h-3.5 transition-all duration-200 group-hover:translate-y-0.5 opacity-60 group-hover:opacity-100" />
                   </button>
 
@@ -159,11 +163,11 @@ export function MarketingNav() {
                     <div className={`rounded-xl border p-2 min-w-[210px] ${dropdownBg}`}>
                       {item.links?.map((link) => (
                         <Link
-                          key={link.label}
+                          key={tr(link.label)}
                           href={link.href}
                           className={`block px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors ${dropdownItemText}`}
                         >
-                          {link.label}
+                          {tr(link.label)}
                         </Link>
                       ))}
                     </div>
@@ -175,6 +179,7 @@ export function MarketingNav() {
 
           {/* Desktop Auth & CTA */}
           <div className="hidden sm:flex items-center gap-4 lg:gap-5">
+            <LanguageSelector showLabel={false} />
             <Link
               href="/login"
               className={`text-sm font-semibold py-2 transition-colors ${
@@ -183,14 +188,14 @@ export function MarketingNav() {
                   : "text-[#191919] hover:text-[#E25822]"
               }`}
             >
-              Sign In
+              {t("auth.signIn", "Sign in")}
             </Link>
 
             <Link
               href="/signup"
               className="group inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm shadow-[#E25822]/25 hover:shadow-md active:scale-95"
             >
-              <span>Start for Free →</span>
+              <span>{t("marketing.startFree", "Start for Free")} →</span>
             </Link>
           </div>
 
@@ -246,29 +251,29 @@ export function MarketingNav() {
               {/* Navigation Items (Scrollable) */}
               <div className="space-y-4 px-5 py-4 flex-1 overflow-y-auto">
                 {navItems.map((item) => (
-                  <div key={item.title} className="space-y-1.5">
+                  <div key={tr(item.title)} className="space-y-1.5">
                     {item.href ? (
                       <Link
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
                         className="block text-sm font-bold text-[#191919] hover:text-[#E25822] py-1 transition-colors"
                       >
-                        {item.title}
+                        {tr(item.title)}
                       </Link>
                     ) : (
                       <>
                         <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#858890] pt-1">
-                          {item.title}
+                          {tr(item.title)}
                         </h4>
                         <div className="flex flex-col gap-1 pl-1.5 border-l-2 border-[#E7E4DE]/60 ml-0.5">
                           {item.links?.map((link) => (
                             <Link
-                              key={link.label}
+                              key={tr(link.label)}
                               href={link.href}
                               onClick={() => setMobileOpen(false)}
                               className="block py-1 text-xs font-medium text-[#62666D] hover:text-[#E25822] transition-colors truncate"
                             >
-                              {link.label}
+                              {tr(link.label)}
                             </Link>
                           ))}
                         </div>
@@ -280,19 +285,20 @@ export function MarketingNav() {
 
               {/* Bottom Actions */}
               <div className="p-4 sm:p-5 pt-3 border-t border-[#E7E4DE] flex flex-col gap-2 shrink-0 bg-[#FAF9F6]">
+                <LanguageSelector className="self-center" />
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
                   className="w-full min-h-[40px] flex items-center justify-center py-2 text-xs font-bold border border-[#E7E4DE] bg-white rounded-full transition-colors hover:bg-[#FAF9F6] text-[#191919] shadow-2xs"
                 >
-                  Sign in
+                  {t("auth.signIn", "Sign in")}
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setMobileOpen(false)}
                   className="w-full min-h-[40px] flex items-center justify-center py-2 text-xs font-bold bg-[#E25822] hover:bg-[#C94715] text-white rounded-full shadow-sm shadow-[#E25822]/30 transition-all active:scale-95"
                 >
-                  Start for Free →
+                  {t("marketing.startFree", "Start for Free")} →
                 </Link>
               </div>
             </div>

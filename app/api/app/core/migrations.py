@@ -214,6 +214,10 @@ def _apply_operations_module_migrations(conn, inspector, dialect_name: str) -> N
         ("body", "TEXT"),
         ("provider_template_name", "VARCHAR(150)"),
         ("template_params", json_type),
+        ("language", "VARCHAR(10)"),  # language the message was actually rendered in
+    ])
+    _add_missing_columns(conn, inspector, "message_templates", [
+        ("language", "VARCHAR(10) NOT NULL DEFAULT 'en'"),
     ])
     _add_missing_columns(conn, inspector, "gym_subscriptions", [
         ("custom_grace_days", "INTEGER"),
@@ -257,6 +261,7 @@ def _apply_identity_and_onboarding_migrations(conn, inspector, dialect_name: str
         ("timezone", "VARCHAR(64)"),
         ("currency", "VARCHAR(3)"),
         ("locale", "VARCHAR(16)"),
+        ("default_language", "VARCHAR(10) NOT NULL DEFAULT 'en'"),
         ("opening_hours", "TEXT"),
         ("closed_dates", "TEXT"),
         # Sales demo gym (scripts/seed_demo.py): outbound messages and risky actions are blocked.

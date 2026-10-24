@@ -1,82 +1,120 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { translations, LanguageCode, SUPPORTED_LANGUAGES, LanguageMeta } from "./translations";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import { translations } from "./translations";
+import {
+  DEFAULT_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+  getLanguageMeta,
+  isSupportedLanguage,
+  normalizeLanguage,
+  type LanguageCode,
+  type LanguageMeta,
+} from "./languages";
 import { repsiApi } from "@/lib/api";
+import { LANGUAGE_EVENT, STORAGE_KEY, persistLanguage } from "./persist";
+
+export * from "./languages";
+export * from "./format";
+export * from "./persist";
+
+type Params = Record<string, string | number>;
 
 interface LanguageContextType {
   language: LanguageCode;
-  setLanguage: (lang: LanguageCode) => void;
-  t: (key: string, fallback?: string) => string;
+  setLanguage: (lang: string) => void;
+  /** t(key, fallback?, params?) — params fill {name} placeholders; a numeric `count` picks `key.one` / `key.other`. */
+  t: (key: string, fallback?: string, params?: Params) => string;
   languages: LanguageMeta[];
   currentLanguageMeta: LanguageMeta;
 }
 
+/** Catalogue key for a nav label: "Receipts & Day Close" -> "navItem.receipts_day_close". */
+export function navLabelKey(label: string): string {
+  return `navItem.${label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "")}`;
+}
+
+function interpolate(text: string, params?: Params): string {
+  if (!params) return text;
+  return text.replace(/\{(\w+)\}/g, (match, name: string) => (name in params ? String(params[name]) : match));
+}
+
+function lookup(language: LanguageCode, key: string): string | undefined {
+  return translations[language]?.[key] ?? translations[DEFAULT_LANGUAGE][key];
+}
+
+export function translate(language: LanguageCode, key: string, fallback?: string, params?: Params): string {
+  let text: string | undefined;
+  if (params && typeof params.count === "number") {
+    const category = new Intl.PluralRules(getLanguageMeta(language).intlLocale).select(params.count);
+    text = lookup(language, `${key}.${category}`) ?? lookup(language, `${key}.other`);
+  }
+  text ??= lookup(language, key);
+  if (text === undefined && fallback === undefined && process.env.NODE_ENV !== "production") {
+    console.warn(`[i18n] missing key "${key}"`);
+  }
+  return interpolate(text ?? fallback ?? key, params);
+}
+
+/** Saved choice -> browser languages -> English. */
+function detectLanguage(): LanguageCode {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (isSupportedLanguage(saved)) return saved;
+  } catch {}
+  for (const tag of navigator.languages ?? []) {
+    const lang = normalizeLanguage(tag);
+    if (lang !== DEFAULT_LANGUAGE || tag.toLowerCase().startsWith("en")) return lang;
+  }
+  return DEFAULT_LANGUAGE;
+}
+
 const LanguageContext = createContext<LanguageContextType>({
-  language: "en",
+  language: DEFAULT_LANGUAGE,
   setLanguage: () => {},
-  t: (key: string, fallback?: string) => fallback || key,
+  t: (key, fallback, params) => translate(DEFAULT_LANGUAGE, key, fallback, params),
   languages: SUPPORTED_LANGUAGES,
   currentLanguageMeta: SUPPORTED_LANGUAGES[0],
 });
 
-export const STORAGE_KEY = "repsi_preferred_locale";
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<LanguageCode>("en");
+  const [language, setLanguageState] = useState<LanguageCode>(DEFAULT_LANGUAGE);
 
-  // Initialize language from local storage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY) as LanguageCode | null;
-      if (saved && ["en", "ta", "ml", "kn", "te"].includes(saved)) {
-        setLanguageState(saved);
-      }
-    }
+    const detected = detectLanguage();
+    setLanguageState(detected);
+    persistLanguage(detected);
+
+    const onChange = (event: Event) => {
+      const next = (event as CustomEvent<string>).detail;
+      if (isSupportedLanguage(next)) setLanguageState(next);
+    };
+    window.addEventListener(LANGUAGE_EVENT, onChange);
+    return () => window.removeEventListener(LANGUAGE_EVENT, onChange);
   }, []);
 
-  const setLanguage = useCallback((newLang: LanguageCode) => {
+  const setLanguage = useCallback((newLang: string) => {
+    if (!isSupportedLanguage(newLang)) return;
     setLanguageState(newLang);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, newLang);
-      window.dispatchEvent(new CustomEvent("repsi_language_change", { detail: newLang }));
+    persistLanguage(newLang);
+    window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: newLang }));
+    // Signed-in users keep the choice on their account; signed-out visitors only have the cookie.
+    if (localStorage.getItem("repsi_auth_token")) {
+      repsiApi.updateUserLanguage(newLang).catch(() => {});
     }
-    // Attempt asynchronous profile sync (non-blocking)
-    repsiApi.updateUserLanguage(newLang).catch(() => {});
   }, []);
 
   const t = useCallback(
-    (key: string, fallback?: string): string => {
-      const currentDict = translations[language];
-      if (currentDict && currentDict[key]) {
-        return currentDict[key];
-      }
-      // Fallback to English
-      const enDict = translations["en"];
-      if (enDict && enDict[key]) {
-        return enDict[key];
-      }
-      return fallback !== undefined ? fallback : key;
-    },
+    (key: string, fallback?: string, params?: Params) => translate(language, key, fallback, params),
     [language]
   );
 
-  const currentLanguageMeta =
-    SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
-
-  return (
-    <LanguageContext.Provider
-      value={{
-        language,
-        setLanguage,
-        t,
-        languages: SUPPORTED_LANGUAGES,
-        currentLanguageMeta,
-      }}
-    >
-      {children}
-    </LanguageContext.Provider>
+  const value = useMemo(
+    () => ({ language, setLanguage, t, languages: SUPPORTED_LANGUAGES, currentLanguageMeta: getLanguageMeta(language) }),
+    [language, setLanguage, t]
   );
+
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
 export function useTranslation() {

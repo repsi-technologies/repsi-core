@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { navGroupsForRole } from "./sidebar";
+import { navLabelKey, useTranslation } from "@/lib/i18n";
 import { getAuthUser } from "@/lib/auth";
 import { apiUrl } from "@/lib/auth-client";
 import { useTheme } from "next-themes";
@@ -19,6 +20,7 @@ interface MobileNavProps {
 
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const workspace = getWorkspaceFromPath(pathname);
   const { theme, setTheme, resolvedTheme } = useTheme();
   // Same role-based menus as the desktop sidebar; resolved after mount (auth lives in the browser).
@@ -160,7 +162,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             <div key={group.title}>
               <div className="px-3 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  {group.title}
+                  {t(navLabelKey(group.title), group.title)}
                 </span>
               </div>
               {group.items.map((item) => {
@@ -188,7 +190,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                         isActive ? "text-[var(--nav-active-text)]" : "text-[var(--text-muted)]"
                       )}
                     />
-                    {item.label}
+                    {t(navLabelKey(item.label), item.label)}
                   </Link>
                 );
               })}

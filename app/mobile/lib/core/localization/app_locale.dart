@@ -1,15 +1,20 @@
 enum AppLanguage {
-  en('en', 'English', 'English'),
-  ta('ta', 'தமிழ்', 'Tamil'),
-  ml('ml', 'മലയാളം', 'Malayalam'),
-  kn('kn', 'ಕನ್ನಡ', 'Kannada'),
-  te('te', 'తెలుగు', 'Telugu');
+  // Keep in sync with app/web/lib/i18n/languages.ts and app/api/app/core/i18n.py.
+  en('en', 'English', 'English', 'EN'),
+  ta('ta', 'தமிழ்', 'Tamil', 'த'),
+  ml('ml', 'മലയാളം', 'Malayalam', 'മ'),
+  hi('hi', 'हिन्दी', 'Hindi', 'हि'),
+  kn('kn', 'ಕನ್ನಡ', 'Kannada', 'ಕ'),
+  te('te', 'తెలుగు', 'Telugu', 'తె');
 
   final String code;
   final String nativeName;
   final String englishName;
+  final String badge;
 
-  const AppLanguage(this.code, this.nativeName, this.englishName);
+  const AppLanguage(this.code, this.nativeName, this.englishName, this.badge);
+
+  static bool isSupported(String? code) => AppLanguage.values.any((lang) => lang.code == code);
 
   static AppLanguage fromCode(String? code) {
     if (code == null) return AppLanguage.en;
@@ -159,6 +164,52 @@ class AppStrings {
       'reject': 'നിരസിക്കുക',
       'language': 'ഭാഷ',
       'select_language': 'ഭാഷ തിരഞ്ഞെടുക്കുക',
+    },
+    'hi': {
+      'app_name': 'REPSI',
+      'dashboard': 'डैशबोर्ड',
+      'members': 'सदस्य',
+      'attendance': 'उपस्थिति',
+      'payments': 'भुगतान',
+      'finance': 'वित्त और बिलिंग',
+      'settings': 'सेटिंग्स',
+      'profile': 'प्रोफ़ाइल',
+      'logout': 'लॉग आउट',
+      'membership': 'मेंबरशिप',
+      'membership_plan': 'मेंबरशिप प्लान',
+      'active': 'सक्रिय',
+      'expired': 'समाप्त',
+      'pending': 'लंबित',
+      'pending_review': 'समीक्षा लंबित',
+      'approved': 'स्वीकृत',
+      'rejected': 'अस्वीकृत',
+      'outstanding_balance': 'बकाया राशि',
+      'pay_membership_fee': 'मेंबरशिप फ़ीस भरें',
+      'submit_receipt': 'भुगतान रसीद जमा करें',
+      'payment_instructions': 'भुगतान निर्देश',
+      'upi_id': 'UPI ID',
+      'merchant_qr': 'जिम मर्चेंट QR',
+      'payment_phone': 'भुगतान फ़ोन',
+      'bank_transfer': 'बैंक ट्रांसफ़र',
+      'acc_holder': 'खाताधारक',
+      'acc_number': 'खाता संख्या',
+      'ifsc_code': 'IFSC कोड',
+      'bank_name': 'बैंक का नाम',
+      'reference_code': 'ट्रांसफ़र रेफ़रेंस कोड',
+      'copy': 'कॉपी करें',
+      'copied': 'क्लिपबोर्ड पर कॉपी हो गया',
+      'amount_paid': 'भुगतान की गई राशि (₹)',
+      'transaction_ref': 'ट्रांज़ैक्शन रेफ़ / UTR',
+      'select_receipt': 'रसीद / स्क्रीनशॉट चुनें',
+      'submit_proof': 'भुगतान प्रमाण जमा करें',
+      'verification_notice': 'रसीद जमा हो गई। मालिक की स्वीकृति के बाद जिम एक्सेस सक्रिय होगी।',
+      'rejection_reason': 'अस्वीकृति का कारण',
+      'resubmit_proof': 'सही प्रमाण दोबारा जमा करें',
+      'verification_queue': 'मैनुअल सत्यापन कतार',
+      'approve': 'स्वीकृत करें',
+      'reject': 'अस्वीकार करें',
+      'language': 'भाषा',
+      'select_language': 'ऐप की भाषा चुनें',
     },
     'kn': {
       'app_name': 'REPSI',

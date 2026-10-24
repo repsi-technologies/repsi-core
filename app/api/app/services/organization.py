@@ -128,6 +128,7 @@ class OrganizationService:
             timezone=ws.timezone,
             currency=ws.currency,
             locale=ws.locale,
+            default_language=ws.default_language or "en",
             opening_hours=parse_hours(ws.opening_hours),
             closed_dates=parse_closed_dates(ws.closed_dates),
             onboarding_completed=bool(ws.onboarding_completed),
@@ -265,6 +266,8 @@ class OrganizationService:
         ws.timezone = data.timezone
         ws.currency = data.currency
         ws.locale = data.locale
+        if data.default_language:
+            ws.default_language = data.default_language
         ws.opening_hours = data.opening_hours.to_json()
         ws.closed_dates = json.dumps([d.model_dump(mode="json") for d in data.closed_dates])
         if not ws.onboarding_completed:

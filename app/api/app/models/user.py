@@ -36,7 +36,9 @@ class Workspace(Base, TimestampMixin):
     # Regional preferences (single source of truth for business settings)
     timezone = Column(String(64), nullable=True)  # IANA name, e.g. "Asia/Kolkata"
     currency = Column(String(3), nullable=True)  # ISO-4217, e.g. "INR"
-    locale = Column(String(16), nullable=True)  # BCP-47, e.g. "en-IN"
+    locale = Column(String(16), nullable=True)  # BCP-47, e.g. "en-IN" (number/date formatting)
+    # Language for members without their own preference and for gym-wide messages (app/core/i18n.py)
+    default_language = Column(String(10), default="en", nullable=False)
     opening_hours = Column(Text, nullable=True)  # JSON: {"mon": {"closed": false, "open": "06:00", "close": "22:00"}, ...}
     closed_dates = Column(Text, nullable=True)  # JSON: [{"date": "2026-12-25", "label": "Christmas"}]
     gym_type = Column(String(100), default="Commercial Fitness")

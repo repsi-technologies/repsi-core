@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Globe, Check } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
-import { LanguageCode } from "@/lib/i18n/translations";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,7 @@ export function LanguageSelector({
   variant = "ghost",
   showLabel = true,
 }: LanguageSelectorProps) {
-  const { language, setLanguage, languages, currentLanguageMeta } = useTranslation();
+  const { language, setLanguage, languages, currentLanguageMeta, t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,13 +32,14 @@ export function LanguageSelector({
           variant={variant}
           size="sm"
           className={`h-8 px-2.5 gap-1.5 text-xs font-semibold rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text)] transition-colors ${className}`}
-          title="Change Application Language"
+          title={t("lang.title")}
+          aria-label={t("lang.title")}
         >
           <span className="flex items-center justify-center w-4 h-4 rounded bg-[var(--primary)]/20 text-[var(--primary-dark)] text-[10px] font-bold">
             {currentLanguageMeta.badge}
           </span>
           <Globe className="h-3.5 w-3.5 text-[var(--text-muted)]" />
-          {showLabel && <span className="hidden sm:inline">{currentLanguageMeta.nativeName}</span>}
+          {showLabel && <span className="hidden sm:inline" lang={currentLanguageMeta.code}>{currentLanguageMeta.nativeName}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -47,7 +47,7 @@ export function LanguageSelector({
         className="w-48 p-1.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl z-50 animate-in fade-in-50 zoom-in-95"
       >
         <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)] mb-1">
-          App Language / மொழி
+          {t("lang.title")}
         </div>
         {languages.map((lang) => {
           const isSelected = lang.code === language;
@@ -69,8 +69,11 @@ export function LanguageSelector({
                   {lang.badge}
                 </span>
                 <div className="flex flex-col">
-                  <span className="font-medium">{lang.nativeName}</span>
-                  <span className="text-[10px] text-[var(--text-muted)] font-normal">{lang.label}</span>
+                  <span className="font-medium" lang={lang.code}>{lang.nativeName}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] font-normal">
+                    {lang.label}
+                    {lang.status === "beta" && <span className="ms-1 rounded px-1 bg-[var(--surface-hover)]">{t("lang.beta")}</span>}
+                  </span>
                 </div>
               </div>
               {isSelected && <Check className="h-4 w-4 text-[var(--primary-dark)]" />}

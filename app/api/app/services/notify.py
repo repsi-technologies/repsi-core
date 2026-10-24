@@ -26,6 +26,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.i18n import default_copy, pick_by_language, resolve_language
 from app.core.phone import mask_phone, normalize_phone
 from app.core.sms import sms_configured
 from app.models.communication import DeviceToken, MessageTemplate, NotificationDelivery, NotificationPreference
@@ -102,15 +103,20 @@ def fill(text: str, values: dict) -> str:
     return _VAR.sub(lambda m: str(values.get(m.group(1), "")), text or "").strip()
 
 
-def _template(db: Session, workspace_id: str, event_type: str, channel: str) -> Optional[MessageTemplate]:
-    return db.scalar(
+def _template(
+    db: Session, workspace_id: str, event_type: str, channel: str,
+    language: Optional[str] = None, workspace_default: Optional[str] = None,
+) -> Optional[MessageTemplate]:
+    """The gym's active template for this event, in the recipient's language when one exists."""
+    templates = db.scalars(
         select(MessageTemplate).where(
             MessageTemplate.workspace_id == workspace_id,
             MessageTemplate.category == event_type,
             MessageTemplate.channel == channel,
             MessageTemplate.is_active.is_(True),
-        )
-    )
+        ).order_by(MessageTemplate.created_at)
+    ).all()
+    return pick_by_language(templates, language, workspace_default)
 
 
 def _exists(db: Session, key: str) -> bool:
@@ -129,9 +135,11 @@ def notify_member(
     ws = db.get(Workspace, member.workspace_id)
     gym_name = ws.name if ws else "your gym"
     values = {"first_name": member.first_name or "there", "gym_name": gym_name, **(variables or {})}
-    default_subject, default_body = DEFAULT_COPY.get(event_type, (event_type.replace("_", " ").title(), ""))
-
     user = db.get(User, member.user_id) if member.user_id else None
+    # A member's own preference wins; otherwise the gym's default language (app/core/i18n.py).
+    workspace_language = ws.default_language if ws else None
+    language = resolve_language(user.preferred_language if user else None, workspace_language)
+    default_subject, default_body = default_copy(event_type, language, DEFAULT_COPY)
     pref = None
     if user:
         pref = db.scalar(select(NotificationPreference).where(
@@ -142,7 +150,7 @@ def notify_member(
     written = 0
 
     def content(channel: str) -> tuple[str, str]:
-        t = _template(db, member.workspace_id, event_type, channel)
+        t = _template(db, member.workspace_id, event_type, channel, language, workspace_language)
         return fill(t.subject or default_subject if t else default_subject, values), fill(t.body if t else default_body, values)
 
     def add(channel: str, **fields) -> None:
@@ -153,7 +161,8 @@ def notify_member(
         db.add(NotificationDelivery(
             workspace_id=member.workspace_id, event_type=event_type, channel=channel,
             recipient_user_id=user.id if user else None, member_id=member.id,
-            recipient_name=f"{member.first_name} {member.last_name or ''}".strip(), idempotency_key=key, **fields,
+            recipient_name=f"{member.first_name} {member.last_name or ''}".strip(), idempotency_key=key,
+            language=language, **fields,
         ))
         written += 1
 
@@ -176,7 +185,7 @@ def notify_member(
             add("email", status="queued", destination=_mask_email(email), subject=subject, body=body)
 
     # WhatsApp: approved template linked to this event, plus recorded consent
-    wa = _template(db, member.workspace_id, event_type, "whatsapp")
+    wa = _template(db, member.workspace_id, event_type, "whatsapp", language, workspace_language)
     if wa and wa.provider_template_name and phone:
         params = [values.get("first_name"), gym_name] + [str(values[k]) for k in sorted(variables or {})]
         if pref is None or not pref.whatsapp_enabled:
@@ -188,7 +197,7 @@ def notify_member(
     # SMS: essential alerts only, and only with a configured provider
     if event_type in ESSENTIAL_EVENTS and phone and sms_configured():
         subject, body = content("in_app")
-        sms_t = _template(db, member.workspace_id, event_type, "sms")
+        sms_t = _template(db, member.workspace_id, event_type, "sms", language, workspace_language)
         add("sms", status="queued", destination=mask_phone(phone), subject=subject, body=body,
             provider_template_name=sms_t.provider_template_name if sms_t else None, template_params=values)
 
