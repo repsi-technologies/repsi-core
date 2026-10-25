@@ -105,3 +105,97 @@ class AiWorkoutSuggestion {
     );
   }
 }
+
+class AiDietMealItem {
+  final String food;
+  final String? portion;
+  final int? calories;
+  final int? protein;
+
+  const AiDietMealItem({
+    required this.food,
+    this.portion,
+    this.calories,
+    this.protein,
+  });
+
+  factory AiDietMealItem.fromJson(Map<String, dynamic> json) {
+    return AiDietMealItem(
+      food: json['food']?.toString() ?? json['name']?.toString() ?? '',
+      portion: json['portion']?.toString(),
+      calories: (json['calories'] as num?)?.toInt(),
+      protein: (json['protein'] as num?)?.toInt(),
+    );
+  }
+}
+
+class AiDietMealSlot {
+  final String slot;
+  final String name;
+  final int? targetCalories;
+  final List<AiDietMealItem> items;
+
+  const AiDietMealSlot({
+    required this.slot,
+    required this.name,
+    this.targetCalories,
+    required this.items,
+  });
+
+  factory AiDietMealSlot.fromJson(Map<String, dynamic> json) {
+    final rawItems = json['items'] as List<dynamic>? ?? [];
+    return AiDietMealSlot(
+      slot: json['slot']?.toString() ?? 'meal',
+      name: json['name']?.toString() ?? 'Meal',
+      targetCalories: (json['target_calories'] as num?)?.toInt(),
+      items: rawItems
+          .whereType<Map<String, dynamic>>()
+          .map((i) => AiDietMealItem.fromJson(i))
+          .toList(),
+    );
+  }
+}
+
+class AiDietPlan {
+  final String name;
+  final String description;
+  final int dailyCalories;
+  final int proteinGrams;
+  final int carbsGrams;
+  final int fatGrams;
+  final int waterMlTarget;
+  final List<AiDietMealSlot> meals;
+  final List<String> tips;
+
+  const AiDietPlan({
+    required this.name,
+    required this.description,
+    required this.dailyCalories,
+    required this.proteinGrams,
+    required this.carbsGrams,
+    required this.fatGrams,
+    required this.waterMlTarget,
+    required this.meals,
+    required this.tips,
+  });
+
+  factory AiDietPlan.fromJson(Map<String, dynamic> json) {
+    final rawMeals = json['meals'] as List<dynamic>? ?? [];
+    final rawTips = json['tips'] as List<dynamic>? ?? [];
+    return AiDietPlan(
+      name: json['name']?.toString() ?? 'Tailored Nutrition Plan',
+      description: json['description']?.toString() ?? '',
+      dailyCalories: (json['daily_calories'] as num?)?.toInt() ?? 2200,
+      proteinGrams: (json['protein_grams'] as num?)?.toInt() ?? 150,
+      carbsGrams: (json['carbs_grams'] as num?)?.toInt() ?? 220,
+      fatGrams: (json['fat_grams'] as num?)?.toInt() ?? 65,
+      waterMlTarget: (json['water_ml_target'] as num?)?.toInt() ?? 3000,
+      meals: rawMeals
+          .whereType<Map<String, dynamic>>()
+          .map((m) => AiDietMealSlot.fromJson(m))
+          .toList(),
+      tips: rawTips.map((t) => t.toString()).toList(),
+    );
+  }
+}
+

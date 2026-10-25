@@ -18,6 +18,7 @@ import '../../../../shared/widgets/repsi_skeleton.dart';
 import '../../../attendance/providers/attendance_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../coaching/data/coaching_api.dart';
+import '../../../coaching/data/coaching_models.dart';
 import '../../../coaching/views/goal_setup_view.dart';
 import '../../../coaching/views/my_trainer_view.dart';
 import '../../../coaching/views/workout_plan_view.dart';
@@ -234,12 +235,15 @@ class _CoachingSection extends ConsumerWidget {
       // No member profile in this gym (403) or offline: the rest of home still works.
       error: (_, __) => const SizedBox.shrink(),
       data: (o) {
+        final assigned = ref.watch(activeGymAssignmentProvider).valueOrNull;
         final plan = ref.watch(workoutSuggestionsProvider).valueOrNull;
         final trainer = o.trainers.firstOrNull;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (o.goal == null)
+            if (assigned != null)
+              _AssignedHomeCard(program: assigned, onTap: onOpenWorkouts)
+            else if (o.goal == null)
               _SetGoalCard(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     fullscreenDialog: true, builder: (_) => const GoalSetupView(openPlanWhenDone: false))),
@@ -295,6 +299,105 @@ class _CoachingSection extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _AssignedHomeCard extends StatelessWidget {
+  final TemplateWorkoutProgram program;
+  final VoidCallback onTap;
+  const _AssignedHomeCard({required this.program, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return RepsiPress(
+      onTap: onTap,
+      pressedScale: 0.98,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.85),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(LucideIcons.sparkles, size: 12, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        program.badge?.toUpperCase() ?? 'ASSIGNED PLAN',
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${program.trainingDays} Days',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              program.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.heading.copyWith(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, height: 1.15),
+            ),
+            if (program.description.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                program.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
+              ),
+            ],
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.play_arrow_rounded, color: AppColors.primary, size: 18),
+                  const SizedBox(width: 6),
+                  const Text('Start Workout', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w800)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

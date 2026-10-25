@@ -695,6 +695,29 @@ class FitnessService:
         return {"id": v.id, "program_id": p.id, "version_number": v.version_number, "status": v.status,
                 "days": self.days_out(self._days_for(version_id=v.id))}
 
+    # ================================================================ templates
+
+    def get_templates(self) -> list:
+        from app.core.workout_templates import get_template_catalog
+        return get_template_catalog()
+
+    def seed_templates(self) -> list:
+        self.actor.require("programs.manage", "You don't have permission to install workout templates.")
+        from app.core.workout_templates import seed_workspace_templates
+        trainer_id = self.actor.trainer.id if self.actor.trainer else None
+        programs = seed_workspace_templates(self.db, self.ws, user_id=self.tenant.user_id, trainer_id=trainer_id)
+        names = _user_names(self.db, [p.created_by_user_id for p in programs])
+        return [self.program_out(p, names) for p in programs]
+
+    def instantiate_template(self, template_key: str) -> WorkoutProgram:
+        self.actor.require("programs.manage", "You don't have permission to install workout templates.")
+        from app.core.workout_templates import DEFAULT_WORKOUT_TEMPLATES, instantiate_template
+        template = next((t for t in DEFAULT_WORKOUT_TEMPLATES if t["key"] == template_key), None)
+        if not template:
+            raise HTTPException(status_code=404, detail=f"Workout template '{template_key}' not found.")
+        trainer_id = self.actor.trainer.id if self.actor.trainer else None
+        return instantiate_template(self.db, self.ws, template, user_id=self.tenant.user_id, trainer_id=trainer_id)
+
     # ================================================================ assignments
 
     def _assignment(self, assignment_id: str) -> WorkoutAssignment:

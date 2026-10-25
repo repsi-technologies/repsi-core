@@ -1,0 +1,6 @@
+search-path = ["app/api"]
+site-package-path = [
+    "app/api/.venv/Lib/site-packages",
+    "app/api/.venv/lib/python3.12/site-packages",
+    "app/api/.venv/lib/python3.11/site-packages",
+]

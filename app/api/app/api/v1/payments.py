@@ -393,6 +393,19 @@ def get_merchant_qr_image(
 
 # ─── MEMBER PAYMENT INSTRUCTIONS & SUBMISSIONS ────────────────────────────
 
+@router.get("/instructions", response_model=PaymentInstructionsResponse)
+def get_general_payment_instructions(
+    tenant: TenantContext = Depends(get_current_tenant),
+    db: Session = Depends(get_db),
+):
+    """
+    Fetches general gym payment instructions, copyable UPI/bank details, QR code,
+    and narration reference for the current workspace.
+    """
+    svc = ManualPaymentService(db, tenant.workspace_id)
+    return svc.get_payment_instructions("general", tenant.user_id)
+
+
 @router.get("/invoices/{invoice_id}/instructions", response_model=PaymentInstructionsResponse)
 def get_invoice_payment_instructions(
     invoice_id: str,

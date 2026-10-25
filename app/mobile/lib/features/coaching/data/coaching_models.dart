@@ -202,21 +202,47 @@ class PlannedExercise {
   final String? description;
   final String? mediaUrl;
   final String? mediaType;
+  final String section; // warmup | main | cooldown
+  final String? groupType; // superset | circuit
+  final String? groupLabel; // e.g. A, B
+  final double? targetWeightKg;
+  final String? tempo;
+  final String? notes;
 
-  const PlannedExercise({required this.exerciseId, required this.name, required this.category, required this.sets,
-      this.reps, this.durationSeconds, required this.restSeconds, required this.primaryMuscles,
-      required this.equipment, required this.instructions, this.description, this.mediaUrl, this.mediaType});
+  const PlannedExercise({
+    required this.exerciseId,
+    required this.name,
+    required this.category,
+    required this.sets,
+    this.reps,
+    this.durationSeconds,
+    required this.restSeconds,
+    required this.primaryMuscles,
+    required this.equipment,
+    required this.instructions,
+    this.description,
+    this.mediaUrl,
+    this.mediaType,
+    this.section = 'main',
+    this.groupType,
+    this.groupLabel,
+    this.targetWeightKg,
+    this.tempo,
+    this.notes,
+  });
 
   bool get isTimed => durationSeconds != null;
+  bool get isSuperset => groupType == 'superset' && groupLabel != null && groupLabel!.isNotEmpty;
 
   factory PlannedExercise.fromJson(Map<String, dynamic> j) {
     List<String> list(String k) => ((j[k] as List?) ?? const []).map((e) => e.toString()).toList();
+    final repsVal = j['reps'] ?? (j['reps_min'] != null ? '${j['reps_min']}${j['reps_max'] != null && j['reps_max'] != j['reps_min'] ? '-${j['reps_max']}' : ''}' : null);
     return PlannedExercise(
-      exerciseId: j['exercise_id'] as String? ?? '',
-      name: j['name'] as String? ?? '',
-      category: j['category'] as String? ?? '',
-      sets: (j['sets'] as num?)?.toInt() ?? 1,
-      reps: j['reps'] as String?,
+      exerciseId: (j['exercise_id'] ?? j['id'] ?? '').toString(),
+      name: (j['name'] ?? j['exercise_name'] ?? '').toString(),
+      category: (j['category'] ?? j['exercise_category'] ?? '').toString(),
+      sets: (j['sets'] as num?)?.toInt() ?? 3,
+      reps: repsVal?.toString(),
       durationSeconds: (j['duration_seconds'] as num?)?.toInt(),
       restSeconds: (j['rest_seconds'] as num?)?.toInt() ?? 60,
       primaryMuscles: list('primary_muscles'),
@@ -225,6 +251,12 @@ class PlannedExercise {
       description: _blank(j['description']),
       mediaUrl: _blank(j['media_url']),
       mediaType: _blank(j['media_type']),
+      section: (j['section'] as String?) ?? 'main',
+      groupType: j['group_type'] as String?,
+      groupLabel: j['group_label'] as String?,
+      targetWeightKg: (j['target_weight_kg'] as num?)?.toDouble(),
+      tempo: j['tempo'] as String?,
+      notes: _blank(j['notes']),
     );
   }
 }
@@ -234,14 +266,25 @@ class PlannedDay {
   final String focus; // full_body | upper | lower | push | pull | legs | conditioning | cardio | mobility
   final int estimatedMinutes;
   final List<PlannedExercise> exercises;
+  final String? name;
+  final String? notes;
 
-  const PlannedDay({required this.index, required this.focus, required this.estimatedMinutes, required this.exercises});
+  const PlannedDay({
+    required this.index,
+    required this.focus,
+    required this.estimatedMinutes,
+    required this.exercises,
+    this.name,
+    this.notes,
+  });
 
   factory PlannedDay.fromJson(Map<String, dynamic> j) => PlannedDay(
-        index: (j['index'] as num?)?.toInt() ?? 1,
+        index: (j['index'] ?? j['position'] as num?)?.toInt() ?? 1,
         focus: j['focus'] as String? ?? 'full_body',
         estimatedMinutes: (j['estimated_minutes'] as num?)?.toInt() ?? 45,
-        exercises: ((j['exercises'] as List?) ?? const [])
+        name: j['name'] as String?,
+        notes: j['notes'] as String?,
+        exercises: ((j['exercises'] ?? j['items'] as List?) ?? const [])
             .map((e) => PlannedExercise.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(),
       );
@@ -265,3 +308,53 @@ class WorkoutPlanSuggestion {
         days: ((j['days'] as List?) ?? const []).map((e) => PlannedDay.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
       );
 }
+
+class TemplateWorkoutProgram {
+  final String key;
+  final String name;
+  final String description;
+  final String objective;
+  final String difficulty;
+  final String? badge;
+  final int? durationWeeks;
+  final int trainingDays;
+  final int exerciseCount;
+  final List<PlannedDay> days;
+
+  const TemplateWorkoutProgram({
+    required this.key,
+    required this.name,
+    required this.description,
+    required this.objective,
+    required this.difficulty,
+    this.badge,
+    this.durationWeeks,
+    required this.trainingDays,
+    required this.exerciseCount,
+    required this.days,
+  });
+
+  factory TemplateWorkoutProgram.fromJson(Map<String, dynamic> j) {
+    final rawDays = (j['days'] as List?) ?? const [];
+    final daysList = <PlannedDay>[];
+    for (var i = 0; i < rawDays.length; i++) {
+      final d = Map<String, dynamic>.from(rawDays[i] as Map);
+      d['index'] = i + 1;
+      daysList.add(PlannedDay.fromJson(d));
+    }
+    return TemplateWorkoutProgram(
+      key: j['key'] as String? ?? '',
+      name: j['name'] as String? ?? '',
+      description: j['description'] as String? ?? '',
+      objective: j['objective'] as String? ?? 'general_fitness',
+      difficulty: j['difficulty'] as String? ?? 'beginner',
+      badge: j['badge'] as String?,
+      durationWeeks: (j['duration_weeks'] as num?)?.toInt(),
+      trainingDays: (j['training_days'] as num?)?.toInt() ?? daysList.length,
+      exerciseCount: (j['exercise_count'] as num?)?.toInt() ??
+          daysList.fold(0, (sum, d) => sum + d.exercises.length),
+      days: daysList,
+    );
+  }
+}
+

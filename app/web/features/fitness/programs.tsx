@@ -10,10 +10,12 @@ import {
   fitnessApi, type ApiPlanDay, type ApiProgram, type ApiProgramDetail, type ApiProgramSave, type FitDifficulty,
 } from "@/lib/fitness-api";
 import { AssignDialog } from "./assign-dialog";
+import { WorkoutTemplatesDialog } from "./workout-templates-dialog";
 import { daysToInput, draftsFromDays, PlanEditor, validateDays, type DayDraft } from "./plan-editor";
 import {
   EmptyBlock, Field, formatDay, humanize, inputClass, LoadingRow, Modal, Notice, prescription, StatusBadge, useFitnessContext, useFitnessMeta, WorkoutExerciseCard,
 } from "./shared";
+import { Sparkles } from "lucide-react";
 
 export function ProgramsList({ basePath }: { basePath: string }) {
   const { ctx } = useFitnessContext();
@@ -23,6 +25,8 @@ export function ProgramsList({ basePath }: { basePath: string }) {
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<ApiProgram | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [seedingTemplates, setSeedingTemplates] = useState(false);
   const router = useRouter();
 
   const load = useCallback(async () => {
@@ -52,6 +56,20 @@ export function ProgramsList({ basePath }: { basePath: string }) {
     }
   };
 
+  const installDefaultTemplates = async () => {
+    setSeedingTemplates(true);
+    setError(null);
+    try {
+      await fitnessApi.seedTemplates();
+      setFlash("Successfully installed default templates (Beginner, Intermediate, and Chest Split)! Ready to assign.");
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSeedingTemplates(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -62,16 +80,52 @@ export function ProgramsList({ basePath }: { basePath: string }) {
         <select aria-label="Status" value={status} onChange={(e) => setStatus(e.target.value)} className={`${inputClass} sm:w-44`}>
           <option value="">Active programs</option><option value="published">Published</option><option value="draft">Drafts</option><option value="archived">Archived</option>
         </select>
+        <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5">
+          <Sparkles className="h-4 w-4 text-[var(--primary)]" /> Templates
+        </Button>
         {ctx?.can_manage_programs && (
           <Link href={`${basePath}/programs/new`}><Button size="sm" className="w-full sm:w-auto"><Plus /> New program</Button></Link>
         )}
       </div>
+
       {flash && <Notice kind="success" onDismiss={() => setFlash(null)}>{flash}</Notice>}
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
+
       {!data ? <LoadingRow label="Loading programs…" /> : data.length === 0 ? (
-        <EmptyBlock title="No workout programs yet">
-          {ctx?.can_manage_programs ? "Create a reusable program, publish it, then assign it to members." : "Programs published by your gym will appear here."}
-        </EmptyBlock>
+        <div className="space-y-4">
+          <Card className="p-6 border-dashed border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--primary-soft)]/30 via-transparent to-transparent space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary-soft)] px-2.5 py-0.5 text-xs font-bold text-[var(--primary-dark)]">
+                  <Sparkles className="h-3.5 w-3.5" /> Instant Workout Templates
+                </div>
+                <h3 className="text-base font-bold text-[var(--text)]">Quick Start: Beginner, Intermediate & Chest Splits</h3>
+                <p className="text-xs text-[var(--text-muted)] max-w-xl">
+                  Install pre-configured default templates into your gym with 1 click. Includes Beginner Full-Body (3-Day), Intermediate Upper/Lower (4-Day), and a targeted Chest Hypertrophy Blast with grouped supersets and directional form cues.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                {ctx?.can_manage_programs && (
+                  <Button
+                    size="sm"
+                    onClick={installDefaultTemplates}
+                    disabled={seedingTemplates}
+                    className="gap-1.5"
+                  >
+                    {seedingTemplates ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    Install Default Templates (3)
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)}>
+                  Browse Templates
+                </Button>
+              </div>
+            </div>
+          </Card>
+          <EmptyBlock title="No custom workout programs yet">
+            {ctx?.can_manage_programs ? "Install the default templates above or create a reusable program from scratch." : "Programs published by your gym will appear here."}
+          </EmptyBlock>
+        </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {data.map((p) => (
@@ -106,6 +160,21 @@ export function ProgramsList({ basePath }: { basePath: string }) {
           ))}
         </div>
       )}
+
+      {showTemplates && ctx && (
+        <WorkoutTemplatesDialog
+          ctx={ctx}
+          onClose={() => setShowTemplates(false)}
+          onInstalled={() => {
+            load();
+          }}
+          onSelectForAssign={(p) => {
+            setShowTemplates(false);
+            setAssigning(p);
+          }}
+        />
+      )}
+
       {assigning && ctx && (
         <AssignDialog ctx={ctx} programId={assigning.id} programName={assigning.name} onClose={() => setAssigning(null)} onDone={() => load()} />
       )}

@@ -14,7 +14,7 @@ from app.schemas.fitness import (
     AssignmentPlanUpdate, AssignmentResponse, AssignmentUpdate, BulkAssignResult, ExerciseCreate,
     ExerciseListResponse, ExerciseResponse, ExerciseUpdate, MeasurementCreate, MeasurementOut,
     MeasurementTypeCreate, MeasurementTypeOut, MyFitnessContext, OverviewResponse, ProgramDetailResponse,
-    ProgramListResponse, ProgramSave, ProgressResponse, ScheduleOccurrence, SessionDetailResponse,
+    ProgramListResponse, ProgramResponse, ProgramSave, ProgressResponse, ScheduleOccurrence, SessionDetailResponse,
     SessionFeedback, SessionStart, SetsSave, VersionDetailResponse,
 )
 from app.services.fitness import FitnessService
@@ -143,6 +143,25 @@ def restore_program(program_id: str, s: FitnessService = Depends(svc)):
 @router.get("/programs/{program_id}/versions/{version_id}", response_model=VersionDetailResponse)
 def get_program_version(program_id: str, version_id: str, s: FitnessService = Depends(svc)):
     return s.version_detail(program_id, version_id)
+
+
+# ------------------------------------------------------------ templates
+
+@router.get("/templates")
+def list_workout_templates(s: FitnessService = Depends(svc)):
+    return s.get_templates()
+
+
+@router.post("/templates/seed", response_model=List[ProgramResponse],
+             dependencies=[Depends(require_feature("basic_workouts"))])
+def seed_workout_templates(s: FitnessService = Depends(svc)):
+    return s.seed_templates()
+
+
+@router.post("/templates/{template_key}/instantiate", response_model=ProgramDetailResponse,
+             dependencies=[Depends(require_feature("basic_workouts"))])
+def instantiate_workout_template(template_key: str, s: FitnessService = Depends(svc)):
+    return s.program_detail(s.instantiate_template(template_key))
 
 
 # ------------------------------------------------------------ assignments

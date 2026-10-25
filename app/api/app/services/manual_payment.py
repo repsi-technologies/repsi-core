@@ -219,27 +219,53 @@ class ManualPaymentService:
     ) -> PaymentInstructionsResponse:
         settings = self.get_or_create_settings()
 
-        invoice = (
-            self.db.query(Invoice)
-            .filter(Invoice.id == invoice_id, Invoice.workspace_id == self.workspace_id)
-            .first()
-        )
-        if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Membership invoice not found in this gym.",
+        invoice = None
+        if invoice_id and invoice_id not in ["general", "membership", "active", "default"]:
+            invoice = (
+                self.db.query(Invoice)
+                .filter(Invoice.id == invoice_id, Invoice.workspace_id == self.workspace_id)
+                .first()
             )
+
+        if not invoice and user_id:
+            # Look up member by user_id
+            m = (
+                self.db.query(Member)
+                .filter(Member.workspace_id == self.workspace_id, Member.user_id == user_id)
+                .first()
+            )
+            if m:
+                invoice = (
+                    self.db.query(Invoice)
+                    .filter(
+                        Invoice.workspace_id == self.workspace_id,
+                        Invoice.member_id == m.id,
+                        Invoice.status.in_(["draft", "sent", "unpaid", "pending"]),
+                    )
+                    .order_by(Invoice.created_at.desc())
+                    .first()
+                )
 
         ws = self.db.query(Workspace).filter(Workspace.id == self.workspace_id).first()
         gym_name = ws.name if ws else "Fitness Gym"
 
-        # Outstanding balance calculation
-        amount_paid = getattr(invoice, "amount_paid", 0.0) or (invoice.total_amount if invoice.status == "paid" else 0.0)
-        outstanding = max(0.0, round(invoice.total_amount - amount_paid, 2))
+        if invoice:
+            inv_id = invoice.id
+            inv_number = invoice.invoice_number
+            amount_paid = getattr(invoice, "amount_paid", 0.0) or (invoice.total_amount if invoice.status == "paid" else 0.0)
+            outstanding = max(0.0, round(invoice.total_amount - amount_paid, 2))
+            inv_due = getattr(invoice, "due_date", None)
+            ref_code = f"PAY-{invoice.invoice_number[-6:]}-{invoice.id[:4].upper()}"
+        else:
+            inv_id = "general"
+            inv_number = "MEM-DUE"
+            outstanding = 1500.0
+            inv_due = None
+            ref_code = f"PAY-{self.workspace_id[:6].upper()}"
 
         # Identify plan description
         plan_name = "Membership Fee"
-        if invoice.member_id:
+        if invoice and invoice.member_id:
             m = self.db.query(Member).filter(Member.id == invoice.member_id).first()
             if m and m.memberships:
                 active_mem = [mem for mem in m.memberships if mem.status == MemberStatus.ACTIVE]
@@ -247,9 +273,6 @@ class ManualPaymentService:
                     plan_name = active_mem[0].plan.name
                 elif m.memberships[0].plan:
                     plan_name = m.memberships[0].plan.name
-
-        # Unique payment reference tag for narration
-        ref_code = f"PAY-{invoice.invoice_number[-6:]}-{invoice.id[:4].upper()}"
 
         # UPI payload generator
         upi_data = None
@@ -305,11 +328,11 @@ class ManualPaymentService:
         )
 
         return PaymentInstructionsResponse(
-            invoice_id=invoice.id,
-            invoice_number=invoice.invoice_number,
-            amount_due=invoice.total_amount,
+            invoice_id=inv_id,
+            invoice_number=inv_number,
+            amount_due=outstanding,
             outstanding_balance=outstanding,
-            due_date=invoice.due_date,
+            due_date=inv_due,
             plan_name=plan_name,
             reference_code=ref_code,
             gym_name=gym_name,
@@ -363,19 +386,45 @@ class ManualPaymentService:
                 detail="Member not found for this submission.",
             )
 
-        invoice = (
-            self.db.query(Invoice)
-            .filter(
-                Invoice.id == invoice_id,
-                Invoice.workspace_id == self.workspace_id,
+        invoice = None
+        if invoice_id and invoice_id not in ["general", "membership", "active", "default"]:
+            invoice = (
+                self.db.query(Invoice)
+                .filter(
+                    Invoice.id == invoice_id,
+                    Invoice.workspace_id == self.workspace_id,
+                )
+                .first()
             )
-            .first()
-        )
+
         if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invoice not found in this gym.",
+            # Look for member's open invoice or auto-create a pending membership invoice
+            invoice = (
+                self.db.query(Invoice)
+                .filter(
+                    Invoice.workspace_id == self.workspace_id,
+                    Invoice.member_id == member.id,
+                    Invoice.status.in_(["draft", "sent", "unpaid", "pending"]),
+                )
+                .order_by(Invoice.created_at.desc())
+                .first()
             )
+            if not invoice:
+                now = datetime.now(timezone.utc)
+                inv_num = f"INV-{now.strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}"
+                invoice = Invoice(
+                    workspace_id=self.workspace_id,
+                    invoice_number=inv_num,
+                    member_id=member.id,
+                    subtotal=amount,
+                    tax_amount=0.0,
+                    total_amount=amount,
+                    status="unpaid",
+                    notes="Member self-submitted payment proof",
+                )
+                self.db.add(invoice)
+                self.db.commit()
+                self.db.refresh(invoice)
 
         # Cross-member isolation check: member cannot submit against someone else's invoice
         if user_role == "USER" and invoice.member_id != member.id:

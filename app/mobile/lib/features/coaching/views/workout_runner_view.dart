@@ -251,8 +251,32 @@ class _WorkoutRunnerViewState extends State<WorkoutRunnerView> {
                               style: AppTypography.heading.copyWith(fontSize: 26, fontWeight: FontWeight.w800, color: palette.text)),
                           const SizedBox(height: 6),
                           if (!isRest)
-                            Text(l.setOfTotal(_set, e.sets),
-                                style: AppTypography.bodySecondary.copyWith(color: palette.textSecondary)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (e.isSuperset) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '⚡ SUPERSET ${e.groupLabel}',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.amber),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                Text(l.setOfTotal(_set, e.sets),
+                                    style: AppTypography.bodySecondary.copyWith(color: palette.textSecondary, fontWeight: FontWeight.w600)),
+                                if (e.targetWeightKg != null) ...[
+                                  const SizedBox(width: 8),
+                                  Text('· ${e.targetWeightKg} kg',
+                                      style: AppTypography.bodySecondary.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                                ],
+                              ],
+                            ),
                           const SizedBox(height: 14),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(16),
@@ -271,6 +295,30 @@ class _WorkoutRunnerViewState extends State<WorkoutRunnerView> {
                               ),
                             ),
                           ),
+                          if (!isRest && e.notes != null && e.notes!.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.flash_on_rounded, size: 14, color: AppColors.primary),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      e.notes!,
+                                      style: TextStyle(fontSize: 12, color: palette.text, height: 1.3),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 18),
                           SizedBox.square(
                             dimension: ring,

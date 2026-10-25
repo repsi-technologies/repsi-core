@@ -31,14 +31,14 @@ export function WorkoutsHub({ basePath, memberHref, title }: { basePath: string;
           </button>
         ))}
       </div>
-      {tab === "overview" && <Overview memberHref={memberHref} />}
+      {tab === "overview" && <Overview memberHref={memberHref} basePath={basePath} />}
       {tab === "programs" && <ProgramsList basePath={basePath} />}
       {tab === "exercises" && <ExerciseLibrary />}
     </div>
   );
 }
 
-function Overview({ memberHref }: { memberHref: (id: string) => string }) {
+function Overview({ memberHref, basePath }: { memberHref: (id: string) => string; basePath: string }) {
   const [data, setData] = useState<ApiFitnessOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -65,7 +65,22 @@ function Overview({ memberHref }: { memberHref: (id: string) => string }) {
       <Card className="p-4">
         <h2 className="text-sm font-bold text-[var(--text)] mb-1">{data.scope === "gym" ? "Members on workout plans" : "Your clients on workout plans"}</h2>
         <p className="text-xs text-[var(--text-muted)] mb-3">Last 30 days. Lowest adherence first. Missed = scheduled days that passed without a completed workout.</p>
-        {data.members.length === 0 ? <EmptyBlock title="No active workout plans">Assign a published program from the Programs tab.</EmptyBlock> : (
+        {data.members.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center space-y-3">
+            <p className="font-semibold text-base text-[var(--text)]">No active workout plans</p>
+            <p className="text-xs text-[var(--text-muted)] max-w-md mx-auto">
+              Assign a workout plan to keep members motivated. You can pick from our pre-built Beginner, Intermediate, or Chest Hypertrophy templates in the Programs tab.
+            </p>
+            <div className="pt-2 flex justify-center gap-2">
+              <Link
+                href={`${basePath}?tab=programs`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90"
+              >
+                Browse Programs & Templates
+              </Link>
+            </div>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

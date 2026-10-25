@@ -392,6 +392,40 @@ function qs(params: Record<string, QueryValue>): string {
 const get = <T>(path: string, err: string): Promise<T> => memberRequest(path, "GET", undefined, err);
 const send = <T>(method: string, path: string, body: unknown, err: string): Promise<T> => memberRequest(path, method, body, err);
 
+export interface ApiWorkoutTemplateExercise {
+  name: string;
+  section: "warmup" | "main" | "cooldown";
+  group_type?: "superset" | "circuit" | null;
+  group_label?: string | null;
+  sets?: number | null;
+  reps_min?: number | null;
+  reps_max?: number | null;
+  duration_seconds?: number | null;
+  rest_seconds?: number | null;
+  target_weight_kg?: number | null;
+  notes?: string | null;
+}
+
+export interface ApiWorkoutTemplateDay {
+  name: string;
+  notes?: string | null;
+  exercise_count: number;
+  exercises: ApiWorkoutTemplateExercise[];
+}
+
+export interface ApiWorkoutTemplate {
+  key: string;
+  name: string;
+  description: string;
+  objective: string;
+  difficulty: FitDifficulty;
+  duration_weeks?: number | null;
+  badge?: string | null;
+  training_days: number;
+  exercise_count: number;
+  days: ApiWorkoutTemplateDay[];
+}
+
 export const fitnessApi = {
   context: () => get<ApiFitnessContext>("/fitness/me", "Failed to load your training access"),
   meta: () => get<ApiFitnessMeta>("/fitness/meta", "Failed to load fitness options"),
@@ -469,4 +503,9 @@ export const fitnessApi = {
   progress: (memberId: string, params: { date_from?: string; date_to?: string; exercise_id?: string } = {}) =>
     get<ApiProgress>(`/fitness/members/${memberId}/progress${qs(params)}`, "Failed to load progress"),
   overview: () => get<ApiFitnessOverview>("/fitness/overview", "Failed to load training overview"),
+
+  listTemplates: () => get<ApiWorkoutTemplate[]>("/fitness/templates", "Failed to load workout templates"),
+  seedTemplates: () => send<ApiProgram[]>("POST", "/fitness/templates/seed", undefined, "Failed to install templates"),
+  instantiateTemplate: (key: string) => send<ApiProgramDetail>("POST", `/fitness/templates/${key}/instantiate`, undefined, "Failed to instantiate template"),
 };
+

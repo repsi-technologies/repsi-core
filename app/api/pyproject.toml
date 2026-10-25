@@ -42,3 +42,12 @@ python_files = "test_*.py"
 venvPath = "."
 venv = ".venv"
 
+[tool.pyrefly]
+search-path = ["."]
+site-package-path = [
+    ".venv/Lib/site-packages",
+    ".venv/lib/python3.12/site-packages",
+    ".venv/lib/python3.11/site-packages",
+]
+
+

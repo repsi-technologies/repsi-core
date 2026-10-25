@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, Plus, ArrowUpRight, Search, CheckCircle2, Download, Banknote, Smartphone, DollarSign, ShieldCheck } from "lucide-react";
+import { CreditCard, Plus, ArrowUpRight, Search, CheckCircle2, Download, Banknote, Smartphone, DollarSign, ShieldCheck, QrCode } from "lucide-react";
+import { PaymentSettingsTab } from "../settings/payment-settings-tab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { repsiApi, ApiPayment, ApiMember } from "@/lib/api";
@@ -37,7 +38,7 @@ export function PaymentsClient() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState("");
 
-  const [viewTab, setViewTab] = useState<"ledger" | "verification">("ledger");
+  const [viewTab, setViewTab] = useState<"ledger" | "verification" | "settings">("ledger");
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -218,10 +219,34 @@ export function PaymentsClient() {
             </span>
           )}
         </button>
+
+        <button
+          onClick={() => setViewTab("settings")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+            viewTab === "settings"
+              ? "bg-[var(--surface-hover)] text-[var(--text)] border border-[var(--border)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)]"
+          }`}
+        >
+          <QrCode className="w-3.5 h-3.5 text-emerald-500" />
+          <span>QR, UPI & Bank Setup</span>
+        </button>
       </div>
 
       {viewTab === "verification" ? (
         <PaymentVerificationQueue />
+      ) : viewTab === "settings" ? (
+        <div className="space-y-4">
+          <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs text-emerald-800 dark:text-emerald-200 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <QrCode className="w-5 h-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span>
+                <strong>Owner Payment Methods:</strong> Upload your Gym QR code, configure your business UPI ID, and enter your bank transfer details. Members will see these instructions in their payment portal to transfer funds and submit payment receipts.
+              </span>
+            </div>
+          </div>
+          <PaymentSettingsTab />
+        </div>
       ) : (
         <>
           {/* Metrics Row */}
