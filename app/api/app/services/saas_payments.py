@@ -94,8 +94,12 @@ def _customer_phone(user: Optional[User], ws: Workspace) -> str:
         digits = re.sub(r"\D", "", raw)
         if len(digits) == 10:
             return digits
+        if len(digits) == 11 and digits.startswith("0"):
+            return digits[1:]
         if len(digits) == 12 and digits.startswith("91"):
             return digits[2:]
+        if len(digits) == 14 and digits.startswith("0091"):
+            return digits[4:]
         if raw.strip().startswith("+") and 8 <= len(digits) <= 15:
             return "+" + digits
     raise BillingError(400, "PHONE_REQUIRED", "Add a mobile number to your profile or gym before paying.")
@@ -166,7 +170,8 @@ def create_order(db: Session, *, workspace_id: str, user: User, plan_code: str, 
         if over:
             raise BillingError(409, "USAGE_EXCEEDS_PLAN", f"Your current usage exceeds {plan.name} limits: {', '.join(over)}.")
     if kind == "upgrade":
-        billing_cycle, currency = sub.billing_cycle, sub.currency
+        billing_cycle = sub.billing_cycle or billing_cycle or "monthly"
+        currency = (sub.currency or currency or "INR").upper()
         amount, months = prorated_upgrade_amount(db, sub, plan, now), 0
     else:
         amount, months = resolve_price(db, sub, plan, billing_cycle, currency)
@@ -174,7 +179,7 @@ def create_order(db: Session, *, workspace_id: str, user: User, plan_code: str, 
     order = SaasOrder(
         workspace_id=workspace_id, subscription_id=sub.id, order_ref=f"rps_{uuid.uuid4().hex}", kind=kind,
         # Upgrades never extend paid_until; period_months=1 only satisfies the CHECK constraint.
-        plan_id=plan.id, billing_cycle=billing_cycle, period_months=months if kind != "upgrade" else 1,
+        plan_id=plan.id, billing_cycle=billing_cycle, period_months=max(1, months) if kind != "upgrade" else 1,
         currency=currency, amount_minor=amount, tax_minor=None, status="created", idempotency_key=idempotency_key,
         provider="cashfree", expires_at=now + timedelta(minutes=settings.SAAS_ORDER_TTL_MINUTES),
         created_by_user_id=user.id,
@@ -230,8 +235,14 @@ def _record_attempt(db: Session, order: SaasOrder, p: ProviderPayment) -> SaasPa
                                  provider_payment_id=p.payment_id, status="initiated", amount_minor=p.amount_minor,
                                  currency=p.currency or order.currency, method=p.method, raw_status=p.raw_status)
         db.add(att)
-        db.flush()
-        audit(db, "attempt", att, "created", to="initiated", meta={"order": order.order_ref})
+        try:
+            db.flush()
+            audit(db, "attempt", att, "created", to="initiated", meta={"order": order.order_ref})
+        except IntegrityError:
+            db.rollback()
+            att = db.query(SaasPaymentAttempt).filter_by(provider=order.provider, provider_payment_id=p.payment_id).first()
+            if att is None:
+                raise
     if att.order_id != order.id:
         raise BillingError(409, "PAYMENT_ORDER_MISMATCH", "Payment belongs to another order.")
     att.raw_status, att.method = p.raw_status, p.method or att.method
@@ -248,17 +259,16 @@ ATTEMPT_NEXT = {"initiated": ("success", "failed", "pending", "abandoned"), "pen
 
 def _activate(db: Session, sub: SaasSubscription, order: SaasOrder, now: datetime) -> None:
     plan_changed = sub.plan_id != order.plan_id
-    if order.kind == "upgrade" and sub.status == "active" and sub.paid_until and as_utc(sub.paid_until) > now:
+    if order.kind == "upgrade":
         sub.plan_id = order.plan_id
         sub.pending_plan_id = sub.pending_billing_cycle = None
         sub.price_override_minor = sub.price_override_currency = None
         sub.version = (sub.version or 0) + 1
-        audit(db, "subscription", sub, "upgraded", actor="payment", meta={"order": order.order_ref, "plan": order.plan_id})
-        return
-    if order.kind == "upgrade":
-        # Prorated amount no longer matches anything (period lapsed): keep the money, flag for a human.
-        order.needs_review = True
-        audit(db, "subscription", sub, "upgrade_after_lapse", actor="payment", meta={"order": order.order_ref})
+        if sub.status == "active" and sub.paid_until and as_utc(sub.paid_until) > now:
+            audit(db, "subscription", sub, "upgraded", actor="payment", meta={"order": order.order_ref, "plan": order.plan_id})
+        else:
+            order.needs_review = True
+            audit(db, "subscription", sub, "upgrade_after_lapse", actor="payment", meta={"order": order.order_ref, "plan": order.plan_id})
         return
     paid_until = as_utc(sub.paid_until)
     base = max(now, paid_until) if (sub.status in ("active", "grace") and paid_until and not sub.is_complimentary) else now
@@ -415,9 +425,13 @@ def drain_webhooks(db: Session, provider: Optional[PaymentProvider] = None, now:
     ).order_by(SaasWebhookEvent.created_at).limit(limit)]
     for ev_id in ids:
         ev = db.get(SaasWebhookEvent, ev_id)
+        if ev is None:
+            continue
         try:
             result = _process_event(db, ev, provider, now)
             ev = db.get(SaasWebhookEvent, ev_id)
+            if ev is None:
+                continue
             ev.status, ev.processed_at, ev.last_error = result, now, None
             ev.attempts += 1
             db.commit()
@@ -425,6 +439,8 @@ def drain_webhooks(db: Session, provider: Optional[PaymentProvider] = None, now:
         except Exception as e:
             db.rollback()
             ev = db.get(SaasWebhookEvent, ev_id)
+            if ev is None:
+                continue
             ev.attempts += 1
             ev.last_error = f"{type(e).__name__}: {str(e)[:300]}"
             if ev.attempts >= MAX_WEBHOOK_ATTEMPTS:
@@ -455,6 +471,8 @@ def reconcile_orders(db: Session, provider: Optional[PaymentProvider] = None, no
     ))]
     for oid in ids:
         order = db.get(SaasOrder, oid)
+        if order is None:
+            continue
         before = order.status
         counts["checked"] += 1
         try:
@@ -494,8 +512,11 @@ def subscription_view(db: Session, sub: SaasSubscription) -> dict:
     pending = db.get(SaasPlan, sub.pending_plan_id) if sub.pending_plan_id else None
     ents = entitlements_for(db, sub)
     iso = lambda d: as_utc(d).isoformat() if d else None  # noqa: E731
-    raw_usage = BillingService.get_workspace_usage(db, sub.workspace_id)
-    usage = {k: v.get("current", 0) for k, v in raw_usage.items()}
+    try:
+        raw_usage = BillingService.get_workspace_usage(db, sub.workspace_id)
+        usage = {k: v.get("current", 0) for k, v in raw_usage.items()}
+    except Exception:
+        usage = {}
     return {
         "status": sub.status,
         "plan_code": plan.code,
