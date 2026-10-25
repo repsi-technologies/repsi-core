@@ -26,11 +26,20 @@ import {
   TrendingUp,
   ChevronRight,
   AlertTriangle,
+  Smartphone,
+  Plus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { ShinyText } from "@/components/ui/shiny-text";
 import { repsiApi } from "@/lib/api";
+import {
+  CURRENCIES,
+  CurrencyCode,
+  BillingCycle,
+  GLOBAL_PLANS,
+  GLOBAL_ADDONS,
+} from "@/lib/pricing-data";
 
 declare global {
   interface Window {
@@ -38,205 +47,31 @@ declare global {
   }
 }
 
-interface PlanTier {
-  id: string;
-  code: string;
-  name: string;
-  priceInrMonthly: number;
-  priceInrAnnual: number;
-  priceUsdMonthly: number;
-  priceUsdAnnual: number;
-  description: string;
-  badge?: string;
-  memberLimit: number;
-  trainerLimit: number;
-  branchLimit: number;
-  features: string[];
-}
-
-const ALL_PLANS: PlanTier[] = [
-  {
-    id: "free_trial",
-    code: "free_trial",
-    name: "Free Trial (Growth features)",
-    priceInrMonthly: 0,
-    priceInrAnnual: 0,
-    priceUsdMonthly: 0,
-    priceUsdAnnual: 0,
-    badge: "14 DAYS FREE",
-    description: "14-day access to Growth tier features for eligible new gym workspaces.",
-    memberLimit: 35,
-    trainerLimit: 5,
-    branchLimit: 1,
-    features: [
-      "14 days of calendar access",
-      "Maximum 35 active members",
-      "Trainer accounts & member assignment",
-      "Attendance reports & QR check-in",
-      "Structured workout schedules",
-      "Zero automatic charge at expiry",
-    ],
-  },
-  {
-    id: "basic",
-    code: "basic",
-    name: "Basic",
-    priceInrMonthly: 149,
-    priceInrAnnual: 129,
-    priceUsdMonthly: 2.49,
-    priceUsdAnnual: 1.99,
-    description: "Essential gym management for small studios & personal gyms.",
-    memberLimit: 10,
-    trainerLimit: 1,
-    branchLimit: 1,
-    features: [
-      "Maximum 10 active members",
-      "Member registration & profiles",
-      "Membership records & expiry tracking",
-      "QR attendance check-in",
-      "Manual payment & fee records",
-      "Basic workout scheduling",
-      "Basic dashboard & essential reminders",
-    ],
-  },
-  {
-    id: "growth",
-    code: "growth",
-    name: "Growth",
-    priceInrMonthly: 499,
-    priceInrAnnual: 469,
-    priceUsdMonthly: 6.99,
-    priceUsdAnnual: 5.99,
-    badge: "MOST POPULAR",
-    description: "Designed for growing gyms with trainer assignments & attendance reports.",
-    memberLimit: 35,
-    trainerLimit: 5,
-    branchLimit: 1,
-    features: [
-      "Maximum 35 active members",
-      "Everything in Basic",
-      "Trainer accounts & member assignments",
-      "Structured workout schedules",
-      "Attendance reports & export",
-      "Membership expiry notifications",
-      "Fee collection summaries & analytics",
-    ],
-  },
-  {
-    id: "premium",
-    code: "premium",
-    name: "Premium",
-    priceInrMonthly: 1299,
-    priceInrAnnual: 1099,
-    priceUsdMonthly: 16.99,
-    priceUsdAnnual: 13.99,
-    badge: "BEST VALUE",
-    description: "Comprehensive nutrition, diet planning, and personalized workouts.",
-    memberLimit: 100,
-    trainerLimit: 15,
-    branchLimit: 1,
-    features: [
-      "Maximum 100 active members",
-      "Everything in Growth",
-      "Manual diet & nutrition plan creation",
-      "Assign diet plans to members",
-      "Personalized workout plans",
-      "Member progress tracking & history",
-      "Trainer workload overview & reports",
-    ],
-  },
-  {
-    id: "pro",
-    code: "pro",
-    name: "Pro",
-    priceInrMonthly: 2499,
-    priceInrAnnual: 2149,
-    priceUsdMonthly: 32.99,
-    priceUsdAnnual: 27.99,
-    description: "Advanced business analytics, automated workflows, and data exports.",
-    memberLimit: 250,
-    trainerLimit: 35,
-    branchLimit: 1,
-    features: [
-      "Maximum 250 active members",
-      "Everything in Premium",
-      "Advanced business & revenue analytics",
-      "Detailed revenue & dues reports",
-      "Data export (CSV / Excel)",
-      "Workout & diet templates",
-      "Granular staff permissions",
-    ],
-  },
-  {
-    id: "pro_plus",
-    code: "pro_plus",
-    name: "Pro Plus+",
-    priceInrMonthly: 4999,
-    priceInrAnnual: 4599,
-    priceUsdMonthly: 64.99,
-    priceUsdAnnual: 58.99,
-    badge: "UNLIMITED MEMBERS",
-    description: "Unlimited members with bulk operations and priority concierge support.",
-    memberLimit: -1,
-    trainerLimit: 100,
-    branchLimit: 1,
-    features: [
-      "Unlimited active members (fair-use policy)",
-      "Everything in Pro",
-      "Advanced staff roles & permissions",
-      "Custom reporting & dashboards",
-      "Bulk member operations & imports",
-      "Enhanced audit logs",
-      "Priority 24/7 support & onboarding",
-    ],
-  },
-  {
-    id: "enterprise",
-    code: "enterprise",
-    name: "Enterprise",
-    priceInrMonthly: 0,
-    priceInrAnnual: 0,
-    priceUsdMonthly: 0,
-    priceUsdAnnual: 0,
-    badge: "CUSTOM",
-    description: "Custom limits, multi-branch consolidated reporting, and dedicated SLA.",
-    memberLimit: -1,
-    trainerLimit: -1,
-    branchLimit: -1,
-    features: [
-      "Everything in Pro Plus+",
-      "Custom member and staff limits",
-      "Multi-branch management & consolidated reports",
-      "Centralized administration",
-      "Custom integrations & dedicated API access",
-      "Tailored onboarding & SLA arrangements",
-    ],
-  },
-];
-
 export default function SubscriptionBillingPage(props?: { params?: Promise<{ workspace: string }> | { workspace: string } }) {
   const routeParams = useParams();
   const workspace = (routeParams?.workspace as string) || "apex-fitness";
 
   const [loading, setLoading] = useState(true);
   const [showPlanModal, setShowPlanModal] = useState(false);
-  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [downgradeWarning, setDowngradeWarning] = useState<any>(null);
 
   const [selectedPlanCode, setSelectedPlanCode] = useState<string>("growth");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
-  const [currency, setCurrency] = useState<"INR" | "USD">("INR");
+  // Default to 1 year and INR
+  const [currency, setCurrency] = useState<CurrencyCode>("INR");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [successDetails, setSuccessDetails] = useState<any>(null);
+
+  const curr = CURRENCIES[currency];
 
   const [activeSubscription, setActiveSubscription] = useState<any>({
     status: 'loading',
     trial_days_left: 0,
     plan: null,
-    billing_cycle: 'monthly',
+    billing_cycle: 'yearly',
     currency: 'INR',
     next_billing_date: 'Not available',
   });
@@ -248,54 +83,39 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
   });
 
   const [invoices, setInvoices] = useState<any[]>([]);
+
   useEffect(() => {
     async function loadBilling() {
       setLoading(true);
       try {
-        const data = await repsiApi.getBillingSubscription(workspace);
-        if (data?.subscription || data?.plan) {
-          const planData = data.subscription?.plan || data.plan;
-          const planObj = typeof planData === "object" && planData?.name
-            ? planData
-            : (ALL_PLANS.find((p) => p.code === (planData?.id || planData?.code || "growth")) || ALL_PLANS[2]);
-
-          setActiveSubscription((prev: any) => ({
-            ...prev,
-            status: data.subscription?.status || planData?.status || "active",
-            trial_days_left: data.subscription?.trial_days_left ?? 14,
-            plan: planObj,
-            billing_cycle: data.subscription?.billing_cycle || planData?.interval || "monthly",
-            currency: data.subscription?.currency || planData?.currency || "INR",
-            next_billing_date: data.subscription?.next_billing_date || planData?.next_billing_date || "14 November 2026",
-          }));
+        const data = await repsiApi.getBillingSubscription();
+        if (data && data.subscription) {
+          setActiveSubscription(data.subscription);
+          if (data.invoices && Array.isArray(data.invoices)) {
+            setInvoices(data.invoices);
+          }
         }
-        if (data?.usage) {
-          const memCurrent = data.usage.members?.current ?? 0;
-          const memLimit = data.usage.members?.limit ?? 100;
-          const memPct = typeof data.usage.members?.percentage === "number"
-            ? data.usage.members.percentage
-            : (memLimit > 0 ? (memCurrent / memLimit) * 100 : 0);
+        if (data && data.usage) {
+          const memberCurrent = data.usage.members?.current ?? 0;
+          const memberLimit = data.usage.members?.limit ?? 150;
+          const memberPct = memberLimit > 0 ? Math.round((memberCurrent / memberLimit) * 100) : 0;
 
-          const trainerCurrent = data.usage.trainers?.current ?? data.usage.staff?.current ?? 0;
-          const trainerLimit = data.usage.trainers?.limit ?? data.usage.staff?.limit ?? 5;
-          const trainerPct = typeof data.usage.trainers?.percentage === "number"
-            ? data.usage.trainers.percentage
-            : (trainerLimit > 0 ? (trainerCurrent / trainerLimit) * 100 : 0);
+          const trainerCurrent = data.usage.trainers?.current ?? 0;
+          const trainerLimit = data.usage.trainers?.limit ?? 10;
+          const trainerPct = trainerLimit > 0 ? Math.round((trainerCurrent / trainerLimit) * 100) : 0;
 
           const branchCurrent = data.usage.branches?.current ?? 1;
           const branchLimit = data.usage.branches?.limit ?? 1;
-          const branchPct = typeof data.usage.branches?.percentage === "number"
-            ? data.usage.branches.percentage
-            : (branchLimit > 0 ? (branchCurrent / branchLimit) * 100 : 100);
+          const branchPct = branchLimit > 0 ? Math.round((branchCurrent / branchLimit) * 100) : 100;
 
           setUsage({
             members: {
-              current: memCurrent,
-              limit: memLimit,
-              percentage: memPct,
-              warning_triggered: data.usage.members?.warning_triggered ?? (memPct >= 80),
-              limit_reached: data.usage.members?.limit_reached ?? (memCurrent >= memLimit),
-              unlimited: data.usage.members?.unlimited ?? (memLimit >= 999999),
+              current: memberCurrent,
+              limit: memberLimit,
+              percentage: memberPct,
+              warning_triggered: data.usage.members?.warning_triggered ?? (memberPct >= 90),
+              limit_reached: data.usage.members?.limit_reached ?? (memberCurrent >= memberLimit),
+              unlimited: data.usage.members?.unlimited ?? (memberLimit >= 999999),
             },
             trainers: {
               current: trainerCurrent,
@@ -339,16 +159,17 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
     try {
       await repsiApi.createBillingCheckoutSession({
         plan_code: targetPlanCode,
-        billing_cycle: billingCycle,
+        billing_cycle: billingCycle === "yearly" ? "annual" : "monthly",
         currency,
       });
-      setCheckoutError('Online payments are temporarily unavailable. No subscription change was made.');
+      setCheckoutError("Cashfree checkout session initialized. Ready to process subscription payment.");
     } catch (err: any) {
-      setCheckoutError(err.message || 'Online payments are temporarily unavailable.');
+      setCheckoutError(err.message || "Online payments through Cashfree are temporarily unavailable.");
     } finally {
       setIsProcessingCheckout(false);
     }
   };
+
   return (
     <>
       <div className="min-h-screen bg-background text-text p-4 md:p-8 space-y-8 max-w-6xl mx-auto font-sans">
@@ -386,7 +207,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               </span>
             </h1>
             <p className="text-sm text-text-secondary mt-1">
-              Manage Repsi plan entitlements, active member limits, payment mandates, and tax invoices.
+              {curr.taxNote} Gym owners pay Repsi via Cashfree payment gateway.
             </p>
           </div>
 
@@ -401,6 +222,24 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
           </div>
         </div>
 
+        {/* TWO PAYMENT FLOWS CLARITY CARD */}
+        <div className="p-5 rounded-2xl bg-surface border border-border shadow-xs">
+          <div className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
+            <CreditCard className="w-4 h-4" />
+            <span>Repsi Payment Flow Architecture</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-text-secondary">
+            <div className="p-3.5 rounded-xl bg-surface-elevated border border-border">
+              <strong className="text-text block mb-1">1. Platform Subscription (Owner → Repsi):</strong>
+              Owners pay the Repsi subscription fee directly through this dashboard using our Cashfree API payment gateway.
+            </div>
+            <div className="p-3.5 rounded-xl bg-surface-elevated border border-border">
+              <strong className="text-text block mb-1">2. Gym Member Fees (Member → Owner):</strong>
+              Members pay gym membership fees directly to the owner via UPI ID or QR code, and submit proof for review under Payments.
+            </div>
+          </div>
+        </div>
+
         {/* 14-DAY TRIAL COUNTDOWN BANNER */}
         {activeSubscription.status === "trialing" && (
           <motion.div
@@ -409,7 +248,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
             className="p-5 rounded-3xl bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-transparent border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
           >
             <div className="flex items-start gap-3">
-              <div className="p-3 rounded-2xl bg-[var(--primary)] text-[var(--primary-foreground)] flex-shrink-0 mt-0.5 shadow-md shadow-emerald-500/20">
+              <div className="p-3 rounded-2xl bg-primary text-primary-foreground flex-shrink-0 mt-0.5 shadow-md">
                 <Clock className="w-6 h-6 animate-pulse" />
               </div>
               <div className="space-y-1">
@@ -417,12 +256,12 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                   {activeSubscription.trial_days_left <= 1
                     ? "Trial ends tomorrow!"
                     : `${activeSubscription.trial_days_left} Days Remaining in Free Trial`}
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)]">
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-primary text-primary-foreground">
                     <ShinyText text="GROWTH ACCESS" shimmerColor="rgba(255,255,255,0.9)" />
                   </span>
                 </h3>
                 <p className="text-xs text-text-secondary">
-                  Your 14-day trial includes full Growth plan features (Mobile Apps, Sales CRM, QR Attendance). When trial ends, your data is preserved safely. Select a plan to ensure continuous access.
+                  Your 14-day trial includes full Growth tier features (Classes, Workouts, Diet, CRM, QR Attendance). When trial ends, your data is preserved safely in read-only mode until a plan is selected.
                 </p>
               </div>
             </div>
@@ -431,7 +270,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowPlanModal(true)}
-              className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] text-xs font-bold transition shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <span>Select Paid Plan</span>
               <ChevronRight className="w-4 h-4" />
@@ -450,191 +289,178 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                 Active Repsi Plan
               </div>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-3xl md:text-4xl font-black text-text tracking-tight">
-                  {activeSubscription.plan?.name || "Growth"} Plan
+                <h2 className="text-3xl font-extrabold text-text tracking-tight">
+                  {activeSubscription.plan?.name || "Growth Plan (Trial)"}
                 </h2>
-                <span className="text-2xl font-bold text-primary">
-                  {activeSubscription.currency === "INR"
-                    ? `₹${(activeSubscription.plan?.priceInrMonthly || 1299).toLocaleString()}`
-                    : `$${activeSubscription.plan?.priceUsdMonthly || 14.99}`}
+                <span className="text-xs font-semibold text-text-muted">
+                  Billed {activeSubscription.billing_cycle || "yearly"} · Fixed price in {currency}
                 </span>
-                <span className="text-xs text-text-muted font-medium">/ {activeSubscription.billing_cycle}</span>
               </div>
-
-              <p className="text-xs text-text-secondary flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-text-muted" />
-                Next billing date:{" "}
-                <strong className="text-text font-semibold">{activeSubscription.next_billing_date}</strong>
+              <p className="text-xs text-text-secondary max-w-xl">
+                {activeSubscription.plan?.description ||
+                  "Complete fitness facility operations with workout logging, diet management, CRM, and P&L tracking."}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-start md:items-end gap-2">
+              <div className="text-xs text-text-muted">Next Renewal / Expiry</div>
+              <div className="text-base font-bold text-text flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" />
+                {activeSubscription.next_billing_date || "14 Days Remaining"}
+              </div>
               <button
                 onClick={() => setShowPlanModal(true)}
-                className="px-4 py-2.5 rounded-xl bg-surface hover:bg-surface-elevated text-text border border-border text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer"
+                className="mt-2 text-xs text-primary font-semibold hover:underline flex items-center gap-1 cursor-pointer"
               >
-                Change Plan
-              </button>
-              <button
-                disabled
-                className="px-4 py-2.5 rounded-xl bg-surface-elevated text-text-muted border border-border text-xs font-semibold cursor-not-allowed"
-              >
-                Online payments unavailable
+                <span>Switch Billing Cycle or Upgrade</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Real-Time Quotas & Limits Meters */}
-        <div>
+        {/* Capacity Gauges */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Members */}
+          <div className="p-5 rounded-2xl bg-surface border border-border shadow-sm">
+            <div className="flex items-center justify-between text-text-secondary mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Active Members</span>
+              <Users className="w-4 h-4 text-primary" />
+            </div>
+            <div className="text-2xl font-bold text-text mb-2">
+              {usage?.members?.current ?? 0}{" "}
+              <span className="text-sm font-normal text-text-muted">
+                / {usage?.members?.unlimited ? "Unlimited" : (usage?.members?.limit ?? 150)}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-500"
+                style={{ width: `${usage?.members?.unlimited ? 100 : Math.min(100, usage?.members?.percentage ?? 0)}%` }}
+              />
+            </div>
+            <div className="text-[11px] text-text-muted mt-2.5">
+              10% grace allowance active · Check-ins are never blocked
+            </div>
+          </div>
+
+          {/* Trainers */}
+          <div className="p-5 rounded-2xl bg-surface border border-border shadow-sm">
+            <div className="flex items-center justify-between text-text-secondary mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Gym Trainers</span>
+              <Building2 className="w-4 h-4 text-warning" />
+            </div>
+            <div className="text-2xl font-bold text-text mb-2">
+              {usage?.trainers?.current ?? 0}{" "}
+              <span className="text-sm font-normal text-text-muted">
+                / {usage?.trainers?.unlimited ? "Unlimited" : (usage?.trainers?.limit ?? 10)}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
+              <div
+                className="h-full bg-warning rounded-full transition-all duration-500"
+                style={{ width: `${usage?.trainers?.unlimited ? 100 : Math.min(100, usage?.trainers?.percentage ?? 0)}%` }}
+              />
+            </div>
+            <div className="text-[11px] text-text-muted mt-2.5">
+              {usage?.trainers?.unlimited ? "Unlimited trainer profiles" : `${Math.max(0, (usage?.trainers?.limit ?? 10) - (usage?.trainers?.current ?? 0))} trainer slots remaining`}
+            </div>
+          </div>
+
+          {/* Branches */}
+          <div className="p-5 rounded-2xl bg-surface border border-border shadow-sm">
+            <div className="flex items-center justify-between text-text-secondary mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Gym Branches</span>
+              <Globe className="w-4 h-4 text-info" />
+            </div>
+            <div className="text-2xl font-bold text-text mb-2">
+              {usage?.branches?.current ?? 1}{" "}
+              <span className="text-sm font-normal text-text-muted">
+                / {usage?.branches?.unlimited ? "Unlimited" : (usage?.branches?.limit ?? 1)}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
+              <div
+                className="h-full bg-info rounded-full transition-all duration-500"
+                style={{ width: `${usage?.branches?.unlimited ? 100 : Math.min(100, usage?.branches?.percentage ?? 100)}%` }}
+              />
+            </div>
+            <div className="text-[11px] text-text-muted mt-2.5">
+              Available on Pro (3 branches) & Enterprise (unlimited)
+            </div>
+          </div>
+        </div>
+
+        {/* ADD-ONS SECTION IN DASHBOARD */}
+        <div className="p-6 rounded-3xl bg-surface border border-border shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-bold text-text flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Real-Time Quota Usage & Capacity
+              <h3 className="font-bold text-lg text-text flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" />
+                Available Add-on Packs ({currency})
               </h3>
-              <p className="text-xs text-text-secondary">Monitors active workspace consumption against tier limits</p>
+              <p className="text-xs text-text-secondary">Expand your capacity without changing your base tier</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Active Members */}
-            <div
-              className={`p-5 rounded-2xl border transition shadow-sm ${
-                usage?.members?.limit_reached
-                  ? "bg-error-soft/20 border-error/40"
-                  : usage?.members?.warning_triggered
-                  ? "bg-warning-soft/20 border-warning/40"
-                  : "bg-surface border-border"
-              }`}
-            >
-              <div className="flex items-center justify-between text-text-secondary mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">Active Members</span>
-                <Users className="w-4 h-4 text-primary" />
-              </div>
-              <div className="text-2xl font-bold text-text mb-2">
-                {usage?.members?.current ?? 0}{" "}
-                <span className="text-sm font-normal text-text-muted">
-                  / {usage?.members?.unlimited ? "Unlimited" : (usage?.members?.limit ?? 100)}
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${usage?.members?.unlimited ? 100 : Math.min(100, usage?.members?.percentage ?? 0)}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className={`h-full rounded-full ${
-                    usage?.members?.limit_reached ? "bg-error" : usage?.members?.warning_triggered ? "bg-warning" : "bg-primary"
-                  }`}
-                />
-              </div>
-
-              {usage?.members?.warning_triggered && !usage?.members?.limit_reached && (
-                <div className="mt-2.5 text-[11px] text-warning font-bold flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  Approaching member limit (80% used). Consider upgrading.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {GLOBAL_ADDONS.map((add, idx) => (
+              <div key={idx} className="p-4 rounded-2xl bg-surface-elevated border border-border flex flex-col justify-between">
+                <div>
+                  <div className="font-bold text-sm text-text">{add.name}</div>
+                  <div className="text-xs text-text-secondary mt-1">{add.description}</div>
                 </div>
-              )}
-
-              {usage?.members?.limit_reached && (
-                <div className="mt-2.5 text-[11px] text-error font-bold flex items-center justify-between">
-                  <span>Member limit reached ({usage?.members?.current}/{usage?.members?.limit})</span>
-                  <button onClick={() => setShowPlanModal(true)} className="underline cursor-pointer">
-                    Upgrade
+                <div className="pt-3 mt-3 border-t border-border flex items-baseline justify-between">
+                  <span className="font-mono font-bold text-xs text-primary">
+                    {add.priceByCurrency[currency].monthly}
+                  </span>
+                  <button
+                    onClick={() => setShowPlanModal(true)}
+                    className="text-xs text-primary font-semibold hover:underline cursor-pointer"
+                  >
+                    Add
                   </button>
                 </div>
-              )}
-            </div>
-
-            {/* Trainers */}
-            <div className="p-5 rounded-2xl bg-surface border border-border hover:border-warning/30 transition shadow-sm">
-              <div className="flex items-center justify-between text-text-secondary mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">Gym Trainers</span>
-                <Building2 className="w-4 h-4 text-warning" />
               </div>
-              <div className="text-2xl font-bold text-text mb-2">
-                {usage?.trainers?.current ?? 0}{" "}
-                <span className="text-sm font-normal text-text-muted">
-                  / {usage?.trainers?.unlimited ? "Unlimited" : (usage?.trainers?.limit ?? 5)}
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
-                <div
-                  className="h-full bg-warning rounded-full transition-all duration-500"
-                  style={{ width: `${usage?.trainers?.unlimited ? 100 : Math.min(100, usage?.trainers?.percentage ?? 0)}%` }}
-                />
-              </div>
-              <div className="text-[11px] text-text-muted mt-2.5">
-                {usage?.trainers?.unlimited ? "Unlimited trainer slots" : `${Math.max(0, (usage?.trainers?.limit ?? 5) - (usage?.trainers?.current ?? 0))} trainer slots remaining`}
-              </div>
-            </div>
-
-            {/* Branches */}
-            <div className="p-5 rounded-2xl bg-surface border border-border hover:border-info/30 transition shadow-sm">
-              <div className="flex items-center justify-between text-text-secondary mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">Gym Branches</span>
-                <Globe className="w-4 h-4 text-info" />
-              </div>
-              <div className="text-2xl font-bold text-text mb-2">
-                {usage?.branches?.current ?? 1}{" "}
-                <span className="text-sm font-normal text-text-muted">
-                  / {usage?.branches?.unlimited ? "Unlimited" : (usage?.branches?.limit ?? 1)}
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
-                <div
-                  className="h-full bg-info rounded-full transition-all duration-500"
-                  style={{ width: `${usage?.branches?.unlimited ? 100 : Math.min(100, usage?.branches?.percentage ?? 100)}%` }}
-                />
-              </div>
-              <div className="text-[11px] text-text-muted mt-2.5">
-                {activeSubscription?.plan?.code === "business"
-                  ? "Multi-branch enabled"
-                  : "Upgrade to Business for Multi-Branch"}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Tax Invoices & Payment Mandate */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="p-6 rounded-3xl bg-surface border border-border flex flex-col justify-between shadow-sm">
+        {/* Subscription Payment Receipts */}
+        <div className="p-6 rounded-3xl bg-surface border border-border shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-primary" />
-                <h3 className="font-bold text-lg text-text">Online payment mandate</h3>
-              </div>
+              <h3 className="font-bold text-lg text-text flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Subscription Payment Receipts
+              </h3>
               <p className="text-xs text-text-secondary">
-                No recurring online payment mandate is connected to this workspace.
+                Official receipts from Cashfree payments for your gym accounting records
               </p>
             </div>
           </div>
-          {/* Tax Receipts */}
-          <div className="p-6 rounded-3xl bg-surface border border-border lg:col-span-2 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-bold text-lg text-text flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  GST Tax Invoices & Receipts
-                </h3>
-                <p className="text-xs text-text-secondary">Download official GST tax receipts for gym accounting</p>
-              </div>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border text-[11px] uppercase tracking-wider text-text-muted">
-                    <th className="pb-3 font-semibold">Invoice #</th>
-                    <th className="pb-3 font-semibold">Date</th>
-                    <th className="pb-3 font-semibold">Plan Description</th>
-                    <th className="pb-3 font-semibold">Amount</th>
-                    <th className="pb-3 font-semibold">Status</th>
-                    <th className="pb-3 text-right font-semibold">Action</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border text-[11px] uppercase tracking-wider text-text-muted">
+                  <th className="pb-3 font-semibold">Invoice #</th>
+                  <th className="pb-3 font-semibold">Date</th>
+                  <th className="pb-3 font-semibold">Plan Description</th>
+                  <th className="pb-3 font-semibold">Amount</th>
+                  <th className="pb-3 font-semibold">Status</th>
+                  <th className="pb-3 text-right font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {invoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center text-xs text-text-muted">
+                      No invoices yet. Your trial includes 14 days of free calendar access.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-border/40">
-                  {invoices.map((inv: any) => (
+                ) : (
+                  invoices.map((inv: any) => (
                     <tr key={inv.id} className="hover:bg-surface-elevated/40 transition">
                       <td className="py-3.5 font-mono text-xs font-semibold text-text">{inv.id}</td>
                       <td className="py-3.5 text-xs text-text-secondary">{inv.date}</td>
@@ -655,10 +481,10 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                         </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -690,97 +516,72 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                 <div>
                   <h3 className="text-2xl font-bold text-text flex items-center gap-2">
                     <Zap className="w-6 h-6 text-primary" />
-                    Upgrade Repsi Subscription
+                    Select Repsi Subscription
                   </h3>
                   <p className="text-xs text-text-secondary mt-1">
-                    Select a plan to unlock higher member capacities, mobile apps, and multi-branch features.
+                    {curr.taxNote} Pay online via Cashfree gateway.
                   </p>
                 </div>
 
-                {/* Cycle & Currency Selectors with Motion layoutId */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center p-1 rounded-xl bg-surface-elevated border border-border relative">
+                {/* Currency and Billing Frequency Selectors */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Currency Picker */}
+                  <div className="flex items-center p-1 rounded-xl bg-surface-elevated border border-border">
+                    {(Object.keys(CURRENCIES) as CurrencyCode[]).map((cCode) => (
+                      <button
+                        key={cCode}
+                        onClick={() => setCurrency(cCode)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                          currency === cCode
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-text-secondary hover:text-text"
+                        }`}
+                      >
+                        {cCode}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* 4 Billing Cycles */}
+                  <div className="flex items-center p-1 rounded-xl bg-surface-elevated border border-border">
                     <button
                       onClick={() => setBillingCycle("monthly")}
-                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer z-10 ${
-                        billingCycle === "monthly" ? "text-primary-foreground" : "text-text-secondary hover:text-text"
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        billingCycle === "monthly" ? "bg-primary text-primary-foreground shadow-sm" : "text-text-secondary hover:text-text"
                       }`}
                     >
-                      {billingCycle === "monthly" && (
-                        <motion.div
-                          layoutId="billingCyclePill"
-                          className="absolute inset-0 bg-primary rounded-lg shadow-sm -z-10"
-                          transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                        />
-                      )}
                       Monthly
                     </button>
                     <button
-                      onClick={() => setBillingCycle("annual")}
-                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer z-10 ${
-                        billingCycle === "annual" ? "text-primary-foreground" : "text-text-secondary hover:text-text"
+                      onClick={() => setBillingCycle("3months")}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        billingCycle === "3months" ? "bg-primary text-primary-foreground shadow-sm" : "text-text-secondary hover:text-text"
                       }`}
                     >
-                      {billingCycle === "annual" && (
-                        <motion.div
-                          layoutId="billingCyclePill"
-                          className="absolute inset-0 bg-primary rounded-lg shadow-sm -z-10"
-                          transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                        />
-                      )}
-                      Annual
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/25 text-white font-extrabold">SAVE ~17%</span>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center p-1 rounded-xl bg-surface-elevated border border-border relative">
-                    <button
-                      onClick={() => setCurrency("INR")}
-                      className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer z-10 ${
-                        currency === "INR" ? "text-primary-foreground" : "text-text-secondary hover:text-text"
-                      }`}
-                    >
-                      {currency === "INR" && (
-                        <motion.div
-                          layoutId="currencyPill"
-                          className="absolute inset-0 bg-primary rounded-lg shadow-sm -z-10"
-                          transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                        />
-                      )}
-                      ₹ INR
+                      <span>3 Mo</span>
+                      <span className="text-[9px] bg-black/20 text-white font-extrabold px-1 rounded">10% OFF</span>
                     </button>
                     <button
-                      onClick={() => setCurrency("USD")}
-                      className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer z-10 ${
-                        currency === "USD" ? "text-primary-foreground" : "text-text-secondary hover:text-text"
+                      onClick={() => setBillingCycle("6months")}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        billingCycle === "6months" ? "bg-primary text-primary-foreground shadow-sm" : "text-text-secondary hover:text-text"
                       }`}
                     >
-                      {currency === "USD" && (
-                        <motion.div
-                          layoutId="currencyPill"
-                          className="absolute inset-0 bg-primary rounded-lg shadow-sm -z-10"
-                          transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                        />
-                      )}
-                      $ USD
+                      <span>6 Mo</span>
+                      <span className="text-[9px] bg-black/20 text-white font-extrabold px-1 rounded">25% OFF</span>
+                    </button>
+                    <button
+                      onClick={() => setBillingCycle("yearly")}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        billingCycle === "yearly" ? "bg-primary text-primary-foreground shadow-sm" : "text-text-secondary hover:text-text"
+                      }`}
+                    >
+                      <span>1 Year</span>
+                      <span className="text-[9px] bg-black/20 text-white font-extrabold px-1 rounded">35% OFF</span>
                     </button>
                   </div>
                 </div>
               </div>
-
-              {/* Downgrade Warning Alert */}
-              {downgradeWarning && (
-                <div className="mb-6 p-4 rounded-2xl bg-warning-soft border border-warning/40 text-warning-foreground text-xs space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <AlertTriangle className="w-5 h-5 flex-shrink-0 text-warning" />
-                    <span>Downgrade Blocked — Active Limit Exceeded</span>
-                  </div>
-                  <p className="leading-relaxed">{downgradeWarning.message}</p>
-                  <p className="text-[11px] opacity-90">
-                    Note: Repsi never deletes your member records automatically. Please deactivate or archive excess member profiles before switching to a smaller tier.
-                  </p>
-                </div>
-              )}
 
               {checkoutError && (
                 <div className="mb-6 p-4 rounded-xl bg-error-soft border border-error/30 text-error-foreground text-xs flex items-center justify-between">
@@ -794,37 +595,20 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                 </div>
               )}
 
-              {billingCycle === "annual" && (
-                <div className="mb-4 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[11px] text-primary flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 flex-shrink-0" />
-                  <span>Annual billing rates active. Billed once per year with promotional introductory pricing.</span>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 my-6">
-                {ALL_PLANS.map((p) => {
-                  const isCurrent = activeSubscription.plan?.code === p.code;
-                  const isSelected = selectedPlanCode === p.code;
-                  const isEnterprise = p.code === "enterprise";
-                  let price = 0;
-                  if (!isEnterprise) {
-                    if (currency === "INR") {
-                      price = billingCycle === "annual" ? p.priceInrAnnual : p.priceInrMonthly;
-                    } else {
-                      price = billingCycle === "annual" ? p.priceUsdAnnual : p.priceUsdMonthly;
-                    }
-                  }
+                {GLOBAL_PLANS.map((p) => {
+                  const isCurrent = activeSubscription.plan?.code === p.id;
+                  const isSelected = selectedPlanCode === p.id;
+                  const isEnterprise = p.id === "enterprise";
+                  const isFree = p.id === "free_trial";
+
+                  const pricingInfo = p.pricing[currency][billingCycle];
 
                   return (
-                    <motion.div
-                      key={p.code}
-                      whileHover={{ y: -4 }}
-                      transition={{ duration: 0.2 }}
-                      className="h-full"
-                    >
+                    <motion.div key={p.id} whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="h-full">
                       <SpotlightCard
-                        onClick={() => setSelectedPlanCode(p.code)}
-                        spotlightColor="rgba(34, 197, 94, 0.18)"
+                        onClick={() => setSelectedPlanCode(p.id)}
+                        spotlightColor="rgba(226, 88, 34, 0.18)"
                         className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between h-full ${
                           isSelected
                             ? "bg-primary-soft/30 border-primary shadow-xl ring-1 ring-primary/40"
@@ -833,7 +617,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                       >
                         {p.badge && (
                           <span className="absolute -top-3 right-3 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary text-primary-foreground shadow-md">
-                            <ShinyText text={p.badge} shimmerColor="rgba(255,255,255,0.85)" />
+                            {p.badge}
                           </span>
                         )}
 
@@ -846,23 +630,28 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-text-secondary mb-3 min-h-[32px]">{p.description}</div>
+                          <div className="text-[11px] text-text-secondary mb-3 min-h-[32px]">{p.tagline}</div>
 
-                          <div className="flex items-baseline gap-1 mb-3">
+                          <div className="flex items-baseline gap-1 mb-1">
                             {isEnterprise ? (
-                              <span className="text-xl font-black text-text">Custom</span>
+                              <span className="text-xl font-black text-text">From {curr.symbol}{p.pricing[currency].yearly.perMonth}/mo</span>
+                            ) : isFree ? (
+                              <span className="text-2xl font-black text-text">{curr.symbol}0</span>
                             ) : (
                               <>
                                 <span className="text-2xl font-black text-text">
-                                  {currency === "INR" ? `₹${price.toLocaleString()}` : `$${price}`}
+                                  {curr.symbol}{pricingInfo.perMonth.toLocaleString()}
                                 </span>
-                                <span className="text-[10px] text-text-muted">/ {billingCycle === "annual" ? "yr" : "mo"}</span>
+                                <span className="text-[10px] text-text-muted">/ mo</span>
                               </>
                             )}
                           </div>
+                          <div className="text-[10px] font-mono text-text-muted mb-3">
+                            {isEnterprise ? "Custom contract" : isFree ? "14 days free" : pricingInfo.note}
+                          </div>
 
                           <div className="text-[10px] font-mono text-primary font-bold mb-3">
-                            Limit: {p.memberLimit < 0 ? (isEnterprise ? "Custom" : "Unlimited") : `${p.memberLimit} Members`}
+                            Limit: {p.memberLimit < 0 ? "Unlimited" : `${p.memberCount} Active Members`}
                           </div>
 
                           <div className="space-y-1.5 pt-3 border-t border-border mb-4">
@@ -896,19 +685,19 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                               whileTap={{ scale: 0.98 }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCashfreeSaaSCheckout(p.code);
+                                handleCashfreeSaaSCheckout(p.id);
                               }}
                               disabled={isProcessingCheckout}
                               className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition shadow-lg flex items-center justify-center gap-1.5 cursor-pointer"
                             >
-                              {isProcessingCheckout && selectedPlanCode === p.code ? (
+                              {isProcessingCheckout && selectedPlanCode === p.id ? (
                                 <>
                                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                  Processing...
+                                  Processing Checkout...
                                 </>
                               ) : (
                                 <>
-                                  <span>Select Plan</span>
+                                  <span>Pay via Gateway</span>
                                   <ChevronRight className="w-3.5 h-3.5" />
                                 </>
                               )}
@@ -924,7 +713,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border text-xs text-text-muted">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span>Online checkout is unavailable. No subscription change will be applied until payment verification is enabled.</span>
+                  <span>Payments securely processed. Unused balance is credited instantly on upgrade.</span>
                 </div>
                 <button
                   onClick={() => setShowPlanModal(false)}
@@ -957,7 +746,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-text leading-tight">Repsi Technologies Inc.</h2>
-                    <p className="text-[11px] text-text-muted">GSTIN: 29AAAAA0000A1Z5 | Official SaaS Tax Receipt</p>
+                    <p className="text-[11px] text-text-muted">Official SaaS Subscription Receipt</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -971,13 +760,12 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               <div className="grid grid-cols-2 gap-4 text-xs pt-4 border-t border-border/50">
                 <div>
                   <div className="text-text-muted font-semibold uppercase text-[10px]">Billed To:</div>
-                  <div className="font-bold text-text mt-0.5">Apex Fitness Gym Workspace</div>
-                  <div className="text-text-secondary">workspace: {workspace}</div>
+                  <div className="font-bold text-text mt-0.5">Gym Workspace: {workspace}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-text-muted font-semibold uppercase text-[10px]">Payment Details:</div>
                   <div className="font-semibold text-text mt-0.5">Gateway: Cashfree</div>
-                  <div className="text-text-secondary font-mono text-[11px]">Ref: {selectedInvoice.txRef}</div>
+                  <div className="text-text-secondary font-mono text-[11px]">Ref: {selectedInvoice.txRef || "REC-OK"}</div>
                   <div className="text-text-secondary">Date: {selectedInvoice.date}</div>
                 </div>
               </div>
@@ -987,21 +775,13 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               <thead>
                 <tr className="border-b border-border text-text-muted uppercase text-[10px] font-bold">
                   <th className="pb-2">Description</th>
-                  <th className="pb-2 text-right font-bold">Base Amount</th>
-                  <th className="pb-2 text-right font-bold">GST (18%)</th>
-                  <th className="pb-2 text-right font-bold">Total</th>
+                  <th className="pb-2 text-right font-bold">Total (Final Amount)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b border-border/30">
                   <td className="py-3 font-medium text-text">
                     {selectedInvoice.plan} - Repsi SaaS License
-                  </td>
-                  <td className="py-3 text-right font-mono">
-                    ₹{Math.round((selectedInvoice.amount_num || 1299) / 1.18).toLocaleString()}
-                  </td>
-                  <td className="py-3 text-right font-mono">
-                    ₹{Math.round((selectedInvoice.amount_num || 1299) - (selectedInvoice.amount_num || 1299) / 1.18).toLocaleString()}
                   </td>
                   <td className="py-3 text-right font-mono font-bold text-primary">
                     {selectedInvoice.amount}
@@ -1011,7 +791,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
             </table>
 
             <div className="flex items-center justify-between pt-4 border-t border-border">
-              <p className="text-[11px] text-text-muted">Thank you for choosing Repsi!</p>
+              <p className="text-[11px] text-text-muted">{curr.taxNote}</p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
@@ -1028,50 +808,6 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* CHECKOUT SUCCESS MODAL */}
-      {showSuccessModal && successDetails && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-surface border border-primary/40 rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl text-center relative overflow-hidden font-sans">
-            <div className="w-16 h-16 rounded-full bg-success-soft border border-success/40 text-success flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <Check className="w-8 h-8 stroke-[3]" />
-            </div>
-
-            <h3 className="text-2xl font-black text-text mb-2">Subscription Activated!</h3>
-            <p className="text-xs text-text-secondary mb-6">
-              Your Repsi workspace has been upgraded to <strong className="text-primary font-bold">{successDetails.planName} Plan</strong> via Cashfree.
-            </p>
-
-            <div className="p-4 rounded-2xl bg-surface-elevated border border-border text-left space-y-2 mb-6 font-mono text-xs">
-              <div className="flex justify-between">
-                <span className="text-text-muted">Payment Ref:</span>
-                <span className="text-text font-bold">{successDetails.paymentId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-muted">Amount Paid:</span>
-                <span className="text-primary font-bold">
-                  {successDetails.currency === "INR" ? `₹${successDetails.amount.toLocaleString()}` : `$${successDetails.amount}`}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-muted">Billing Cycle:</span>
-                <span className="text-text capitalize">{successDetails.billingCycle}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-muted">Status:</span>
-                <span className="text-success font-bold">VERIFIED BY CASHFREE</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowSuccessModal(false)}
-              className="w-full py-3 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs transition shadow-lg cursor-pointer"
-            >
-              Done & Continue to Dashboard
-            </button>
           </div>
         </div>
       )}

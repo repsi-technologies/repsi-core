@@ -70,7 +70,7 @@ def test_trial_initialization_14_days(db_session: Session):
 
     assert sub.status == SubscriptionStatus.TRIALING
     assert sub.plan.code == "growth"
-    assert sub.plan.member_limit == 35
+    assert sub.plan.member_limit == 150
 
     assert sub.trial_start is not None
     assert sub.trial_end is not None
@@ -91,7 +91,7 @@ def test_trial_countdown_calculation(db_session: Session):
     assert status["total_trial_days"] == 14
     assert status["days_remaining"] in [13, 14]
     assert status["plan_code"] == "growth"
-    assert status["member_limit"] == 35
+    assert status["member_limit"] == 150
     assert status["trial_state"] in ["active", "reminder_7d"]
 
 

@@ -3,70 +3,21 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, ArrowRight, Sparkles, SlidersHorizontal, CheckCircle2 } from "lucide-react";
+import { Check, ArrowRight, Sparkles, SlidersHorizontal, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
+import {
+  CURRENCIES,
+  CurrencyCode,
+  BillingCycle,
+  GLOBAL_PLANS,
+} from "@/lib/pricing-data";
 
 export function PricingPreviewSection() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
+  // Default to 1 year and INR (with seamless toggle to USD, EUR, GBP, AED)
+  const [currency, setCurrency] = useState<CurrencyCode>("INR");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
   const shouldReduceMotion = useReducedMotion();
 
-  const previewBundles = [
-    {
-      id: "owner_lite",
-      name: "Owner Lite",
-      tagline: "Basic business management for owners & solo trainers.",
-      monthlyPrice: 199,
-      annualPrice: 159,
-      badge: "ENTRY PLAN",
-      popular: false,
-      memberCapacity: "Owner & staff only",
-      features: [
-        "Owner dashboard & business settings",
-        "Trainer management & staff roster",
-        "Roles & granular permissions",
-        "Basic operational reports",
-        "Audit logs & secure cloud backup",
-      ],
-      ctaText: "Get Started",
-    },
-    {
-      id: "starter",
-      name: "REPSI Starter",
-      tagline: "Essential daily gym operations for small fitness businesses.",
-      monthlyPrice: 399,
-      annualPrice: 319,
-      badge: "RECOMMENDED",
-      popular: true,
-      memberCapacity: "Up to 25 active members",
-      features: [
-        "Everything in Owner Lite",
-        "Up to 25 active members included",
-        "Member portal & digital pass access",
-        "1-second QR attendance check-in",
-        "Membership plans & renewals",
-        "Payment tracking & receipts",
-      ],
-      ctaText: "Choose Starter",
-    },
-    {
-      id: "growth",
-      name: "REPSI Growth",
-      tagline: "For expanding clubs needing deeper scheduling & automation.",
-      monthlyPrice: 699,
-      annualPrice: 559,
-      badge: "MOST POPULAR",
-      popular: false,
-      memberCapacity: "Up to 100 active members",
-      features: [
-        "Everything in REPSI Starter",
-        "Up to 100 active members included",
-        "Class & batch slot scheduling",
-        "Trainer client schedules",
-        "Expense tracking & dues follow-up",
-        "Advanced revenue & retention reports",
-      ],
-      ctaText: "Choose Growth",
-    },
-  ];
+  const curr = CURRENCIES[currency];
 
   return (
     <section
@@ -75,9 +26,14 @@ export function PricingPreviewSection() {
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 01. SECTION HEADER (NO EYEBROW)                               */}
+        {/* 01. SECTION HEADER                                            */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] text-xs font-bold uppercase tracking-wider mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Final Global Pricing · Fixed Rates Per Currency</span>
+          </div>
+
           <motion.h2
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -85,8 +41,11 @@ export function PricingPreviewSection() {
             transition={{ duration: 0.5 }}
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl text-[#191919] tracking-tight leading-[1.14] mb-3"
           >
-            Affordable pricing starting at{" "}
-            <span className="text-[#E25822]">₹199/month.</span>
+            Predictable gym software starting at{" "}
+            <span className="text-[#E25822]">
+              {curr.symbol}
+              {GLOBAL_PLANS.find((p) => p.id === "lite")?.pricing[currency].yearly.perMonth}/mo.
+            </span>
           </motion.h2>
 
           <motion.p
@@ -96,107 +55,144 @@ export function PricingPreviewSection() {
             transition={{ duration: 0.5, delay: 0.08 }}
             className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed font-normal"
           >
-            Start with our lightweight owner platform and choose the modules your facility needs. Zero setup fees, zero hidden contracts.
+            {curr.taxNote} Only active members count, with a 10% grace cap and zero check-in blocks.
           </motion.p>
 
-          {/* Billing Switcher */}
-          <div className="mt-7 flex items-center justify-center gap-3">
+          {/* Currency Switcher */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 p-1 bg-white border border-[#E7E4DE] rounded-full max-w-fit mx-auto shadow-xs">
+            {(Object.keys(CURRENCIES) as CurrencyCode[]).map((cKey) => {
+              const cItem = CURRENCIES[cKey];
+              const isSelected = currency === cKey;
+              return (
+                <button
+                  key={cKey}
+                  type="button"
+                  onClick={() => setCurrency(cKey)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    isSelected
+                      ? "bg-[#191919] text-white shadow-xs"
+                      : "text-[#62666D] hover:text-[#191919] hover:bg-[#F5F2ED]"
+                  }`}
+                >
+                  <span>{cItem.symbol}</span>
+                  <span>{cKey}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 4 Billing Cycles with Discounts */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 p-1.5 bg-white border border-[#E7E4DE] rounded-full max-w-xl mx-auto shadow-xs">
             <button
               type="button"
-              className={`text-xs sm:text-sm font-semibold cursor-pointer transition-colors ${
-                billingCycle === "monthly" ? "text-[#191919]" : "text-[#858890]"
-              }`}
               onClick={() => setBillingCycle("monthly")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                billingCycle === "monthly"
+                  ? "bg-[#191919] text-white shadow-xs"
+                  : "text-[#62666D] hover:text-[#191919]"
+              }`}
             >
               Monthly
             </button>
-
             <button
               type="button"
-              onClick={() =>
-                setBillingCycle(billingCycle === "monthly" ? "annual" : "monthly")
-              }
-              className="w-13 h-7 bg-[#E7E4DE] rounded-full p-1 transition-colors relative cursor-pointer"
-              aria-label="Toggle billing frequency"
-            >
-              <motion.div
-                className="w-5 h-5 bg-[#E25822] rounded-full shadow-xs"
-                animate={{ x: billingCycle === "annual" ? 24 : 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              />
-            </button>
-
-            <button
-              type="button"
-              className={`text-xs sm:text-sm font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
-                billingCycle === "annual" ? "text-[#191919]" : "text-[#858890]"
+              onClick={() => setBillingCycle("3months")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                billingCycle === "3months"
+                  ? "bg-[#191919] text-white shadow-xs"
+                  : "text-[#62666D] hover:text-[#191919]"
               }`}
-              onClick={() => setBillingCycle("annual")}
             >
-              <span>Yearly</span>
-              <span className="text-[10px] font-bold text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7] px-2 py-0.5 rounded-full uppercase">
-                Save 20%
+              <span>3 Months</span>
+              <span className="text-[10px] text-[#E25822] font-bold">10% OFF</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("6months")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                billingCycle === "6months"
+                  ? "bg-[#191919] text-white shadow-xs"
+                  : "text-[#62666D] hover:text-[#191919]"
+              }`}
+            >
+              <span>6 Months</span>
+              <span className="text-[10px] text-[#E25822] font-bold">25% OFF</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("yearly")}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                billingCycle === "yearly"
+                  ? "bg-[#E25822] text-white shadow-sm shadow-[#E25822]/30"
+                  : "text-[#62666D] hover:text-[#191919]"
+              }`}
+            >
+              <span>1 Year (Best Value)</span>
+              <span className="text-[10px] bg-white/20 text-white font-bold px-1.5 py-0.2 rounded-full">
+                35% OFF
               </span>
             </button>
+          </div>
+
+          <div className="mt-3 text-xs font-medium text-[#858890]">
+            ⚡ Founder Offer: First 50 gyms worldwide lock these prices for life.
           </div>
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 02. PREVIEW BUNDLES (3 CLEAN CARDS)                           */}
+        {/* 02. PLAN CARDS GRID                                           */}
         {/* ───────────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7 items-stretch mb-12">
-          {previewBundles.map((bundle) => {
-            const price =
-              billingCycle === "annual" ? bundle.annualPrice : bundle.monthlyPrice;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch mb-12">
+          {GLOBAL_PLANS.map((plan) => {
+            const pricingInfo = plan.pricing[currency][billingCycle];
+            const isFree = plan.id === "free_trial";
 
             return (
               <div
-                key={bundle.id}
-                className={`rounded-[28px] sm:rounded-[32px] p-7 sm:p-8 flex flex-col justify-between relative transition-all duration-200 ${
-                  bundle.popular
-                    ? "bg-white text-[#191919] shadow-md border-2 border-[#E25822] ring-4 ring-[#E25822]/10"
+                key={plan.id}
+                className={`rounded-[28px] p-6 sm:p-7 flex flex-col justify-between relative transition-all duration-200 ${
+                  plan.popular
+                    ? "bg-white text-[#191919] shadow-lg border-2 border-[#E25822] ring-4 ring-[#E25822]/10"
                     : "bg-white text-[#191919] shadow-xs border border-[#E7E4DE] hover:shadow-md"
                 }`}
               >
-                {bundle.badge && (
+                {plan.badge && (
                   <div
                     className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-[10.5px] font-bold tracking-wider uppercase px-3.5 py-0.5 rounded-full shadow-2xs whitespace-nowrap ${
-                      bundle.popular
+                      plan.popular
                         ? "bg-[#E25822] text-white"
                         : "bg-[#FDF1EB] text-[#E25822] border border-[#FACBB7]"
                     }`}
                   >
-                    {bundle.badge}
+                    {plan.badge}
                   </div>
                 )}
 
                 <div>
                   <div className="mb-2">
                     <h3 className="font-heading font-extrabold text-2xl tracking-tight text-[#191919]">
-                      {bundle.name}
+                      {plan.name}
                     </h3>
                     <div className="text-xs font-mono font-semibold text-[#858890] mt-0.5">
-                      {bundle.memberCapacity}
+                      {plan.memberCapacity}
                     </div>
                   </div>
 
                   <p className="text-xs text-[#62666D] mb-5 leading-relaxed min-h-[36px]">
-                    {bundle.tagline}
+                    {plan.tagline}
                   </p>
 
                   <div className="mb-5 pb-5 border-b border-[#E7E4DE]">
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-heading font-extrabold tracking-tight text-[#191919]">
-                        ₹{price.toLocaleString()}
+                        {isFree ? `${curr.symbol}0` : `${curr.symbol}${pricingInfo.perMonth.toLocaleString()}`}
                       </span>
                       <span className="text-xs font-medium text-[#62666D]">
-                        / month
+                        {isFree ? "for 14 days" : "/ month"}
                       </span>
                     </div>
                     <div className="text-[11px] mt-1 font-mono text-[#858890]">
-                      {billingCycle === "annual"
-                        ? `Billed ₹${(price * 12).toLocaleString()}/year · Save 20%`
-                        : "Billed monthly"}
+                      {pricingInfo.note}
                     </div>
                   </div>
 
@@ -204,7 +200,7 @@ export function PricingPreviewSection() {
                     <div className="text-[11px] font-bold uppercase tracking-wider text-[#191919]">
                       Included Features:
                     </div>
-                    {bundle.features.map((feat, fIdx) => (
+                    {plan.features.map((feat, fIdx) => (
                       <div key={fIdx} className="flex items-start gap-2 text-[#191919]">
                         <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#E25822]" />
                         <span className="leading-snug">{feat}</span>
@@ -215,14 +211,18 @@ export function PricingPreviewSection() {
 
                 <div className="pt-2">
                   <Link
-                    href={`/signup?plan=${bundle.id}&billing=${billingCycle}`}
+                    href={
+                      plan.id === "enterprise"
+                        ? "/contact"
+                        : `/signup?plan=${plan.id}&billing=${billingCycle}&currency=${currency}`
+                    }
                     className={`group w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 ${
-                      bundle.popular
+                      plan.popular
                         ? "bg-[#E25822] hover:bg-[#C94715] text-white shadow-sm shadow-[#E25822]/30"
                         : "bg-[#FAF9F6] hover:bg-[#F5F2ED] text-[#191919] border border-[#E7E4DE]"
                     }`}
                   >
-                    <span>{bundle.ctaText}</span>
+                    <span>{plan.ctaText}</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                   </Link>
                 </div>
@@ -232,28 +232,28 @@ export function PricingPreviewSection() {
         </div>
 
         {/* ───────────────────────────────────────────────────────────── */}
-        {/* 03. REDIRECT CALLOUT BANNER TO /pricing                        */}
+        {/* 03. FULL COMPARISON & DASHBOARD BILLING BANNER                */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="rounded-3xl bg-white border border-[#E7E4DE] p-7 sm:p-9 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-sm">
           <div className="space-y-2 text-center lg:text-left max-w-2xl">
             <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-[#191919]">
-              Need custom modules or higher member capacity?
+              Compare all 245 features, limits & add-ons
             </h3>
             <p className="text-xs sm:text-sm text-[#62666D] leading-relaxed">
-              Use our interactive plan calculator to select individual modules (Diet Plans, Trainer Rosters, Biometric Turnstiles, Multi-branch) and calculate your exact bill in real time.
+              Explore the complete side-by-side comparison matrix, add-on packs (+50 member packs, extra branches, WhatsApp), and multi-currency pricing. Existing gym owners can manage subscriptions and pay directly via Cashfree from their dashboard under <strong>Settings → Billing</strong>.
             </p>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs font-medium text-[#62666D]">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                24 Modular Add-ons
+                Fixed prices per currency
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Up to 1,000+ Members
+                10% Grace over cap
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Live Instant Quote
+                Online checkout on Dashboard
               </span>
             </div>
           </div>
@@ -264,7 +264,7 @@ export function PricingPreviewSection() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold shadow-sm shadow-[#E25822]/30 transition-all active:scale-95"
             >
               <SlidersHorizontal className="w-4 h-4" />
-              <span>Explore Full Dynamic Pricing</span>
+              <span>View Full /pricing Details</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
