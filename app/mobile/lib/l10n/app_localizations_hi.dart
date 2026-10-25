@@ -3903,4 +3903,109 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get permGroupAdmin => 'प्रशासन';
+
+  @override
+  String get assignPlans => 'प्लान असाइन करें';
+
+  @override
+  String assignTo(String name) {
+    return '$name को असाइन करें';
+  }
+
+  @override
+  String get assignBtn => 'असाइन करें';
+
+  @override
+  String get assignWorkoutBtn => 'वर्कआउट असाइन करें';
+
+  @override
+  String get workoutAssigned => 'वर्कआउट प्लान असाइन हो गया';
+
+  @override
+  String get dietAssigned => 'डाइट प्लान असाइन हो गया';
+
+  @override
+  String get chooseProgram => 'वर्कआउट प्रोग्राम चुनें';
+
+  @override
+  String get noProgramsYet => 'कोई प्रकाशित प्रोग्राम नहीं';
+
+  @override
+  String get noProgramsHint =>
+      'वेब पर प्रोग्राम बनाकर प्रकाशित करें, फिर यहाँ असाइन करें।';
+
+  @override
+  String programDays(int count) {
+    return '$count दिन';
+  }
+
+  @override
+  String programWeeks(int count) {
+    return '$count हफ़्ते';
+  }
+
+  @override
+  String get startDate => 'शुरू होने की तारीख';
+
+  @override
+  String get aiDietSuggestion => 'AI डाइट सुझाव';
+
+  @override
+  String get aiDietSuggestionHint => 'लक्ष्य और वज़न से मील प्लान बनाएँ';
+
+  @override
+  String get existingPlans => 'मौजूदा प्लान';
+
+  @override
+  String get noDietPlansYet =>
+      'अभी कोई डाइट प्लान नहीं। ऊपर AI सुझाव से बनाएँ।';
+
+  @override
+  String get enterWeight => 'सही वज़न दर्ज करें।';
+
+  @override
+  String get foodPreference => 'भोजन पसंद';
+
+  @override
+  String get bodyWeightKg => 'वज़न (किग्रा)';
+
+  @override
+  String get mealsPerDay => 'भोजन/दिन';
+
+  @override
+  String get personaliseWithAi => 'AI से पर्सनलाइज़ करें';
+
+  @override
+  String get personaliseWithAiHint =>
+      'जिम का AI कोटा उपयोग करता है। बंद = तुरंत प्लान।';
+
+  @override
+  String get generatePlan => 'प्लान बनाएँ';
+
+  @override
+  String get saveAndAssign => 'सेव करें और असाइन करें';
+
+  @override
+  String get kcal => 'कैलोरी';
+
+  @override
+  String get protein => 'प्रोटीन';
+
+  @override
+  String get carbs => 'कार्ब्स';
+
+  @override
+  String get fat => 'फ़ैट';
+
+  @override
+  String get dietVegetarian => 'शाकाहारी';
+
+  @override
+  String get dietVegan => 'वीगन';
+
+  @override
+  String get dietEggetarian => 'एगेटेरियन';
+
+  @override
+  String get dietNonVegetarian => 'मांसाहारी';
 }

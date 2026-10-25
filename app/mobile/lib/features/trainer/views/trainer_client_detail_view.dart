@@ -8,6 +8,7 @@ import '../../coaching/coaching_labels.dart';
 import '../../coaching/data/coaching_api.dart';
 import '../../member/presentation/views/trainer_chat_view.dart';
 import '../../nutrition/data/coaching_repository.dart';
+import 'assign_plans_view.dart';
 import 'trainer_diet_plan_view.dart';
 import '../../../l10n/l10n.dart';
 import '../../../app/theme/repsi_palette.dart';
@@ -67,6 +68,16 @@ class TrainerClientDetailView extends ConsumerWidget {
                 ),
               ),
             ]),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                icon: const Icon(Icons.assignment_add),
+                label: Text(context.l10n.assignPlans),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => AssignPlansView(memberId: id, memberName: name))),
+              ),
+            ),
             const SizedBox(height: 12),
             FutureBuilder<Map<String, dynamic>?>(
               future: ref.read(coachingRepositoryProvider).adherence(id),

@@ -36,6 +36,11 @@ class WorkoutRequest(BaseModel):
     use_ai: bool = False
 
 
+class DietRequest(BaseModel):
+    answers: dict[str, Any]
+    use_ai: bool = False
+
+
 @router.get("/status")
 def ai_status(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
     """What the caller can use today: configuration, plan features and remaining Gemini calls."""
@@ -82,6 +87,17 @@ def workout_questions(tenant: TenantContext = Depends(get_current_tenant)):
 def workout_suggest(data: WorkoutRequest, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
     """A rule-based plan instantly; `use_ai=true` asks Gemini to personalise it (counts toward the daily quota)."""
     return ai_features.workout_suggestion(db, ai_context(tenant, db), data.answers, data.use_ai)
+
+
+@router.get("/diet/questions")
+def diet_questions(tenant: TenantContext = Depends(get_current_tenant)):
+    return {"questions": ai_features.DIET_QUESTIONS, "disclaimer": ai_features.DISCLAIMER}
+
+
+@router.post("/diet/suggest", dependencies=[Depends(require_feature("ai_workouts"))])
+def diet_suggest(data: DietRequest, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
+    """A rule-based meal plan instantly (shaped to save as a diet plan); `use_ai=true` personalises it."""
+    return ai_features.diet_suggestion(db, ai_context(tenant, db), data.answers, data.use_ai)
 
 
 # ─── Super admin: usage and cost visibility ─────────────────────────────

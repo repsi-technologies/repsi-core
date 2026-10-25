@@ -6948,6 +6948,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Administration'**
   String get permGroupAdmin;
+
+  /// No description provided for @assignPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a plan'**
+  String get assignPlans;
+
+  /// No description provided for @assignTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to {name}'**
+  String assignTo(String name);
+
+  /// No description provided for @assignBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign'**
+  String get assignBtn;
+
+  /// No description provided for @assignWorkoutBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign workout'**
+  String get assignWorkoutBtn;
+
+  /// No description provided for @workoutAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout plan assigned'**
+  String get workoutAssigned;
+
+  /// No description provided for @dietAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet plan assigned'**
+  String get dietAssigned;
+
+  /// No description provided for @chooseProgram.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a workout program'**
+  String get chooseProgram;
+
+  /// No description provided for @noProgramsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No published programs'**
+  String get noProgramsYet;
+
+  /// No description provided for @noProgramsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and publish a workout program on the web, then assign it here.'**
+  String get noProgramsHint;
+
+  /// No description provided for @programDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String programDays(int count);
+
+  /// No description provided for @programWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
+  String programWeeks(int count);
+
+  /// No description provided for @startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get startDate;
+
+  /// No description provided for @aiDietSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'AI diet suggestion'**
+  String get aiDietSuggestion;
+
+  /// No description provided for @aiDietSuggestionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a meal plan from goal and weight'**
+  String get aiDietSuggestionHint;
+
+  /// No description provided for @existingPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing plans'**
+  String get existingPlans;
+
+  /// No description provided for @noDietPlansYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No diet plans yet. Use the AI suggestion above to create one.'**
+  String get noDietPlansYet;
+
+  /// No description provided for @enterWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid body weight.'**
+  String get enterWeight;
+
+  /// No description provided for @foodPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Food preference'**
+  String get foodPreference;
+
+  /// No description provided for @bodyWeightKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg)'**
+  String get bodyWeightKg;
+
+  /// No description provided for @mealsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals/day'**
+  String get mealsPerDay;
+
+  /// No description provided for @personaliseWithAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalise with AI'**
+  String get personaliseWithAi;
+
+  /// No description provided for @personaliseWithAiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses your gym\'s AI quota. Off = instant rule-based plan.'**
+  String get personaliseWithAiHint;
+
+  /// No description provided for @generatePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate plan'**
+  String get generatePlan;
+
+  /// No description provided for @saveAndAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & assign'**
+  String get saveAndAssign;
+
+  /// No description provided for @kcal.
+  ///
+  /// In en, this message translates to:
+  /// **'kcal'**
+  String get kcal;
+
+  /// No description provided for @protein.
+  ///
+  /// In en, this message translates to:
+  /// **'protein'**
+  String get protein;
+
+  /// No description provided for @carbs.
+  ///
+  /// In en, this message translates to:
+  /// **'carbs'**
+  String get carbs;
+
+  /// No description provided for @fat.
+  ///
+  /// In en, this message translates to:
+  /// **'fat'**
+  String get fat;
+
+  /// No description provided for @dietVegetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetarian'**
+  String get dietVegetarian;
+
+  /// No description provided for @dietVegan.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegan'**
+  String get dietVegan;
+
+  /// No description provided for @dietEggetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Eggetarian'**
+  String get dietEggetarian;
+
+  /// No description provided for @dietNonVegetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-veg'**
+  String get dietNonVegetarian;
 }
 
 class _AppLocalizationsDelegate

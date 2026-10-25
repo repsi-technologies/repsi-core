@@ -374,12 +374,20 @@ class ChatService:
         }
 
     def list(self) -> list:
-        q = self.db.query(Conversation).filter(Conversation.workspace_id == self.ws)
         if self.actor.kind == "trainer":
-            q = q.filter(Conversation.trainer_id == self.actor.trainer.id,
-                         Conversation.member_id.in_(self.actor.client_ids() or {""}))
+            cids = self.actor.client_ids()
+            if not cids:
+                return []
+            q = self.db.query(Conversation).filter(
+                Conversation.workspace_id == self.ws,
+                Conversation.trainer_id == self.actor.trainer.id,
+                Conversation.member_id.in_(cids),
+            )
         else:
-            q = q.filter(Conversation.member_id == self.actor.member.id)
+            q = self.db.query(Conversation).filter(
+                Conversation.workspace_id == self.ws,
+                Conversation.member_id == self.actor.member.id,
+            )
         return [self._out(c) for c in q.order_by(Conversation.last_message_at.desc()).all()]
 
     def open(self, *, member_id: Optional[str] = None, trainer_id: Optional[str] = None) -> dict:

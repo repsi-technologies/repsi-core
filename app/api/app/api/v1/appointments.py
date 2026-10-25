@@ -78,7 +78,7 @@ def _view(a: TrainingSession) -> dict:
     start = svc.aware(a.scheduled_at)
     return {
         "id": a.id, "trainer_id": a.trainer_id, "member_id": a.client_id, "title": a.title,
-        "starts_at": start, "ends_at": start + timedelta(minutes=a.duration_minutes or 60),
+        "starts_at": start, "ends_at": (start + timedelta(minutes=a.duration_minutes or 60)) if start else None,
         "duration_minutes": a.duration_minutes, "status": a.status.value if hasattr(a.status, "value") else a.status,
         "notes": a.notes, "location": a.location, "source": a.source,
         "cancelled_at": svc.aware(a.cancelled_at), "cancel_reason": a.cancel_reason,

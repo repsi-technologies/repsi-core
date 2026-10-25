@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarClock, ChevronDown, ChevronUp, History, Loader2, Pause, Pencil, Play, Plus, Square, XCircle } from "lucide-react";
+import { CalendarClock, ChevronDown, ChevronUp, History, Loader2, Pause, Pencil, Play, Plus, Sparkles, Square, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -14,6 +14,7 @@ import { PlanPreview } from "./programs";
 import { AssessmentsPanel, MeasurementsPanel, ProgressView } from "./progress";
 import { EmptyBlock, Field, formatDay, humanize, inputClass, LoadingRow, Modal, Notice, StatusBadge, useFitnessContext, useFitnessMeta, WEEKDAYS } from "./shared";
 import { openOrStartSession, SessionRunner, WeekSchedule } from "./workout-runner";
+import { AiDietModal } from "@/features/nutrition/ai-diet-modal";
 
 type Tab = "plans" | "schedule" | "progress" | "measurements" | "assessments";
 const TABS: { id: Tab; label: string }[] = [
@@ -67,6 +68,7 @@ function PlansTab({ ctx, memberId, refresh, onChanged }: { ctx: ApiFitnessContex
   const [editing, setEditing] = useState<ApiAssignmentDetail | null>(null);
   const [rescheduling, setRescheduling] = useState<ApiAssignment | null>(null);
   const [history, setHistory] = useState<{ a: ApiAssignment; events: ApiAssignmentEvent[] } | null>(null);
+  const [aiDietFor, setAiDietFor] = useState<ApiAssignment | null>(null);
 
   const load = useCallback(() => {
     fitnessApi.listAssignments({ member_id: memberId, page_size: 100 }).then((r) => setItems(r.items)).catch((e: Error) => setError(e.message));
@@ -153,6 +155,16 @@ function PlansTab({ ctx, memberId, refresh, onChanged }: { ctx: ApiFitnessContex
               {a.notes && <p className="text-xs text-[var(--text-secondary)]"><strong>Notes:</strong> {a.notes}</p>}
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" onClick={() => toggle(a)}>{expanded === a.id ? <ChevronUp /> : <ChevronDown />} Plan</Button>
+                {editable && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAiDietFor(a)}
+                    className="text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-semibold gap-1"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-orange-500" /> AI Diet Plan
+                  </Button>
+                )}
                 {editable && <Button variant="outline" size="sm" onClick={() => openEditor(a)}><Pencil /> Customise</Button>}
                 {editable && <Button variant="ghost" size="sm" onClick={() => setRescheduling(a)}><CalendarClock /> Reschedule</Button>}
                 {editable && a.status === "active" && <Button variant="ghost" size="sm" onClick={() => setStatus(a, "paused")}><Pause /> Pause</Button>}
@@ -165,6 +177,18 @@ function PlansTab({ ctx, memberId, refresh, onChanged }: { ctx: ApiFitnessContex
             </Card>
           );
         })
+      )}
+
+      {aiDietFor && (
+        <AiDietModal
+          memberId={memberId}
+          workoutTitle={aiDietFor.title}
+          onClose={() => setAiDietFor(null)}
+          onAssigned={() => {
+            setFlash(`AI Diet Plan created and assigned to support “${aiDietFor.title}”!`);
+            onChanged();
+          }}
+        />
       )}
 
       {choosing && <ProgramChooser onClose={() => setChoosing(false)} onPick={(p) => { setChoosing(false); setAssigning(p); }} />}

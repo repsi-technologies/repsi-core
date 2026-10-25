@@ -18,6 +18,11 @@ import '../../member/presentation/views/trainer_chat_view.dart';
 import '../../nutrition/data/coaching_repository.dart';
 import '../data/trainer_schedule.dart';
 import 'trainer_client_detail_view.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../staff/data/staff_api.dart';
+import '../../staff/views/my_shift_view.dart';
+import '../../member/presentation/views/qr_attendance_view.dart';
+import '../../../shared/widgets/repsi_button.dart';
 
 /// Trainer dashboard: today's sessions, unread messages and clients, all from the API.
 class TrainerHomeView extends ConsumerWidget {
@@ -107,6 +112,11 @@ class TrainerHomeView extends ConsumerWidget {
                     ]),
                   ]),
                 ),
+              ),
+              const SizedBox(height: 16),
+              RepsiStaggerItem(
+                index: i++,
+                child: const _TrainerAttendanceCard(),
               ),
               const SizedBox(height: 22),
               _SectionHeader(title: l.todaysSessions, action: l.viewAll, onAction: () => onSelectTab?.call(2)),
@@ -362,3 +372,151 @@ class _InlineNote extends StatelessWidget {
     );
   }
 }
+
+class _TrainerAttendanceCard extends ConsumerStatefulWidget {
+  const _TrainerAttendanceCard();
+
+  @override
+  ConsumerState<_TrainerAttendanceCard> createState() => _TrainerAttendanceCardState();
+}
+
+class _TrainerAttendanceCardState extends ConsumerState<_TrainerAttendanceCard> {
+  bool _busy = false;
+
+  Future<void> _toggleDuty(bool isClockedIn) async {
+    setState(() => _busy = true);
+    try {
+      if (isClockedIn) {
+        await ref.read(staffApiProvider).checkOut();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clocked out of coaching shift.')));
+        }
+      } else {
+        await ref.read(staffApiProvider).checkIn();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clocked in for coaching shift!')));
+        }
+      }
+      ref.invalidate(myShiftProvider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final shift = ref.watch(myShiftProvider);
+    final perms = ref.watch(myPermissionsProvider).valueOrNull ?? const <String>{};
+    final canMarkMemberAttendance = perms.contains('attendance.record');
+
+    return shift.when(
+      loading: () => const RepsiSkeleton(height: 100),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (s) {
+        final active = s.active;
+        final isClockedIn = active != null;
+
+        return RepsiCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isClockedIn ? const Color(0xFF10B981).withValues(alpha: 0.15) : palette.surfaceSecondary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      LucideIcons.clock3,
+                      size: 20,
+                      color: isClockedIn ? const Color(0xFF10B981) : palette.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              isClockedIn ? 'On Floor Duty' : 'Off Duty',
+                              style: AppTypography.headingSmall.copyWith(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: palette.text,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isClockedIn ? const Color(0xFF10B981) : palette.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isClockedIn
+                              ? 'Active since ${DateFormat.jm().format(active.checkIn.toLocal())}'
+                              : 'Mark your attendance for coaching shift',
+                          style: AppTypography.caption.copyWith(color: palette.textSecondary, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MyShiftView())),
+                    child: Text(context.l10n.viewAll, style: const TextStyle(fontSize: 12)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: RepsiButton(
+                      text: isClockedIn ? 'Clock Out' : 'Clock In for Duty',
+                      variant: isClockedIn ? RepsiButtonVariant.outline : RepsiButtonVariant.primary,
+                      isLoading: _busy,
+                      leadingIcon: Icon(isClockedIn ? LucideIcons.logOut : LucideIcons.logIn, size: 16),
+                      onPressed: _busy ? null : () => _toggleDuty(isClockedIn),
+                    ),
+                  ),
+                  if (canMarkMemberAttendance) ...[
+                    const SizedBox(width: 10),
+                    IconButton.filledTonal(
+                      tooltip: 'Mark Member Attendance',
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                        minimumSize: const Size(48, 48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const QrAttendanceView(staffScanner: true)),
+                      ),
+                      icon: const Icon(LucideIcons.scanLine, color: AppColors.primary, size: 22),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+

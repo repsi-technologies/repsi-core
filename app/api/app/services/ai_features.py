@@ -628,3 +628,190 @@ def workout_suggestion(db: Session, ctx: AiContext, answers: dict, use_ai: bool)
         ttl=timedelta(days=30),
     )
     return {"plan": result.data, "safety_message": None, "disclaimer": DISCLAIMER, "source": result.source, "notice": result.notice}
+
+
+# ─── Diet suggestion ────────────────────────────────────────────────────
+# A rule-based daily meal plan the trainer can review, edit, then save and assign. Macros come
+# from goal + bodyweight; meals are scaled from diet-type templates. use_ai=true asks Gemini to
+# rewrite the meals (same macro targets) and counts toward the quota.
+
+DIET_QUESTIONS = [
+    {"key": "goal", "label": "What's the goal?", "type": "choice",
+     "options": [["fat_loss", "Lose fat"], ["muscle_gain", "Build muscle"], ["strength", "Get stronger"],
+                 ["endurance", "Improve stamina"], ["general_fitness", "General fitness"], ["mobility", "Stay healthy"]]},
+    {"key": "diet_type", "label": "Food preference", "type": "choice",
+     "options": [["vegetarian", "Vegetarian"], ["vegan", "Vegan"], ["eggetarian", "Eggetarian"], ["non_vegetarian", "Non-vegetarian"]]},
+    {"key": "weight_kg", "label": "Body weight (kg)", "type": "number"},
+    {"key": "meals_per_day", "label": "Meals per day", "type": "choice", "options": [[3, "3"], [4, "4"], [5, "5"]]},
+    {"key": "health_flags", "label": "Any of these apply?", "type": "multi",
+     "options": [["diabetes", "Diabetes"], ["hypertension", "High blood pressure"], ["pregnancy", "Pregnant or nursing"],
+                 ["kidney", "Kidney condition"]]},
+    {"key": "notes", "label": "Allergies or foods to avoid? (optional)", "type": "text"},
+]
+
+DIET_TARGETS = {
+    "fat_loss": (27, 2.0), "muscle_gain": (38, 2.0), "strength": (34, 1.8),
+    "endurance": (35, 1.6), "general_fitness": (31, 1.6), "mobility": (29, 1.4),
+}
+DIET_HEALTH_STOP = ("Because of what you told us, a diet plan should be set with a doctor or a qualified dietitian. "
+                    "We haven't generated one here for safety. Your trainer can still guide general habits.")
+
+_DIET_TEMPLATES = {
+    "vegetarian": [
+        ("breakfast", "08:00", "Breakfast", [("Vegetable poha", "1.5 cups", 300, 7, 52, 7),
+                                              ("Curd (dahi)", "1 bowl", 110, 8, 9, 4), ("Almonds", "8 pcs", 70, 3, 2, 6)]),
+        ("lunch", "13:00", "Lunch", [("Roti (whole wheat)", "3", 240, 9, 45, 3), ("Dal", "1.5 cups", 230, 15, 30, 5),
+                                      ("Mixed veg sabzi", "1 cup", 150, 5, 18, 7), ("Salad", "1 plate", 50, 2, 10, 0)]),
+        ("snack", "17:00", "Evening snack", [("Roasted chana", "40 g", 160, 9, 22, 3), ("Banana", "1", 100, 1, 26, 0)]),
+        ("dinner", "20:30", "Dinner", [("Paneer bhurji", "1 cup", 280, 18, 8, 20), ("Roti", "2", 160, 6, 30, 2),
+                                        ("Sauteed greens", "1 cup", 90, 4, 10, 4)]),
+    ],
+    "vegan": [
+        ("breakfast", "08:00", "Breakfast", [("Oats with soy milk", "1.5 cups", 320, 14, 50, 7),
+                                              ("Peanut butter", "1 tbsp", 95, 4, 3, 8), ("Apple", "1", 80, 0, 21, 0)]),
+        ("lunch", "13:00", "Lunch", [("Brown rice", "1 cup", 220, 5, 46, 2), ("Rajma / chana", "1.5 cups", 300, 16, 45, 6),
+                                      ("Mixed veg", "1 cup", 140, 5, 16, 7)]),
+        ("snack", "17:00", "Evening snack", [("Roasted peanuts", "40 g", 230, 10, 8, 18), ("Orange", "1", 60, 1, 15, 0)]),
+        ("dinner", "20:30", "Dinner", [("Tofu stir-fry", "1.5 cups", 300, 20, 14, 18), ("Quinoa", "1 cup", 220, 8, 39, 4)]),
+    ],
+    "eggetarian": [
+        ("breakfast", "08:00", "Breakfast", [("Veg omelette (3 eggs)", "1", 300, 20, 4, 22),
+                                              ("Multigrain toast", "2", 160, 6, 28, 3), ("Orange", "1", 60, 1, 15, 0)]),
+        ("lunch", "13:00", "Lunch", [("Rice", "1 cup", 200, 4, 44, 1), ("Dal", "1.5 cups", 230, 15, 30, 5),
+                                      ("Veg sabzi", "1 cup", 150, 5, 18, 7), ("Curd", "1 bowl", 110, 8, 9, 4)]),
+        ("snack", "17:00", "Evening snack", [("Boiled eggs", "2", 160, 13, 1, 11), ("Sprouts", "1 cup", 120, 8, 20, 1)]),
+        ("dinner", "20:30", "Dinner", [("Egg curry (2 eggs)", "1 bowl", 290, 16, 10, 20), ("Roti", "2", 160, 6, 30, 2),
+                                        ("Salad", "1 plate", 50, 2, 10, 0)]),
+    ],
+    "non_vegetarian": [
+        ("breakfast", "08:00", "Breakfast", [("Egg whites (4) + 1 whole", "1", 180, 22, 2, 8),
+                                              ("Oats", "1 cup", 220, 8, 38, 5), ("Banana", "1", 100, 1, 26, 0)]),
+        ("lunch", "13:00", "Lunch", [("Grilled chicken breast", "150 g", 250, 46, 0, 6), ("Rice", "1 cup", 200, 4, 44, 1),
+                                      ("Mixed veg", "1 cup", 140, 5, 16, 7)]),
+        ("snack", "17:00", "Evening snack", [("Greek yogurt", "1 cup", 150, 17, 9, 4), ("Walnuts", "6 halves", 130, 3, 3, 13)]),
+        ("dinner", "20:30", "Dinner", [("Fish curry", "150 g", 260, 30, 6, 12), ("Roti", "2", 160, 6, 30, 2),
+                                        ("Sauteed greens", "1 cup", 90, 4, 10, 4)]),
+    ],
+}
+
+
+def _diet_answers(a: dict) -> dict:
+    def choice(key, default=None):
+        opts = [o[0] for o in next(q["options"] for q in DIET_QUESTIONS if q["key"] == key)]
+        v = a.get(key, default)
+        if isinstance(v, str) and v.isdigit():
+            v = int(v)
+        if v not in opts:
+            raise HTTPException(status_code=422, detail=f"Invalid answer for {key}.")
+        return v
+
+    def multi(key):
+        opts = {o[0] for o in next(q["options"] for q in DIET_QUESTIONS if q["key"] == key)}
+        vals = a.get(key) or []
+        if not isinstance(vals, list) or any(v not in opts for v in vals):
+            raise HTTPException(status_code=422, detail=f"Invalid answer for {key}.")
+        return sorted(set(vals))
+
+    try:
+        weight = float(a.get("weight_kg"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=422, detail="Enter the member's body weight in kg.")
+    if not 25 <= weight <= 250:
+        raise HTTPException(status_code=422, detail="Body weight must be between 25 and 250 kg.")
+    return {"goal": choice("goal", "general_fitness"), "diet_type": choice("diet_type", "vegetarian"),
+            "weight_kg": round(weight, 1), "meals_per_day": choice("meals_per_day", 3),
+            "health_flags": multi("health_flags"), "notes": clean_text(scrub_pii(a.get("notes") or ""), 200)}
+
+
+def _diet_targets(ans: dict) -> dict:
+    kcal_kg, protein_kg = DIET_TARGETS[ans["goal"]]
+    weight = ans["weight_kg"]
+    calories = round(weight * kcal_kg)
+    protein = round(weight * protein_kg)
+    fat = round(calories * 0.25 / 9)
+    carbs = max(0, round((calories - protein * 4 - fat * 9) / 4))
+    return {"calories_target": float(calories), "protein_target": float(protein),
+            "carbs_target": float(carbs), "fat_target": float(fat), "water_ml_target": round(weight * 35)}
+
+
+def _scale_meals(ans: dict, targets: dict) -> list:
+    template = _DIET_TEMPLATES[ans["diet_type"]]
+    keep = template[:3] if ans["meals_per_day"] == 3 else template[:4] if ans["meals_per_day"] == 4 else template
+    if ans["meals_per_day"] == 5:
+        keep = template + [("snack", "11:00", "Mid-morning snack",
+                            [("Fruit bowl", "1 cup", 90, 1, 22, 0), ("Mixed nuts", "20 g", 120, 4, 5, 10)])]
+    base_kcal = sum(cal for _, _, _, items in keep for _, _, cal, _, _, _ in items)
+    factor = targets["calories_target"] / base_kcal if base_kcal else 1.0
+    meals = []
+    for slot, time, title, items in keep:
+        scaled = [{"food": food, "portion": portion, "calories": round(cal * factor),
+                   "protein": round(p * factor), "carbs": round(c * factor), "fat": round(f * factor)}
+                  for food, portion, cal, p, c, f in items]
+        meals.append({"slot": slot, "time": time, "title": title, "items": scaled})
+    return meals
+
+
+def _rule_diet(ans: dict) -> dict:
+    targets = _diet_targets(ans)
+    titles = {"fat_loss": "Fat-loss", "muscle_gain": "Muscle-gain", "strength": "Strength",
+              "endurance": "Endurance", "general_fitness": "Balanced", "mobility": "Maintenance"}
+    diet_label = {"vegetarian": "veg", "vegan": "vegan", "eggetarian": "eggetarian", "non_vegetarian": "non-veg"}
+    return {
+        "name": f"{titles[ans['goal']]} {diet_label[ans['diet_type']]} plan · {int(targets['calories_target'])} kcal",
+        "goal": ans["goal"], "diet_type": ans["diet_type"],
+        **targets, "meals": _scale_meals(ans, targets),
+        "notes": "Portions are a starting point — adjust to appetite and progress. Drink water through the day.",
+    }
+
+
+def diet_suggestion(db: Session, ctx: AiContext, answers: dict, use_ai: bool) -> dict:
+    if not ctx.workspace_id:
+        raise HTTPException(status_code=400, detail="Workspace context required.")
+    ans = _diet_answers(answers)
+    if ans["health_flags"]:
+        ai_core.log_usage(db, ctx, "diet", "rules")
+        return {"plan": None, "safety_message": DIET_HEALTH_STOP, "disclaimer": DISCLAIMER, "source": "rules", "notice": None}
+    plan = _rule_diet(ans)
+    if not use_ai:
+        ai_core.log_usage(db, ctx, "diet", "rules")
+        return {"plan": plan, "safety_message": None, "disclaimer": DISCLAIMER, "source": "rules", "notice": None}
+
+    targets = _diet_targets(ans)
+
+    def validate(raw: dict) -> dict:
+        meals = raw.get("meals")
+        if not isinstance(meals, list) or not (2 <= len(meals) <= 6):
+            raise ValueError("bad meals")
+        out = []
+        for m in meals:
+            items = []
+            for it in (m.get("items") or [])[:8]:
+                food = clean_text(it.get("food"), 80)
+                if not food:
+                    continue
+                items.append({"food": food, "portion": clean_text(it.get("portion"), 40) or "1 serving",
+                              "calories": max(0, min(2000, int(it.get("calories", 0) or 0))),
+                              "protein": max(0, min(200, int(it.get("protein", 0) or 0))),
+                              "carbs": max(0, min(400, int(it.get("carbs", 0) or 0))),
+                              "fat": max(0, min(200, int(it.get("fat", 0) or 0)))})
+            if not items:
+                raise ValueError("empty meal")
+            out.append({"slot": clean_text(m.get("slot"), 30) or "meal", "time": clean_text(m.get("time"), 10),
+                        "title": clean_text(m.get("title"), 60) or "Meal", "items": items})
+        return {**plan, "name": clean_text(raw.get("name"), 120) or plan["name"], "meals": out,
+                "notes": clean_text(raw.get("notes"), 300) or plan["notes"]}
+
+    result = ai_core.run(
+        db, ctx, "diet",
+        system=("You are a sports dietitian for an Indian gym. Build a one-day meal plan that hits about "
+                f"{int(targets['calories_target'])} kcal and {int(targets['protein_target'])} g protein, "
+                f"{ans['diet_type'].replace('_', ' ')} only, {ans['meals_per_day']} meals, common affordable foods. "
+                'Shape: {"name": str, "meals": [{"slot": str, "time": "HH:MM", "title": str, "items": '
+                '[{"food": str, "portion": str, "calories": int, "protein": int, "carbs": int, "fat": int}]}], "notes": str}'),
+        prompt=json.dumps({"targets": targets, "diet_type": ans["diet_type"], "goal": ans["goal"],
+                           "meals_per_day": ans["meals_per_day"]})
+        + (f"\n<avoid>{ans['notes']}</avoid>" if ans["notes"] else ""),
+        validate=validate, fallback=lambda: plan, max_tokens=1200, temperature=0.5,
+        key=ai_core.cache_key("diet", ctx.workspace_id, [ans]), ttl=timedelta(days=14),
+    )
+    return {"plan": result.data, "safety_message": None, "disclaimer": DISCLAIMER, "source": result.source, "notice": result.notice}

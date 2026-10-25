@@ -118,8 +118,15 @@ def check_in(
     and `attendance.override` plus `override_reason` to admit someone who would be denied.
     """
     svc = AttendanceService(db, tenant.workspace_id)
-    if _is_self_service(tenant):
+    if tenant.role in ("USER", "MEMBER"):
         return _self_check_in(svc, tenant, req)
+
+    if tenant.role == "TRAINER":
+        if req.member_id or (req.identifier and not req.trainer_id):
+            _require(db, tenant, "attendance.record")
+            return _staff_check_in(svc, db, tenant, req)
+        return _self_check_in(svc, tenant, req)
+
     _require(db, tenant, "attendance.record")
     return _staff_check_in(svc, db, tenant, req)
 
@@ -130,10 +137,10 @@ def check_out(
     tenant: TenantContext = Depends(get_current_tenant),
     db: Session = Depends(get_db),
 ):
-    """Check out. Members/trainers can only close their own open visit."""
+    """Check out. Members/trainers can close their own visit; trainers with attendance.record can check out members."""
     svc = AttendanceService(db, tenant.workspace_id)
-    if _is_self_service(tenant):
-        if tenant.role != "TRAINER" and not svc.get_or_create_settings().allow_member_manual_checkout:
+    if tenant.role in ("USER", "MEMBER"):
+        if not svc.get_or_create_settings().allow_member_manual_checkout:
             raise HTTPException(status_code=403, detail="Please check out at the front desk.")
         person = svc._resolve_person(user_id=tenant.user_id)
         if not person:
@@ -143,6 +150,31 @@ def check_out(
         if not own or (req.attendance_id and req.attendance_id != own.id):
             raise HTTPException(status_code=404, detail="No active check-in session found to check out.")
         return svc.check_out(attendance_id=own.id, checkout_type="MANUAL")
+
+    if tenant.role == "TRAINER":
+        is_marking_other = bool(req.member_id)
+        if not is_marking_other and req.attendance_id and has_permission(db, tenant, "attendance.record"):
+            att_row = db.query(Attendance).filter(Attendance.workspace_id == tenant.workspace_id, Attendance.id == req.attendance_id).first()
+            if att_row and att_row.member_id:
+                is_marking_other = True
+
+        if is_marking_other:
+            _require(db, tenant, "attendance.record")
+            return svc.check_out(
+                attendance_id=req.attendance_id,
+                member_id=req.member_id,
+                checkout_type=req.checkout_type if req.checkout_type in ("MANUAL", "STAFF") else "STAFF",
+                actor_user_id=tenant.user_id,
+            )
+
+        person = svc._resolve_person(user_id=tenant.user_id)
+        if not person:
+            raise HTTPException(status_code=404, detail="No active check-in session found to check out.")
+        own = svc._active_visit(None, person["obj"].id)
+        if not own or (req.attendance_id and req.attendance_id != own.id):
+            raise HTTPException(status_code=404, detail="No active check-in session found to check out.")
+        return svc.check_out(attendance_id=own.id, checkout_type="MANUAL")
+
     _require(db, tenant, "attendance.record")
     return svc.check_out(
         attendance_id=req.attendance_id,

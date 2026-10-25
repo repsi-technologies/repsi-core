@@ -3962,4 +3962,109 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get permGroupAdmin => 'நிர்வாகம்';
+
+  @override
+  String get assignPlans => 'திட்டத்தை நியமி';
+
+  @override
+  String assignTo(String name) {
+    return '$name க்கு நியமி';
+  }
+
+  @override
+  String get assignBtn => 'நியமி';
+
+  @override
+  String get assignWorkoutBtn => 'பயிற்சியை நியமி';
+
+  @override
+  String get workoutAssigned => 'பயிற்சித் திட்டம் நியமிக்கப்பட்டது';
+
+  @override
+  String get dietAssigned => 'உணவுத் திட்டம் நியமிக்கப்பட்டது';
+
+  @override
+  String get chooseProgram => 'பயிற்சித் திட்டத்தைத் தேர்ந்தெடு';
+
+  @override
+  String get noProgramsYet => 'வெளியிடப்பட்ட திட்டங்கள் இல்லை';
+
+  @override
+  String get noProgramsHint =>
+      'இணையத்தில் ஒரு பயிற்சித் திட்டத்தை உருவாக்கி வெளியிட்டு, இங்கே நியமியுங்கள்.';
+
+  @override
+  String programDays(int count) {
+    return '$count நாட்கள்';
+  }
+
+  @override
+  String programWeeks(int count) {
+    return '$count வாரங்கள்';
+  }
+
+  @override
+  String get startDate => 'தொடக்க தேதி';
+
+  @override
+  String get aiDietSuggestion => 'AI உணவு பரிந்துரை';
+
+  @override
+  String get aiDietSuggestionHint => 'இலக்கு & எடையிலிருந்து உணவுத் திட்டம்';
+
+  @override
+  String get existingPlans => 'ஏற்கனவே உள்ள திட்டங்கள்';
+
+  @override
+  String get noDietPlansYet =>
+      'இன்னும் உணவுத் திட்டங்கள் இல்லை. மேலே உள்ள AI பரிந்துரையைப் பயன்படுத்துங்கள்.';
+
+  @override
+  String get enterWeight => 'சரியான உடல் எடையை உள்ளிடவும்.';
+
+  @override
+  String get foodPreference => 'உணவு விருப்பம்';
+
+  @override
+  String get bodyWeightKg => 'எடை (கி.கி.)';
+
+  @override
+  String get mealsPerDay => 'நாளொன்றுக்கு உணவு';
+
+  @override
+  String get personaliseWithAi => 'AI உடன் தனிப்பயனாக்கு';
+
+  @override
+  String get personaliseWithAiHint =>
+      'உங்கள் ஜிம்மின் AI ஒதுக்கீட்டைப் பயன்படுத்தும். ஆஃப் = உடனடி திட்டம்.';
+
+  @override
+  String get generatePlan => 'திட்டத்தை உருவாக்கு';
+
+  @override
+  String get saveAndAssign => 'சேமித்து நியமி';
+
+  @override
+  String get kcal => 'கலோ';
+
+  @override
+  String get protein => 'புரதம்';
+
+  @override
+  String get carbs => 'கார்போ';
+
+  @override
+  String get fat => 'கொழுப்பு';
+
+  @override
+  String get dietVegetarian => 'சைவம்';
+
+  @override
+  String get dietVegan => 'வீகன்';
+
+  @override
+  String get dietEggetarian => 'முட்டை சைவம்';
+
+  @override
+  String get dietNonVegetarian => 'அசைவம்';
 }

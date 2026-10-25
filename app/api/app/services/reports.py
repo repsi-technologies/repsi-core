@@ -403,7 +403,10 @@ def to_xlsx(report: dict) -> bytes:
 
     wb = Workbook()
     ws = wb.active
-    ws.title = report["type"][:31]
+    if ws is None:
+        ws = wb.create_sheet(title=report["type"][:31])
+    else:
+        ws.title = report["type"][:31]
     ws.append([report["title"]])
     ws["A1"].font = Font(bold=True, size=14)
     ws.append([f"{report['filters'].get('start', '')} to {report['filters'].get('end', '')}"])

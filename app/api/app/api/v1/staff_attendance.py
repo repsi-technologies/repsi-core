@@ -40,7 +40,7 @@ def _minutes(a: Attendance, now: datetime) -> int:
         return a.duration_minutes
     start = _naive(a.check_in_time)
     end = _naive(a.check_out_time) or _naive(now)
-    return max(0, int((end - start).total_seconds() // 60)) if start else 0
+    return max(0, int((end - start).total_seconds() // 60)) if (start and end) else 0
 
 
 def _record_out(a: Attendance, now: datetime) -> dict:
@@ -85,9 +85,9 @@ def my_attendance(tenant: TenantContext = Depends(get_current_tenant), db: Sessi
     return {
         "trainer_id": trainer.id,
         "active": _record_out(active, now) if active else None,
-        "week_minutes": sum(_minutes(r, now) for r in rows if _naive(r.check_in_time) >= week_start),
-        "month_minutes": sum(_minutes(r, now) for r in rows if _naive(r.check_in_time) >= month_start),
-        "month_days": len({_naive(r.check_in_time).date() for r in rows if _naive(r.check_in_time) >= month_start}),
+        "week_minutes": sum(_minutes(r, now) for r in rows if (cin := _naive(r.check_in_time)) is not None and cin >= week_start),
+        "month_minutes": sum(_minutes(r, now) for r in rows if (cin := _naive(r.check_in_time)) is not None and cin >= month_start),
+        "month_days": len({cin.date() for r in rows if (cin := _naive(r.check_in_time)) is not None and cin >= month_start}),
         "records": [_record_out(r, now) for r in rows[:40]],
         "correction_requests": [_request_out(r) for r in requests],
     }

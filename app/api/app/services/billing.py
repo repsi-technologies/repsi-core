@@ -423,7 +423,7 @@ class BillingService:
                 plan.is_popular = pdata["is_popular"]
                 plan.contact_sales = pdata.get("contact_sales", False)
                 # Ensure all feature keys exist
-                existing_features = plan.features or {}
+                existing_features = dict(plan.features or {})
                 for k, v in pdata["features"].items():
                     if k not in existing_features:
                         existing_features[k] = v

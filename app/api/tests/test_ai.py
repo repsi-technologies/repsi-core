@@ -322,3 +322,63 @@ def test_superadmin_sets_per_gym_ai_budget(gym, gemini):
     capped = client.get(f"{API}/reports/revenue/summary", headers=gym["owner"]).json()
     assert capped["source"] == "fallback" and len(fake.calls) == 0
     assert client.get(f"{API}/status", headers=gym["owner"]).json()["workspace_limit"] == 0
+
+
+DIET_ANSWERS = {"goal": "muscle_gain", "diet_type": "vegetarian", "weight_kg": 70, "meals_per_day": 4}
+
+
+def test_diet_rule_plan_hits_targets_and_is_saveable(gym, gemini):
+    fake = gemini(reply={})
+    qs = client.get(f"{API}/diet/questions", headers=gym["trainer"]).json()["questions"]
+    assert {q["key"] for q in qs} >= {"goal", "diet_type", "weight_kg", "meals_per_day", "health_flags"}
+
+    r = client.post(f"{API}/diet/suggest", headers=gym["trainer"], json={"answers": DIET_ANSWERS})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    plan = body["plan"]
+    assert body["source"] == "rules" and fake.calls == []
+    # Macros scale with bodyweight and goal (muscle_gain = 38 kcal/kg, 2 g/kg protein).
+    assert plan["calories_target"] == 70 * 38 and plan["protein_target"] == 140.0
+    assert len(plan["meals"]) == 4 and all(m["items"] for m in plan["meals"])
+    # Meal calories roughly match the target (templates scaled).
+    total = sum(it["calories"] for m in plan["meals"] for it in m["items"])
+    assert abs(total - plan["calories_target"]) <= plan["calories_target"] * 0.08
+
+    # The plan is shaped to create+assign directly through the nutrition API.
+    created = client.post("/api/v1/nutrition/plans", headers=gym["trainer"], json={
+        "name": plan["name"], "goal": plan["goal"], "diet_type": plan["diet_type"],
+        "calories_target": plan["calories_target"], "protein_target": plan["protein_target"],
+        "meals": plan["meals"]})
+    assert created.status_code == 201, created.text
+
+    # A lighter member gets fewer calories.
+    light = client.post(f"{API}/diet/suggest", headers=gym["trainer"],
+                        json={"answers": {**DIET_ANSWERS, "weight_kg": 55}}).json()["plan"]
+    assert light["calories_target"] < plan["calories_target"]
+
+
+def test_diet_health_flag_stops_and_validation(gym, gemini):
+    fake = gemini(reply={"name": "x"})
+    stop = client.post(f"{API}/diet/suggest", headers=gym["trainer"],
+                       json={"answers": {**DIET_ANSWERS, "health_flags": ["kidney"]}, "use_ai": True}).json()
+    assert stop["plan"] is None and "dietitian" in stop["safety_message"] and fake.calls == []
+    assert client.post(f"{API}/diet/suggest", headers=gym["trainer"],
+                       json={"answers": {**DIET_ANSWERS, "weight_kg": 500}}).status_code == 422
+    assert client.post(f"{API}/diet/suggest", headers=gym["trainer"],
+                       json={"answers": {**DIET_ANSWERS, "diet_type": "carnivore"}}).status_code == 422
+
+
+def test_diet_ai_personalises_but_keeps_shape(gym, gemini):
+    fake = gemini(reply={"name": "Custom veg plan", "notes": "Avoid nuts.", "meals": [
+        {"slot": "breakfast", "time": "08:00", "title": "Breakfast",
+         "items": [{"food": "Besan chilla", "portion": "2", "calories": 400, "protein": 20, "carbs": 40, "fat": 14}]},
+        {"slot": "lunch", "time": "13:00", "title": "Lunch",
+         "items": [{"food": "Dal rice", "portion": "1 plate", "calories": 600, "protein": 25, "carbs": 90, "fat": 10}]},
+    ]})
+    r = client.post(f"{API}/diet/suggest", headers=gym["trainer"],
+                    json={"answers": {**DIET_ANSWERS, "notes": "no nuts"}, "use_ai": True})
+    assert r.status_code == 200 and len(fake.calls) == 1
+    plan = r.json()["plan"]
+    assert plan["name"] == "Custom veg plan" and plan["meals"][0]["items"][0]["food"] == "Besan chilla"
+    # Targets still come from the rules, not the model.
+    assert plan["protein_target"] == 140.0

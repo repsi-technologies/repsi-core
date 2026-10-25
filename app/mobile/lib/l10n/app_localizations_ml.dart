@@ -3942,4 +3942,109 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get permGroupAdmin => 'ഭരണം';
+
+  @override
+  String get assignPlans => 'പ്ലാൻ നൽകുക';
+
+  @override
+  String assignTo(String name) {
+    return '$name ന് നൽകുക';
+  }
+
+  @override
+  String get assignBtn => 'നൽകുക';
+
+  @override
+  String get assignWorkoutBtn => 'വർക്ക്ഔട്ട് നൽകുക';
+
+  @override
+  String get workoutAssigned => 'വർക്ക്ഔട്ട് പ്ലാൻ നൽകി';
+
+  @override
+  String get dietAssigned => 'ഡയറ്റ് പ്ലാൻ നൽകി';
+
+  @override
+  String get chooseProgram => 'വർക്ക്ഔട്ട് പ്രോഗ്രാം തിരഞ്ഞെടുക്കുക';
+
+  @override
+  String get noProgramsYet => 'പ്രസിദ്ധീകരിച്ച പ്രോഗ്രാമുകളില്ല';
+
+  @override
+  String get noProgramsHint =>
+      'വെബിൽ ഒരു വർക്ക്ഔട്ട് പ്രോഗ്രാം ഉണ്ടാക്കി പ്രസിദ്ധീകരിച്ച ശേഷം ഇവിടെ നൽകുക.';
+
+  @override
+  String programDays(int count) {
+    return '$count ദിവസം';
+  }
+
+  @override
+  String programWeeks(int count) {
+    return '$count ആഴ്ച';
+  }
+
+  @override
+  String get startDate => 'തുടക്ക തീയതി';
+
+  @override
+  String get aiDietSuggestion => 'AI ഡയറ്റ് നിർദ്ദേശം';
+
+  @override
+  String get aiDietSuggestionHint => 'ലക്ഷ്യവും ഭാരവും വെച്ച് ഭക്ഷണ പ്ലാൻ';
+
+  @override
+  String get existingPlans => 'നിലവിലുള്ള പ്ലാനുകൾ';
+
+  @override
+  String get noDietPlansYet =>
+      'ഇതുവരെ ഡയറ്റ് പ്ലാനുകളില്ല. മുകളിലെ AI നിർദ്ദേശം ഉപയോഗിക്കുക.';
+
+  @override
+  String get enterWeight => 'ശരിയായ ശരീരഭാരം നൽകുക.';
+
+  @override
+  String get foodPreference => 'ഭക്ഷണ മുൻഗണന';
+
+  @override
+  String get bodyWeightKg => 'ഭാരം (കി.ഗ്രാം)';
+
+  @override
+  String get mealsPerDay => 'ദിവസം ഭക്ഷണം';
+
+  @override
+  String get personaliseWithAi => 'AI ഉപയോഗിച്ച് വ്യക്തിഗതമാക്കുക';
+
+  @override
+  String get personaliseWithAiHint =>
+      'നിങ്ങളുടെ ജിമ്മിന്റെ AI ക്വോട്ട ഉപയോഗിക്കും. ഓഫ് = തൽക്ഷണ പ്ലാൻ.';
+
+  @override
+  String get generatePlan => 'പ്ലാൻ ഉണ്ടാക്കുക';
+
+  @override
+  String get saveAndAssign => 'സേവ് ചെയ്ത് നൽകുക';
+
+  @override
+  String get kcal => 'കലോ';
+
+  @override
+  String get protein => 'പ്രോട്ടീൻ';
+
+  @override
+  String get carbs => 'കാർബ്സ്';
+
+  @override
+  String get fat => 'കൊഴുപ്പ്';
+
+  @override
+  String get dietVegetarian => 'വെജിറ്റേറിയൻ';
+
+  @override
+  String get dietVegan => 'വീഗൻ';
+
+  @override
+  String get dietEggetarian => 'എഗ്ഗറ്റേറിയൻ';
+
+  @override
+  String get dietNonVegetarian => 'നോൺ-വെജ്';
 }

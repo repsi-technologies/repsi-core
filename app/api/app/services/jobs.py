@@ -85,7 +85,7 @@ def membership_reminders(db: Session) -> dict:
         ended = db.scalars(select(Membership).where(
             Membership.workspace_id == ws_id, Membership.status.in_((MemberStatus.ACTIVE, MemberStatus.EXPIRED)),
             Membership.end_date == today - timedelta(days=1))).all()
-        for m in soon + ended:
+        for m in [*soon, *ended]:
             # Skip members who already have the next period lined up.
             renewed = db.scalar(select(Membership.id).where(
                 Membership.workspace_id == ws_id, Membership.member_id == m.member_id, Membership.id != m.id,

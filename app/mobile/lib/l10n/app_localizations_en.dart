@@ -3937,4 +3937,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permGroupAdmin => 'Administration';
+
+  @override
+  String get assignPlans => 'Assign a plan';
+
+  @override
+  String assignTo(String name) {
+    return 'Assign to $name';
+  }
+
+  @override
+  String get assignBtn => 'Assign';
+
+  @override
+  String get assignWorkoutBtn => 'Assign workout';
+
+  @override
+  String get workoutAssigned => 'Workout plan assigned';
+
+  @override
+  String get dietAssigned => 'Diet plan assigned';
+
+  @override
+  String get chooseProgram => 'Choose a workout program';
+
+  @override
+  String get noProgramsYet => 'No published programs';
+
+  @override
+  String get noProgramsHint =>
+      'Create and publish a workout program on the web, then assign it here.';
+
+  @override
+  String programDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String programWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get aiDietSuggestion => 'AI diet suggestion';
+
+  @override
+  String get aiDietSuggestionHint =>
+      'Generate a meal plan from goal and weight';
+
+  @override
+  String get existingPlans => 'Existing plans';
+
+  @override
+  String get noDietPlansYet =>
+      'No diet plans yet. Use the AI suggestion above to create one.';
+
+  @override
+  String get enterWeight => 'Enter a valid body weight.';
+
+  @override
+  String get foodPreference => 'Food preference';
+
+  @override
+  String get bodyWeightKg => 'Weight (kg)';
+
+  @override
+  String get mealsPerDay => 'Meals/day';
+
+  @override
+  String get personaliseWithAi => 'Personalise with AI';
+
+  @override
+  String get personaliseWithAiHint =>
+      'Uses your gym\'s AI quota. Off = instant rule-based plan.';
+
+  @override
+  String get generatePlan => 'Generate plan';
+
+  @override
+  String get saveAndAssign => 'Save & assign';
+
+  @override
+  String get kcal => 'kcal';
+
+  @override
+  String get protein => 'protein';
+
+  @override
+  String get carbs => 'carbs';
+
+  @override
+  String get fat => 'fat';
+
+  @override
+  String get dietVegetarian => 'Vegetarian';
+
+  @override
+  String get dietVegan => 'Vegan';
+
+  @override
+  String get dietEggetarian => 'Eggetarian';
+
+  @override
+  String get dietNonVegetarian => 'Non-veg';
 }

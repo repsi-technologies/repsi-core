@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { repsiApi, type ApiAdherence, type ApiDietAssignment, type ApiDietPlan } from "@/lib/api";
 import { EmptyBlock, Field, inputClass, LoadingRow, Notice, StatusBadge } from "@/features/fitness/shared";
 import { DietVersionView } from "@/features/nutrition/diet-plans";
 import { useTranslation } from "@/lib/i18n";
+import { AiDietModal } from "@/features/nutrition/ai-diet-modal";
 
 /** Staff view of one member's diet: active plan, adherence and assignment history. */
 export function MemberNutrition({ memberId }: { memberId: string }) {
@@ -17,6 +19,7 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
   const [planId, setPlanId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -57,17 +60,38 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
     <div className="space-y-4">
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       <Card className="p-4">
-        <form onSubmit={assign} className="flex flex-wrap items-end gap-2">
+        <form onSubmit={assign} className="flex flex-wrap items-end gap-3">
           <Field label={active ? t("nutrition.replace_diet_plan") : t("nutrition.assign_a_diet_plan")} htmlFor="assign-diet">
             <select id="assign-diet" className={inputClass} value={planId} onChange={(e) => setPlanId(e.target.value)}>
               <option value="">{t("nutrition.choose_a_plan")}</option>
               {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </Field>
-          <Button type="submit" size="sm" disabled={!planId || busy}>{t("nutrition.assign")}</Button>
+          <div className="flex items-center gap-2">
+            <Button type="submit" size="sm" disabled={!planId || busy}>{t("nutrition.assign")}</Button>
+            <span className="text-xs text-[var(--text-muted)] font-medium">or</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAiModal(true)}
+              className="gap-1.5 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 hover:bg-orange-50 font-semibold"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+              AI Diet Suggestion
+            </Button>
+          </div>
         </form>
         {active && <p className="mt-2 text-xs text-[var(--text-muted)]">{t("nutrition.assigning_a_new_plan_ends_the")}</p>}
       </Card>
+
+      {showAiModal && (
+        <AiDietModal
+          memberId={memberId}
+          onClose={() => setShowAiModal(false)}
+          onAssigned={() => load()}
+        />
+      )}
 
       {adherence && adherence.planned_meals > 0 && (
         <Card className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-5">

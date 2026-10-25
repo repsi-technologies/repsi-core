@@ -116,7 +116,7 @@ def trainer_busy(db: Session, workspace_id: str, trainer_id: str, start: datetim
         if a.id == ignore_appointment_id:
             continue
         a_start = aware(a.scheduled_at)
-        if a_start < end and a_start + timedelta(minutes=a.duration_minutes or 60) > start:
+        if a_start and a_start < end and a_start + timedelta(minutes=a.duration_minutes or 60) > start:
             return "The trainer has another session at that time."
     return None
 
@@ -197,12 +197,16 @@ def update_session(db: Session, session: ClassSession, *, starts_at: Optional[da
         _check_trainer(db, session.workspace_id, trainer_id)
         session.trainer_id = trainer_id or None
     if starts_at is not None:
-        length = aware(session.ends_at) - aware(session.starts_at)
+        s_end = aware(session.ends_at)
+        s_start = aware(session.starts_at)
+        length = (s_end - s_start) if (s_end and s_start) else timedelta(minutes=60)
         session.starts_at = to_utc(db, session.workspace_id, starts_at)
         session.ends_at = session.starts_at + length
     if session.trainer_id and (starts_at is not None or trainer_id):
-        clash = trainer_busy(db, session.workspace_id, session.trainer_id, aware(session.starts_at),
-                             aware(session.ends_at), ignore_session_id=session.id)
+        sess_start = aware(session.starts_at) or utcnow()
+        sess_end = aware(session.ends_at) or (sess_start + timedelta(minutes=60))
+        clash = trainer_busy(db, session.workspace_id, session.trainer_id, sess_start,
+                             sess_end, ignore_session_id=session.id)
         if clash:
             raise _http(409, clash)
     if room is not None:
@@ -268,6 +272,8 @@ def book(db: Session, session: ClassSession, member: Member, actor_user_id: str,
     gym_class = db.get(GymClass, session.class_id)
     now = utcnow()
     starts = aware(session.starts_at)
+    if starts is None:
+        raise _http(409, "This session has an invalid start time.")
     if session.status != "scheduled":
         raise _http(409, "This session is not open for booking.")
     if starts <= now:
@@ -310,7 +316,8 @@ def book(db: Session, session: ClassSession, member: Member, actor_user_id: str,
 
 
 def _promote_waitlist(db: Session, session: ClassSession) -> list[ClassBooking]:
-    if session.status != "scheduled" or aware(session.starts_at) <= utcnow():
+    starts = aware(session.starts_at)
+    if session.status != "scheduled" or starts is None or starts <= utcnow():
         return []
     gym_class = db.get(GymClass, session.class_id)
     promoted = []
@@ -347,7 +354,8 @@ def cancel_booking(db: Session, booking: ClassBooking, actor_user_id: str, reaso
     now = utcnow()
     was_booked = booking.status == "booked"
     if was_booked and session and gym_class:
-        booking.late_cancel = aware(session.starts_at) - now < timedelta(hours=gym_class.cancel_cutoff_hours or 0)
+        starts = aware(session.starts_at)
+        booking.late_cancel = starts is not None and (starts - now < timedelta(hours=gym_class.cancel_cutoff_hours or 0))
     booking.status, booking.cancelled_at, booking.cancelled_by_user_id = "cancelled", now, actor_user_id
     booking.cancel_reason = (reason or "").strip()[:255] or None
     booking.waitlist_position = None

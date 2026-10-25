@@ -345,7 +345,7 @@ def schedule_calendar(
     for a in db.scalars(aq).all():
         st = svc.aware(a.scheduled_at)
         events.append({"type": "appointment", "id": a.id, "title": a.title, "starts_at": st,
-                       "ends_at": st + timedelta(minutes=a.duration_minutes or 60), "trainer_id": a.trainer_id,
+                       "ends_at": (st + timedelta(minutes=a.duration_minutes or 60)) if st else None, "trainer_id": a.trainer_id,
                        "member_id": a.client_id, "status": a.status.value if hasattr(a.status, "value") else a.status})
     events.sort(key=lambda e: e["starts_at"])
     return events

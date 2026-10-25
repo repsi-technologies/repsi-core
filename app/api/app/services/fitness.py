@@ -158,7 +158,8 @@ class FitnessActor:
             if member.id != self.member.id:
                 raise HTTPException(status_code=404, detail="Member not found.")
             return member
-        if member.id not in self.client_ids():
+        cids = self.client_ids()
+        if cids is None or member.id not in cids:
             raise HTTPException(status_code=403, detail="Access denied. This member is not assigned to you.")
         return member
 

@@ -86,7 +86,7 @@ class S3Storage:
         if not (settings.STORAGE_S3_BUCKET and settings.STORAGE_S3_ACCESS_KEY_ID and settings.STORAGE_S3_SECRET_ACCESS_KEY):
             raise StorageNotConfigured("S3 storage needs STORAGE_S3_BUCKET, STORAGE_S3_ACCESS_KEY_ID and STORAGE_S3_SECRET_ACCESS_KEY.")
         try:
-            import boto3  # optional dependency
+            import boto3  # type: ignore[import-untyped,import-not-found] # optional dependency
         except ImportError as exc:
             raise StorageNotConfigured("STORAGE_BACKEND=s3 requires the boto3 package.") from exc
         self.bucket = settings.STORAGE_S3_BUCKET

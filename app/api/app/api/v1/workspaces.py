@@ -487,6 +487,7 @@ def complete_onboarding(
     if tenant.role not in ("OWNER", "ADMIN", "SUPER_ADMIN"):
         raise HTTPException(status_code=403, detail="Only the owner can complete workspace setup.")
     ws = db.query(Workspace).filter(Workspace.id == tenant.workspace_id).first()
+    sub = None
     if ws:
         if "business_types" in payload:
             ws.business_types = str(payload["business_types"])

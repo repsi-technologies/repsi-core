@@ -924,7 +924,7 @@ class ManualPaymentService:
         submission_id: str,
         user_id: str,
         user_role: str,
-    ) -> Tuple[str, str, str]:
+    ) -> Tuple[bytes, str, str]:
         sub = (
             self.db.query(ManualPaymentSubmission)
             .filter(
@@ -957,7 +957,7 @@ class ManualPaymentService:
 
         return data, sub.receipt_filename or "receipt", sub.receipt_content_type or "application/octet-stream"
 
-    def get_qr_file(self) -> Tuple[str, str, str]:
+    def get_qr_file(self) -> Tuple[bytes, str, str]:
         settings = self.get_or_create_settings()
         if not settings.qr_enabled or not settings.qr_image_url:
             raise HTTPException(

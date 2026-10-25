@@ -880,8 +880,8 @@ class AttendanceService:
         week_start = now - timedelta(days=now.weekday())
         month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
 
-        this_week_visits = sum(1 for r in records if _to_utc(r.check_in_time) >= week_start)
-        this_month_visits = sum(1 for r in records if _to_utc(r.check_in_time) >= month_start)
+        this_week_visits = sum(1 for r in records if (cin := _to_utc(r.check_in_time)) is not None and cin >= week_start)
+        this_month_visits = sum(1 for r in records if (cin := _to_utc(r.check_in_time)) is not None and cin >= month_start)
 
         # Average duration
         durations = [r.duration_minutes for r in records if r.duration_minutes]
@@ -889,7 +889,7 @@ class AttendanceService:
 
         # Calculate streak (consecutive calendar days)
         visit_dates = sorted(
-            list({r.check_in_time.date() for r in records}),
+            list({r.check_in_time.date() for r in records if r.check_in_time}),
             reverse=True,
         )
         streak = 0

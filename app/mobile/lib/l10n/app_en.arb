@@ -2173,5 +2173,58 @@
   "permGroupTraining": "Training & diet",
   "permGroupCommunication": "Communication",
   "permGroupSchedule": "Sessions & classes",
-  "permGroupAdmin": "Administration"
+  "permGroupAdmin": "Administration",
+  "assignPlans": "Assign a plan",
+  "assignTo": "Assign to {name}",
+  "@assignTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assignBtn": "Assign",
+  "assignWorkoutBtn": "Assign workout",
+  "workoutAssigned": "Workout plan assigned",
+  "dietAssigned": "Diet plan assigned",
+  "chooseProgram": "Choose a workout program",
+  "noProgramsYet": "No published programs",
+  "noProgramsHint": "Create and publish a workout program on the web, then assign it here.",
+  "programDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@programDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "programWeeks": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "@programWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startDate": "Start date",
+  "aiDietSuggestion": "AI diet suggestion",
+  "aiDietSuggestionHint": "Generate a meal plan from goal and weight",
+  "existingPlans": "Existing plans",
+  "noDietPlansYet": "No diet plans yet. Use the AI suggestion above to create one.",
+  "enterWeight": "Enter a valid body weight.",
+  "foodPreference": "Food preference",
+  "bodyWeightKg": "Weight (kg)",
+  "mealsPerDay": "Meals/day",
+  "personaliseWithAi": "Personalise with AI",
+  "personaliseWithAiHint": "Uses your gym's AI quota. Off = instant rule-based plan.",
+  "generatePlan": "Generate plan",
+  "saveAndAssign": "Save & assign",
+  "kcal": "kcal",
+  "protein": "protein",
+  "carbs": "carbs",
+  "fat": "fat",
+  "dietVegetarian": "Vegetarian",
+  "dietVegan": "Vegan",
+  "dietEggetarian": "Eggetarian",
+  "dietNonVegetarian": "Non-veg"
 }

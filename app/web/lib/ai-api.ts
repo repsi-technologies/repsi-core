@@ -108,6 +108,12 @@ export const aiApi = {
   suggestWorkout(answers: Record<string, unknown>, useAi: boolean): Promise<WorkoutSuggestion> {
     return memberRequest("/ai/workout/suggest", "POST", { answers, use_ai: useAi }, "Could not build a workout");
   },
+  dietQuestions(): Promise<{ questions: WorkoutQuestion[]; disclaimer: string }> {
+    return memberRequest("/ai/diet/questions", "GET", undefined, "Could not load diet questions");
+  },
+  suggestDiet(answers: Record<string, unknown>, useAi: boolean): Promise<any> {
+    return memberRequest("/ai/diet/suggest", "POST", { answers, use_ai: useAi }, "Could not build a diet plan");
+  },
   adminUsage<T = unknown>(days = 30): Promise<T> {
     return memberRequest(`/ai/admin/usage?days=${days}`, "GET", undefined, "Could not load AI usage");
   },

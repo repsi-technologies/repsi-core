@@ -141,7 +141,7 @@ class PhoneOtpService:
         challenge = self._get(phone_e164, purpose)
 
         if challenge:
-            last_sent = _aware(challenge.last_sent_at)
+            last_sent = _aware(challenge.last_sent_at) or now
             wait = settings.PHONE_OTP_RESEND_COOLDOWN_SECONDS - (now - last_sent).total_seconds()
             if wait > 0 and challenge.consumed_at is None:
                 raise HTTPException(
@@ -149,7 +149,7 @@ class PhoneOtpService:
                     detail=f"Please wait {int(wait) + 1} seconds before requesting a new code.",
                     headers={"Retry-After": str(int(wait) + 1)},
                 )
-            window_start = _aware(challenge.send_window_started_at)
+            window_start = _aware(challenge.send_window_started_at) or now
             if (now - window_start).total_seconds() >= 3600:
                 challenge.send_window_started_at = now
                 challenge.send_count = 0
@@ -201,7 +201,8 @@ class PhoneOtpService:
         generic = HTTPException(status_code=400, detail="Incorrect or expired code.")
         if not challenge or challenge.consumed_at is not None or not challenge.code_hash:
             raise generic
-        if datetime.now(timezone.utc) > _aware(challenge.expires_at):
+        exp = _aware(challenge.expires_at)
+        if exp is None or datetime.now(timezone.utc) > exp:
             raise HTTPException(status_code=400, detail="This code has expired. Request a new one.")
         if challenge.attempts >= settings.PHONE_OTP_MAX_ATTEMPTS:
             raise HTTPException(
@@ -248,7 +249,7 @@ class EmailOtpService:
         challenge = self._get(normalized_email, purpose)
 
         if challenge:
-            last_sent = _aware(challenge.last_sent_at)
+            last_sent = _aware(challenge.last_sent_at) or now
             wait = settings.OTP_RESEND_COOLDOWN_SECONDS - (now - last_sent).total_seconds()
             if wait > 0 and challenge.consumed_at is None:
                 raise HTTPException(
@@ -256,7 +257,7 @@ class EmailOtpService:
                     detail=f"Please wait {int(wait) + 1} seconds before requesting a new email code.",
                     headers={"Retry-After": str(int(wait) + 1)},
                 )
-            window_start = _aware(challenge.send_window_started_at)
+            window_start = _aware(challenge.send_window_started_at) or now
             if (now - window_start).total_seconds() >= 3600:
                 challenge.send_window_started_at = now
                 challenge.send_count = 0
@@ -313,7 +314,8 @@ class EmailOtpService:
         generic = HTTPException(status_code=400, detail="Incorrect or expired email verification code.")
         if not challenge or challenge.consumed_at is not None or not challenge.code_hash:
             raise generic
-        if datetime.now(timezone.utc) > _aware(challenge.expires_at):
+        exp = _aware(challenge.expires_at)
+        if exp is None or datetime.now(timezone.utc) > exp:
             raise HTTPException(status_code=400, detail="This email verification code has expired. Request a new one.")
         if challenge.attempts >= 5:
             raise HTTPException(
