@@ -134,6 +134,13 @@ def request_phone_otp(
     _limit(request, "otp-request", 10, 3600)
     if req.purpose == PURPOSE_LINK:
         raise HTTPException(status_code=400, detail="Use /auth/me/phone/request-otp to add a phone to your account.")
+    if req.purpose == "login":
+        auth_service = AuthService(db)
+        if not auth_service.phone_exists(phone):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Phone number not found. Please check your number or sign up.",
+            )
     result = PhoneOtpService(db).request(phone, PURPOSE_AUTH)
     return PhoneOtpRequestResponse(phone=phone, **result)
 

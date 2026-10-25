@@ -242,6 +242,19 @@ def test_phone_login_returns_same_account():
     assert r.json()["token"]["user"]["id"] == s["user"]["id"]
 
 
+def test_phone_login_rejects_unregistered_number_before_otp():
+    unregistered = unique_phone()
+    r = client.post(f"{API}/auth/otp/request", json={"phone": unregistered, "country": "IN", "purpose": "login"})
+    assert r.status_code == 404
+    assert "not found" in r.json()["detail"].lower()
+
+    # Once registered, login purpose succeeds
+    s = phone_signup()
+    r_ok = client.post(f"{API}/auth/otp/request", json={"phone": s["phone"], "country": "IN", "purpose": "login"})
+    assert r_ok.status_code == 200
+    assert "phone" in r_ok.json()
+
+
 def test_incorrect_otp_rejected_and_attempts_limited():
     phone = unique_phone()
     r_req = client.post(f"{API}/auth/otp/request", json={"phone": phone, "country": "IN"})

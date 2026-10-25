@@ -28,6 +28,7 @@ from app.schemas.attendance import (
 )
 from app.services.attendance import AttendanceService
 from app.services import member_pass
+from app.services.member_lifecycle import get_or_create_member_for_user
 from app.core.config import settings
 from app.core.permissions import has_permission, require_permission
 from app.core.rate_limit import enforce_rate_limit
@@ -262,11 +263,7 @@ def get_my_member_pass(
     db: Session = Depends(get_db),
 ):
     """Short-lived signed QR pass for the signed-in member. Refresh before `expires_at`."""
-    member = db.query(Member).filter(
-        Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id
-    ).first()
-    if not member:
-        raise HTTPException(status_code=404, detail="No member profile is linked to your account in this gym.")
+    member = get_or_create_member_for_user(db, tenant.workspace_id, tenant.user_id)
     return member_pass.issue_pass(member.id, tenant.workspace_id)
 
 

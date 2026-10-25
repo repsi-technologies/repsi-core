@@ -292,8 +292,8 @@ export const authApi = {
   login: (identifier: string, password: string, country?: string) =>
     apiRequest<SessionToken>("/auth/login", { method: "POST", auth: false, body: { email: identifier, password, country } }),
   google: (token: string) => apiRequest<SessionToken>("/auth/google", { method: "POST", auth: false, body: { token } }),
-  requestOtp: (phone: string, country: string) =>
-    apiRequest<OtpRequestResult>("/auth/otp/request", { method: "POST", auth: false, body: { phone, country, purpose: "auth" } }),
+  requestOtp: (phone: string, country: string, purpose: string = "auth") =>
+    apiRequest<OtpRequestResult>("/auth/otp/request", { method: "POST", auth: false, body: { phone, country, purpose } }),
   verifyOtp: (phone: string, country: string, code: string) =>
     apiRequest<OtpVerifyResult>("/auth/otp/verify", { method: "POST", auth: false, body: { phone, country, code } }),
   requestSignupOtps: (full_name: string, email: string, phone: string, country: string) =>

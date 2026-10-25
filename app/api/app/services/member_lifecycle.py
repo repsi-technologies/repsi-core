@@ -13,14 +13,17 @@ Older rows may still carry membership-style values (expiring/expired/frozen/canc
 written by previous versions; they may move to any account status.
 """
 import json
+import re
+from datetime import date
 from typing import Optional
 
 from fastapi import HTTPException, status as http_status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.models.member import Member, MemberStatus
 from app.models.member_records import MemberEvent
-from app.models.user import WorkspaceMember
+from app.models.user import User, WorkspaceMember
 
 ACCOUNT_STATUSES = {MemberStatus.ACTIVE, MemberStatus.INACTIVE, MemberStatus.SUSPENDED, MemberStatus.ARCHIVED}
 
@@ -120,4 +123,74 @@ def change_member_status(
         db, member, "status_changed", actor_user_id,
         from_status=current.value, to_status=new_status.value, reason=clean_reason,
     )
+    return member
+
+
+def get_or_create_member_for_user(db: Session, workspace_id: str, user_id: str, role: Optional[str] = None) -> Member:
+    """
+    Finds the Member profile for this user in the workspace.
+    If not linked by user_id, searches for unlinked members with matching email or phone.
+    If still not found, provisions a Member profile so the member views work properly.
+    """
+    member = db.query(Member).filter(
+        Member.workspace_id == workspace_id, Member.user_id == user_id
+    ).first()
+    if member:
+        return member
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User account not found.")
+
+    # 1. Search for an unlinked member in this workspace with matching email or phone
+    filters = []
+    if user.email:
+        filters.append(func.lower(Member.email) == user.email.lower().strip())
+    clean_phone = re.sub(r"\D", "", user.phone_e164 or user.phone or "")
+    if clean_phone:
+        last10 = clean_phone[-10:] if len(clean_phone) >= 10 else clean_phone
+        last8 = clean_phone[-8:] if len(clean_phone) >= 8 else clean_phone
+        filters.append(Member.phone == (user.phone_e164 or user.phone))
+        filters.append(Member.phone == last10)
+        filters.append(Member.phone.like(f"%{last8}%"))
+
+    if filters:
+        member = (
+            db.query(Member)
+            .filter(
+                Member.workspace_id == workspace_id,
+                Member.user_id.is_(None),
+                or_(*filters),
+            )
+            .first()
+        )
+        if member:
+            member.user_id = user.id
+            db.commit()
+            db.refresh(member)
+            return member
+
+    # 2. Only auto-provision new Member profile if user's role is USER/MEMBER
+    ws_member = db.query(WorkspaceMember).filter(
+        WorkspaceMember.workspace_id == workspace_id, WorkspaceMember.user_id == user_id
+    ).first()
+    user_role_str = (role or (ws_member.role.value if ws_member and hasattr(ws_member.role, "value") else str(ws_member.role if ws_member else "")) or "").upper()
+    if user_role_str not in ["USER", "MEMBER", ""]:
+        raise HTTPException(status_code=404, detail="No member profile is linked to your account in this gym.")
+
+    first_name = (user.full_name or "").strip().split()[0] if user.full_name else "Member"
+    last_name = " ".join((user.full_name or "").strip().split()[1:]) if user.full_name and len((user.full_name or "").strip().split()) > 1 else ""
+    member = Member(
+        workspace_id=workspace_id,
+        user_id=user.id,
+        first_name=first_name,
+        last_name=last_name,
+        email=user.email,
+        phone=user.phone_e164 or user.phone or "",
+        status=MemberStatus.ACTIVE,
+        joined_date=date.today(),
+    )
+    db.add(member)
+    db.commit()
+    db.refresh(member)
     return member

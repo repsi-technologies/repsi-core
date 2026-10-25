@@ -18,6 +18,7 @@ import '../post_sign_in.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_layout.dart';
 import 'verify_otp_view.dart';
+import '../widgets/country_dial_code_picker.dart';
 
 import '../../../l10n/l10n.dart';
 import '../../../app/theme/repsi_palette.dart';
@@ -41,6 +42,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
   bool _sendingCode = false;
   String? _phoneError;
   bool _lastMethodWasGoogle = false;
+  CountryInfo _selectedCountry = kSupportedCountries.first;
 
   static final _indianMobile = RegExp(r'^[6-9]\d{9}$');
 
@@ -64,9 +66,21 @@ class _LoginViewState extends ConsumerState<LoginView> {
       _phoneError = null;
     });
     try {
-      final challenge = await ref.read(authServiceProvider).requestPhoneOtp(phone: number);
+      final challenge = await ref.read(authServiceProvider).requestPhoneOtp(
+            phone: number,
+            country: _selectedCountry.code,
+            purpose: 'login',
+          );
       if (!mounted) return;
-      context.push(RouteNames.verifyOtp, extra: VerifyOtpArgs(challenge: challenge, nationalNumber: number));
+      context.push(
+        RouteNames.verifyOtp,
+        extra: VerifyOtpArgs(
+          challenge: challenge,
+          nationalNumber: number,
+          country: _selectedCountry.code,
+          dialCode: _selectedCountry.dialCode,
+        ),
+      );
     } on ApiError catch (e) {
       if (mounted) setState(() => _phoneError = e.message);
     } catch (_) {
@@ -282,13 +296,23 @@ class _LoginViewState extends ConsumerState<LoginView> {
         children: [
           RepsiTextField(
             label: context.l10n.commonMobileNumber,
-            hintText: '98765 43210',
+            hintText: _selectedCountry.sample,
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.send,
             autofillHints: const [AutofillHints.telephoneNumberNational],
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
-            prefixIcon: const IndiaDialCode(),
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(_selectedCountry.maxLength),
+            ],
+            prefixIcon: CountryDialCodePicker(
+              selected: _selectedCountry,
+              enabled: !_sendingCode,
+              onSelect: (c) => setState(() {
+                _selectedCountry = c;
+                _phoneError = null;
+              }),
+            ),
             onSubmitted: (_) => _sendCode(),
             onChanged: (_) {
               if (_phoneError != null) setState(() => _phoneError = null);
@@ -296,7 +320,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
             validator: (value) {
               final v = value?.trim() ?? '';
               if (v.isEmpty) return context.l10n.enterMobileNumber;
-              if (!_indianMobile.hasMatch(v)) return context.l10n.enterValid10Digit;
+              if (v.length < _selectedCountry.minLength || v.length > _selectedCountry.maxLength) {
+                return _selectedCountry.code == 'IN'
+                    ? context.l10n.enterValid10Digit
+                    : 'Enter ${_selectedCountry.minLength}-${_selectedCountry.maxLength} digits';
+              }
+              if (_selectedCountry.code == 'IN' && !_indianMobile.hasMatch(v)) {
+                return context.l10n.enterValid10Digit;
+              }
               return null;
             },
           ),

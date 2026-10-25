@@ -23,10 +23,17 @@ import '../../../app/theme/repsi_palette.dart';
 class VerifyOtpArgs {
   final PhoneOtpChallenge challenge;
 
-  /// The number as the user typed it (10 digits), for display.
+  /// The number as the user typed it, for display.
   final String nationalNumber;
+  final String country;
+  final String dialCode;
 
-  const VerifyOtpArgs({required this.challenge, required this.nationalNumber});
+  const VerifyOtpArgs({
+    required this.challenge,
+    required this.nationalNumber,
+    this.country = 'IN',
+    this.dialCode = '+91',
+  });
 }
 
 /// Step 2 of phone sign-in: enter the WhatsApp code. Existing accounts are signed in; a new
@@ -74,7 +81,11 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
 
   String get _displayNumber {
     final n = widget.args.nationalNumber;
-    return n.length == 10 ? '+91 ${n.substring(0, 5)} ${n.substring(5)}' : _challenge.phone;
+    final dial = widget.args.dialCode;
+    if (n.length == 10) {
+      return '$dial ${n.substring(0, 5)} ${n.substring(5)}';
+    }
+    return '$dial $n';
   }
 
   Future<void> _verify() async {
@@ -115,7 +126,11 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
       _error = null;
     });
     try {
-      final next = await ref.read(authServiceProvider).requestPhoneOtp(phone: widget.args.nationalNumber);
+      final next = await ref.read(authServiceProvider).requestPhoneOtp(
+            phone: widget.args.nationalNumber,
+            country: widget.args.country,
+            purpose: 'login',
+          );
       if (!mounted) return;
       _challenge = next;
       _code.clear();

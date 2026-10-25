@@ -20,13 +20,28 @@ class _FakeAuthService extends AuthService {
   _FakeAuthService(SecureStorageService storage) : super(apiClient: ApiClient(storage: storage));
 
   final requested = <String>[];
+  String? lastCountry;
+  String? lastPurpose;
   String? verifiedCode;
   bool rejectCode = false;
+  bool rejectPhoneNotFound = false;
 
   @override
-  Future<PhoneOtpChallenge> requestPhoneOtp({required String phone, String country = 'IN'}) async {
+  Future<PhoneOtpChallenge> requestPhoneOtp({
+    required String phone,
+    String country = 'IN',
+    String purpose = 'auth',
+  }) async {
     requested.add(phone);
-    return PhoneOtpChallenge(phone: '+91$phone', expiresIn: 600, resendIn: 30);
+    lastCountry = country;
+    lastPurpose = purpose;
+    if (rejectPhoneNotFound) {
+      throw ApiError(
+        statusCode: 404,
+        message: 'Phone number not found. Please check your number or sign up.',
+      );
+    }
+    return PhoneOtpChallenge(phone: '+$country$phone', expiresIn: 600, resendIn: 30);
   }
 
   @override
@@ -215,5 +230,63 @@ void main() {
     expect(find.text('Email or mobile number is required'), findsOneWidget);
     expect(find.text('Password is required'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('login rejects unregistered phone number before OTP and does not enter verify screen', (tester) async {
+    _phone(tester, const Size(360, 700));
+    FlutterSecureStorage.setMockInitialValues({});
+    final service = _FakeAuthService(SecureStorageService())..rejectPhoneNotFound = true;
+
+    await tester.pumpWidget(_app(const LoginView(), service: service));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField), '9876543210');
+    await tester.tap(find.text('Send code on WhatsApp'));
+    await tester.pumpAndSettle();
+
+    expect(service.requested, ['9876543210']);
+    expect(service.lastPurpose, 'login');
+    // Does NOT navigate to verify screen
+    expect(find.text('Verify your number'), findsNothing);
+    // Shows the error message directly on the login screen
+    expect(find.text('Phone number not found. Please check your number or sign up.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('login allows changing country code and updates length validation', (tester) async {
+    _phone(tester, const Size(360, 700));
+    FlutterSecureStorage.setMockInitialValues({});
+    final service = _FakeAuthService(SecureStorageService());
+
+    await tester.pumpWidget(_app(const LoginView(), service: service));
+    await tester.pumpAndSettle();
+
+    // Tap country dial code picker (+91)
+    expect(find.text('+91'), findsOneWidget);
+    await tester.tap(find.text('+91'));
+    await tester.pumpAndSettle();
+
+    // Country picker bottom sheet opens
+    expect(find.text('Select Country Code'), findsOneWidget);
+    expect(find.text('United Arab Emirates'), findsOneWidget);
+
+    // Select UAE
+    await tester.tap(find.text('United Arab Emirates'));
+    await tester.pumpAndSettle();
+
+    // Country picker closed, dial code is now +971
+    expect(find.text('+971'), findsOneWidget);
+
+    // Enter a 9-digit UAE number
+    await tester.enterText(find.byType(TextFormField), '501234567');
+    await tester.tap(find.text('Send code on WhatsApp'));
+    await tester.pumpAndSettle();
+
+    expect(service.requested, ['501234567']);
+    expect(service.lastCountry, 'AE');
+    expect(service.lastPurpose, 'login');
+    expect(find.text('Verify your number'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
   });
 }

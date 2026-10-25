@@ -167,10 +167,14 @@ class AuthService {
     }
   }
 
-  Future<PhoneOtpChallenge> requestPhoneOtp({required String phone, String country = 'IN'}) async {
+  Future<PhoneOtpChallenge> requestPhoneOtp({
+    required String phone,
+    String country = 'IN',
+    String purpose = 'auth',
+  }) async {
     final response = await _apiClient.post(
       ApiEndpoints.phoneOtpRequest,
-      data: {'phone': phone.trim(), 'country': country},
+      data: {'phone': phone.trim(), 'country': country, 'purpose': purpose},
     );
     return PhoneOtpChallenge.fromJson(response.data as Map<String, dynamic>);
   }

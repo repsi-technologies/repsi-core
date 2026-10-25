@@ -334,18 +334,24 @@ class AttendanceService:
         if user_id:
             user = self.db.query(User).filter(User.id == user_id).first()
             if user:
-                m = self.db.query(Member).filter(
-                    Member.workspace_id == self.workspace_id,
-                    or_(Member.user_id == user.id, Member.email == user.email, Member.phone == user.phone),
+                ws_member = self.db.query(WorkspaceMember).filter(
+                    WorkspaceMember.workspace_id == self.workspace_id, WorkspaceMember.user_id == user.id
                 ).first()
+                if ws_member and ws_member.role == UserRole.TRAINER:
+                    t = self.db.query(Trainer).filter(
+                        Trainer.workspace_id == self.workspace_id,
+                        or_(Trainer.user_id == user.id, Trainer.email == user.email, Trainer.phone == user.phone),
+                    ).first()
+                    if t:
+                        if not t.user_id:
+                            t.user_id = user.id
+                            self.db.commit()
+                        return {"type": "trainer", "obj": t}
+
+                from app.services.member_lifecycle import get_or_create_member_for_user
+                m = get_or_create_member_for_user(self.db, self.workspace_id, user.id)
                 if m:
                     return {"type": "member", "obj": m}
-                t = self.db.query(Trainer).filter(
-                    Trainer.workspace_id == self.workspace_id,
-                    or_(Trainer.user_id == user.id, Trainer.email == user.email, Trainer.phone == user.phone),
-                ).first()
-                if t:
-                    return {"type": "trainer", "obj": t}
 
         # 3. String identifier
         if identifier:

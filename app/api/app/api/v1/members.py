@@ -21,7 +21,7 @@ from app.models.finance import Payment
 from app.models.system import AuditLog
 from app.repositories.member import MemberRepository
 from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
-from app.services.member_lifecycle import change_member_status, record_member_event, ACCOUNT_STATUSES
+from app.services.member_lifecycle import change_member_status, record_member_event, ACCOUNT_STATUSES, get_or_create_member_for_user
 from app.services import membership_lifecycle
 from app.middleware.entitlements import capacity_error, check_member_capacity, require_feature
 
@@ -153,12 +153,7 @@ def check_member_contact(
 
 
 def _self_member(db: Session, tenant: TenantContext) -> Member:
-    member = db.query(Member).filter(
-        Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id
-    ).first()
-    if not member:
-        raise HTTPException(status_code=404, detail="No member profile is linked to your account in this gym.")
-    return member
+    return get_or_create_member_for_user(db, tenant.workspace_id, tenant.user_id, role=tenant.role)
 
 
 def _self_response(db: Session, member: Member) -> MemberSelfResponse:

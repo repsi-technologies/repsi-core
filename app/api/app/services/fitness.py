@@ -113,11 +113,8 @@ class FitnessActor:
             self.trainer = TrainerService(db, tenant).verify_trainer_access()
         else:
             self.kind = "member"
-            self.member = db.query(Member).filter(
-                Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id
-            ).first()
-            if not self.member:
-                raise HTTPException(status_code=403, detail="No member profile is linked to your account in this gym.")
+            from app.services.member_lifecycle import get_or_create_member_for_user
+            self.member = get_or_create_member_for_user(db, tenant.workspace_id, tenant.user_id)
 
     @property
     def ws(self) -> str:

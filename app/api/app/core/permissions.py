@@ -142,7 +142,7 @@ def tenant_permissions(db: Session, tenant: TenantContext) -> frozenset:
         WorkspaceMember.is_active.is_(True),
     ).first()
     if not member:
-        return frozenset()
+        return effective_permissions(tenant.role)
     return effective_permissions(member.role.value if hasattr(member.role, "value") else member.role, member.permissions)
 
 

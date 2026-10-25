@@ -231,7 +231,7 @@ def get_current_trainer_schedule(
             "title": s.title,
             "scheduled_at": s.scheduled_at,
             "duration_minutes": s.duration_minutes,
-            "status": s.status.value,
+            "status": s.status.value if hasattr(s.status, "value") else str(s.status),
             "client_id": s.client_id,
             "client_name": client_name,
             "class_id": s.class_id,

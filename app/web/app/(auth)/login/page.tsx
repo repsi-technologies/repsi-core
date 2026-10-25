@@ -73,7 +73,7 @@ function LoginForm() {
     }
     setLoading(true);
     try {
-      const res = await authApi.requestOtp(national, country);
+      const res = await authApi.requestOtp(national, country, "login");
       setOtpPhone(res.phone);
       setResendIn(res.resend_in);
       setTestMode(res.test_mode);
@@ -90,7 +90,7 @@ function LoginForm() {
     setResending(true);
     setOtpError("");
     try {
-      const res = await authApi.requestOtp(otpPhone, country);
+      const res = await authApi.requestOtp(otpPhone, country, "login");
       setResendIn(res.resend_in);
     } catch (err) {
       setOtpError(err instanceof ApiError ? err.message : t("login.couldn_t_resend_the_code"));

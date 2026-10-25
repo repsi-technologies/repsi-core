@@ -68,7 +68,10 @@ def _can_manage_schedule(db: Session, tenant: TenantContext, trainer: Trainer) -
 
 
 def _my_member(db: Session, tenant: TenantContext) -> Optional[Member]:
-    return db.scalar(select(Member).where(Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id))
+    if not tenant.workspace_id or not tenant.user_id:
+        return None
+    from app.services.member_lifecycle import get_or_create_member_for_user
+    return get_or_create_member_for_user(db, tenant.workspace_id, tenant.user_id)
 
 
 def _view(a: TrainingSession) -> dict:

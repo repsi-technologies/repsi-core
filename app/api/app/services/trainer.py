@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone, date
 from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
@@ -32,7 +33,7 @@ class TrainerService:
         """
         Retrieves the Trainer profile corresponding to user_id in the current workspace.
         """
-        return (
+        trainer = (
             self.db.query(Trainer)
             .filter(
                 Trainer.workspace_id == self.tenant.workspace_id,
@@ -40,6 +41,37 @@ class TrainerService:
             )
             .first()
         )
+        if trainer:
+            return trainer
+
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if user:
+            filters = []
+            if user.email:
+                filters.append(func.lower(Trainer.email) == user.email.lower().strip())
+            clean_phone = re.sub(r"\D", "", user.phone_e164 or user.phone or "")
+            if clean_phone:
+                last10 = clean_phone[-10:] if len(clean_phone) >= 10 else clean_phone
+                last8 = clean_phone[-8:] if len(clean_phone) >= 8 else clean_phone
+                filters.append(Trainer.phone == (user.phone_e164 or user.phone))
+                filters.append(Trainer.phone == last10)
+                filters.append(Trainer.phone.like(f"%{last8}%"))
+            if filters:
+                trainer = (
+                    self.db.query(Trainer)
+                    .filter(
+                        Trainer.workspace_id == self.tenant.workspace_id,
+                        Trainer.user_id.is_(None),
+                        or_(*filters),
+                    )
+                    .first()
+                )
+                if trainer:
+                    trainer.user_id = user.id
+                    self.db.commit()
+                    self.db.refresh(trainer)
+                    return trainer
+        return None
 
     def get_or_create_trainer_profile_for_user(self, user_id: str) -> Trainer:
         """
@@ -56,9 +88,9 @@ class TrainerService:
         trainer = Trainer(
             workspace_id=self.tenant.workspace_id,
             user_id=user.id,
-            name=user.full_name,
-            email=user.email,
-            phone=user.phone or "",
+            name=user.full_name or "Trainer",
+            email=user.email or "",
+            phone=user.phone_e164 or user.phone or "",
             specialization="Personal Trainer",
             status=TrainerStatus.ACTIVE,
             is_active=True,
@@ -102,7 +134,11 @@ class TrainerService:
                 )
                 .first()
             )
-            if ws_member and ws_member.role == UserRole.TRAINER:
+            is_trainer_role = (
+                user_role == "TRAINER"
+                or (ws_member and (ws_member.role == UserRole.TRAINER or getattr(ws_member.role, "value", str(ws_member.role)).upper() == "TRAINER"))
+            )
+            if is_trainer_role:
                 trainer = self.get_or_create_trainer_profile_for_user(self.tenant.user_id)
             else:
                 raise HTTPException(
@@ -391,10 +427,12 @@ class TrainerService:
 
         client_list = []
         for tc, member in results:
-            full_name = f"{member.first_name} {member.last_name}".strip()
+            full_name = f"{member.first_name} {member.last_name or ''}".strip()
+            phone_str = member.phone or ""
+            email_str = (member.email or "").lower()
             if search:
                 s_lower = search.lower()
-                if s_lower not in full_name.lower() and s_lower not in member.phone and s_lower not in member.email.lower():
+                if s_lower not in full_name.lower() and s_lower not in phone_str.lower() and s_lower not in email_str:
                     continue
 
             # Fetch last workout
@@ -421,6 +459,10 @@ class TrainerService:
                 .first()
             )
 
+            membership_status = member.status.value if hasattr(member.status, "value") else str(member.status)
+            relationship_status = tc.status.value if hasattr(tc.status, "value") else str(tc.status)
+            last_status = (last_workout.status.value if hasattr(last_workout.status, "value") else str(last_workout.status)) if last_workout else None
+
             client_list.append({
                 "relationship_id": tc.id,
                 "client_id": member.id,
@@ -430,13 +472,13 @@ class TrainerService:
                 "avatar_url": member.avatar_url,
                 "gender": member.gender,
                 "date_of_birth": member.date_of_birth,
-                "membership_status": member.status.value,
-                "relationship_status": tc.status.value,
+                "membership_status": membership_status,
+                "relationship_status": relationship_status,
                 "assigned_at": tc.assigned_at,
                 "last_workout": {
                     "title": last_workout.title,
                     "date": last_workout.scheduled_date or last_workout.created_at,
-                    "status": last_workout.status.value,
+                    "status": last_status,
                     "completion_percentage": last_workout.completion_percentage,
                 } if last_workout else None,
                 "next_session": {

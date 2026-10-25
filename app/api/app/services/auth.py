@@ -301,7 +301,76 @@ class AuthService:
         return self.db.query(User).filter(func.lower(User.email) == normalize_email(email)).first()
 
     def get_by_phone(self, phone_e164: str) -> User | None:
-        return self.db.query(User).filter(User.phone_e164 == phone_e164).first()
+        user = self.db.query(User).filter(User.phone_e164 == phone_e164).first()
+        if user:
+            return user
+        user = self.db.query(User).filter(User.phone == phone_e164).first()
+        if user:
+            return user
+        clean = re.sub(r"\D", "", phone_e164)
+        last10 = clean[-10:] if len(clean) >= 10 else clean
+        last8 = clean[-8:] if len(clean) >= 8 else clean
+        user = self.db.query(User).filter(
+            or_(User.phone == last10, User.phone.like(f"%{last8}%"))
+        ).first()
+        if user and not user.phone_e164:
+            user.phone_e164 = phone_e164
+            self.db.flush()
+        return user
+
+    def phone_exists(self, phone_e164: str) -> bool:
+        """Checks if a user, member, or trainer exists with this phone number."""
+        clean = re.sub(r"\D", "", phone_e164)
+        last10 = clean[-10:] if len(clean) >= 10 else clean
+        last8 = clean[-8:] if len(clean) >= 8 else clean
+
+        # 1. User
+        user = (
+            self.db.query(User.id)
+            .filter(
+                or_(
+                    User.phone_e164 == phone_e164,
+                    User.phone == phone_e164,
+                    User.phone == last10,
+                    User.phone.like(f"%{last8}%"),
+                )
+            )
+            .first()
+        )
+        if user:
+            return True
+
+        # 2. Member
+        member = (
+            self.db.query(Member.id)
+            .filter(
+                or_(
+                    Member.phone == phone_e164,
+                    Member.phone == last10,
+                    Member.phone.like(f"%{last8}%"),
+                )
+            )
+            .first()
+        )
+        if member:
+            return True
+
+        # 3. Trainer
+        trainer = (
+            self.db.query(Trainer.id)
+            .filter(
+                or_(
+                    Trainer.phone == phone_e164,
+                    Trainer.phone == last10,
+                    Trainer.phone.like(f"%{last8}%"),
+                )
+            )
+            .first()
+        )
+        if trainer:
+            return True
+
+        return False
 
     # ─── Password sign-in ──────────────────────────────────────────────────
 

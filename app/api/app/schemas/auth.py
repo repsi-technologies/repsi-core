@@ -117,7 +117,7 @@ class PasswordResetConfirm(BaseModel):
 class PhoneOtpRequest(BaseModel):
     phone: str = Field(min_length=4, max_length=32)
     country: str | None = Field(default=None, max_length=2)
-    purpose: Literal["auth", "link"] = "auth"
+    purpose: Literal["auth", "link", "login"] = "auth"
 
 
 class PhoneOtpVerify(BaseModel):
