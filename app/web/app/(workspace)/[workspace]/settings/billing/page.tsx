@@ -651,7 +651,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                           </div>
 
                           <div className="text-[10px] font-mono text-primary font-bold mb-3">
-                            Limit: {p.memberLimit < 0 ? "Unlimited" : `${p.memberCount} Active Members`}
+                            Limit: {p.memberCount >= 9999 ? "Unlimited" : `${p.memberCapacity}`}
                           </div>
 
                           <div className="space-y-1.5 pt-3 border-t border-border mb-4">
