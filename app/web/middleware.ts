@@ -8,6 +8,7 @@ const RESERVED_SLUGS = new Set([
   "trainers",
   "memberships",
   "settings",
+  "pay",
   "api",
   "login",
   "signup",

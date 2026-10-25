@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   CreditCard,
@@ -33,6 +33,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { ShinyText } from "@/components/ui/shiny-text";
 import { repsiApi } from "@/lib/api";
+import { isDesktopApp, openCheckoutInBrowser, saasBillingApi } from "@/lib/saas-billing";
 import {
   CURRENCIES,
   CurrencyCode,
@@ -49,6 +50,7 @@ declare global {
 
 export default function SubscriptionBillingPage(props?: { params?: Promise<{ workspace: string }> | { workspace: string } }) {
   const routeParams = useParams();
+  const router = useRouter();
   const workspace = (routeParams?.workspace as string) || "apex-fitness";
 
   const [loading, setLoading] = useState(true);
@@ -157,15 +159,25 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
     setDowngradeWarning(null);
 
     try {
-      await repsiApi.createBillingCheckoutSession({
-        plan_code: targetPlanCode,
-        billing_cycle: billingCycle === "yearly" ? "annual" : "monthly",
-        currency,
-      });
-      setCheckoutError("Cashfree checkout session initialized. Ready to process subscription payment.");
-    } catch (err: any) {
+      // All purchases go through the central checkout, which prices and verifies everything server-side.
+      const cfg = await saasBillingApi.config();
+      if (cfg.enabled && isDesktopApp()) {
+        await openCheckoutInBrowser();
+        setCheckoutError("Finish the payment in your browser. This page refreshes when you come back.");
+        window.addEventListener("focus", () => window.location.reload(), { once: true });
+        return;
+      }
+      if (cfg.enabled) {
+        const cycle = { monthly: "monthly", "3months": "quarterly", "6months": "half_yearly", yearly: "annual" }[billingCycle];
+        router.push(`/pay/subscribe?plan=${encodeURIComponent(targetPlanCode)}&cycle=${cycle}`);
+        return;
+      }
       setCheckoutError(
-        "Online automated gateway checkout is temporarily unavailable on this server. Please contact support at billing@repsi.app or view our full plans at /pricing."
+        "Online payments are not open yet. Your gym keeps full access meanwhile. Contact billing@repsi.app or view our plans at /pricing."
+      );
+    } catch {
+      setCheckoutError(
+        "Online payments are not open yet. Your gym keeps full access meanwhile. Contact billing@repsi.app or view our plans at /pricing."
       );
     } finally {
       setIsProcessingCheckout(false);

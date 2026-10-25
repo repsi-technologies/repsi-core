@@ -1040,5 +1040,5 @@ RESERVED_SLUGS = {
     "api", "superadmin", "auth", "onboarding", "admin", "dashboard",
     "billing", "settings", "login", "register", "pricing", "help",
     "docs", "site", "features", "solutions", "contact", "about",
-    "signup", "invite", "verify-email", "forgot-password", "reset-password",
+    "signup", "invite", "verify-email", "forgot-password", "reset-password", "pay",
 }

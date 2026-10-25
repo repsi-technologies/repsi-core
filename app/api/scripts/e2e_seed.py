@@ -32,6 +32,7 @@ from app.models.member import Member, MemberStatus, Membership, MembershipPlan  
 from app.models.trainer import Trainer  # noqa: E402
 from app.models.user import User, UserRole, Workspace, WorkspaceMember  # noqa: E402
 from app.services.billing import BillingService  # noqa: E402
+from app.services.saas_billing import sync_catalog  # noqa: E402
 
 
 def main() -> int:
@@ -40,6 +41,7 @@ def main() -> int:
     args = parser.parse_args()
     run_database_migrations()
     db = SessionLocal()
+    sync_catalog(db)  # central SaaS billing plans (the e2e stack runs with SAAS_BILLING_ENABLED=true)
     tag = uuid.uuid4().hex[:6]
     accounts: dict = {}
     try:

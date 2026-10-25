@@ -33,6 +33,17 @@ def _refuse_if_suspended(ws, request: Optional[Request]) -> None:
     )
 
 
+def _refuse_if_read_only(db: Session, workspace_id: str, request: Optional[Request], role: Optional[str]) -> None:
+    """Central SaaS read-only guard: blocks disallowed writes, never reads, check-ins, payments or exports."""
+    if request is None or role == "SUPER_ADMIN":
+        return
+    from app.services.saas_billing import read_only_refusal
+
+    detail = read_only_refusal(db, workspace_id, request.method, request.url.path)
+    if detail:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=detail)
+
+
 class TenantContext:
     def __init__(self, workspace_id: str, user_id: str, role: Optional[str] = None, session_id: Optional[str] = None):
         self.workspace_id = workspace_id
@@ -127,6 +138,7 @@ def get_current_tenant(
             _refuse_if_suspended(ws, request)
             refuse_if_demo_restricted(ws, request)
             role = member.role.value if hasattr(member.role, "value") else str(member.role)
+            _refuse_if_read_only(db, actual_ws_id, request, role)
             return TenantContext(workspace_id=actual_ws_id, user_id=user_id, role=role, session_id=session_id)
 
         # Fallback to user's first active workspace membership if no workspace_id was passed
@@ -139,6 +151,7 @@ def get_current_tenant(
             _refuse_if_suspended(first_ws, request)
             refuse_if_demo_restricted(first_ws, request)
             resolved_role = first_member.role.value if hasattr(first_member.role, "value") else str(first_member.role)
+            _refuse_if_read_only(db, first_member.workspace_id, request, resolved_role)
             return TenantContext(
                 workspace_id=first_member.workspace_id, user_id=user_id, role=resolved_role, session_id=session_id
             )

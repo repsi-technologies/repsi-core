@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import { useTranslation } from "@/lib/i18n";
 
 export function WhatsAppCta() {
+  const { t } = useTranslation();
   const whatsappUrl =
     "https://wa.me/918667783321?text=Hi%20Repsi%20Team!%20I'd%20like%20to%20know%20more%20about%20Repsi.";
 
@@ -11,7 +13,7 @@ export function WhatsAppCta() {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with REPSI on WhatsApp"
+      aria-label={t("whatsapp.chat_label", "Chat with REPSI on WhatsApp")}
       className="fixed bottom-6 right-6 z-40 group flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg shadow-[#25D366]/30 hover:shadow-xl hover:shadow-[#25D366]/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
     >
       <div className="relative flex items-center justify-center">

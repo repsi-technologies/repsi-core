@@ -1872,6 +1872,12 @@ abstract class AppLocalizations {
   /// **'Your free trial has ended. Choose a plan on repsi.app to keep using REPSI.'**
   String get trialEnded;
 
+  /// No description provided for @subscriptionManageOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Your REPSI subscription needs attention. Manage your subscription at repsi.app.'**
+  String get subscriptionManageOnWeb;
+
   /// No description provided for @revenueThisMonth.
   ///
   /// In en, this message translates to:

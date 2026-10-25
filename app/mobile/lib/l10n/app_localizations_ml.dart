@@ -1098,6 +1098,10 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ സൗജന്യ ട്രയൽ അവസാനിച്ചു. REPSI തുടർന്നും ഉപയോഗിക്കാൻ repsi.app-ൽ ഒരു പ്ലാൻ തിരഞ്ഞെടുക്കുക.';
 
   @override
+  String get subscriptionManageOnWeb =>
+      'നിങ്ങളുടെ REPSI സബ്‌സ്‌ക്രിപ്‌ഷൻ ശ്രദ്ധിക്കേണ്ടതുണ്ട്. repsi.app-ൽ സബ്‌സ്‌ക്രിപ്‌ഷൻ നിയന്ത്രിക്കുക.';
+
+  @override
   String get revenueThisMonth => 'ഈ മാസത്തെ വരുമാനം';
 
   @override

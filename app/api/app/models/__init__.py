@@ -161,3 +161,17 @@ from app.models.booking import ClassBooking, ClassSession, TrainerAvailability, 
 from app.models.offers import Coupon, CouponRedemption
 from app.models.support import SupportMessage, SupportTicket
 from app.models.jobs import JobRun
+from app.models.saas import (
+    SaasAudit,
+    SaasEntitlement,
+    SaasHandoffToken,
+    SaasInvoice,
+    SaasInvoiceCounter,
+    SaasOrder,
+    SaasPaymentAttempt,
+    SaasPlan,
+    SaasPlanPrice,
+    SaasRefund,
+    SaasSubscription,
+    SaasWebhookEvent,
+)

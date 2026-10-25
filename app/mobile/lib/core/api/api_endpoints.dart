@@ -41,6 +41,7 @@ class ApiEndpoints {
   static const String attendanceSummary = '/attendance/summary';
   static const String attendanceCurrentlyInside = '/attendance/currently-inside';
   static const String trialStatus = '/billing/trial-status';
+  static const String saasSubscription = '/saas-billing/subscription';
   static const String attendanceScanQr = '/attendance/scan-qr';
   static const String myAttendance = '/attendance/member/me';
   static const String myAttendancePass = '/attendance/member/me/pass';

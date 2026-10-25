@@ -1090,6 +1090,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your free trial has ended. Choose a plan on repsi.app to keep using REPSI.';
 
   @override
+  String get subscriptionManageOnWeb =>
+      'Your REPSI subscription needs attention. Manage your subscription at repsi.app.';
+
+  @override
   String get revenueThisMonth => 'Revenue this month';
 
   @override

@@ -10,8 +10,10 @@ import {
   BillingCycle,
   GLOBAL_PLANS,
 } from "@/lib/pricing-data";
+import { useTranslation } from "@/lib/i18n";
 
 export function PricingPreviewSection() {
+  const { t } = useTranslation();
   // Default to 1 year and INR (with seamless toggle to USD, EUR, GBP, AED)
   const [currency, setCurrency] = useState<CurrencyCode>("INR");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
@@ -31,7 +33,7 @@ export function PricingPreviewSection() {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FDF1EB] border border-[#FACBB7] text-[#E25822] text-xs font-bold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Final Global Pricing · Fixed Rates Per Currency</span>
+            <span>{t("pricing_preview.badge", "Final Global Pricing · Fixed Rates Per Currency")}</span>
           </div>
 
           <motion.h2
@@ -41,10 +43,10 @@ export function PricingPreviewSection() {
             transition={{ duration: 0.5 }}
             className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl text-[#191919] tracking-tight leading-[1.14] mb-3"
           >
-            Predictable gym software starting at{" "}
+            {t("pricing_preview.headline", "Predictable gym software starting at")}{" "}
             <span className="text-[#E25822]">
               {curr.symbol}
-              {GLOBAL_PLANS.find((p) => p.id === "lite")?.pricing[currency].yearly.perMonth}/mo.
+              {GLOBAL_PLANS.find((p) => p.id === "lite")?.pricing[currency].yearly.perMonth}{t("pricing_preview.per_month", "/month")}
             </span>
           </motion.h2>
 
@@ -55,7 +57,7 @@ export function PricingPreviewSection() {
             transition={{ duration: 0.5, delay: 0.08 }}
             className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed font-normal"
           >
-            {curr.taxNote} Only active members count, with a 10% grace cap and zero check-in blocks.
+            {curr.taxNote} {t("pricing_preview.tax_note_suffix", "Only active members count, with a 10% grace cap and zero check-in blocks.")}
           </motion.p>
 
           {/* Currency Switcher */}
@@ -92,7 +94,7 @@ export function PricingPreviewSection() {
                   : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              Monthly
+              {t("pricing_preview.cycle_monthly", "Monthly")}
             </button>
             <button
               type="button"
@@ -103,7 +105,7 @@ export function PricingPreviewSection() {
                   : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>3 Months</span>
+              <span>{t("pricing_preview.cycle_3months", "3 Months")}</span>
               <span className="text-[10px] text-[#E25822] font-bold">10% OFF</span>
             </button>
             <button
@@ -115,7 +117,7 @@ export function PricingPreviewSection() {
                   : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>6 Months</span>
+              <span>{t("pricing_preview.cycle_6months", "6 Months")}</span>
               <span className="text-[10px] text-[#E25822] font-bold">25% OFF</span>
             </button>
             <button
@@ -127,9 +129,9 @@ export function PricingPreviewSection() {
                   : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>1 Year (Best Value)</span>
+              <span>{t("pricing_preview.cycle_yearly", "1 Year")}</span>
               <span className="text-[10px] bg-white/20 text-white font-bold px-1.5 py-0.2 rounded-full">
-                35% OFF
+                {t("pricing_preview.save_35", "Save 35%")}
               </span>
             </button>
           </div>
