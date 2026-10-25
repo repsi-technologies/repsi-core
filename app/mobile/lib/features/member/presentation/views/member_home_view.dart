@@ -26,7 +26,7 @@ import '../../../health/providers/health_provider.dart';
 import '../../data/member_self_provider.dart';
 import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
-import 'trainer_chat_view.dart';
+import '../../../trainer/views/trainer_diet_plan_view.dart';
 import '../../../ai/views/ai_workout_coach_view.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../app/theme/repsi_palette.dart';
@@ -99,7 +99,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
     final actions = [
       (LucideIcons.qrCode, l.myPass, () => _push(const QrAttendanceView())),
       (LucideIcons.userRound, l.myTrainer, () => _push(const MyTrainerView())),
-      (LucideIcons.messageCircle, l.messages, () => _push(const TrainerChatView())),
+      (LucideIcons.salad, l.dietPlan, () => _push(const TrainerDietPlanView())),
       (LucideIcons.receipt, l.commonPayments, () => _push(const MembershipPaymentsView())),
       (LucideIcons.sparkles, l.aiCoach, () => _push(const AiWorkoutCoachView())),
       (LucideIcons.dumbbell, l.navWorkout, widget.onOpenWorkouts ?? () => _push(const WorkoutPlanView())),

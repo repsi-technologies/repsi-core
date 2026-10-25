@@ -6714,6 +6714,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No-show'**
   String get sessionNoShow;
+
+  /// No description provided for @navChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get navChat;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @myShiftAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'My shift attendance'**
+  String get myShiftAttendance;
+
+  /// No description provided for @markMemberAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark member attendance'**
+  String get markMemberAttendance;
+
+  /// No description provided for @checkInShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shift'**
+  String get checkInShift;
+
+  /// No description provided for @checkOutShift.
+  ///
+  /// In en, this message translates to:
+  /// **'End shift'**
+  String get checkOutShift;
+
+  /// No description provided for @offShift.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not on shift'**
+  String get offShift;
+
+  /// No description provided for @onShiftSince.
+  ///
+  /// In en, this message translates to:
+  /// **'On shift since {time}'**
+  String onShiftSince(String time);
+
+  /// No description provided for @onShiftNow.
+  ///
+  /// In en, this message translates to:
+  /// **'On shift'**
+  String get onShiftNow;
+
+  /// No description provided for @daysWorked.
+  ///
+  /// In en, this message translates to:
+  /// **'Days worked'**
+  String get daysWorked;
+
+  /// No description provided for @shiftHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift history'**
+  String get shiftHistory;
+
+  /// No description provided for @noShiftsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No shifts recorded yet.'**
+  String get noShiftsYet;
+
+  /// No description provided for @corrected.
+  ///
+  /// In en, this message translates to:
+  /// **'corrected'**
+  String get corrected;
+
+  /// No description provided for @requestCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Request correction'**
+  String get requestCorrection;
+
+  /// No description provided for @correctionReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened? (e.g. forgot to check out)'**
+  String get correctionReasonHint;
+
+  /// No description provided for @checkInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in'**
+  String get checkInTime;
+
+  /// No description provided for @checkOutTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-out'**
+  String get checkOutTime;
+
+  /// No description provided for @correctionsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 correction request waiting for review} other{{count} correction requests waiting for review}}'**
+  String correctionsPending(int count);
+
+  /// No description provided for @correctionRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction requests'**
+  String get correctionRequests;
+
+  /// No description provided for @staffAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff attendance'**
+  String get staffAttendance;
+
+  /// No description provided for @staffAttendanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer shifts, hours and corrections'**
+  String get staffAttendanceDesc;
+
+  /// No description provided for @staffAttendanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainers\' shift check-ins appear here. Member visits are counted separately.'**
+  String get staffAttendanceHint;
+
+  /// No description provided for @last30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get last30Days;
+
+  /// No description provided for @shiftCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 shift} other{{count} shifts}}'**
+  String shiftCount(int count);
+
+  /// No description provided for @daysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String daysCount(int count);
+
+  /// No description provided for @staffAndPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff & permissions'**
+  String get staffAndPermissions;
+
+  /// No description provided for @staffAndPermissionsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what each trainer can do'**
+  String get staffAndPermissionsDesc;
+
+  /// No description provided for @permissionsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn individual permissions on or off. Trainers only see members assigned to them unless \'View member profiles\' is on.'**
+  String get permissionsIntro;
+
+  /// No description provided for @permissionPresets.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick presets'**
+  String get permissionPresets;
+
+  /// No description provided for @permissionsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions updated'**
+  String get permissionsSaved;
+
+  /// No description provided for @permissionsAuditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Every change is recorded in the audit log with who made it and when.'**
+  String get permissionsAuditNote;
+
+  /// No description provided for @roleDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Included with this role'**
+  String get roleDefault;
+
+  /// No description provided for @permGroupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get permGroupMembers;
+
+  /// No description provided for @permGroupAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get permGroupAttendance;
+
+  /// No description provided for @permGroupTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training & diet'**
+  String get permGroupTraining;
+
+  /// No description provided for @permGroupCommunication.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication'**
+  String get permGroupCommunication;
+
+  /// No description provided for @permGroupSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions & classes'**
+  String get permGroupSchedule;
+
+  /// No description provided for @permGroupAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get permGroupAdmin;
 }
 
 class _AppLocalizationsDelegate

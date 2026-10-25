@@ -3790,4 +3790,151 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionNoShow => 'No-show';
+
+  @override
+  String get navChat => 'Chat';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get myShiftAttendance => 'My shift attendance';
+
+  @override
+  String get markMemberAttendance => 'Mark member attendance';
+
+  @override
+  String get checkInShift => 'Start shift';
+
+  @override
+  String get checkOutShift => 'End shift';
+
+  @override
+  String get offShift => 'You\'re not on shift';
+
+  @override
+  String onShiftSince(String time) {
+    return 'On shift since $time';
+  }
+
+  @override
+  String get onShiftNow => 'On shift';
+
+  @override
+  String get daysWorked => 'Days worked';
+
+  @override
+  String get shiftHistory => 'Shift history';
+
+  @override
+  String get noShiftsYet => 'No shifts recorded yet.';
+
+  @override
+  String get corrected => 'corrected';
+
+  @override
+  String get requestCorrection => 'Request correction';
+
+  @override
+  String get correctionReasonHint =>
+      'What happened? (e.g. forgot to check out)';
+
+  @override
+  String get checkInTime => 'Check-in';
+
+  @override
+  String get checkOutTime => 'Check-out';
+
+  @override
+  String correctionsPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count correction requests waiting for review',
+      one: '1 correction request waiting for review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get correctionRequests => 'Correction requests';
+
+  @override
+  String get staffAttendance => 'Staff attendance';
+
+  @override
+  String get staffAttendanceDesc => 'Trainer shifts, hours and corrections';
+
+  @override
+  String get staffAttendanceHint =>
+      'Trainers\' shift check-ins appear here. Member visits are counted separately.';
+
+  @override
+  String get last30Days => 'Last 30 days';
+
+  @override
+  String shiftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shifts',
+      one: '1 shift',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get staffAndPermissions => 'Staff & permissions';
+
+  @override
+  String get staffAndPermissionsDesc => 'Choose what each trainer can do';
+
+  @override
+  String get permissionsIntro =>
+      'Turn individual permissions on or off. Trainers only see members assigned to them unless \'View member profiles\' is on.';
+
+  @override
+  String get permissionPresets => 'Quick presets';
+
+  @override
+  String get permissionsSaved => 'Permissions updated';
+
+  @override
+  String get permissionsAuditNote =>
+      'Every change is recorded in the audit log with who made it and when.';
+
+  @override
+  String get roleDefault => 'Included with this role';
+
+  @override
+  String get permGroupMembers => 'Members';
+
+  @override
+  String get permGroupAttendance => 'Attendance';
+
+  @override
+  String get permGroupTraining => 'Training & diet';
+
+  @override
+  String get permGroupCommunication => 'Communication';
+
+  @override
+  String get permGroupSchedule => 'Sessions & classes';
+
+  @override
+  String get permGroupAdmin => 'Administration';
 }

@@ -1,4 +1,6 @@
 import '../../coaching/data/coaching_api.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../staff/views/staff_admin_views.dart';
 import '../../coaching/views/trainer_requests_view.dart';
 import '../../../shared/widgets/theme_mode_sheet.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +90,10 @@ class MoreView extends ConsumerWidget {
               trailing: _PendingRequestsBadge(),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrainerRequestsView())),
             ),
+            _Item(LucideIcons.shieldCheck, context.l10n.staffAndPermissions, subtitle: context.l10n.staffAndPermissionsDesc,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StaffPermissionsView()))),
+            _Item(LucideIcons.clock3, context.l10n.staffAttendance, subtitle: context.l10n.staffAttendanceDesc,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StaffAttendanceView()))),
             _Item(Icons.person_add_outlined, context.l10n.addTrainer, subtitle: context.l10n.addTrainerDesc, onTap: () => context.push(RouteNames.addTrainer)),
           ]),
           _Group(title: context.l10n.app, items: [

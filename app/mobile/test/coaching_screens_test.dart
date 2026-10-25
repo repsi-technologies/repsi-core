@@ -26,6 +26,9 @@ import 'package:mobile/features/nutrition/data/coaching_repository.dart';
 import 'package:mobile/features/trainer/data/trainer_schedule.dart';
 import 'package:mobile/features/trainer/views/trainer_home_view.dart';
 import 'package:mobile/features/trainer/views/trainer_sessions_view.dart';
+import 'package:mobile/features/staff/data/staff_api.dart';
+import 'package:mobile/features/staff/views/my_shift_view.dart';
+import 'package:mobile/features/staff/views/staff_admin_views.dart';
 import 'package:mobile/l10n/l10n.dart';
 import 'package:mobile/shared/models/user_model.dart';
 import 'package:mobile/shared/navigation/repsi_bottom_nav.dart';
@@ -136,6 +139,23 @@ List<Override> _overrides({CoachingOverview? overview}) => [
             {'client_id': 'm1', 'name': 'Asha Menon', 'membership_status': 'ACTIVE'},
             {'client_id': 'm2', 'name': '', 'membership_status': 'ACTIVE'},
           ])),
+      myPermissionsProvider.overrideWith((ref) => Future.value({'attendance.record'})),
+      myShiftProvider.overrideWith((ref) => Future.value(MyShift(
+            active: ShiftRecord(id: 'a1', checkIn: DateTime.now().subtract(const Duration(hours: 2)), minutes: 120, corrected: false),
+            weekMinutes: 1235, monthMinutes: 9870, monthDays: 21,
+            records: [ShiftRecord(id: 'a0', checkIn: DateTime(2026, 10, 20, 6), checkOut: DateTime(2026, 10, 20, 14, 5), minutes: 485, corrected: true)],
+            requests: const [CorrectionRequest(id: 'q1', attendanceId: 'a0', reason: 'Forgot to check out', status: 'pending')]))),
+      staffReportProvider.overrideWith((ref) => Future.value(const [
+            StaffHours(trainerId: 't1', name: 'Karthikeyan Subramaniam', shifts: 22, days: 21, minutes: 9870, checkedIn: true, pendingCorrections: 1),
+          ])),
+      pendingCorrectionsProvider.overrideWith((ref) => Future.value([
+            CorrectionRequest(id: 'q1', attendanceId: 'a0', trainerName: 'Karthikeyan Subramaniam', reason: 'Forgot to check out after the evening batch',
+                status: 'pending', requestedOut: DateTime(2026, 10, 20, 21, 30)),
+          ])),
+      teamProvider.overrideWith((ref) => Future.value(const [
+            TeamMember(id: 'w1', name: 'Asha Owner', email: 'o@x.in', role: 'OWNER', isSelf: true, isActive: true),
+            TeamMember(id: 'w2', name: 'Karthikeyan Subramaniam', email: 't@x.in', role: 'TRAINER', isSelf: false, isActive: true),
+          ])),
       conversationsProvider.overrideWith((ref) => Future.value(const [
             Conversation(id: 'c1', memberId: 'm1', memberName: 'Asha Menon', trainerName: 'Karthik', lastMessage: 'See you at 7!',
                 unread: 2, canSend: true),
@@ -206,7 +226,7 @@ void main() {
             tester.view.physicalSize = size;
             tester.view.devicePixelRatio = 1;
             addTearDown(tester.view.reset);
-            for (final screen in const [TrainerRequestsView(), TrainerHomeView(), TrainerSessionsView()]) {
+            for (final screen in const [TrainerRequestsView(), TrainerHomeView(), TrainerSessionsView(), MyShiftView(), StaffAttendanceView(), StaffPermissionsView()]) {
               await tester.pumpWidget(
                   ProviderScope(overrides: _overrides(), child: _Harness(home: screen, lang: lang, dark: dark)));
               await _settle(tester);

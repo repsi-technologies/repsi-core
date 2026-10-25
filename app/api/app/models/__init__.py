@@ -11,6 +11,7 @@ from app.models.attendance import (
     AttendanceStatus,
     AttendanceCorrection,
     MemberPassRedemption,
+    StaffCorrectionRequest,
 )
 from app.models.auth import AuthIdentity, AuthSession, EmailOtpChallenge, PasswordResetToken, PendingRegistration, PhoneOtpChallenge
 from app.models.base import TenantMixin, TimestampMixin

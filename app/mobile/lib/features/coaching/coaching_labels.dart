@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../l10n/l10n.dart';
@@ -24,13 +25,16 @@ extension FitnessGoalUi on FitnessGoal {
       };
 
   IconData get icon => switch (this) {
-        FitnessGoal.fatLoss => Icons.local_fire_department_rounded,
-        FitnessGoal.muscleGain => Icons.fitness_center_rounded,
-        FitnessGoal.strength => Icons.sports_gymnastics_rounded,
-        FitnessGoal.endurance => Icons.directions_run_rounded,
-        FitnessGoal.generalFitness => Icons.favorite_rounded,
-        FitnessGoal.mobility => Icons.self_improvement_rounded,
+        FitnessGoal.fatLoss => LucideIcons.flame,
+        FitnessGoal.muscleGain => LucideIcons.bicepsFlexed,
+        FitnessGoal.strength => LucideIcons.weight,
+        FitnessGoal.endurance => LucideIcons.footprints,
+        FitnessGoal.generalFitness => LucideIcons.heartPulse,
+        FitnessGoal.mobility => LucideIcons.personStanding,
       };
+
+  /// Photo for banners and the goal picker (Unsplash License, bundled in assets/images/goals).
+  String get imageAsset => 'assets/images/goals/$code.jpg';
 
   Color get color => switch (this) {
         FitnessGoal.fatLoss => AppColors.primary,
@@ -87,13 +91,13 @@ String dayFocusLabel(AppLocalizations l, String focus) => switch (focus) {
     };
 
 IconData dayFocusIcon(String focus) => switch (focus) {
-      'upper' || 'push' => Icons.sports_martial_arts_rounded,
-      'pull' => Icons.rowing_rounded,
-      'lower' || 'legs' => Icons.directions_walk_rounded,
-      'conditioning' => Icons.bolt_rounded,
-      'cardio' => Icons.directions_run_rounded,
-      'mobility' => Icons.self_improvement_rounded,
-      _ => Icons.fitness_center_rounded,
+      'upper' || 'push' => LucideIcons.bicepsFlexed,
+      'pull' => LucideIcons.dumbbell,
+      'lower' || 'legs' => LucideIcons.footprints,
+      'conditioning' => LucideIcons.zap,
+      'cardio' => LucideIcons.heartPulse,
+      'mobility' => LucideIcons.personStanding,
+      _ => LucideIcons.dumbbell,
     };
 
 Color dayFocusColor(String focus) => switch (focus) {

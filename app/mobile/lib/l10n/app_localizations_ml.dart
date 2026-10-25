@@ -3811,4 +3811,135 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get sessionNoShow => 'വന്നില്ല';
+
+  @override
+  String get navChat => 'ചാറ്റ്';
+
+  @override
+  String get approve => 'അംഗീകരിക്കുക';
+
+  @override
+  String get saveChanges => 'മാറ്റങ്ങൾ സേവ് ചെയ്യുക';
+
+  @override
+  String get myShiftAttendance => 'എന്റെ ഷിഫ്റ്റ് ഹാജർ';
+
+  @override
+  String get markMemberAttendance => 'അംഗങ്ങളുടെ ഹാജർ രേഖപ്പെടുത്തുക';
+
+  @override
+  String get checkInShift => 'ഷിഫ്റ്റ് ആരംഭിക്കുക';
+
+  @override
+  String get checkOutShift => 'ഷിഫ്റ്റ് അവസാനിപ്പിക്കുക';
+
+  @override
+  String get offShift => 'നിങ്ങൾ ഷിഫ്റ്റിലില്ല';
+
+  @override
+  String onShiftSince(String time) {
+    return '$time മുതൽ ഷിഫ്റ്റിൽ';
+  }
+
+  @override
+  String get onShiftNow => 'ഷിഫ്റ്റിൽ';
+
+  @override
+  String get daysWorked => 'ജോലി ദിവസങ്ങൾ';
+
+  @override
+  String get shiftHistory => 'ഷിഫ്റ്റ് ചരിത്രം';
+
+  @override
+  String get noShiftsYet => 'ഇതുവരെ ഷിഫ്റ്റുകൾ രേഖപ്പെടുത്തിയിട്ടില്ല.';
+
+  @override
+  String get corrected => 'തിരുത്തി';
+
+  @override
+  String get requestCorrection => 'തിരുത്തൽ അഭ്യർത്ഥിക്കുക';
+
+  @override
+  String get correctionReasonHint =>
+      'എന്ത് സംഭവിച്ചു? (ഉദാ. ചെക്ക് ഔട്ട് മറന്നു)';
+
+  @override
+  String get checkInTime => 'ചെക്ക്-ഇൻ';
+
+  @override
+  String get checkOutTime => 'ചെക്ക്-ഔട്ട്';
+
+  @override
+  String correctionsPending(int count) {
+    return '$count തിരുത്തൽ അഭ്യർത്ഥനകൾ പരിഗണനയിൽ';
+  }
+
+  @override
+  String get correctionRequests => 'തിരുത്തൽ അഭ്യർത്ഥനകൾ';
+
+  @override
+  String get staffAttendance => 'സ്റ്റാഫ് ഹാജർ';
+
+  @override
+  String get staffAttendanceDesc =>
+      'ട്രെയിനർ ഷിഫ്റ്റുകൾ, മണിക്കൂർ, തിരുത്തലുകൾ';
+
+  @override
+  String get staffAttendanceHint =>
+      'ട്രെയിനർമാരുടെ ഷിഫ്റ്റ് ചെക്ക്-ഇന്നുകൾ ഇവിടെ കാണാം. അംഗങ്ങളുടെ സന്ദർശനം പ്രത്യേകം.';
+
+  @override
+  String get last30Days => 'കഴിഞ്ഞ 30 ദിവസം';
+
+  @override
+  String shiftCount(int count) {
+    return '$count ഷിഫ്റ്റുകൾ';
+  }
+
+  @override
+  String daysCount(int count) {
+    return '$count ദിവസം';
+  }
+
+  @override
+  String get staffAndPermissions => 'സ്റ്റാഫും അനുമതികളും';
+
+  @override
+  String get staffAndPermissionsDesc =>
+      'ഓരോ ട്രെയിനർക്കും ചെയ്യാവുന്നത് തിരഞ്ഞെടുക്കുക';
+
+  @override
+  String get permissionsIntro =>
+      'ഓരോ അനുമതിയും ഓൺ/ഓഫ് ചെയ്യുക. \'അംഗ പ്രൊഫൈലുകൾ കാണുക\' ഓണല്ലെങ്കിൽ ട്രെയിനർമാർക്ക് അവർക്ക് നിയോഗിച്ച അംഗങ്ങളെ മാത്രം കാണാം.';
+
+  @override
+  String get permissionPresets => 'ദ്രുത പ്രീസെറ്റുകൾ';
+
+  @override
+  String get permissionsSaved => 'അനുമതികൾ പുതുക്കി';
+
+  @override
+  String get permissionsAuditNote =>
+      'ഓരോ മാറ്റവും ആര്, എപ്പോൾ എന്നതോടെ ഓഡിറ്റ് ലോഗിൽ രേഖപ്പെടുത്തും.';
+
+  @override
+  String get roleDefault => 'ഈ റോളിനൊപ്പം ലഭിക്കുന്നത്';
+
+  @override
+  String get permGroupMembers => 'അംഗങ്ങൾ';
+
+  @override
+  String get permGroupAttendance => 'ഹാജർ';
+
+  @override
+  String get permGroupTraining => 'പരിശീലനവും ഭക്ഷണവും';
+
+  @override
+  String get permGroupCommunication => 'ആശയവിനിമയം';
+
+  @override
+  String get permGroupSchedule => 'സെഷനുകളും ക്ലാസുകളും';
+
+  @override
+  String get permGroupAdmin => 'ഭരണം';
 }

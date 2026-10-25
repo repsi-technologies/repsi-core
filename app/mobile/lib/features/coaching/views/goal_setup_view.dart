@@ -327,8 +327,8 @@ class _GoalCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: RepsiMotion.nav,
           curve: RepsiMotion.easeOut,
-          constraints: const BoxConstraints(minHeight: 150),
-          padding: const EdgeInsets.all(14),
+          constraints: const BoxConstraints(minHeight: 176),
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: selected ? goal.color.withValues(alpha: context.isDarkMode ? 0.18 : 0.08) : palette.surface,
             borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
@@ -340,28 +340,49 @@ class _GoalCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  AnimatedContainer(
-                    duration: RepsiMotion.nav,
-                    width: 40,
-                    height: 40,
+              SizedBox(
+                height: 76,
+                width: double.infinity,
+                child: Stack(fit: StackFit.expand, children: [
+                  Image.asset(goal.imageAsset, fit: BoxFit.cover, cacheWidth: 420,
+                      errorBuilder: (_, __, ___) => ColoredBox(color: goal.color.withValues(alpha: 0.2))),
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      color: selected ? goal.color : goal.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black.withValues(alpha: 0.05), Colors.black.withValues(alpha: 0.45)],
+                      ),
                     ),
-                    child: Icon(goal.icon, size: 22, color: selected ? Colors.white : goal.color),
                   ),
-                  const Spacer(),
-                  AnimatedScale(
-                    scale: selected ? 1 : 0,
-                    duration: RepsiMotion.nav,
-                    curve: RepsiMotion.easeBack,
-                    child: Icon(Icons.check_circle_rounded, color: goal.color, size: 22),
+                  Positioned(
+                    left: 10,
+                    bottom: 8,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(color: goal.color, borderRadius: BorderRadius.circular(9)),
+                      child: Icon(goal.icon, size: 17, color: Colors.white),
+                    ),
                   ),
-                ],
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: AnimatedScale(
+                      scale: selected ? 1 : 0,
+                      duration: RepsiMotion.nav,
+                      curve: RepsiMotion.easeBack,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        child: Icon(Icons.check_circle_rounded, size: 22, color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ]),
               ),
-              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -371,6 +392,8 @@ class _GoalCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.caption.copyWith(color: palette.textSecondary, height: 1.35)),
+                ]),
+              ),
             ],
           ),
         ),

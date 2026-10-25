@@ -3775,4 +3775,132 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get sessionNoShow => 'नहीं आए';
+
+  @override
+  String get navChat => 'चैट';
+
+  @override
+  String get approve => 'स्वीकार करें';
+
+  @override
+  String get saveChanges => 'बदलाव सेव करें';
+
+  @override
+  String get myShiftAttendance => 'मेरी शिफ़्ट हाज़िरी';
+
+  @override
+  String get markMemberAttendance => 'सदस्य की हाज़िरी लगाएँ';
+
+  @override
+  String get checkInShift => 'शिफ़्ट शुरू करें';
+
+  @override
+  String get checkOutShift => 'शिफ़्ट खत्म करें';
+
+  @override
+  String get offShift => 'आप शिफ़्ट पर नहीं हैं';
+
+  @override
+  String onShiftSince(String time) {
+    return '$time से शिफ़्ट पर';
+  }
+
+  @override
+  String get onShiftNow => 'शिफ़्ट पर';
+
+  @override
+  String get daysWorked => 'काम के दिन';
+
+  @override
+  String get shiftHistory => 'शिफ़्ट इतिहास';
+
+  @override
+  String get noShiftsYet => 'अभी कोई शिफ़्ट दर्ज नहीं है।';
+
+  @override
+  String get corrected => 'सुधारा गया';
+
+  @override
+  String get requestCorrection => 'सुधार का अनुरोध';
+
+  @override
+  String get correctionReasonHint => 'क्या हुआ? (जैसे चेक-आउट भूल गए)';
+
+  @override
+  String get checkInTime => 'चेक-इन';
+
+  @override
+  String get checkOutTime => 'चेक-आउट';
+
+  @override
+  String correctionsPending(int count) {
+    return '$count सुधार अनुरोध समीक्षा में';
+  }
+
+  @override
+  String get correctionRequests => 'सुधार अनुरोध';
+
+  @override
+  String get staffAttendance => 'स्टाफ़ हाज़िरी';
+
+  @override
+  String get staffAttendanceDesc => 'ट्रेनर शिफ़्ट, घंटे और सुधार';
+
+  @override
+  String get staffAttendanceHint =>
+      'ट्रेनर की शिफ़्ट हाज़िरी यहाँ दिखती है। सदस्यों की विज़िट अलग गिनी जाती हैं।';
+
+  @override
+  String get last30Days => 'पिछले 30 दिन';
+
+  @override
+  String shiftCount(int count) {
+    return '$count शिफ़्ट';
+  }
+
+  @override
+  String daysCount(int count) {
+    return '$count दिन';
+  }
+
+  @override
+  String get staffAndPermissions => 'स्टाफ़ और अनुमतियाँ';
+
+  @override
+  String get staffAndPermissionsDesc => 'हर ट्रेनर क्या कर सकता है, चुनें';
+
+  @override
+  String get permissionsIntro =>
+      'अलग-अलग अनुमतियाँ चालू या बंद करें। \'सदस्य प्रोफ़ाइल देखें\' बंद हो तो ट्रेनर सिर्फ़ अपने सदस्यों को देखते हैं।';
+
+  @override
+  String get permissionPresets => 'तुरंत प्रीसेट';
+
+  @override
+  String get permissionsSaved => 'अनुमतियाँ अपडेट हो गईं';
+
+  @override
+  String get permissionsAuditNote =>
+      'हर बदलाव किसने और कब किया, ऑडिट लॉग में दर्ज होता है।';
+
+  @override
+  String get roleDefault => 'इस भूमिका में शामिल';
+
+  @override
+  String get permGroupMembers => 'सदस्य';
+
+  @override
+  String get permGroupAttendance => 'हाज़िरी';
+
+  @override
+  String get permGroupTraining => 'ट्रेनिंग और डाइट';
+
+  @override
+  String get permGroupCommunication => 'संचार';
+
+  @override
+  String get permGroupSchedule => 'सेशन और क्लास';
+
+  @override
+  String get permGroupAdmin => 'प्रशासन';
 }

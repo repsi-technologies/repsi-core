@@ -3833,4 +3833,133 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get sessionNoShow => 'வரவில்லை';
+
+  @override
+  String get navChat => 'அரட்டை';
+
+  @override
+  String get approve => 'ஏற்கவும்';
+
+  @override
+  String get saveChanges => 'மாற்றங்களைச் சேமி';
+
+  @override
+  String get myShiftAttendance => 'என் பணி வருகை';
+
+  @override
+  String get markMemberAttendance => 'உறுப்பினர் வருகையைப் பதிவு செய்';
+
+  @override
+  String get checkInShift => 'பணியைத் தொடங்கு';
+
+  @override
+  String get checkOutShift => 'பணியை முடி';
+
+  @override
+  String get offShift => 'நீங்கள் பணியில் இல்லை';
+
+  @override
+  String onShiftSince(String time) {
+    return '$time முதல் பணியில்';
+  }
+
+  @override
+  String get onShiftNow => 'பணியில்';
+
+  @override
+  String get daysWorked => 'பணி நாட்கள்';
+
+  @override
+  String get shiftHistory => 'பணி வரலாறு';
+
+  @override
+  String get noShiftsYet => 'இன்னும் பணிப் பதிவுகள் இல்லை.';
+
+  @override
+  String get corrected => 'திருத்தப்பட்டது';
+
+  @override
+  String get requestCorrection => 'திருத்தம் கோரு';
+
+  @override
+  String get correctionReasonHint => 'என்ன நடந்தது? (எ.கா. வெளியேற மறந்தேன்)';
+
+  @override
+  String get checkInTime => 'உள்நுழைவு';
+
+  @override
+  String get checkOutTime => 'வெளியேற்றம்';
+
+  @override
+  String correctionsPending(int count) {
+    return '$count திருத்தக் கோரிக்கைகள் பரிசீலனையில்';
+  }
+
+  @override
+  String get correctionRequests => 'திருத்தக் கோரிக்கைகள்';
+
+  @override
+  String get staffAttendance => 'பணியாளர் வருகை';
+
+  @override
+  String get staffAttendanceDesc => 'பயிற்சியாளர் பணி, மணிநேரம், திருத்தங்கள்';
+
+  @override
+  String get staffAttendanceHint =>
+      'பயிற்சியாளர் பணி வருகைகள் இங்கே தோன்றும். உறுப்பினர் வருகைகள் தனியாகக் கணக்கிடப்படும்.';
+
+  @override
+  String get last30Days => 'கடந்த 30 நாட்கள்';
+
+  @override
+  String shiftCount(int count) {
+    return '$count பணிகள்';
+  }
+
+  @override
+  String daysCount(int count) {
+    return '$count நாட்கள்';
+  }
+
+  @override
+  String get staffAndPermissions => 'பணியாளர் & அனுமதிகள்';
+
+  @override
+  String get staffAndPermissionsDesc =>
+      'ஒவ்வொரு பயிற்சியாளரும் செய்யக்கூடியதைத் தேர்ந்தெடு';
+
+  @override
+  String get permissionsIntro =>
+      'தனி அனுமதிகளை இயக்கு/நிறுத்து. \'உறுப்பினர் சுயவிவரங்களைப் பார்\' இயக்கப்படாவிட்டால் பயிற்சியாளர்கள் தங்களுக்கு நியமிக்கப்பட்டவர்களை மட்டும் பார்ப்பார்கள்.';
+
+  @override
+  String get permissionPresets => 'விரைவு முன்னமைவுகள்';
+
+  @override
+  String get permissionsSaved => 'அனுமதிகள் புதுப்பிக்கப்பட்டன';
+
+  @override
+  String get permissionsAuditNote =>
+      'ஒவ்வொரு மாற்றமும் யார், எப்போது என்று தணிக்கைப் பதிவில் சேமிக்கப்படும்.';
+
+  @override
+  String get roleDefault => 'இந்தப் பொறுப்புடன் சேர்ந்தது';
+
+  @override
+  String get permGroupMembers => 'உறுப்பினர்கள்';
+
+  @override
+  String get permGroupAttendance => 'வருகை';
+
+  @override
+  String get permGroupTraining => 'பயிற்சி & உணவு';
+
+  @override
+  String get permGroupCommunication => 'தொடர்பு';
+
+  @override
+  String get permGroupSchedule => 'அமர்வுகள் & வகுப்புகள்';
+
+  @override
+  String get permGroupAdmin => 'நிர்வாகம்';
 }

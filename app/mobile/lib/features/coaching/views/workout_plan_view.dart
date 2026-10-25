@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -164,61 +165,95 @@ class GoalHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final card = Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        gradient: const LinearGradient(colors: AppColors.energyGradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.30), blurRadius: 24, offset: const Offset(0, 10))],
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            right: -18,
-            top: -18,
-            child: Icon(plan.goal.icon, size: 120, color: Colors.white.withValues(alpha: 0.12)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l.yourGoal.toUpperCase(),
-                  style: AppTypography.caption.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w700, letterSpacing: 1.1)),
-              const SizedBox(height: 6),
-              Text(plan.goal.label(l),
-                  style: AppTypography.heading.copyWith(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+    final goal = plan.goal;
+    final card = ClipRRect(
+      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      child: ConstrainedBox(
+        // Sized by the text (long Indic labels grow it); the photo fills whatever height results.
+        constraints: const BoxConstraints(minHeight: 196),
+        child: Stack(
+          children: [
+            // Each goal has its own photo, so the banner reads as fat loss, strength, mobility…
+            Positioned.fill(
+              child: Image.asset(goal.imageAsset, fit: BoxFit.cover, cacheWidth: 900,
+                  errorBuilder: (_, __, ___) => const ColoredBox(color: AppColors.ink)),
+            ),
+            Positioned.fill(child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.88),
+                    Colors.black.withValues(alpha: 0.55),
+                    goal.color.withValues(alpha: 0.25),
+                  ],
+                  stops: const [0, 0.55, 1],
+                ),
+              ),
+            )),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _HeroPill(icon: Icons.signal_cellular_alt_rounded, text: plan.level.label(l)),
-                  _HeroPill(icon: Icons.calendar_today_rounded, text: l.daysPerWeekValue(plan.daysPerWeek)),
-                  _HeroPill(icon: Icons.timer_outlined, text: l.unitMinutes(plan.sessionMinutes)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(color: goal.color, borderRadius: BorderRadius.circular(999)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(goal.icon, size: 14, color: Colors.white),
+                      const SizedBox(width: 6),
+                      Text(l.yourGoal.toUpperCase(),
+                          style: AppTypography.caption.copyWith(
+                              color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.9, fontSize: 11)),
+                    ]),
+                  ),
+                  const SizedBox(height: 40),
+                  Text(goal.label(l),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.heading.copyWith(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.15)),
+                  const SizedBox(height: 4),
+                  Text(goal.description(l),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.82))),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _HeroPill(icon: LucideIcons.signal, text: plan.level.label(l)),
+                      _HeroPill(icon: LucideIcons.calendarDays, text: l.daysPerWeekValue(plan.daysPerWeek)),
+                      _HeroPill(icon: LucideIcons.timer, text: l.unitMinutes(plan.sessionMinutes)),
+                    ],
+                  ),
+                  if (onEdit != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: onEdit,
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white.withValues(alpha: 0.16),
+                        minimumSize: const Size(0, 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      ),
+                      icon: const Icon(LucideIcons.pencil, size: 15),
+                      label: Text(l.editGoal, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ],
                 ],
               ),
-              if (onEdit != null) ...[
-                const SizedBox(height: 14),
-                TextButton.icon(
-                  onPressed: onEdit,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.white.withValues(alpha: 0.16),
-                    minimumSize: const Size(0, 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                  ),
-                  icon: const Icon(Icons.edit_rounded, size: 16),
-                  label: Text(l.editGoal, style: const TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
-    return onTap == null ? card : RepsiPress(onTap: onTap, pressedScale: 0.98, child: card);
+    return Semantics(
+      label: '${l.yourGoal}: ${goal.label(l)}',
+      child: onTap == null ? card : RepsiPress(onTap: onTap, pressedScale: 0.98, child: card),
+    );
   }
 }
 
@@ -230,9 +265,13 @@ class _HeroPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(999)),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+        ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 14, color: Colors.white),
+          Icon(icon, size: 13, color: Colors.white),
           const SizedBox(width: 6),
           Text(text, style: AppTypography.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
         ]),

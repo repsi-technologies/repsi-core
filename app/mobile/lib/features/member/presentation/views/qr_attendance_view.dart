@@ -27,7 +27,11 @@ import '../../../../app/theme/repsi_palette.dart';
 /// The server decides whether anyone is admitted; this screen only transports the scan and shows
 /// the server's answer.
 class QrAttendanceView extends ConsumerStatefulWidget {
-  const QrAttendanceView({super.key});
+  /// Opens the member-pass scanner directly (trainers granted `attendance.record`). The API
+  /// still checks the permission, membership and duplicates on every scan.
+  final bool staffScanner;
+
+  const QrAttendanceView({super.key, this.staffScanner = false});
 
   @override
   ConsumerState<QrAttendanceView> createState() => _QrAttendanceViewState();
@@ -39,7 +43,7 @@ class _QrAttendanceViewState extends ConsumerState<QrAttendanceView> {
   bool get _isStaff {
     final user = ref.read(authProvider).user;
     if (user == null) return false;
-    if (user.isSuperadmin) return true;
+    if (widget.staffScanner || user.isSuperadmin) return true;
     final role = UserRole.fromString(user.role);
     return role == UserRole.owner ||
         role == UserRole.admin ||

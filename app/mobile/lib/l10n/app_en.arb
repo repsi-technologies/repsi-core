@@ -2106,5 +2106,72 @@
   "sessionScheduled": "Scheduled",
   "sessionCompleted": "Completed",
   "sessionCancelled": "Cancelled",
-  "sessionNoShow": "No-show"
+  "sessionNoShow": "No-show",
+  "navChat": "Chat",
+  "approve": "Approve",
+  "saveChanges": "Save changes",
+  "myShiftAttendance": "My shift attendance",
+  "markMemberAttendance": "Mark member attendance",
+  "checkInShift": "Start shift",
+  "checkOutShift": "End shift",
+  "offShift": "You're not on shift",
+  "onShiftSince": "On shift since {time}",
+  "@onShiftSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "onShiftNow": "On shift",
+  "daysWorked": "Days worked",
+  "shiftHistory": "Shift history",
+  "noShiftsYet": "No shifts recorded yet.",
+  "corrected": "corrected",
+  "requestCorrection": "Request correction",
+  "correctionReasonHint": "What happened? (e.g. forgot to check out)",
+  "checkInTime": "Check-in",
+  "checkOutTime": "Check-out",
+  "correctionsPending": "{count, plural, =1{1 correction request waiting for review} other{{count} correction requests waiting for review}}",
+  "@correctionsPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "correctionRequests": "Correction requests",
+  "staffAttendance": "Staff attendance",
+  "staffAttendanceDesc": "Trainer shifts, hours and corrections",
+  "staffAttendanceHint": "Trainers' shift check-ins appear here. Member visits are counted separately.",
+  "last30Days": "Last 30 days",
+  "shiftCount": "{count, plural, =1{1 shift} other{{count} shifts}}",
+  "@shiftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "staffAndPermissions": "Staff & permissions",
+  "staffAndPermissionsDesc": "Choose what each trainer can do",
+  "permissionsIntro": "Turn individual permissions on or off. Trainers only see members assigned to them unless 'View member profiles' is on.",
+  "permissionPresets": "Quick presets",
+  "permissionsSaved": "Permissions updated",
+  "permissionsAuditNote": "Every change is recorded in the audit log with who made it and when.",
+  "roleDefault": "Included with this role",
+  "permGroupMembers": "Members",
+  "permGroupAttendance": "Attendance",
+  "permGroupTraining": "Training & diet",
+  "permGroupCommunication": "Communication",
+  "permGroupSchedule": "Sessions & classes",
+  "permGroupAdmin": "Administration"
 }

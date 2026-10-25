@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import '../../shared/models/user_model.dart';
@@ -37,38 +38,38 @@ class RepsiBottomNav extends StatelessWidget {
     switch (role) {
       case UserRole.trainer:
         return [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
-          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: context.l10n.navClients),
-          RepsiNavItem(icon: Icons.calendar_today_outlined, activeIcon: Icons.calendar_today_rounded, label: context.l10n.navSchedule),
-          RepsiNavItem(icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: context.l10n.messages),
-          RepsiNavItem(icon: Icons.menu_rounded, activeIcon: Icons.menu_rounded, label: context.l10n.commonMore),
+          RepsiNavItem(icon: LucideIcons.house, label: context.l10n.commonHome),
+          RepsiNavItem(icon: LucideIcons.users, label: context.l10n.navClients),
+          RepsiNavItem(icon: LucideIcons.calendarDays, label: context.l10n.navSchedule),
+          RepsiNavItem(icon: LucideIcons.messageSquare, label: context.l10n.messages),
+          RepsiNavItem(icon: LucideIcons.ellipsis, label: context.l10n.commonMore),
         ];
       case UserRole.owner:
       case UserRole.manager:
         return [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
-          RepsiNavItem(icon: Icons.group_outlined, activeIcon: Icons.group_rounded, label: context.l10n.commonMembers),
-          RepsiNavItem(icon: Icons.how_to_reg_outlined, activeIcon: Icons.how_to_reg_rounded, label: context.l10n.commonFrontDesk),
-          RepsiNavItem(icon: Icons.currency_rupee_rounded, activeIcon: Icons.currency_rupee_rounded, label: context.l10n.commonFinance),
-          RepsiNavItem(icon: Icons.more_horiz_rounded, activeIcon: Icons.more_horiz_rounded, label: context.l10n.commonMore),
+          RepsiNavItem(icon: LucideIcons.house, label: context.l10n.commonHome),
+          RepsiNavItem(icon: LucideIcons.users, label: context.l10n.commonMembers),
+          RepsiNavItem(icon: LucideIcons.scanLine, label: context.l10n.commonFrontDesk),
+          RepsiNavItem(icon: LucideIcons.indianRupee, label: context.l10n.commonFinance),
+          RepsiNavItem(icon: LucideIcons.ellipsis, label: context.l10n.commonMore),
         ];
       case UserRole.admin:
       case UserRole.superAdmin:
         return [
-          RepsiNavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: context.l10n.commonHome),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navGyms),
-          RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: context.l10n.navUsers),
-          RepsiNavItem(icon: Icons.analytics_outlined, activeIcon: Icons.analytics_rounded, label: context.l10n.navAnalytics),
-          RepsiNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: context.l10n.commonMore),
+          RepsiNavItem(icon: LucideIcons.layoutDashboard, label: context.l10n.commonHome),
+          RepsiNavItem(icon: LucideIcons.dumbbell, label: context.l10n.navGyms),
+          RepsiNavItem(icon: LucideIcons.users, label: context.l10n.navUsers),
+          RepsiNavItem(icon: LucideIcons.chartNoAxesColumn, label: context.l10n.navAnalytics),
+          RepsiNavItem(icon: LucideIcons.settings, label: context.l10n.commonMore),
         ];
       case UserRole.user:
       case UserRole.staff:
         return [
-          RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navWorkout),
-          RepsiNavItem(icon: Icons.show_chart_rounded, activeIcon: Icons.show_chart_rounded, label: context.l10n.navProgress),
-          RepsiNavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, label: context.l10n.navClasses),
-          RepsiNavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: context.l10n.commonMore),
+          RepsiNavItem(icon: LucideIcons.house, label: context.l10n.commonHome),
+          RepsiNavItem(icon: LucideIcons.dumbbell, label: context.l10n.navWorkout),
+          RepsiNavItem(icon: LucideIcons.activity, label: context.l10n.navProgress),
+          RepsiNavItem(icon: LucideIcons.calendarDays, label: context.l10n.navClasses),
+          RepsiNavItem(icon: LucideIcons.ellipsis, label: context.l10n.commonMore),
         ];
     }
   }

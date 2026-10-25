@@ -221,3 +221,21 @@ class MemberPassRedemption(Base, TimestampMixin, TenantMixin):
     jti = Column(String(64), nullable=False, unique=True)
     member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
     attendance_id = Column(String(64), nullable=True)
+
+
+class StaffCorrectionRequest(Base, TimestampMixin, TenantMixin):
+    """A trainer asking for their own attendance record to be fixed. Approval applies an
+    AttendanceCorrection (the audited change); the request row keeps who asked and who decided."""
+    __tablename__ = "attendance_correction_requests"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    attendance_id = Column(String(64), ForeignKey("attendance.id", ondelete="CASCADE"), nullable=False, index=True)
+    trainer_id = Column(String(64), ForeignKey("trainers.id", ondelete="CASCADE"), nullable=False, index=True)
+    requested_by_user_id = Column(String(64), nullable=False)
+    reason = Column(String(500), nullable=False)
+    requested_check_in_time = Column(DateTime, nullable=True)
+    requested_check_out_time = Column(DateTime, nullable=True)
+    status = Column(String(20), nullable=False, default="pending", index=True)  # pending | approved | rejected
+    resolved_by_user_id = Column(String(64), nullable=True)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    resolution_note = Column(String(500), nullable=True)

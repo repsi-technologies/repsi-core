@@ -11,6 +11,10 @@ import '../../auth/widgets/my_profile_photo.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/language_selector_sheet.dart';
 import '../../../shared/widgets/theme_mode_sheet.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../member/presentation/views/qr_attendance_view.dart';
+import '../../staff/data/staff_api.dart';
+import '../../staff/views/my_shift_view.dart';
 import '../../../app/theme/repsi_palette.dart';
 
 class TrainerMoreView extends ConsumerWidget {
@@ -23,13 +27,18 @@ class TrainerMoreView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
     final l = context.l10n;
+    final perms = ref.watch(myPermissionsProvider).valueOrNull ?? const <String>{};
+    void push(Widget page) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
     final menuItems = <(IconData, String, VoidCallback)>[
-      (Icons.chat_bubble_outline_rounded, l.messages, () => onSelectTab?.call(3)),
-      (Icons.people_outline_rounded, l.myClients, () => onSelectTab?.call(1)),
-      (Icons.calendar_today_outlined, l.mySchedule, () => onSelectTab?.call(2)),
-      (Icons.notifications_none_rounded, l.commonNotifications, () => context.push(RouteNames.notifications)),
-      (Icons.translate_rounded, l.commonLanguage, () => LanguageSelectorSheet.show(context)),
-      (Icons.contrast_rounded, l.appearance, () => ThemeModeSheet.show(context)),
+      (LucideIcons.clock3, l.myShiftAttendance, () => push(const MyShiftView())),
+      if (perms.contains('attendance.record'))
+        (LucideIcons.scanLine, l.markMemberAttendance, () => push(const QrAttendanceView(staffScanner: true))),
+      (LucideIcons.messageSquare, l.messages, () => onSelectTab?.call(3)),
+      (LucideIcons.users, l.myClients, () => onSelectTab?.call(1)),
+      (LucideIcons.calendarDays, l.mySchedule, () => onSelectTab?.call(2)),
+      (LucideIcons.bell, l.commonNotifications, () => context.push(RouteNames.notifications)),
+      (LucideIcons.languages, l.commonLanguage, () => LanguageSelectorSheet.show(context)),
+      (LucideIcons.sunMoon, l.appearance, () => ThemeModeSheet.show(context)),
     ];
 
     return Scaffold(

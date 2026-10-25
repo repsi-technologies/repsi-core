@@ -21,7 +21,7 @@ from app.core.audit import record_audit
 from app.services.access_eligibility import AccessDecision, MEMBER_FACING, evaluate_member_access, local_day_bounds_utc, workspace_tz
 from app.models.member import Member, MemberStatus, Membership
 from app.models.trainer import Trainer, TrainerStatus
-from app.models.user import User, Workspace
+from app.models.user import User, UserRole, Workspace, WorkspaceMember
 from app.schemas.attendance import (
     AttendanceResponse,
     AttendanceSummary,
