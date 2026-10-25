@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare, Clock } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { useTranslation } from "@/lib/i18n";
 
 export default function ContactPage() {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -30,13 +32,13 @@ export default function ContactPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-16">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/25 mb-4">
-              Get in Touch
+              {t("marketing_contact.badge", "Get in Touch")}
             </span>
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-              Let&apos;s talk about your <span className="text-[var(--accent)]">fitness business</span>.
+              {t("marketing_contact.hero_title", "Let's talk about your fitness business.")}
             </h1>
             <p className="text-base text-[var(--text-secondary)] max-w-xl mx-auto">
-              Looking for a custom demonstration, turnstile hardware consultation, or multi-branch enterprise pricing? Our team responds within 2 hours.
+              {t("marketing_contact.hero_subtitle", "Looking for a custom demonstration, turnstile hardware consultation, or multi-branch enterprise pricing? Our team responds within 2 hours.")}
             </p>
           </div>
 

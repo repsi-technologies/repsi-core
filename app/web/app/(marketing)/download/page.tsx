@@ -21,10 +21,12 @@ import {
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { useTranslation } from "@/lib/i18n";
 
 type PlatformCategory = "all" | "mobile" | "desktop" | "web";
 
 export default function DownloadPage() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<PlatformCategory>("all");
   const [downloadModal, setDownloadModal] = useState<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -225,8 +227,7 @@ export default function DownloadPage() {
             transition={{ duration: 0.5, delay: 0.08 }}
             className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#191919] tracking-tight leading-[1.12]"
           >
-            Download REPSI on <br className="hidden sm:inline" />
-            <span className="text-[#E25822]">every device.</span>
+            {t("marketing_download.hero_title", "Download REPSI on every device")}
           </motion.h1>
 
           <motion.p
@@ -235,7 +236,7 @@ export default function DownloadPage() {
             transition={{ duration: 0.5, delay: 0.16 }}
             className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed font-normal"
           >
-            Manage members, verify daily attendance, dispatch payment receipts, and review business analytics from your mobile phone, reception desk, or web browser.
+            {t("marketing_download.hero_subtitle", "Manage members, verify daily attendance, dispatch payment receipts, and review business analytics from your mobile phone, reception desk, or web browser.")}
           </motion.p>
 
           {/* Key Value Badges */}

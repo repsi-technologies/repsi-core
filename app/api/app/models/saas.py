@@ -145,6 +145,9 @@ class SaasOrder(Base, TimestampMixin):
     idempotency_key = Column(String(100), nullable=False)
     provider = Column(String(20), nullable=False, default="cashfree")
     provider_order_id = Column(String(100), nullable=True)
+    provider_session_id = Column(Text, nullable=True)  # Cashfree payment_session_id for the JS checkout
+    reconcile_failures = Column(Integer, nullable=False, default=0)
+    last_checked_at = Column(DateTime(timezone=True), nullable=True)
     expires_at = Column(DateTime(timezone=True), nullable=True)
     paid_at = Column(DateTime(timezone=True), nullable=True)
     created_by_user_id = Column(String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)

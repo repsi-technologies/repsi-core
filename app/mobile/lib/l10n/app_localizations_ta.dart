@@ -1101,6 +1101,10 @@ class AppLocalizationsTa extends AppLocalizations {
       'உங்கள் இலவச சோதனைக் காலம் முடிந்தது. REPSI-ஐத் தொடர்ந்து பயன்படுத்த repsi.app-இல் திட்டத்தைத் தேர்ந்தெடுக்கவும்.';
 
   @override
+  String get subscriptionManageOnWeb =>
+      'உங்கள் REPSI சந்தாவைக் கவனிக்க வேண்டும். repsi.app இல் உங்கள் சந்தாவை நிர்வகிக்கவும்.';
+
+  @override
   String get revenueThisMonth => 'இந்த மாத வருவாய்';
 
   @override

@@ -38,6 +38,9 @@ function parseError(status: number, body: unknown): ApiError {
     const first = Object.values(fields)[0] || "Please check the highlighted fields.";
     return new ApiError(status, first, fields);
   }
+  // Structured refusals ({error_code, message}): PLAN_LIMIT_REACHED, SUBSCRIPTION_READ_ONLY, PHONE_REQUIRED, ...
+  const message = (detail as { message?: unknown } | undefined)?.message;
+  if (typeof message === "string" && message) return new ApiError(status, message);
   if (status === 429) return new ApiError(status, "Too many attempts. Please wait a moment and try again.");
   if (status >= 500) return new ApiError(status, "Something went wrong on our side. Please try again.");
   return new ApiError(status, "Request failed. Please try again.");

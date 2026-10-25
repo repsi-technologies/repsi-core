@@ -99,21 +99,52 @@ final currentlyInsideProvider = FutureProvider.autoDispose<List<InsideNow>>((ref
   return list.map((e) => InsideNow.fromJson(e as Map<String, dynamic>)).toList();
 });
 
-/// Free-trial countdown, only when the gym is actually on a trial (GET /billing/trial-status).
+/// Subscription banner for owners: trial countdown, or a "needs attention" note when the gym's REPSI
+/// subscription is in grace or read-only. Purchases happen only on repsi.app; the app never shows
+/// prices or purchase buttons (store policy). Reads GET /saas-billing/subscription when central billing
+/// is enabled, else the legacy GET /billing/trial-status.
 class TrialStatus {
   final bool isTrial;
   final bool isPaid;
   final bool isExpired;
   final int daysRemaining;
+  final bool needsAttention;
 
-  const TrialStatus({required this.isTrial, required this.isPaid, required this.isExpired, required this.daysRemaining});
+  const TrialStatus({
+    required this.isTrial,
+    required this.isPaid,
+    required this.isExpired,
+    required this.daysRemaining,
+    this.needsAttention = false,
+  });
 
-  bool get showBanner => isTrial && !isPaid;
+  bool get showBanner => needsAttention || (isTrial && !isPaid);
+}
+
+int _daysUntil(String? iso) {
+  final end = iso == null ? null : DateTime.tryParse(iso);
+  if (end == null) return 0;
+  final hours = end.difference(DateTime.now()).inHours;
+  return hours <= 0 ? 0 : (hours / 24).ceil();
 }
 
 final trialStatusProvider = FutureProvider.autoDispose<TrialStatus?>((ref) async {
+  final api = ref.watch(apiClientProvider);
   try {
-    final res = await ref.watch(apiClientProvider).get(ApiEndpoints.trialStatus);
+    final j = (await api.get(ApiEndpoints.saasSubscription)).data as Map<String, dynamic>;
+    final status = j['status']?.toString() ?? '';
+    return TrialStatus(
+      isTrial: status == 'trialing',
+      isPaid: status == 'active',
+      isExpired: status == 'read_only',
+      daysRemaining: _daysUntil(j['trial_ends_at']?.toString()),
+      needsAttention: status == 'grace' || status == 'read_only' || status == 'suspended',
+    );
+  } catch (_) {
+    // Central billing off (404) or not an owner/admin: fall back to the legacy trial endpoint.
+  }
+  try {
+    final res = await api.get(ApiEndpoints.trialStatus);
     final j = res.data as Map<String, dynamic>;
     return TrialStatus(
       isTrial: j['is_trial'] == true,

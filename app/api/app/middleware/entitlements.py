@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.middleware.tenant import get_current_tenant, TenantContext
 from app.services.billing import BillingService
 from app.models.billing import SubscriptionStatus
+from app.services.saas_billing import entitlements_for, saas_capacity_error, saas_subscription_if_enabled
 
 def require_feature(feature_key: str):
     """
@@ -29,6 +30,24 @@ def require_feature(feature_key: str):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Workspace context required for entitlement verification."
             )
+
+        saas = saas_subscription_if_enabled(db, tenant.workspace_id)
+        if saas is not None:
+            # Central SaaS billing: plan features only. Lapsed subscriptions are handled by the read-only
+            # write guard, so reads and exports keep working.
+            ents = entitlements_for(db, saas)
+            if not ents["features"].get(feature_key, False):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail={
+                        "error_code": "FEATURE_NOT_IN_PLAN",
+                        "required_feature": feature_key,
+                        "current_plan": ents["plan_code"],
+                        "plan_name": ents["plan_name"],
+                        "message": f"Feature '{feature_key}' is not included in your {ents['plan_name']} plan. Upgrade to access.",
+                    },
+                )
+            return True
 
         snap = BillingService.entitlement_snapshot(db, tenant.workspace_id)
 
@@ -86,6 +105,10 @@ def check_member_capacity(
     if tenant.role == "SUPER_ADMIN":
         return True
 
+    if saas_subscription_if_enabled(db, tenant.workspace_id) is not None:
+        assert_capacity(db, tenant.workspace_id, "members")
+        return True
+
     sub = BillingService.get_or_create_workspace_subscription(db, tenant.workspace_id)
     if sub.status == SubscriptionStatus.SUSPENDED:
         raise HTTPException(
@@ -131,6 +154,9 @@ def check_trainer_capacity(
 def capacity_error(db: Session, workspace_id: str, resource: str, increment: int = 1) -> Optional[dict]:
     """Returns the PLAN_LIMIT_REACHED payload when adding `increment` would exceed the quota, else None."""
     db.flush()  # count rows added earlier in this transaction
+    saas = saas_subscription_if_enabled(db, workspace_id)
+    if saas is not None:
+        return saas_capacity_error(db, saas, workspace_id, resource, increment)
     allowed, message, current, limit = BillingService.check_limit_before_action(
         db, workspace_id, resource, increment=increment
     )

@@ -4,8 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Sparkles, Clock, MessageSquare } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export function FinalCtaSection() {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -25,7 +27,7 @@ export function FinalCtaSection() {
               transition={{ duration: 0.5, delay: 0.08 }}
               className="font-heading font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-[42px] text-white tracking-tight leading-[1.15]"
             >
-              Ready to simplify your daily operations?
+              {t("final_cta.headline", "Ready to simplify your daily operations?")}
             </motion.h2>
 
             {/* Description */}
@@ -36,7 +38,7 @@ export function FinalCtaSection() {
               transition={{ duration: 0.5, delay: 0.16 }}
               className="text-sm sm:text-base md:text-lg text-white/90 max-w-xl mx-auto leading-relaxed font-normal"
             >
-              Bring your members, attendance, memberships and payments together with REPSI.
+              {t("final_cta.desc", "Bring your members, attendance, memberships and payments together with REPSI.")}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -51,7 +53,7 @@ export function FinalCtaSection() {
                 href="/signup"
                 className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-white hover:bg-[#FAF9F6] text-[#E25822] text-xs sm:text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95"
               >
-                <span>Get Started Free</span>
+                <span>{t("final_cta.get_started", "Get Started Free")}</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
 
@@ -59,7 +61,7 @@ export function FinalCtaSection() {
                 href="#pricing"
                 className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm transition-all duration-200 active:scale-95"
               >
-                <span>Explore Pricing</span>
+                <span>{t("final_cta.explore_pricing", "Explore Pricing")}</span>
               </a>
             </motion.div>
 
@@ -67,15 +69,15 @@ export function FinalCtaSection() {
             <div className="pt-6 border-t border-white/20 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs text-white/85">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
-                <span>14-day free trial</span>
+                <span>{t("final_cta.trial_badge", "14-day free trial")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-white shrink-0" />
-                <span>No credit card required</span>
+                <span>{t("final_cta.no_card", "No credit card required")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <MessageSquare className="w-4 h-4 text-white shrink-0" />
-                <span>Instant setup in 2 minutes</span>
+                <span>{t("final_cta.instant_setup", "Instant setup in 2 minutes")}</span>
               </div>
             </div>
           </div>

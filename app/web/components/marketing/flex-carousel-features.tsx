@@ -18,6 +18,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { FlexCarousel, type FlexCarouselItem, type FlexCarouselRef } from "@/components/ui/flex-carousel";
+import { useTranslation } from "@/lib/i18n";
 
 interface FeatureDetail {
   id: string;
@@ -33,6 +34,7 @@ interface FeatureDetail {
 }
 
 export function FlexCarouselFeatures() {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
   const carouselRef = useRef<FlexCarouselRef>(null);
   const carouselBoxRef = useRef<HTMLDivElement>(null);
@@ -49,109 +51,103 @@ export function FlexCarouselFeatures() {
     {
       id: "members",
       number: "01",
-      title: "Member Management",
-      shortDesc: "Organize member profiles, contact information, and membership records.",
-      longDesc:
-        "Keep all member records, medical notes, emergency contacts, and active plans organized in a central, searchable directory. No more spreadsheets or lost paper files.",
+      title: t("features_section.members_title", "Member Management"),
+      shortDesc: t("features_section.members_short", "Organize member profiles, contact information, and membership records."),
+      longDesc: t("features_section.members_long", "Keep all member records, medical notes, emergency contacts, and active plans organized in a central, searchable directory. No more spreadsheets or lost paper files."),
       icon: Users,
       accentColor: "#E25822",
       accentBg: "#FDF1EB",
       accentBorder: "#FACBB7",
       highlights: [
-        "Comprehensive digital member profiles",
-        "Instant search by name, phone or member ID",
-        "Emergency contacts & health notes",
-        "Active membership history & records",
+        t("features_section.members_h1", "Comprehensive digital member profiles"),
+        t("features_section.members_h2", "Instant search by name, phone or member ID"),
+        t("features_section.members_h3", "Emergency contacts & health notes"),
+        t("features_section.members_h4", "Active membership history & records"),
       ],
     },
     {
       id: "attendance",
       number: "02",
-      title: "Attendance Tracking",
-      shortDesc: "Record and review member attendance efficiently.",
-      longDesc:
-        "Fast check-in workflow for front-desk staff or automated turnstiles. Eliminate rush-hour entry bottlenecks and get accurate attendance counts in real time.",
+      title: t("features_section.attendance_title", "Attendance Tracking"),
+      shortDesc: t("features_section.attendance_short", "Record and review member attendance efficiently."),
+      longDesc: t("features_section.attendance_long", "Fast check-in workflow for front-desk staff or automated turnstiles. Eliminate rush-hour entry bottlenecks and get accurate attendance counts in real time."),
       icon: CalendarCheck,
       accentColor: "#D97706",
       accentBg: "#FFFBEB",
       accentBorder: "#FDE68A",
       highlights: [
-        "1-second QR or manual front-desk check-in",
-        "Real-time live gym occupancy count",
-        "Daily attendance logs & peak-hour metrics",
-        "Automated alerts for lapsed members",
+        t("features_section.attendance_h1", "1-second QR or manual front-desk check-in"),
+        t("features_section.attendance_h2", "Real-time live gym occupancy count"),
+        t("features_section.attendance_h3", "Daily attendance logs & peak-hour metrics"),
+        t("features_section.attendance_h4", "Automated alerts for lapsed members"),
       ],
     },
     {
       id: "renewals",
       number: "03",
-      title: "Memberships & Renewals",
-      shortDesc: "Manage membership plans, expiry dates, and renewal workflows.",
-      longDesc:
-        "Monitor expiring memberships before they lapse. Automate renewal reminders via WhatsApp and keep retention rates high with customizable plan structures.",
+      title: t("features_section.renewals_title", "Memberships & Renewals"),
+      shortDesc: t("features_section.renewals_short", "Manage membership plans, expiry dates, and renewal workflows."),
+      longDesc: t("features_section.renewals_long", "Monitor expiring memberships before they lapse. Automate renewal reminders via WhatsApp and keep retention rates high with customizable plan structures."),
       icon: RefreshCw,
       accentColor: "#E11D48",
       accentBg: "#FFF1F2",
       accentBorder: "#FECDD3",
       highlights: [
-        "Flexible daily, monthly and annual plan tiers",
-        "Upcoming expiry notifications & alerts",
-        "1-click WhatsApp renewal reminder triggers",
-        "Overdue and grace-period management",
+        t("features_section.renewals_h1", "Flexible daily, monthly and annual plan tiers"),
+        t("features_section.renewals_h2", "Upcoming expiry notifications & alerts"),
+        t("features_section.renewals_h3", "1-click WhatsApp renewal reminder triggers"),
+        t("features_section.renewals_h4", "Overdue and grace-period management"),
       ],
     },
     {
       id: "payments",
       number: "04",
-      title: "Payments & Receipts",
-      shortDesc: "Track payment records, review submitted receipts, and manage confirmation workflows.",
-      longDesc:
-        "Record payments made through UPI, cards or cash with instant digital receipts. Eliminate disputed dues and reconcile daily front-desk collections effortlessly.",
+      title: t("features_section.payments_title", "Payments & Invoicing"),
+      shortDesc: t("features_section.payments_short", "Track cash, UPI and card fees with automated receipt generation."),
+      longDesc: t("features_section.payments_long", "Streamline fee collections, manage partial payments, and issue professional receipts instantly. Keep your financial books clean and audit-ready."),
       icon: CreditCard,
       accentColor: "#059669",
       accentBg: "#ECFDF5",
       accentBorder: "#A7F3D0",
       highlights: [
-        "UPI, card, bank transfer and cash recording",
-        "Instant digital payment receipts with GST breakdown",
-        "Clear pending dues and installment tracking",
-        "Daily collection summaries for owners",
+        t("features_section.payments_h1", "UPI, card and cash payment logging"),
+        t("features_section.payments_h2", "Automated PDF and WhatsApp receipts"),
+        t("features_section.payments_h3", "Pending dues tracking & reminder queues"),
+        t("features_section.payments_h4", "GST-ready billing and tax invoicing"),
       ],
     },
     {
       id: "passes",
       number: "05",
-      title: "Digital Member Passes",
-      shortDesc: "Present QR-based member identification or check-in functionality.",
-      longDesc:
-        "Give your members modern digital membership cards on their phones. Fast QR code scanning verifies membership validity on the spot without physical plastic cards.",
+      title: t("features_section.qr_title", "Digital QR Passes"),
+      shortDesc: t("features_section.qr_short", "Frictionless digital entry passes directly on members' phones."),
+      longDesc: t("features_section.qr_long", "Provide members with dynamic QR access codes for seamless check-in at front desk or turnstile scanners. Eliminates plastic cards and entry disputes."),
       icon: QrCode,
       accentColor: "#2563EB",
       accentBg: "#EFF6FF",
       accentBorder: "#BFDBFE",
       highlights: [
-        "Dynamic digital pass accessible on any smartphone",
-        "Instant validity check with colored status indicators",
-        "Touchless scan at the entrance or reception",
-        "Zero printing costs for plastic RFID cards",
+        t("features_section.qr_h1", "Dynamic anti-screenshot digital QR passes"),
+        t("features_section.qr_h2", "Instant photo and status verification"),
+        t("features_section.qr_h3", "Works seamlessly with gym turnstiles"),
+        t("features_section.qr_h4", "Zero plastic card printing expenses"),
       ],
     },
     {
       id: "analytics",
       number: "06",
-      title: "Reports & Analytics",
-      shortDesc: "Display real business summaries and operational reports supported by the application.",
-      longDesc:
-        "Understand your gym's revenue, active member count, retention trends, and trainer performance. Make data-backed decisions with exportable reports.",
+      title: t("features_section.reports_title", "Reports & Financials"),
+      shortDesc: t("features_section.reports_short", "Actionable insights into revenue, member growth, and gym operations."),
+      longDesc: t("features_section.reports_long", "Clear, visual dashboards showing daily revenue collections, member retention trends, and class attendance to help you make informed business decisions."),
       icon: BarChart3,
       accentColor: "#7C3AED",
       accentBg: "#F5F3FF",
       accentBorder: "#DDD6FE",
       highlights: [
-        "Daily, monthly, and annual collection summaries",
-        "Active member growth and retention graphs",
-        "Peak-hour facility utilization reports",
-        "1-click CSV/Excel report exports",
+        t("features_section.reports_h1", "Real-time daily collection dashboards"),
+        t("features_section.reports_h2", "Monthly revenue & P&L summaries"),
+        t("features_section.reports_h3", "Member retention and churn analysis"),
+        t("features_section.reports_h4", "CSV and Excel exports for accounting"),
       ],
     },
   ];
@@ -169,8 +165,6 @@ export function FlexCarouselFeatures() {
       if (window.innerWidth < 768) return;
 
       const rect = el.getBoundingClientRect();
-      // "Don't start the scroll until the content below the image is visible"
-      // Content below image (the lower drawer) must be within the viewport
       const isContentBelowImageVisible = rect.bottom <= window.innerHeight + 15 && rect.top >= -80;
 
       if (!isContentBelowImageVisible) {
@@ -181,7 +175,6 @@ export function FlexCarouselFeatures() {
       const currentIdx = activeIndexRef.current;
 
       if (e.deltaY > 0) {
-        // Scrolling DOWN
         if (currentIdx < featureDetails.length - 1) {
           e.preventDefault();
           accumulatedDelta += e.deltaY;
@@ -193,7 +186,6 @@ export function FlexCarouselFeatures() {
           }
         }
       } else if (e.deltaY < 0) {
-        // Scrolling UP
         if (currentIdx > 0) {
           e.preventDefault();
           accumulatedDelta += e.deltaY;
@@ -209,46 +201,45 @@ export function FlexCarouselFeatures() {
 
     window.addEventListener("wheel", handleWheel, { passive: false });
     return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
-
+  }, [featureDetails.length]);
 
   // Official React Bits FlexCarousel items
   const carouselItems: FlexCarouselItem[] = [
     {
       src: "/images/scattered-records.jpg",
-      alt: "Member Management",
-      title: "Member Management",
-      subtitle: "Digital profiles, instant search & contact records",
+      alt: t("features_section.members_title", "Member Management"),
+      title: t("features_section.members_title", "Member Management"),
+      subtitle: t("features_section.members_short", "Digital profiles, instant search & contact records"),
     },
     {
       src: "/images/manual-attendance.jpg",
-      alt: "Attendance Tracking",
-      title: "Attendance Tracking",
-      subtitle: "1-second QR check-in & live facility occupancy",
+      alt: t("features_section.attendance_title", "Attendance Tracking"),
+      title: t("features_section.attendance_title", "Attendance Tracking"),
+      subtitle: t("features_section.attendance_short", "1-second QR check-in & live facility occupancy"),
     },
     {
       src: "/images/renewal-calendar.jpg",
-      alt: "Memberships & Renewals",
-      title: "Memberships & Renewals",
-      subtitle: "Expiry alerts, auto-renewals & WhatsApp reminders",
+      alt: t("features_section.renewals_title", "Memberships & Renewals"),
+      title: t("features_section.renewals_title", "Memberships & Renewals"),
+      subtitle: t("features_section.renewals_short", "Expiry alerts, auto-renewals & WhatsApp reminders"),
     },
     {
       src: "/images/payment-followup.jpg",
-      alt: "Payments & Receipts",
-      title: "Payments & Receipts",
-      subtitle: "UPI, card & cash tracking with digital receipts",
+      alt: t("features_section.payments_title", "Payments & Invoicing"),
+      title: t("features_section.payments_title", "Payments & Invoicing"),
+      subtitle: t("features_section.payments_short", "UPI, card & cash tracking with digital receipts"),
     },
     {
       src: "/images/reception-turnstile.jpg",
-      alt: "Digital Member Passes",
-      title: "Digital Member Passes",
-      subtitle: "Contactless smartphone QR entry passes",
+      alt: t("features_section.qr_title", "Digital QR Passes"),
+      title: t("features_section.qr_title", "Digital QR Passes"),
+      subtitle: t("features_section.qr_short", "Contactless smartphone QR entry passes"),
     },
     {
       src: "/images/gym-sunset-weights.jpg",
-      alt: "Reports & Analytics",
-      title: "Reports & Analytics",
-      subtitle: "Daily collection metrics & member retention graphs",
+      alt: t("features_section.reports_title", "Reports & Financials"),
+      title: t("features_section.reports_title", "Reports & Financials"),
+      subtitle: t("features_section.reports_short", "Daily collection metrics & member retention graphs"),
     },
   ];
 
@@ -276,8 +267,7 @@ export function FlexCarouselFeatures() {
             transition={{ duration: 0.5, delay: 0.08 }}
             className="font-heading font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-[40px] text-[#191919] tracking-tight leading-[1.14] mb-2 sm:mb-3"
           >
-            Everything your fitness business needs is <span className="text-[#E25822]">Repsi</span>, <br className="hidden sm:inline" />
-            <span className="text-[#E25822]">all in one place.</span>
+            {t("features_section.section_title", "Everything your gym needs, built into one platform.")}
           </motion.h2>
 
           <motion.p
@@ -287,8 +277,7 @@ export function FlexCarouselFeatures() {
             transition={{ duration: 0.5, delay: 0.16 }}
             className="text-xs sm:text-sm text-[#62666D] leading-relaxed max-w-xl mx-auto font-normal"
           >
-            Manage your members, attendance, memberships, payments and daily operations
-            from one connected workspace.
+            {t("features_section.section_subtitle", "Designed from real gym floor workflows to help you save time, reduce missed payments, and give members a seamless experience.")}
           </motion.p>
         </div>
 

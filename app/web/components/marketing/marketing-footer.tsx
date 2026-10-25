@@ -6,11 +6,13 @@ import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 import { HalftoneReveal } from "@/components/animations/halftone-reveal";
 import { Lanyard } from "@/components/ui/lanyard";
+import { useTranslation } from "@/lib/i18n";
 
 // Scalable vector asset for Halftone Reveal of REPSI in brand orange with mechanical grommet at "I"
 const REPSI_ORANGE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="340" viewBox="0 0 1600 340"><rect width="100%" height="100%" fill="%23FAF9F6"/><text x="50%" y="76%" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="280" fill="%23F07858" text-anchor="middle" letter-spacing="-0.035em">REPSI</text><circle cx="1100" cy="54" r="14" fill="%23FAF9F6" stroke="%23F07858" stroke-width="6"/><circle cx="1100" cy="54" r="6" fill="%23FAF9F6"/></svg>`;
 
 export function MarketingFooter() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const [hasWebGl, setHasWebGl] = React.useState(true);
 
@@ -48,7 +50,7 @@ export function MarketingFooter() {
             </Link>
 
             <p className="text-sm text-[#62666D] leading-relaxed max-w-sm font-normal">
-              A smarter way to manage your fitness business. Members, attendance, memberships and payments in one place.
+              {t("footer.tagline", "A smarter way to manage your fitness business. Members, attendance, memberships and payments in one place.")}
             </p>
 
             {/* Verified Contact Details */}
@@ -122,7 +124,7 @@ export function MarketingFooter() {
             {/* 01. PRODUCT */}
             <div className="space-y-3">
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#191919]">
-                Product
+                {t("footer.col_product", "Product")}
               </h4>
               <ul className="space-y-2.5 text-xs sm:text-sm text-[#62666D]">
                 <li>
@@ -130,7 +132,7 @@ export function MarketingFooter() {
                     href="/features"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Features
+                    {t("footer.link_features", "Features")}
                   </Link>
                 </li>
                 <li>
@@ -138,7 +140,7 @@ export function MarketingFooter() {
                     href="#why-repsi"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Why REPSI?
+                    {t("footer.link_why_repsi", "Why REPSI?")}
                   </a>
                 </li>
                 <li>
@@ -146,7 +148,7 @@ export function MarketingFooter() {
                     href="/pricing"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Pricing
+                    {t("footer.link_pricing", "Pricing")}
                   </Link>
                 </li>
                 <li>
@@ -154,7 +156,7 @@ export function MarketingFooter() {
                     href="/download"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Download
+                    {t("footer.link_download", "Download")}
                   </Link>
                 </li>
               </ul>
@@ -163,7 +165,7 @@ export function MarketingFooter() {
             {/* 02. RESOURCES */}
             <div className="space-y-3">
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#191919]">
-                Resources
+                {t("footer.col_resources", "Resources")}
               </h4>
               <ul className="space-y-2.5 text-xs sm:text-sm text-[#62666D]">
                 <li>
@@ -171,7 +173,7 @@ export function MarketingFooter() {
                     href="#pricing"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    FAQs
+                    {t("footer.link_faqs", "FAQs")}
                   </a>
                 </li>
                 <li>
@@ -179,7 +181,7 @@ export function MarketingFooter() {
                     href="/contact"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Contact
+                    {t("footer.link_contact", "Contact")}
                   </Link>
                 </li>
                 <li>
@@ -187,7 +189,7 @@ export function MarketingFooter() {
                     href="/help"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Help Center
+                    {t("footer.link_help", "Help Center")}
                   </Link>
                 </li>
               </ul>
@@ -196,7 +198,7 @@ export function MarketingFooter() {
             {/* 03. LEGAL */}
             <div className="space-y-3">
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#191919]">
-                Legal
+                {t("footer.col_legal", "Legal")}
               </h4>
               <ul className="space-y-2.5 text-xs sm:text-sm text-[#62666D]">
                 <li>
@@ -204,7 +206,7 @@ export function MarketingFooter() {
                     href="/privacy"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Privacy
+                    {t("footer.link_privacy", "Privacy")}
                   </Link>
                 </li>
                 <li>
@@ -212,7 +214,7 @@ export function MarketingFooter() {
                     href="/terms"
                     className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
                   >
-                    Terms
+                    {t("footer.link_terms", "Terms")}
                   </Link>
                 </li>
                 <li>
@@ -295,7 +297,7 @@ export function MarketingFooter() {
         {/* 03. THIN BOTTOM BAR (SUBTLE & RESTRAINED)                     */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="pt-5 border-t border-[#E7E4DE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#62666D]">
-          <p>© {currentYear} REPSI Technologies. All rights reserved.</p>
+          <p>© {currentYear} REPSI Technologies. {t("footer.copyright", "All rights reserved. Built for fitness businesses.")}</p>
 
           <p className="font-mono font-semibold tracking-wider uppercase text-[10px] sm:text-[11px] text-[#858890]">
             BUILT FOR BETTER OPERATIONS.
@@ -306,13 +308,13 @@ export function MarketingFooter() {
               href="/privacy"
               className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
             >
-              Privacy
+              {t("footer.link_privacy", "Privacy")}
             </Link>
             <Link
               href="/terms"
               className="hover:text-[#E25822] transition-colors focus:outline-none focus-visible:underline"
             >
-              Terms
+              {t("footer.link_terms", "Terms")}
             </Link>
           </div>
         </div>

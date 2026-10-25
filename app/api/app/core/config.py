@@ -72,6 +72,18 @@ class Settings(BaseSettings):
     BILLING_GRACE_DAYS: int = 3
     # Centralised SaaS billing (saas_* tables, /pay checkout). Off until the owner approves rollout.
     SAAS_BILLING_ENABLED: bool = False
+    # Public base URL of this API (for Cashfree notify_url), e.g. https://api.repsi.app. Empty = use the
+    # webhook URL configured in the Cashfree dashboard instead.
+    SAAS_PUBLIC_API_URL: str = ""
+    # Where the central checkout lives; return URLs and app handoff links point here.
+    SAAS_CHECKOUT_URL: str = "http://localhost:3000/pay"
+    SAAS_ORDER_TTL_MINUTES: int = 30
+    SAAS_GRACE_DAYS: int = 7
+    SAAS_TRIAL_DAYS: int = 14
+    SAAS_HANDOFF_TTL_SECONDS: int = 300
+    # Stuck/failed payment alerts (email). Empty = log only.
+    SAAS_ALERT_EMAIL: str = ""
+    CASHFREE_API_VERSION: str = "2026-01-01"
     # Use the X-Forwarded-For hop added by our own reverse proxy as the client IP (rate limits, audit).
     TRUST_FORWARDED_FOR: bool = False
     # Only for local end-to-end test stacks; refused when ENVIRONMENT=production.

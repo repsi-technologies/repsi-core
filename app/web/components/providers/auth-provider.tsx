@@ -8,6 +8,7 @@ const PUBLIC_PREFIXES = [
   "/",
   "/features",
   "/pricing",
+  "/pay", // central checkout: shows its own sign-in prompt and must receive app handoff links unauthenticated
   "/about",
   "/contact",
   "/login",

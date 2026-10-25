@@ -39,6 +39,13 @@ const apiEnv = {
   // Every spec signs in several accounts from one IP; limits are covered by the pytest suite.
   RATE_LIMITS_ENABLED: "false",
   PYTHONUTF8: "1",
+  // Central SaaS billing on, with no payment provider credentials: a developer .env can never make the
+  // e2e stack reach Cashfree (orders stop with "not configured"; real payments are a manual sandbox check).
+  SAAS_BILLING_ENABLED: "true",
+  CASHFREE_APP_ID: "",
+  CASHFREE_SECRET_KEY: "",
+  CASHFREE_ENV: "TEST",
+  SAAS_ALERT_EMAIL: "",
 };
 
 export const E2E_ACCOUNTS_FILE = ACCOUNTS;

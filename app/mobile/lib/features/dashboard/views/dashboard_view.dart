@@ -259,9 +259,11 @@ class _TrialBanner extends ConsumerWidget {
     if (trial == null || !trial.showBanner) return const SizedBox.shrink();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final days = trial.daysRemaining;
-    final text = trial.isExpired || days <= 0
-        ? context.l10n.trialEnded
-        : context.l10n.dashTrialDaysLeft(days);
+    final text = trial.needsAttention
+        ? context.l10n.subscriptionManageOnWeb
+        : trial.isExpired || days <= 0
+            ? context.l10n.trialEnded
+            : context.l10n.dashTrialDaysLeft(days);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
       child: Container(

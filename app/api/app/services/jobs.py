@@ -157,6 +157,35 @@ def subscription_status(db: Session) -> dict:
     return {"changed": changed}
 
 
+def _saas_enabled() -> bool:
+    from app.core.config import settings
+    return settings.SAAS_BILLING_ENABLED
+
+
+def saas_webhook_drain(db: Session) -> dict:
+    """Process queued, signature-verified payment provider webhooks (central SaaS billing)."""
+    if not _saas_enabled():
+        return {"skipped": "SAAS_BILLING_ENABLED is false"}
+    from app.services.saas_payments import drain_webhooks
+    return drain_webhooks(db)
+
+
+def saas_reconcile(db: Session) -> dict:
+    """Re-check open SaaS orders with the provider, recover missed webhooks, expire stale orders."""
+    if not _saas_enabled():
+        return {"skipped": "SAAS_BILLING_ENABLED is false"}
+    from app.services.saas_payments import reconcile_orders
+    return reconcile_orders(db)
+
+
+def saas_lifecycle(db: Session) -> dict:
+    """SaaS trial end, grace, read-only and scheduled downgrades; then renewal reminders."""
+    if not _saas_enabled():
+        return {"skipped": "SAAS_BILLING_ENABLED is false"}
+    from app.services.saas_billing import lifecycle_tick, send_renewal_reminders
+    return {"lifecycle": lifecycle_tick(db), "reminders": send_renewal_reminders(db)}
+
+
 JOBS: dict[str, Job] = {j.name: j for j in (
     Job("dispatch_notifications", 1, dispatch_notifications, "Send queued email, WhatsApp, SMS and push messages."),
     Job("membership_transitions", 15, membership_transitions, "Start/resume scheduled freezes and expire ended memberships."),
@@ -165,6 +194,9 @@ JOBS: dict[str, Job] = {j.name: j for j in (
     Job("class_no_shows", 30, class_no_shows, "Mark unattended class bookings as no-shows after the session ends."),
     Job("trial_lifecycle", 60, trial_lifecycle, "Expire finished free trials and send trial reminders."),
     Job("subscription_status", 60, subscription_status, "Apply SaaS grace periods and expiry."),
+    Job("saas_webhook_drain", 1, saas_webhook_drain, "Process queued payment webhooks (central SaaS billing)."),
+    Job("saas_reconcile", 10, saas_reconcile, "Reconcile pending SaaS orders with Cashfree and expire stale ones."),
+    Job("saas_lifecycle", 60, saas_lifecycle, "SaaS trial/grace/read-only transitions and 7/3/1-day renewal reminders."),
 )}
 
 

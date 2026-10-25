@@ -1092,6 +1092,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'आपका फ़्री ट्रायल खत्म हो गया है। REPSI इस्तेमाल करते रहने के लिए repsi.app पर प्लान चुनें।';
 
   @override
+  String get subscriptionManageOnWeb =>
+      'आपकी REPSI सदस्यता पर ध्यान देने की ज़रूरत है। repsi.app पर अपनी सदस्यता प्रबंधित करें।';
+
+  @override
   String get revenueThisMonth => 'इस महीने की आमदनी';
 
   @override

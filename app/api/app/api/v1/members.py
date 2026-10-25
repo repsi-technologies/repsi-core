@@ -23,7 +23,7 @@ from app.repositories.member import MemberRepository
 from app.middleware.tenant import get_current_tenant, require_roles, TenantContext
 from app.services.member_lifecycle import change_member_status, record_member_event, ACCOUNT_STATUSES, get_or_create_member_for_user
 from app.services import membership_lifecycle
-from app.middleware.entitlements import capacity_error, check_member_capacity, require_feature
+from app.middleware.entitlements import capacity_error, check_member_capacity
 
 router = APIRouter(prefix="/members", tags=["Members"])
 
@@ -81,9 +81,9 @@ def list_members(
 @router.get("/export-csv")
 def export_members_csv(
     tenant: TenantContext = Depends(require_roles("OWNER", "ADMIN", "MANAGER", "SUPER_ADMIN")),
-    _feat: bool = Depends(require_feature("data_export")),
     db: Session = Depends(get_db)
 ):
+    # Gyms always keep access to their own data: export is never withheld by plan or subscription state.
     repo = MemberRepository(db, tenant.workspace_id)
     members = repo.get_multi(limit=5000)
 

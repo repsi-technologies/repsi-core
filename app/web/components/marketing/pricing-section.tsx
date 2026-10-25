@@ -24,8 +24,10 @@ import {
   GLOBAL_PLANS,
   ADDONS_LIST,
 } from "@/lib/pricing-data";
+import { useTranslation } from "@/lib/i18n";
 
 export function PricingSection() {
+  const { t } = useTranslation();
   // Default to 1 year ("Save 35%") and INR
   const [currency, setCurrency] = useState<CurrencyCode>("INR");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
@@ -109,12 +111,11 @@ export function PricingSection() {
       {/* ───────────────────────────────────────────────────────────── */}
       <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 text-center max-w-4xl mx-auto">
         <h1 className="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#191919] tracking-tight leading-[1.12] mb-4">
-          Simple, honest pricing for <br className="hidden sm:inline" />
-          <span className="text-[#E25822]">modern fitness businesses.</span>
+          {t("pricing_page.headline", "Predictable gym pricing that scales with your growth")}
         </h1>
 
         <p className="text-base sm:text-lg text-[#62666D] max-w-2xl mx-auto leading-relaxed mb-8">
-          Pick the plan that fits your gym size. Upgrade, downgrade, or cancel anytime.
+          {t("pricing_page.subheadline", "Fixed rates per currency. Only active members count with a 10% grace cap and zero check-in locks.")}
         </p>
 
         {/* Currency Switcher & Billing Toggle */}
@@ -150,7 +151,7 @@ export function PricingSection() {
                 billingCycle === "monthly" ? "bg-[#191919] text-white shadow-xs" : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              Monthly
+              {t("pricing_preview.cycle_monthly", "Monthly")}
             </button>
             <button
               type="button"
@@ -159,7 +160,7 @@ export function PricingSection() {
                 billingCycle === "3months" ? "bg-[#191919] text-white shadow-xs" : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>3 Mo</span>
+              <span>{t("pricing_preview.cycle_3months", "3 Mo")}</span>
               <span className="text-[10px] text-[#E25822] font-bold">10% OFF</span>
             </button>
             <button
@@ -169,7 +170,7 @@ export function PricingSection() {
                 billingCycle === "6months" ? "bg-[#191919] text-white shadow-xs" : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>6 Mo</span>
+              <span>{t("pricing_preview.cycle_6months", "6 Mo")}</span>
               <span className="text-[10px] text-[#E25822] font-bold">25% OFF</span>
             </button>
             <button
@@ -179,9 +180,9 @@ export function PricingSection() {
                 billingCycle === "yearly" ? "bg-[#E25822] text-white shadow-xs" : "text-[#62666D] hover:text-[#191919]"
               }`}
             >
-              <span>1 Year</span>
+              <span>{t("pricing_preview.cycle_yearly", "1 Year")}</span>
               <span className="text-[10px] bg-white/20 text-white font-bold px-1.5 rounded-full">
-                Save 35%
+                {t("pricing_preview.save_35", "Save 35%")}
               </span>
             </button>
           </div>
@@ -209,7 +210,7 @@ export function PricingSection() {
               >
                 {isGrowth && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#E25822] text-white text-[10px] font-black tracking-wider uppercase shadow-sm">
-                    Most Popular
+                    {t("pricing_page.popular_badge", "Most Popular")}
                   </div>
                 )}
 
@@ -400,10 +401,10 @@ export function PricingSection() {
       <section className="py-12 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="font-heading font-extrabold text-2xl text-[#191919] mb-1">
-            Optional add-ons ({currency})
+            {t("pricing_page.addons_title", "Flexible Add-on Packs")} ({currency})
           </h2>
           <p className="text-xs text-[#62666D]">
-            Add extra members, branding, or branches without changing your plan tier.
+            {t("pricing_page.addons_subtitle", "Need a little extra capacity? Add only what you need without jumping an entire tier.")}
           </p>
         </div>
 
@@ -438,17 +439,17 @@ export function PricingSection() {
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#E7E4DE] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
           <div>
             <h3 className="font-heading font-extrabold text-xl text-[#191919] mb-1">
-              400+ members or multiple branches?
+              {t("pricing_page.enterprise_title", "Need custom turnstiles, hardware sync, or 10+ branches?")}
             </h3>
             <p className="text-xs text-[#62666D]">
-              We offer custom SLA contracts, API integrations, and dedicated account management.
+              {t("pricing_page.enterprise_desc", "Our engineering team provides dedicated on-site turnstile setup, priority SLAs, custom database isolation, and migration from legacy gym software.")}
             </p>
           </div>
           <a
             href="mailto:sales@repsi.app?subject=Enterprise%20Inquiry%20(400+%20members)"
             className="px-6 py-2.5 rounded-full bg-[#191919] hover:bg-[#333333] text-white text-xs font-bold transition shrink-0"
           >
-            Talk to us
+            {t("pricing_page.enterprise_cta", "Book an Enterprise Consultation")}
           </a>
         </div>
       </section>
@@ -459,10 +460,10 @@ export function PricingSection() {
       <section className="py-16 max-w-3xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
           <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#191919] mb-2">
-            Frequently asked questions
+            {t("pricing_page.faqs_title", "Frequently Asked Questions")}
           </h2>
           <p className="text-xs text-[#62666D]">
-            Everything you need to know about billing, limits, and plans.
+            {t("pricing_page.faqs_subtitle", "Everything you need to know about plans, billing, and member limits.")}
           </p>
         </div>
 

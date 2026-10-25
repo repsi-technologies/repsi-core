@@ -19,6 +19,12 @@ os.environ["SMTP_PASSWORD"] = ""
 # Never reach a real WhatsApp provider from tests, whatever the developer .env holds.
 os.environ["AISENSY_API_KEY"] = ""
 os.environ["GEMINI_API_KEY"] = ""  # AI tests mock the HTTP boundary
+# Payment provider: tests inject a mock transport; never real (or production) Cashfree credentials.
+os.environ["CASHFREE_APP_ID"] = ""
+os.environ["CASHFREE_SECRET_KEY"] = ""
+os.environ["CASHFREE_ENV"] = "TEST"
+os.environ["SAAS_BILLING_ENABLED"] = "false"
+os.environ["SAAS_ALERT_EMAIL"] = ""
 # Images use local storage unless a test mocks the Cloudinary boundary.
 os.environ["CLOUDINARY_URL"] = ""
 os.environ["CLOUDINARY_CLOUD_NAME"] = ""

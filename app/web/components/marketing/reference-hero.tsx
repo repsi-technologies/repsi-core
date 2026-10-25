@@ -28,7 +28,10 @@ import {
   Battery,
 } from "lucide-react";
 
+import { useTranslation } from "@/lib/i18n";
+
 export function ReferenceHero() {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
 
@@ -117,12 +120,12 @@ export function ReferenceHero() {
               transition={{ duration: 0.5, delay: 0.08 }}
               className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[40px] xl:text-[46px] 2xl:text-[50px] text-[#191919] leading-[1.08] tracking-tight mb-3 sm:mb-3.5"
             >
-              You run your <br />
-              fitness business, <br />
+              {t("hero.headline_part1", "You run your")} <br />
+              {t("hero.headline_part2", "fitness business,")} <br />
               <span className="text-[#E25822]">
-                we handle the{" "}
+                {t("hero.headline_part3", "we handle the")}{" "}
                 <span className="relative inline-block whitespace-nowrap">
-                  rest.
+                  {t("hero.headline_accent", "rest.")}
                   <svg
                     className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-2.5 sm:h-3 text-[#E25822] overflow-visible pointer-events-none"
                     viewBox="0 0 100 12"
@@ -149,8 +152,7 @@ export function ReferenceHero() {
               transition={{ duration: 0.5, delay: 0.16 }}
               className="text-xs sm:text-sm lg:text-[13px] xl:text-sm text-[#62666D] leading-relaxed max-w-xl mb-4 sm:mb-5 font-normal"
             >
-              Members, attendance, memberships and payments. Everything in one place,
-              so you can focus on growing your business.
+              {t("hero.subheading", "Members, attendance, memberships and payments. Everything in one place, so you can focus on growing your business.")}
             </motion.p>
 
             {/* CTA Buttons Row: Side by Side on all screen sizes */}
@@ -165,7 +167,7 @@ export function ReferenceHero() {
                 href="/signup"
                 className="group inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3.5 sm:px-6 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs sm:text-sm font-semibold shrink-0 whitespace-nowrap transition-all duration-200 shadow-sm shadow-[#E25822]/30 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
-                <span>Get Started Free</span>
+                <span>{t("hero.cta_primary", "Get Started Free")}</span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
 
@@ -178,7 +180,7 @@ export function ReferenceHero() {
                 <span className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full bg-[#E25822] text-white flex items-center justify-center text-[8px] sm:text-[9px] pl-0.5 transition-transform duration-200 group-hover:scale-110">
                   ▶
                 </span>
-                <span>See how it works</span>
+                <span>{t("hero.cta_secondary", "See how it works")}</span>
               </a>
             </motion.div>
 
@@ -193,8 +195,8 @@ export function ReferenceHero() {
               <button
                 type="button"
                 onClick={() => setShowPlayStoreModal(true)}
-                title="Google Play Store App (Coming Soon)"
-                aria-label="Google Play Store App (Coming Soon)"
+                title={t("hero.play_store_title", "Google Play Store App (Coming Soon)")}
+                aria-label={t("hero.play_store_title", "Google Play Store App (Coming Soon)")}
                 className="h-8.5 sm:h-9 px-3 rounded-full bg-white hover:bg-[#FAF9F6] border border-[#E7E4DE] hover:border-[#E25822] shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 shrink-0 cursor-pointer text-[#191919]"
               >
                 {/* Official Google Play authentic 4-color triangle */}
@@ -204,7 +206,7 @@ export function ReferenceHero() {
                   <path d="M17.18 15.387L5.011 21.978c-.472.274-.98.422-1.488.422-.334 0-.648-.069-.914-.214L13.793 12l3.387 3.387z" fill="#FF3A44"/>
                   <path d="M21.055 10.875l-3.875-2.262-3.387 3.387 3.387 3.387 3.875-2.262c.703-.414 1.145-1.16 1.145-1.975 0-.816-.442-1.562-1.145-1.975z" fill="#FFC800"/>
                 </svg>
-                <span className="font-heading font-bold text-[11px] sm:text-xs tracking-tight">Play Store</span>
+                <span className="font-heading font-bold text-[11px] sm:text-xs tracking-tight">{t("hero.play_store", "Play Store")}</span>
               </button>
 
               {/* Overlapping Brand Mark / Fitness Logo Avatars with subtle borders */}
@@ -246,7 +248,7 @@ export function ReferenceHero() {
               <div className="flex flex-col justify-center">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs sm:text-[13px] font-bold text-[#191919] tracking-tight">
-                    Trusted by fitness businesses
+                    {t("hero.trusted_by", "Trusted by fitness businesses")}
                   </span>
                   <div className="flex items-center text-amber-500">
                     {[...Array(5)].map((_, i) => (
@@ -255,7 +257,7 @@ export function ReferenceHero() {
                   </div>
                 </div>
                 <p className="text-[11px] text-[#62666D] font-normal leading-tight">
-                  Built for fitness business owners
+                  {t("hero.built_for", "Built for fitness business owners")}
                 </p>
               </div>
             </motion.div>
@@ -293,22 +295,22 @@ export function ReferenceHero() {
                         REPSI
                       </span>
                       <span className="hidden sm:inline-block text-[10px] text-[#858890] font-medium border-l border-[#E7E4DE] pl-2">
-                        Central Branch • Main Facility
+                        {t("hero.monitor_branch", "Central Branch • Main Facility")}
                       </span>
                     </div>
 
                     {/* Quick Search Bar */}
                     <div className="hidden sm:flex items-center gap-1.5 bg-[#FAF9F6] border border-[#E7E4DE] rounded-md px-2 py-1 text-[10px] text-[#62666D] w-32 md:w-36 lg:w-40">
                       <Search className="w-3 h-3 text-[#858890]" />
-                      <span className="truncate">Search members, dues...</span>
+                      <span className="truncate">{t("hero.monitor_search", "Search members, dues...")}</span>
                     </div>
 
                     {/* Live Status Indicator */}
                     <div className="flex items-center gap-1 bg-[#FAF9F6] px-1.5 sm:px-2 py-0.5 rounded-full border border-[#E7E4DE] shrink-0 whitespace-nowrap">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                       <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#191919] whitespace-nowrap">
-                        <span className="sm:hidden">342 live</span>
-                        <span className="hidden sm:inline">Live: 342 active</span>
+                        <span className="sm:hidden">{t("hero.monitor_live", "342 live")}</span>
+                        <span className="hidden sm:inline">{t("hero.monitor_live_full", "Live: 342 active")}</span>
                       </span>
                     </div>
                   </div>
@@ -368,19 +370,19 @@ export function ReferenceHero() {
                       {/* Metric Cards Row - 3 beautifully spaced cards with 100% visibility */}
                       <div className="grid grid-cols-3 gap-1 sm:gap-1.5 w-full sm:max-w-[64%]">
                         <div className="bg-[#FAF9F6] p-1 sm:p-1.5 rounded-lg sm:rounded-xl border border-[#E7E4DE]">
-                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">Members</div>
+                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">{t("hero.monitor_members", "Members")}</div>
                           <div className="text-[11px] sm:text-[13px] font-bold font-heading text-[#191919]">342</div>
                           <span className="text-[6.5px] sm:text-[7.5px] font-bold text-emerald-700">+12%</span>
                         </div>
                         <div className="bg-[#FAF9F6] p-1 sm:p-1.5 rounded-lg sm:rounded-xl border border-[#E7E4DE]">
-                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">Check-ins</div>
+                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">{t("hero.monitor_checkins", "Check-ins")}</div>
                           <div className="text-[11px] sm:text-[13px] font-bold font-heading text-[#191919]">118</div>
-                          <span className="text-[6.5px] sm:text-[7.5px] font-bold text-emerald-700">Live</span>
+                          <span className="text-[6.5px] sm:text-[7.5px] font-bold text-emerald-700">{t("hero.phone_active", "Live")}</span>
                         </div>
                         <div className="bg-[#FAF9F6] p-1 sm:p-1.5 rounded-lg sm:rounded-xl border border-[#E7E4DE]">
-                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">Collection</div>
+                          <div className="text-[7.5px] sm:text-[8.5px] text-[#62666D]">{t("hero.monitor_collection", "Collection")}</div>
                           <div className="text-[11px] sm:text-[13px] font-bold font-heading text-[#191919]">₹48.5K</div>
-                          <span className="text-[6.5px] sm:text-[7.5px] font-bold text-emerald-700">Today</span>
+                          <span className="text-[6.5px] sm:text-[7.5px] font-bold text-emerald-700">{t("hero.monitor_today", "Today")}</span>
                         </div>
                       </div>
 
@@ -389,8 +391,8 @@ export function ReferenceHero() {
                         {/* Attendance Chart */}
                         <div className="sm:col-span-7 bg-[#FAF9F6] p-1.5 sm:p-2 rounded-xl border border-[#E7E4DE] flex flex-col justify-between">
                           <div className="flex items-center justify-between text-[8px] sm:text-[9px] mb-1">
-                            <span className="font-bold text-[#191919] truncate">Attendance</span>
-                            <span className="text-[#E25822] font-mono font-bold text-[7.5px] sm:text-[9px] shrink-0">+28 today</span>
+                            <span className="font-bold text-[#191919] truncate">{t("hero.monitor_attendance", "Attendance")}</span>
+                            <span className="text-[#E25822] font-mono font-bold text-[7.5px] sm:text-[9px] shrink-0">{t("hero.monitor_attendance_change", "+28 today")}</span>
                           </div>
                           <div className="h-12 sm:h-18 w-full relative">
                             <svg className="w-full h-full overflow-visible" viewBox="0 0 200 65">
@@ -421,29 +423,29 @@ export function ReferenceHero() {
                             <span>Mon</span>
                             <span>Wed</span>
                             <span>Fri</span>
-                            <span className="font-bold text-[#E25822]">Today</span>
+                            <span className="font-bold text-[#E25822]">{t("hero.monitor_today", "Today")}</span>
                           </div>
                         </div>
 
                         {/* Recent Operations Panel (desktop only to keep mobile side-by-side heights balanced) */}
                         <div className="hidden sm:flex sm:col-span-5 bg-[#FAF9F6] p-2 rounded-xl border border-[#E7E4DE] space-y-1.5 text-[8.5px] flex-col justify-between">
-                          <span className="font-bold text-[#191919] block text-[9.5px]">Turnstile 01 Live</span>
+                          <span className="font-bold text-[#191919] block text-[9.5px]">{t("hero.monitor_turnstile_live", "Turnstile 01 Live")}</span>
                           <div className="space-y-1">
                             <div className="flex justify-between items-center text-[#191919]">
                               <span className="truncate font-medium">Arjun Kumar</span>
-                              <span className="text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded text-[7.5px]">Pass Verified</span>
+                              <span className="text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded text-[7.5px]">{t("hero.monitor_pass_verified", "Pass Verified")}</span>
                             </div>
                             <div className="flex justify-between items-center text-[#191919]">
                               <span className="truncate font-medium">Pooja V.</span>
-                              <span className="text-[#E25822] font-semibold bg-[#FDF1EB] px-1.5 py-0.2 rounded text-[7.5px]">Renewed</span>
+                              <span className="text-[#E25822] font-semibold bg-[#FDF1EB] px-1.5 py-0.2 rounded text-[7.5px]">{t("hero.monitor_renewed", "Renewed")}</span>
                             </div>
                             <div className="flex justify-between items-center text-[#191919]">
                               <span className="truncate font-medium">Rahul M.</span>
-                              <span className="text-amber-700 font-semibold bg-amber-50 px-1.5 py-0.2 rounded text-[7.5px]">Due 3d</span>
+                              <span className="text-amber-700 font-semibold bg-amber-50 px-1.5 py-0.2 rounded text-[7.5px]">{t("hero.monitor_due", "Due 3d")}</span>
                             </div>
                           </div>
                           <div className="text-[6.5px] text-[#858890] text-center pt-0.5 border-t border-[#E7E4DE]">
-                            Instant Mobile Sync Active
+                            {t("hero.monitor_instant_sync", "Instant Mobile Sync Active")}
                           </div>
                         </div>
                       </div>
@@ -452,11 +454,11 @@ export function ReferenceHero() {
                       <div className="hidden sm:flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5 text-[7.5px] w-full sm:max-w-[65%]">
                         <div className="bg-[#FAF9F6] px-2 py-0.5 rounded-lg border border-[#E7E4DE] flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span className="truncate font-medium text-[#191919]">Gate 01: Turnstile Online</span>
+                          <span className="truncate font-medium text-[#191919]">{t("hero.monitor_turnstile_online", "Gate 01: Turnstile Online")}</span>
                         </div>
                         <div className="bg-[#FAF9F6] px-2 py-0.5 rounded-lg border border-[#E7E4DE] flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                          <span className="truncate font-medium text-[#191919]">5 Due Reminders Sent</span>
+                          <span className="truncate font-medium text-[#191919]">{t("hero.monitor_reminders_sent", "5 Due Reminders Sent")}</span>
                         </div>
                       </div>
                     </div>
@@ -495,9 +497,9 @@ export function ReferenceHero() {
                 {/* iPhone App Content (High Legibility Member Pass) */}
                 <div className="p-1.5 sm:p-2.5 space-y-1.5 sm:space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[8px] sm:text-[9.5px] text-[#191919]">Digital Pass</span>
+                    <span className="font-bold text-[8px] sm:text-[9.5px] text-[#191919]">{t("hero.phone_digital_pass", "Digital Pass")}</span>
                     <span className="text-[6px] sm:text-[7px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full">
-                      Active
+                      {t("hero.phone_active", "Active")}
                     </span>
                   </div>
 
@@ -507,15 +509,15 @@ export function ReferenceHero() {
                       <QrCode className="w-8 h-8 sm:w-11 sm:h-11 text-[#191919]" />
                     </div>
                     <div className="text-[10px] font-bold text-[#191919] leading-tight pt-0.5">Arjun Kumar</div>
-                    <div className="text-[7.5px] text-[#62666D]">REP-8842 • Annual Pass</div>
-                    <div className="text-[6.5px] text-emerald-700 font-medium">Valid thru Nov 2026</div>
+                    <div className="text-[7.5px] text-[#62666D]">REP-8842 • {t("hero.phone_pass_type", "Annual Pass")}</div>
+                    <div className="text-[6.5px] text-emerald-700 font-medium">{t("hero.phone_valid_thru", "Valid thru Nov 2026")}</div>
                   </div>
 
                   {/* Verified Entry Badge */}
                   <div className="bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg flex items-center justify-between text-[7px] text-emerald-800 font-medium">
                     <span className="flex items-center gap-1">
                       <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>Turnstile 01 Verified</span>
+                      <span>{t("hero.phone_verified_entry", "Turnstile 01 Verified")}</span>
                     </span>
                     <span className="font-mono text-[7px]">08:42 AM</span>
                   </div>
@@ -523,21 +525,21 @@ export function ReferenceHero() {
                   {/* Member Stats Snippet */}
                   <div className="grid grid-cols-2 gap-1 text-center pt-0.5">
                     <div className="bg-[#FAF9F6] p-1 rounded border border-[#E7E4DE]">
-                      <div className="text-[6.5px] text-[#858890]">Workouts</div>
-                      <div className="text-[8.5px] font-bold text-[#191919]">4 this wk</div>
+                      <div className="text-[6.5px] text-[#858890]">{t("hero.phone_workouts", "Workouts")}</div>
+                      <div className="text-[8.5px] font-bold text-[#191919]">{t("hero.phone_workouts_count", "4 this wk")}</div>
                     </div>
                     <div className="bg-[#FAF9F6] p-1 rounded border border-[#E7E4DE]">
-                      <div className="text-[6.5px] text-[#858890]">Dues</div>
-                      <div className="text-[8.5px] font-bold text-emerald-700">₹0 (Paid)</div>
+                      <div className="text-[6.5px] text-[#858890]">{t("hero.phone_dues", "Dues")}</div>
+                      <div className="text-[8.5px] font-bold text-emerald-700">{t("hero.phone_dues_paid", "₹0 (Paid)")}</div>
                     </div>
                   </div>
 
                   {/* Mobile Nav Tabs */}
                   <div className="flex items-center justify-around pt-1 border-t border-[#E7E4DE] text-[7.5px] text-[#858890]">
-                    <span className="font-bold text-[#E25822]">Pass</span>
-                    <span>Activity</span>
-                    <span>Workouts</span>
-                    <span>Profile</span>
+                    <span className="font-bold text-[#E25822]">{t("hero.phone_tab_pass", "Pass")}</span>
+                    <span>{t("hero.phone_tab_activity", "Activity")}</span>
+                    <span>{t("hero.phone_tab_workouts", "Workouts")}</span>
+                    <span>{t("hero.phone_tab_profile", "Profile")}</span>
                   </div>
                 </div>
 
@@ -556,28 +558,28 @@ export function ReferenceHero() {
               <div className="md:col-span-7 space-y-3">
 
                 <h3 className="font-heading font-extrabold text-xl sm:text-2xl lg:text-[23px] xl:text-[26px] leading-tight text-white">
-                  Run your <br />
-                  fitness business <br />
-                  <span className="italic font-serif font-normal text-[#FDF1EB]">smarter.</span>
+                  {t("hero.promo_headline_1", "Run your")} <br />
+                  {t("hero.promo_headline_2", "fitness business")} <br />
+                  <span className="italic font-serif font-normal text-[#FDF1EB]">{t("hero.promo_headline_smarter", "smarter.")}</span>
                 </h3>
 
                 <p className="text-xs text-white/90 leading-relaxed font-normal">
-                  Less manual work, fewer missed payments, and happier members — all with REPSI.
+                  {t("hero.promo_desc", "Less manual work, fewer missed payments, and happier members — all with REPSI.")}
                 </p>
 
                 {/* 3 Verified Operational Capabilities */}
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/20">
                   <div>
-                    <div className="text-xs sm:text-sm font-bold font-heading text-white">All-in-One</div>
-                    <div className="text-[9px] text-white/80 leading-tight">Members & dues</div>
+                    <div className="text-xs sm:text-sm font-bold font-heading text-white">{t("hero.promo_feat_allinone", "All-in-One")}</div>
+                    <div className="text-[9px] text-white/80 leading-tight">{t("hero.promo_feat_allinone_desc", "Members & dues")}</div>
                   </div>
                   <div>
-                    <div className="text-xs sm:text-sm font-bold font-heading text-white">100% Digital</div>
-                    <div className="text-[9px] text-white/80 leading-tight">QR check-ins</div>
+                    <div className="text-xs sm:text-sm font-bold font-heading text-white">{t("hero.promo_feat_digital", "100% Digital")}</div>
+                    <div className="text-[9px] text-white/80 leading-tight">{t("hero.promo_feat_digital_desc", "QR check-ins")}</div>
                   </div>
                   <div>
-                    <div className="text-xs sm:text-sm font-bold font-heading text-white">Cloud Sync</div>
-                    <div className="text-[9px] text-white/80 leading-tight">Instant updates</div>
+                    <div className="text-xs sm:text-sm font-bold font-heading text-white">{t("hero.promo_feat_cloud", "Cloud Sync")}</div>
+                    <div className="text-[9px] text-white/80 leading-tight">{t("hero.promo_feat_cloud_desc", "Instant updates")}</div>
                   </div>
                 </div>
 
@@ -586,7 +588,7 @@ export function ReferenceHero() {
                     href="/signup"
                     className="inline-flex items-center gap-1.5 bg-white text-[#E25822] px-5 py-2 rounded-full font-bold text-xs hover:bg-[#FAF9F6] transition-all shadow-sm active:scale-95 group"
                   >
-                    <span>Explore REPSI</span>
+                    <span>{t("hero.promo_cta", "Explore REPSI")}</span>
                     <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
                   </Link>
                 </div>
@@ -607,8 +609,8 @@ export function ReferenceHero() {
                     <BarChart3 className="w-3.5 h-3.5 text-[#E25822]" />
                   </div>
                   <div>
-                    <div className="text-[11px] font-bold text-[#191919] leading-tight">Real growth</div>
-                    <div className="text-[9px] text-[#62666D] leading-tight">Real results</div>
+                    <div className="text-[11px] font-bold text-[#191919] leading-tight">{t("hero.promo_growth", "Real growth")}</div>
+                    <div className="text-[9px] text-[#62666D] leading-tight">{t("hero.promo_results", "Real results")}</div>
                   </div>
                 </div>
               </div>
@@ -632,13 +634,13 @@ export function ReferenceHero() {
 
             <div>
               <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[#E25822] bg-[#FDF1EB] border border-[#FACBB7] px-3 py-1 rounded-full">
-                Google Play Store
+                {t("hero.modal_badge", "Google Play Store")}
               </span>
               <h3 className="font-heading font-extrabold text-xl text-[#191919] mt-3">
-                Android App Coming Soon!
+                {t("hero.modal_title", "Android App Coming Soon!")}
               </h3>
               <p className="text-xs text-[#62666D] mt-2 leading-relaxed">
-                The REPSI mobile app is in final review and will be available on the Play Store shortly. You can use REPSI on any browser right now with zero installation!
+                {t("hero.modal_desc", "The REPSI mobile app is in final review and will be available on the Play Store shortly. You can use REPSI on any browser right now with zero installation!")}
               </p>
             </div>
 
@@ -648,14 +650,14 @@ export function ReferenceHero() {
                 onClick={() => setShowPlayStoreModal(false)}
                 className="w-full h-10 rounded-full bg-[#E25822] hover:bg-[#C94715] text-white text-xs font-semibold flex items-center justify-center transition-all shadow-sm"
               >
-                View Downloads & Web App
+                {t("hero.modal_view_downloads", "View Downloads & Web App")}
               </Link>
               <button
                 type="button"
                 onClick={() => setShowPlayStoreModal(false)}
                 className="w-full h-9 rounded-full bg-[#FAF9F6] hover:bg-[#F5F2ED] text-[#191919] text-xs font-semibold transition-all border border-[#E7E4DE] cursor-pointer"
               >
-                Close
+                {t("common.close", "Close")}
               </button>
             </div>
           </div>
