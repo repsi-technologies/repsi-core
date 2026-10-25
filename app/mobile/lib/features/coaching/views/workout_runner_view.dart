@@ -13,6 +13,7 @@ import '../../../shared/animations/repsi_motion.dart';
 import '../../../shared/widgets/repsi_button.dart';
 import '../coaching_labels.dart';
 import '../data/coaching_models.dart';
+import '../../member/presentation/exercise_media_widget.dart';
 import 'workout_plan_view.dart' show showExerciseSheet;
 
 enum _Phase { work, rest, done }
@@ -252,7 +253,25 @@ class _WorkoutRunnerViewState extends State<WorkoutRunnerView> {
                           if (!isRest)
                             Text(l.setOfTotal(_set, e.sets),
                                 style: AppTypography.bodySecondary.copyWith(color: palette.textSecondary)),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 14),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: SizedBox(
+                              height: 140,
+                              width: double.infinity,
+                              child: ExerciseDemonstrationMedia(
+                                mediaUrl: e.mediaUrl,
+                                exerciseName: e.name,
+                                height: 140,
+                                width: double.infinity,
+                                borderRadius: BorderRadius.circular(16),
+                                showControls: true,
+                                showBadge: true,
+                                badgeText: isRest ? 'Next Up Movement' : 'Form Guidance',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 18),
                           SizedBox.square(
                             dimension: ring,
                             child: _ProgressRing(

@@ -200,10 +200,12 @@ class PlannedExercise {
   final List<String> equipment;
   final List<String> instructions;
   final String? description;
+  final String? mediaUrl;
+  final String? mediaType;
 
   const PlannedExercise({required this.exerciseId, required this.name, required this.category, required this.sets,
       this.reps, this.durationSeconds, required this.restSeconds, required this.primaryMuscles,
-      required this.equipment, required this.instructions, this.description});
+      required this.equipment, required this.instructions, this.description, this.mediaUrl, this.mediaType});
 
   bool get isTimed => durationSeconds != null;
 
@@ -221,6 +223,8 @@ class PlannedExercise {
       equipment: list('equipment'),
       instructions: list('instructions'),
       description: _blank(j['description']),
+      mediaUrl: _blank(j['media_url']),
+      mediaType: _blank(j['media_type']),
     );
   }
 }

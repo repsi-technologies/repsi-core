@@ -19,6 +19,7 @@ import '../../../shared/widgets/repsi_skeleton.dart';
 import '../coaching_labels.dart';
 import '../data/coaching_api.dart';
 import '../data/coaching_models.dart';
+import '../../member/presentation/exercise_media_widget.dart';
 import 'goal_setup_view.dart';
 import 'workout_runner_view.dart';
 
@@ -423,13 +424,16 @@ class ExerciseRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: palette.primarySoft, shape: BoxShape.circle),
-              child: Text('$number',
-                  style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w800, color: palette.primaryDark)),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: ExerciseDemonstrationMedia(
+                mediaUrl: exercise.mediaUrl,
+                exerciseName: exercise.name,
+                width: 50,
+                height: 50,
+                borderRadius: BorderRadius.circular(10),
+                showControls: false,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -468,8 +472,8 @@ void showExerciseSheet(BuildContext context, PlannedExercise e) {
       final palette = ctx.palette;
       return DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.6,
-        maxChildSize: 0.92,
+        initialChildSize: 0.72,
+        maxChildSize: 0.94,
         builder: (_, scroll) => ListView(
           controller: scroll,
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
@@ -477,6 +481,24 @@ void showExerciseSheet(BuildContext context, PlannedExercise e) {
             Center(
               child: Container(
                   width: 40, height: 4, decoration: BoxDecoration(color: palette.border, borderRadius: BorderRadius.circular(2))),
+            ),
+            const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: SizedBox(
+                height: 190,
+                width: double.infinity,
+                child: ExerciseDemonstrationMedia(
+                  mediaUrl: e.mediaUrl,
+                  exerciseName: e.name,
+                  height: 190,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(16),
+                  showControls: true,
+                  showBadge: true,
+                  badgeText: 'Form Demonstration',
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Text(e.name, style: AppTypography.heading.copyWith(fontSize: 22, fontWeight: FontWeight.w800, color: palette.text)),

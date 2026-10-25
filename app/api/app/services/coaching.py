@@ -150,6 +150,8 @@ def build_plan(db: Session, goal: str, level: str, days: int, minutes: int) -> d
                 "equipment": _loads(e.equipment),
                 "instructions": _loads(e.instructions),
                 "description": e.description,
+                "media_url": e.media_url,
+                "media_type": e.media_type,
             })
         out_days.append({"index": index, "focus": focus, "estimated_minutes": minutes, "exercises": exercises})
     return {"goal": goal, "fitness_level": level, "days_per_week": len(split), "session_minutes": minutes,

@@ -332,74 +332,262 @@ const Map<String, ExerciseMediaInfo> kExerciseMediaCatalog = {
     equipment: 'Machine',
     category: 'Cardio',
   ),
+  'dumbbell bench press': ExerciseMediaInfo(
+    title: 'Dumbbell Bench Press',
+    gifUrl: '$_kCdnBase/pectorals/dumbbell-bench-press.gif',
+    thumbUrl: '$_kCdnBase/pectorals/dumbbell-bench-press.thumb.webp',
+    primaryMuscle: 'Mid Chest',
+    secondaryMuscles: ['Triceps', 'Front Delts'],
+    equipment: 'Dumbbells',
+    category: 'Chest',
+  ),
+  'world\'s greatest stretch': ExerciseMediaInfo(
+    title: 'World\'s Greatest Stretch',
+    gifUrl: '$_kCdnBase/glutes/exercise-ball-hip-flexor-stretch.gif',
+    thumbUrl: '$_kCdnBase/glutes/exercise-ball-hip-flexor-stretch.thumb.webp',
+    primaryMuscle: 'Hip Flexors',
+    secondaryMuscles: ['Hamstrings', 'Thoracic Spine', 'Glutes'],
+    equipment: 'Bodyweight',
+    category: 'Mobility',
+  ),
+  'cat-cow': ExerciseMediaInfo(
+    title: 'Cat-Cow',
+    gifUrl: '$_kCdnBase/spine/spine-stretch.gif',
+    thumbUrl: '$_kCdnBase/spine/spine-stretch.thumb.webp',
+    primaryMuscle: 'Spine & Lower Back',
+    secondaryMuscles: ['Core', 'Neck'],
+    equipment: 'Bodyweight',
+    category: 'Mobility',
+  ),
 };
 
 /// Alias resolution map
 const Map<String, String> _kAliases = {
+  // Chest
   'bench press': 'barbell bench press',
   'flat bench press': 'barbell bench press',
+  'flat barbell bench press': 'barbell bench press',
+  'barbell bench press': 'barbell bench press',
+  'dumbbell bench press': 'dumbbell bench press',
+  'flat dumbbell press': 'dumbbell bench press',
+  'incline dumbbell press': 'incline dumbbell press',
+  'incline bench press': 'incline dumbbell press',
+  'dumbbell incline press': 'incline dumbbell press',
   'dumbbell incline bench press': 'incline dumbbell press',
-  'squat': 'barbell back squat',
-  'back squat': 'barbell back squat',
-  'barbell squat': 'barbell back squat',
-  'deadlift': 'conventional deadlift',
-  'barbell deadlift': 'conventional deadlift',
-  'rdl': 'romanian deadlift',
-  'lat pulldown (wide grip)': 'lat pulldown',
-  'cable lat pulldown': 'lat pulldown',
-  'pull up': 'pull-up',
+  'incline press': 'incline dumbbell press',
   'push up': 'push-up',
-  'bent over row': 'bent-over barbell row',
-  'barbell bent-over row': 'bent-over barbell row',
-  'dumbbell bent-over row': 'one-arm dumbbell row',
-  'seated row': 'seated cable row',
-  'cable row': 'seated cable row',
-  'shoulder press': 'overhead press',
-  'overhead dumbbell shoulder press': 'overhead press',
-  'dumbbell shoulder press': 'overhead press',
-  'military press': 'overhead press',
-  'lateral raise': 'dumbbell lateral raise',
-  'side lateral raise': 'dumbbell lateral raise',
-  'lateral dumbbell raise': 'dumbbell lateral raise',
+  'push ups': 'push-up',
+  'pushup': 'push-up',
+  'pushups': 'push-up',
+  'standard push-up': 'push-up',
   'cable fly': 'cable chest fly',
   'cable flyes': 'cable chest fly',
+  'cable chest fly': 'cable chest fly',
   'chest fly': 'cable chest fly',
+  'standing cable fly': 'cable chest fly',
+
+  // Legs
+  'squat': 'barbell back squat',
+  'squats': 'barbell back squat',
+  'back squat': 'barbell back squat',
+  'barbell squat': 'barbell back squat',
+  'barbell back squat': 'barbell back squat',
+  'goblet squat': 'goblet squat',
+  'kettlebell goblet squat': 'goblet squat',
+  'kettlebell squat': 'goblet squat',
+  'deadlift': 'conventional deadlift',
+  'deadlifts': 'conventional deadlift',
+  'barbell deadlift': 'conventional deadlift',
+  'conventional deadlift': 'conventional deadlift',
+  'rdl': 'romanian deadlift',
+  'romanian deadlift': 'romanian deadlift',
+  'barbell rdl': 'romanian deadlift',
+  'stiff leg deadlift': 'romanian deadlift',
+  'lunge': 'walking lunge',
+  'lunges': 'walking lunge',
+  'walking lunge': 'walking lunge',
+  'walking lunges': 'walking lunge',
+  'leg press': 'leg press',
+  '45 leg press': 'leg press',
+  'machine leg press': 'leg press',
+  'calf raise': 'standing calf raise',
+  'calf raises': 'standing calf raise',
+  'standing calf raise': 'standing calf raise',
+  'standing calf raises': 'standing calf raise',
+  'hip thrust': 'hip thrust',
+  'barbell hip thrust': 'hip thrust',
+  'glute bridge': 'hip thrust',
+
+  // Back
+  'pull up': 'pull-up',
+  'pull ups': 'pull-up',
+  'pullup': 'pull-up',
+  'pullups': 'pull-up',
+  'pull-up': 'pull-up',
+  'chin up': 'pull-up',
+  'lat pulldown': 'lat pulldown',
+  'lat pulldown wide grip': 'lat pulldown',
+  'wide grip lat pulldown': 'lat pulldown',
+  'cable lat pulldown': 'lat pulldown',
+  'bent over row': 'bent-over barbell row',
+  'barbell bent-over row': 'bent-over barbell row',
+  'barbell bent over row': 'bent-over barbell row',
+  'barbell row': 'bent-over barbell row',
+  'seated row': 'seated cable row',
+  'seated cable row': 'seated cable row',
+  'cable row': 'seated cable row',
+  'low cable row': 'seated cable row',
+  'dumbbell bent-over row': 'one-arm dumbbell row',
+  'one arm dumbbell row': 'one-arm dumbbell row',
+  'one-arm dumbbell row': 'one-arm dumbbell row',
+  'dumbbell row': 'one-arm dumbbell row',
+  'single arm dumbbell row': 'one-arm dumbbell row',
+
+  // Shoulders
+  'shoulder press': 'overhead press',
+  'overhead press': 'overhead press',
+  'overhead dumbbell shoulder press': 'overhead press',
+  'dumbbell shoulder press': 'overhead press',
+  'barbell shoulder press': 'overhead press',
+  'military press': 'overhead press',
+  'strict press': 'overhead press',
+  'lateral raise': 'dumbbell lateral raise',
+  'lateral raises': 'dumbbell lateral raise',
+  'side lateral raise': 'dumbbell lateral raise',
+  'dumbbell lateral raise': 'dumbbell lateral raise',
+  'side raise': 'dumbbell lateral raise',
+  'face pull': 'face pull',
+  'face pulls': 'face pull',
+  'rope face pull': 'face pull',
+  'cable face pull': 'face pull',
+
+  // Arms
   'bicep curl': 'barbell biceps curl',
   'biceps curl': 'barbell biceps curl',
-  'cable bicep curl': 'barbell biceps curl',
+  'bicep curls': 'barbell biceps curl',
+  'biceps curls': 'barbell biceps curl',
+  'barbell curl': 'barbell biceps curl',
+  'barbell biceps curl': 'barbell biceps curl',
   'incline dumbbell curl': 'incline dumbbell biceps curl',
+  'incline dumbbell biceps curl': 'incline dumbbell biceps curl',
+  'hammer curl': 'hammer curl',
+  'hammer curls': 'hammer curl',
+  'dumbbell hammer curl': 'hammer curl',
   'triceps pushdown': 'triceps rope pushdown',
   'tricep pushdown': 'triceps rope pushdown',
   'tricep rope pushdown': 'triceps rope pushdown',
-  'hanging knee raise': 'hanging leg raise',
-  'leg raises': 'hanging leg raise',
+  'triceps rope pushdown': 'triceps rope pushdown',
+  'cable triceps pushdown': 'triceps rope pushdown',
+  'bench dip': 'bench dip',
+  'bench dips': 'bench dip',
   'dips': 'bench dip',
+  'tricep dips': 'bench dip',
+
+  // Core
+  'plank': 'plank',
+  'front plank': 'plank',
+  'forearm plank': 'plank',
+  'weighted front plank': 'plank',
+  'dead bug': 'dead bug',
+  'deadbug': 'dead bug',
+  'hanging leg raise': 'hanging leg raise',
+  'hanging leg raises': 'hanging leg raise',
+  'hanging knee raise': 'hanging leg raise',
+  'hanging knee raises': 'hanging leg raise',
+  'leg raises': 'hanging leg raise',
+  'russian twist': 'russian twist',
+  'russian twists': 'russian twist',
+
+  // Cardio / Full Body
+  'kettlebell swing': 'kettlebell swing',
+  'kb swing': 'kettlebell swing',
+  'burpee': 'burpee',
+  'burpees': 'burpee',
+  'treadmill run': 'treadmill run',
+  'treadmill': 'treadmill run',
+  'running': 'treadmill run',
+  'jogging': 'treadmill run',
+  'rowing machine': 'rowing machine',
+  'rowing': 'rowing machine',
+  'stationary bike': 'stationary bike',
+  'exercise bike': 'stationary bike',
+  'cycling': 'stationary bike',
+  'spin bike': 'stationary bike',
+
+  // Mobility
+  'worlds greatest stretch': 'world\'s greatest stretch',
+  'world greatest stretch': 'world\'s greatest stretch',
+  'hip flexor stretch': 'world\'s greatest stretch',
+  'cat cow': 'cat-cow',
+  'spine stretch': 'cat-cow',
 };
+
+String _normalizeText(String s) {
+  return s
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
 
 ExerciseMediaInfo? findExerciseDemonstration(String? name) {
   if (name == null || name.trim().isEmpty) return null;
-  final clean = name.toLowerCase().trim().replaceAll(RegExp(r'[^a-z0-9\s-]'), '');
+  final clean = _normalizeText(name);
 
-  if (kExerciseMediaCatalog.containsKey(clean)) {
-    return kExerciseMediaCatalog[clean];
-  }
-  if (_kAliases.containsKey(clean)) {
-    final target = _kAliases[clean]!;
-    return kExerciseMediaCatalog[target];
-  }
-
-  // Substring search
+  // 1. Direct match on catalog keys
   for (final entry in kExerciseMediaCatalog.entries) {
-    if (clean.contains(entry.key) || entry.key.contains(clean)) {
+    if (_normalizeText(entry.key) == clean) {
+      return entry.value;
+    }
+  }
+
+  // 2. Direct match on aliases
+  for (final entry in _kAliases.entries) {
+    if (_normalizeText(entry.key) == clean) {
+      final target = entry.value;
+      if (kExerciseMediaCatalog.containsKey(target)) {
+        return kExerciseMediaCatalog[target];
+      }
+    }
+  }
+
+  // 3. Substring matching
+  for (final entry in kExerciseMediaCatalog.entries) {
+    final normKey = _normalizeText(entry.key);
+    if (clean.contains(normKey) || normKey.contains(clean)) {
       return entry.value;
     }
   }
 
   for (final entry in _kAliases.entries) {
-    if (clean.contains(entry.key)) {
+    final normKey = _normalizeText(entry.key);
+    if (clean.contains(normKey) || normKey.contains(clean)) {
       final target = entry.value;
-      return kExerciseMediaCatalog[target];
+      if (kExerciseMediaCatalog.containsKey(target)) {
+        return kExerciseMediaCatalog[target];
+      }
     }
+  }
+
+  // 4. Token overlap matching (best fit for variations)
+  final cleanTokens = clean.split(' ').where((t) => t.length > 2).toSet();
+  ExerciseMediaInfo? best;
+  int maxOverlap = 0;
+
+  for (final entry in kExerciseMediaCatalog.entries) {
+    final keyTokens = _normalizeText(entry.key).split(' ');
+    int count = 0;
+    for (final t in keyTokens) {
+      if (cleanTokens.contains(t)) count++;
+    }
+    if (count > maxOverlap) {
+      maxOverlap = count;
+      best = entry.value;
+    }
+  }
+
+  if (best != null && maxOverlap >= 1) {
+    return best;
   }
 
   return null;
@@ -446,11 +634,21 @@ class ExerciseDemonstrationMedia extends StatefulWidget {
 class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia> {
   late bool _isPlaying;
   bool _hasError = false;
+  bool _attemptedFallback = false;
 
   @override
   void initState() {
     super.initState();
     _isPlaying = widget.autoPlay;
+  }
+
+  @override
+  void didUpdateWidget(ExerciseDemonstrationMedia oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaUrl != widget.mediaUrl || oldWidget.exerciseName != widget.exerciseName) {
+      _hasError = false;
+      _attemptedFallback = false;
+    }
   }
 
   void _showAttributionModal() {
@@ -543,10 +741,10 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
     Widget content;
 
     if (_hasError || effectiveUrl.isEmpty) {
-      // Clean modern placeholder
+      // Clean modern placeholder with retry capability
       content = Container(
         width: widget.width,
-        height: widget.height,
+        height: widget.height ?? 160,
         decoration: BoxDecoration(
           borderRadius: radius,
           gradient: LinearGradient(
@@ -570,25 +768,54 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
               ),
               if (widget.height != null && widget.height! >= 100) ...[
                 const SizedBox(height: 6),
-                Text(
-                  widget.exerciseName ?? 'Exercise Demo',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: context.palette.textMuted,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    widget.exerciseName ?? 'Exercise Demo',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: context.palette.textMuted,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
+                if (_hasError) ...[
+                  const SizedBox(height: 4),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _hasError = false;
+                        _attemptedFallback = true;
+                      });
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.refresh_rounded, size: 13, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Retry Demo',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ],
           ),
         ),
       );
     } else {
-      // Active GIF or WebP thumbnail
-      final activeSrc = (_isPlaying || thumbUrl == null) ? effectiveUrl : thumbUrl;
+      // Active GIF or WebP thumbnail with automatic fallback
+      final activeSrc = (_isPlaying || thumbUrl == null || _attemptedFallback) ? effectiveUrl : thumbUrl;
 
       content = ClipRRect(
         borderRadius: radius,
@@ -605,11 +832,11 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
                   color: context.palette.surfaceSecondary,
                   child: Center(
                     child: SizedBox(
-                      width: 20,
-                      height: 20,
+                      width: 22,
+                      height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary.withValues(alpha: 0.6)),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary.withValues(alpha: 0.7)),
                       ),
                     ),
                   ),
@@ -617,8 +844,14 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
               },
               errorBuilder: (context, error, stackTrace) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted && !_hasError) {
-                    setState(() => _hasError = true);
+                  if (mounted) {
+                    if (!_attemptedFallback && activeSrc != effectiveUrl && effectiveUrl.isNotEmpty) {
+                      setState(() {
+                        _attemptedFallback = true;
+                      });
+                    } else if (!_hasError) {
+                      setState(() => _hasError = true);
+                    }
                   }
                 });
                 return const SizedBox.shrink();
@@ -698,10 +931,27 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
       );
     }
 
-    if (widget.width != null || widget.height != null) {
+    if (widget.width != null && widget.height != null) {
       content = SizedBox(
         width: widget.width,
         height: widget.height,
+        child: content,
+      );
+    } else if (widget.height != null) {
+      content = SizedBox(
+        width: widget.width ?? double.infinity,
+        height: widget.height,
+        child: content,
+      );
+    } else if (widget.width != null) {
+      content = SizedBox(
+        width: widget.width,
+        height: (widget.width! < 100) ? widget.width : 160,
+        child: content,
+      );
+    } else {
+      content = AspectRatio(
+        aspectRatio: 16 / 9,
         child: content,
       );
     }
