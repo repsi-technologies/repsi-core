@@ -41,10 +41,13 @@ export default function SubscribePage() {
       const [p, s] = await Promise.all([saasBillingApi.plans(), saasBillingApi.subscription()]);
       setPlans(p);
       setSub(s);
-      const wanted = new URLSearchParams(window.location.search).get("plan");
+      const query = new URLSearchParams(window.location.search);
+      const wanted = query.get("plan");
       if (wanted && p.some((x) => x.code === wanted)) setPlanCode(wanted);
       else if (s.status !== "trialing" && p.some((x) => x.code === s.plan_code)) setPlanCode(s.plan_code);
-      if (s.billing_cycle) setCycle(s.billing_cycle);
+      const wantedCycle = query.get("cycle") as BillingCycle | null;
+      if (wantedCycle && CYCLES.includes(wantedCycle)) setCycle(wantedCycle);
+      else if (s.billing_cycle) setCycle(s.billing_cycle);
       setState("ready");
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return setState("signin");

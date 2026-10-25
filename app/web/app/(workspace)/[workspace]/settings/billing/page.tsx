@@ -168,7 +168,8 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
         return;
       }
       if (cfg.enabled) {
-        router.push(`/pay/subscribe?plan=${encodeURIComponent(targetPlanCode)}`);
+        const cycle = { monthly: "monthly", "3months": "quarterly", "6months": "half_yearly", yearly: "annual" }[billingCycle];
+        router.push(`/pay/subscribe?plan=${encodeURIComponent(targetPlanCode)}&cycle=${cycle}`);
         return;
       }
       setCheckoutError(
