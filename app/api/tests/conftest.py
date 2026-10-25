@@ -3,7 +3,14 @@ import os
 # Tests must never read a developer's .env (which may point at a real database or set
 # ENVIRONMENT=production). Real environment variables take precedence over .env files.
 os.environ["ENVIRONMENT"] = "test"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+# A local Postgres can be used via REPSI_TEST_DATABASE_URL; db_guard refuses anything not disposable.
+TEST_DATABASE_URL = os.environ.get("REPSI_TEST_DATABASE_URL", "sqlite:///:memory:")
+from tests.db_guard import UnsafeTestDatabase, assert_disposable_database  # noqa: E402
+try:
+    assert_disposable_database(TEST_DATABASE_URL)
+except UnsafeTestDatabase as e:
+    raise SystemExit(f"Refusing to run tests: {e}")
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ["OTP_PROVIDER"] = "test"
 os.environ["OTP_TEST_CODE"] = "123456"
 os.environ["GOOGLE_CLIENT_ID"] = "test-google-client-id"
@@ -27,11 +34,10 @@ from app.core.database import Base, get_db
 import app.models
 from app.main import app as fastapi_app
 
-TEST_DATABASE_URL = "sqlite:///:memory:"
-test_engine = create_engine(
-    TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
+test_engine = (
+    create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    if TEST_DATABASE_URL.startswith("sqlite")
+    else create_engine(TEST_DATABASE_URL)
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 

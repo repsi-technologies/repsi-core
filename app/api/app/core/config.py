@@ -70,6 +70,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     # Days after a missed SaaS renewal before paid features lock (per-gym override on the subscription).
     BILLING_GRACE_DAYS: int = 3
+    # Centralised SaaS billing (saas_* tables, /pay checkout). Off until the owner approves rollout.
+    SAAS_BILLING_ENABLED: bool = False
     # Use the X-Forwarded-For hop added by our own reverse proxy as the client IP (rate limits, audit).
     TRUST_FORWARDED_FOR: bool = False
     # Only for local end-to-end test stacks; refused when ENVIRONMENT=production.

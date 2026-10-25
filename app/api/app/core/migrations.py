@@ -9,7 +9,10 @@ def run_database_migrations():
     Safely applies non-destructive schema migrations (new columns, audit tables)
     across PostgreSQL and SQLite without needing manual manual intervention.
     """
-    # 1. Create any missing tables (e.g. subscription_audit_logs)
+    # 1. Create any missing tables (e.g. subscription_audit_logs, the saas_* billing tables).
+    #    saas_* rollback: keep SAAS_BILLING_ENABLED=false; see docs/payments/stage-2-report.md.
+    #    Import the models so `python -m app.core.migrations` creates every table, not just imported ones.
+    import app.models  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
     inspector = inspect(engine)
