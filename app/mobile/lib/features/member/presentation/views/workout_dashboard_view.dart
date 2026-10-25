@@ -8,6 +8,7 @@ import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import 'active_workout_view.dart';
 import 'exercise_library_view.dart';
+import '../exercise_media_widget.dart';
 import '../../../../app/theme/repsi_palette.dart';
 
 class WorkoutDashboardView extends StatelessWidget {
@@ -190,18 +191,14 @@ class WorkoutDashboardView extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: context.palette.surfaceSubtle,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: ExerciseDemonstrationMedia(
+                              exerciseName: ex['name'] as String,
+                              width: 64,
+                              height: 64,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: context.palette.border, width: 0.8),
-                            ),
-                            child: Icon(
-                              ex['icon'] as IconData,
-                              size: 22,
-                              color: context.palette.text,
+                              showControls: false,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -213,17 +210,38 @@ class WorkoutDashboardView extends StatelessWidget {
                                   ex['name'] as String,
                                   style: AppTypography.headingSmall.copyWith(
                                     fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
                                     color: context.palette.text,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${ex['sets']} · ${ex['weight']}',
-                                  style: AppTypography.caption.copyWith(
-                                    color: context.palette.textSecondary,
-                                    fontSize: 13,
-                                  ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: context.palette.primarySoft,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        '${ex['sets']}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: context.palette.primaryDark,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${ex['weight']}',
+                                      style: AppTypography.caption.copyWith(
+                                        color: context.palette.textSecondary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

@@ -207,6 +207,9 @@ class ItemOut(BaseModel):
     tracking_type: str = "weight_reps"
     media_type: Optional[str] = None
     media_url: Optional[str] = None
+    primary_muscles: List[str] = []
+    secondary_muscles: List[str] = []
+    equipment: List[str] = []
     position: int
     section: str
     group_type: Optional[str] = None

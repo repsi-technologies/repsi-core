@@ -9,6 +9,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../../../l10n/l10n.dart';
 import '../../../app/theme/repsi_palette.dart';
+import '../../member/presentation/exercise_media_widget.dart';
 
 class TrainerCreateWorkoutView extends StatefulWidget {
   const TrainerCreateWorkoutView({super.key});
@@ -123,13 +124,15 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                     final exName = _libraryExercises[idx];
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: context.palette.primarySoft,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: ExerciseDemonstrationMedia(
+                          exerciseName: exName,
+                          width: 48,
+                          height: 48,
                           borderRadius: BorderRadius.circular(8),
+                          showControls: false,
                         ),
-                        child: Icon(Icons.fitness_center_rounded, color: context.palette.primaryDark, size: 20),
                       ),
                       title: Text(exName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                       subtitle: Text(context.l10n.compoundHypertrophy, style: TextStyle(color: context.palette.textSecondary, fontSize: 12)),
@@ -330,8 +333,8 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                             Row(
                               children: [
                                 Container(
-                                  width: 32,
-                                  height: 32,
+                                  width: 28,
+                                  height: 28,
                                   decoration: BoxDecoration(
                                     color: context.palette.primarySoft,
                                     borderRadius: BorderRadius.circular(8),
@@ -340,13 +343,24 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                     child: Text(
                                       '${index + 1}',
                                       style: AppTypography.headingSmall.copyWith(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         color: context.palette.primaryDark,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 8),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: ExerciseDemonstrationMedia(
+                                    exerciseName: ex['name'] as String,
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: BorderRadius.circular(8),
+                                    showControls: false,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,

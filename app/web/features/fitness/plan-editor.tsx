@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, BedDouble, Plus, Repeat, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fitnessApi, type ApiExercise, type ApiPlanDay, type ApiPlanDayInput, type FitTracking } from "@/lib/fitness-api";
-import { humanize, inputClass, LoadingRow, Modal } from "./shared";
+import { ExerciseMedia, humanize, inputClass, LoadingRow, Modal } from "./shared";
 
 export interface ItemDraft {
   key: string;
   id?: string;
   exercise_id: string;
   exercise_name: string;
+  media_type?: string | null;
+  media_url?: string | null;
   tracking_type: FitTracking;
   section: "warmup" | "main" | "cooldown";
   group_type: "superset" | "circuit" | "";
@@ -43,6 +45,7 @@ export function draftsFromDays(days: ApiPlanDay[], keepIds: boolean): DayDraft[]
     key: key(), id: keepIds ? d.id : undefined, name: d.name, is_rest_day: d.is_rest_day, notes: d.notes || "",
     items: d.items.map((it) => ({
       key: key(), id: keepIds ? it.id : undefined, exercise_id: it.exercise_id, exercise_name: it.exercise_name,
+      media_type: it.media_type, media_url: it.media_url,
       tracking_type: it.tracking_type, section: it.section, group_type: it.group_type || "", group_label: it.group_label || "",
       sets: it.sets ?? null, reps_min: it.reps_min ?? null, reps_max: it.reps_max ?? null, target_weight_kg: it.target_weight_kg ?? null,
       duration_seconds: it.duration_seconds ?? null, distance_m: it.distance_m ?? null, rest_seconds: it.rest_seconds ?? null,
@@ -106,12 +109,34 @@ export function PlanEditor({ days, onChange, disabled }: { days: DayDraft[]; onC
     const day = days.find((d) => d.key === picker.dayKey);
     if (!day) return;
     if (picker.replaceKey) {
-      updateItem(day.key, picker.replaceKey, { exercise_id: ex.id, exercise_name: ex.name, tracking_type: ex.tracking_type });
+      updateItem(day.key, picker.replaceKey, {
+        exercise_id: ex.id,
+        exercise_name: ex.name,
+        tracking_type: ex.tracking_type,
+        media_type: ex.media_type,
+        media_url: ex.media_url,
+      });
     } else {
       const item: ItemDraft = {
-        key: key(), exercise_id: ex.id, exercise_name: ex.name, tracking_type: ex.tracking_type, section: "main", group_type: "",
-        group_label: "", sets: null, reps_min: null, reps_max: null, target_weight_kg: null, duration_seconds: null, distance_m: null,
-        rest_seconds: null, tempo: "", notes: "", ...defaultsFor(ex),
+        key: key(),
+        exercise_id: ex.id,
+        exercise_name: ex.name,
+        media_type: ex.media_type,
+        media_url: ex.media_url,
+        tracking_type: ex.tracking_type,
+        section: "main",
+        group_type: "",
+        group_label: "",
+        sets: null,
+        reps_min: null,
+        reps_max: null,
+        target_weight_kg: null,
+        duration_seconds: null,
+        distance_m: null,
+        rest_seconds: null,
+        tempo: "",
+        notes: "",
+        ...defaultsFor(ex),
       };
       updateDay(day.key, { items: [...day.items, item] });
     }
@@ -142,7 +167,10 @@ export function PlanEditor({ days, onChange, disabled }: { days: DayDraft[]; onC
               {d.items.length === 0 && <p className="text-xs text-[var(--text-muted)]">No exercises yet.</p>}
               {d.items.map((it, ii) => (
                 <div key={it.key} className="rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] p-3 space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="w-11 h-11 rounded-lg overflow-hidden border border-[var(--border)] shrink-0 bg-black/20">
+                      <ExerciseMedia type={it.media_type} url={it.media_url} name={it.exercise_name} compact showControls={false} />
+                    </div>
                     <span className="text-sm font-semibold text-[var(--text)] flex-1 min-w-[140px]">{ii + 1}. {it.exercise_name}</span>
                     <select aria-label="Section" value={it.section} disabled={disabled} onChange={(e) => updateItem(d.key, it.key, { section: e.target.value as ItemDraft["section"] })} className={`${inputClass} w-auto`}>
                       <option value="warmup">Warm-up</option><option value="main">Main</option><option value="cooldown">Cool-down</option>
@@ -230,9 +258,27 @@ export function ExercisePicker({ onClose, onPick, title }: { onClose: () => void
         <ul className="divide-y divide-[var(--border)] max-h-[50vh] overflow-y-auto">
           {items.map((ex) => (
             <li key={ex.id}>
-              <button type="button" onClick={() => onPick(ex)} className="w-full text-left px-2 py-2.5 hover:bg-[var(--nav-hover-bg)] rounded-lg">
-                <span className="block text-sm font-medium text-[var(--text)]">{ex.name}</span>
-                <span className="block text-xs text-[var(--text-muted)]">{humanize(ex.category)} · {ex.primary_muscles.map(humanize).join(", ")}{ex.scope === "gym" ? " · Gym" : ""}</span>
+              <button
+                type="button"
+                onClick={() => onPick(ex)}
+                className="w-full text-left px-2 py-2 hover:bg-[var(--nav-hover-bg)] rounded-lg flex items-center gap-3 transition-colors"
+              >
+                <div className="w-14 aspect-[4/3] rounded-md overflow-hidden border border-[var(--border)] shrink-0 bg-black/20">
+                  <ExerciseMedia
+                    type={ex.media_type}
+                    url={ex.media_url}
+                    name={ex.name}
+                    compact
+                    showControls={false}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-[var(--text)] truncate">{ex.name}</span>
+                  <span className="block text-xs text-[var(--text-muted)] truncate">
+                    {humanize(ex.category)} · {ex.primary_muscles.map(humanize).join(", ")}
+                    {ex.scope === "gym" ? " · Gym" : ""}
+                  </span>
+                </div>
               </button>
             </li>
           ))}

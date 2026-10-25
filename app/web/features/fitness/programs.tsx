@@ -12,7 +12,7 @@ import {
 import { AssignDialog } from "./assign-dialog";
 import { daysToInput, draftsFromDays, PlanEditor, validateDays, type DayDraft } from "./plan-editor";
 import {
-  EmptyBlock, Field, formatDay, humanize, inputClass, LoadingRow, Modal, Notice, prescription, StatusBadge, useFitnessContext, useFitnessMeta,
+  EmptyBlock, Field, formatDay, humanize, inputClass, LoadingRow, Modal, Notice, prescription, StatusBadge, useFitnessContext, useFitnessMeta, WorkoutExerciseCard,
 } from "./shared";
 
 export function ProgramsList({ basePath }: { basePath: string }) {
@@ -125,23 +125,25 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 export function PlanPreview({ days }: { days: ApiPlanDay[] }) {
   if (!days.length) return <EmptyBlock title="No days in this plan" />;
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {days.map((d, i) => (
-        <div key={d.id} className="rounded-xl border border-[var(--border)] p-3">
-          <p className="text-sm font-semibold text-[var(--text)]">Day {i + 1}: {d.name} {d.is_rest_day && <span className="text-xs font-normal text-[var(--text-muted)]">· Rest day</span>}</p>
-          {d.notes && <p className="text-xs text-[var(--text-muted)]">{d.notes}</p>}
-          <ol className="mt-2 space-y-1.5">
-            {d.items.map((it, j) => (
-              <li key={it.id} className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                <span className="text-[var(--text-muted)] w-5">{j + 1}.</span>
-                <span className="font-medium text-[var(--text)]">{it.exercise_name}</span>
-                {it.section !== "main" && <span className="text-[10px] uppercase text-[var(--text-muted)]">{humanize(it.section)}</span>}
-                {it.group_label && <span className="text-[10px] rounded bg-[var(--primary-soft)] px-1.5 text-[var(--primary-dark)]">{humanize(it.group_type)} {it.group_label}</span>}
-                <span className="text-xs text-[var(--text-muted)]">{prescription(it)}</span>
-                {it.notes && <span className="basis-full pl-7 text-xs italic text-[var(--text-muted)]">{it.notes}</span>}
-              </li>
-            ))}
-          </ol>
+        <div key={d.id} className="rounded-xl border border-[var(--border)] p-3.5 sm:p-4 bg-[var(--surface-elevated)]/40">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-bold text-[var(--text)]">Day {i + 1}: {d.name}</p>
+              {d.notes && <p className="text-xs text-[var(--text-muted)] mt-0.5">{d.notes}</p>}
+            </div>
+            {d.is_rest_day && <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[var(--surface-elevated)] text-[var(--text-muted)] border border-[var(--border)]">Rest day</span>}
+          </div>
+          {d.items.length === 0 ? (
+            <p className="text-xs text-[var(--text-muted)] italic">No exercises scheduled for this day.</p>
+          ) : (
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              {d.items.map((it, j) => (
+                <WorkoutExerciseCard key={it.id} item={it} index={j} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>

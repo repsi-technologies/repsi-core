@@ -12,13 +12,56 @@ from sqlalchemy.orm import Session
 from app.models.fitness import GLOBAL_SCOPE, Exercise
 
 
+# Free, open-source exercise demonstration GIFs (jsDelivr CDN via ExerciseGymGifsDB)
+EXERCISE_MEDIA_GIFS = {
+    "Barbell Back Squat": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/barbell-full-squat.gif",
+    "Goblet Squat": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/kettlebell-goblet-squat.gif",
+    "Romanian Deadlift": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/barbell-romanian-deadlift.gif",
+    "Conventional Deadlift": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/barbell-deadlift.gif",
+    "Walking Lunge": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/walking-lunge.gif",
+    "Leg Press": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/sled-45-leg-press.gif",
+    "Standing Calf Raise": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/calves/barbell-standing-calf-raise.gif",
+    "Barbell Bench Press": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/pectorals/barbell-bench-press.gif",
+    "Incline Dumbbell Press": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/pectorals/dumbbell-incline-bench-press.gif",
+    "Push-Up": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/pectorals/push-up.gif",
+    "Cable Chest Fly": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/pectorals/cable-middle-fly.gif",
+    "Pull-Up": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/lats/pull-up.gif",
+    "Lat Pulldown": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/lats/cable-lat-pulldown-full-range-of-motion.gif",
+    "Bent-Over Barbell Row": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/upper-back/barbell-bent-over-row.gif",
+    "Seated Cable Row": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/upper-back/cable-low-seated-row.gif",
+    "One-Arm Dumbbell Row": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/upper-back/dumbbell-one-arm-bent-over-row.gif",
+    "Overhead Press": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/delts/barbell-seated-overhead-press.gif",
+    "Dumbbell Lateral Raise": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/delts/dumbbell-lateral-raise.gif",
+    "Face Pull": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/delts/cable-standing-rear-delt-row-with-rope.gif",
+    "Barbell Biceps Curl": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/biceps/barbell-standing-wide-grip-biceps-curl.gif",
+    "Hammer Curl": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/biceps/cable-hammer-curl-with-rope.gif",
+    "Triceps Rope Pushdown": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/triceps/cable-triceps-pushdown-v-bar.gif",
+    "Bench Dip": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/triceps/bench-dip-knees-bent.gif",
+    "Plank": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/abs/weighted-front-plank.gif",
+    "Dead Bug": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/abs/dead-bug.gif",
+    "Hanging Knee Raise": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/abs/assisted-hanging-knee-raise.gif",
+    "Russian Twist": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/abs/russian-twist.gif",
+    "Hip Thrust": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/barbell-glute-bridge-two-legs-on-bench-male.gif",
+    "Kettlebell Swing": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/kettlebell-swing.gif",
+    "Burpee": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/burpee.gif",
+    "Treadmill Run": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/run-equipment.gif",
+    "Rowing Machine": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/upper-back/cable-low-seated-row.gif",
+    "Stationary Bike": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/stationary-bike-run-v-3.gif",
+    "World's Greatest Stretch": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/exercise-ball-hip-flexor-stretch.gif",
+    "Cat-Cow": "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/spine/spine-stretch.gif",
+}
+
+
 def _ex(name, category, pattern, primary, secondary, equipment, difficulty, ex_type, tracking,
-        description, steps, breathing, safety, mistakes):
+        description, steps, breathing, safety, mistakes, media_type=None, media_url=None):
+    gif = EXERCISE_MEDIA_GIFS.get(name)
+    m_type = media_type or ("gif" if gif else None)
+    m_url = media_url or gif
     return dict(
         name=name, category=category, movement_pattern=pattern, primary_muscles=primary,
         secondary_muscles=secondary, equipment=equipment, difficulty=difficulty, exercise_type=ex_type,
         tracking_type=tracking, description=description, instructions=steps, breathing=breathing,
-        safety_tips=safety, common_mistakes=mistakes,
+        safety_tips=safety, common_mistakes=mistakes, media_type=m_type, media_url=m_url,
     )
 
 
@@ -392,18 +435,23 @@ def slugify(value: str) -> str:
 
 
 def seed_global_exercises(db: Session) -> int:
-    """Adds missing global exercises. Returns how many were inserted."""
-    existing = {s for (s,) in db.query(Exercise.slug).filter(Exercise.scope_key == GLOBAL_SCOPE).all()}
-    added = 0
+    """Adds missing global exercises and backfills demonstration GIFs. Returns total inserted/updated."""
+    existing_map = {ex.slug: ex for ex in db.query(Exercise).filter(Exercise.scope_key == GLOBAL_SCOPE).all()}
+    count = 0
     for data in GLOBAL_EXERCISES:
         slug = slugify(data["name"])
-        if slug in existing:
+        ex = existing_map.get(slug)
+        if ex:
+            if not ex.media_url and data.get("media_url"):
+                ex.media_type = data.get("media_type") or "gif"
+                ex.media_url = data.get("media_url")
+                count += 1
             continue
         row = dict(data)
         for key in ("primary_muscles", "secondary_muscles", "equipment", "instructions", "safety_tips", "common_mistakes"):
             row[key] = json.dumps(row[key])
         db.add(Exercise(workspace_id=None, scope_key=GLOBAL_SCOPE, slug=slug, status="active", **row))
-        added += 1
-    if added:
+        count += 1
+    if count:
         db.commit()
-    return added
+    return count

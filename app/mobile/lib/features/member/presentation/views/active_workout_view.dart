@@ -7,6 +7,7 @@ import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import 'workout_completion_view.dart';
+import '../exercise_media_widget.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../app/theme/repsi_palette.dart';
 
@@ -118,7 +119,23 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
+
+                    // Looping Exercise Demonstration GIF
+                    SizedBox(
+                      height: 140,
+                      width: double.infinity,
+                      child: ExerciseDemonstrationMedia(
+                        exerciseName: ex['name'] as String,
+                        height: 140,
+                        width: double.infinity,
+                        borderRadius: BorderRadius.circular(14),
+                        showControls: true,
+                        showBadge: true,
+                        badgeText: 'Form Guidance',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
 
                     // Weight adjuster
                     RepsiCard(
@@ -378,6 +395,17 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                                           fontSize: 13,
                                         ),
                                       ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: ExerciseDemonstrationMedia(
+                                exerciseName: ex['name'] as String,
+                                width: 44,
+                                height: 44,
+                                borderRadius: BorderRadius.circular(8),
+                                showControls: false,
                               ),
                             ),
                             const SizedBox(width: 12),

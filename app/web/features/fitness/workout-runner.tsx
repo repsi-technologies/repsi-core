@@ -10,7 +10,7 @@ import {
   fitnessApi, type ApiExercise, type ApiPlanItem, type ApiScheduleOccurrence, type ApiSetInput, type ApiWorkoutSession, type ApiWorkoutSessionDetail,
 } from "@/lib/fitness-api";
 import { ExerciseDetail } from "./exercise-library";
-import { addDays, EmptyBlock, formatDay, formatDuration, humanize, inputClass, isoDate, LoadingRow, Modal, Notice, prescription, startOfWeek, StatusBadge } from "./shared";
+import { addDays, EmptyBlock, ExerciseMedia, formatDay, formatDuration, humanize, inputClass, isoDate, LoadingRow, Modal, Notice, prescription, startOfWeek, StatusBadge } from "./shared";
 
 // ------------------------------------------------------------------ schedule
 
@@ -342,16 +342,29 @@ export function SessionRunner({ sessionId, onClose, readOnlyFeedback }: { sessio
 
               {item && (
                 <div className="rounded-xl border border-[var(--border)] p-3 space-y-3">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-[var(--text)]">{item.exercise_name}
-                        {item.group_label && <span className="ml-2 text-[10px] rounded bg-[var(--primary-soft)] px-1.5 text-[var(--primary-dark)]">{humanize(item.group_type)} {item.group_label}</span>}
-                        {item.section !== "main" && <span className="ml-2 text-[10px] uppercase text-[var(--text-muted)]">{humanize(item.section)}</span>}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">Target: {prescription(item) || "—"}</p>
-                      {item.notes && <p className="text-xs italic text-[var(--text-secondary)] mt-0.5">{item.notes}</p>}
+                  <div className="grid gap-3 sm:grid-cols-[160px_1fr] items-start">
+                    <div className="w-full aspect-[4/3] sm:aspect-video rounded-lg overflow-hidden border border-[var(--border)] bg-black/20">
+                      <ExerciseMedia
+                        type={item.media_type}
+                        url={item.media_url}
+                        name={item.exercise_name}
+                        compact
+                        autoPlay
+                      />
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => showInfo(item)}><Info /> How to</Button>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="font-bold text-base text-[var(--text)]">{item.exercise_name}
+                            {item.group_label && <span className="ml-2 text-[10px] rounded bg-[var(--primary-soft)] px-1.5 text-[var(--primary-dark)]">{humanize(item.group_type)} {item.group_label}</span>}
+                            {item.section !== "main" && <span className="ml-2 text-[10px] uppercase text-[var(--text-muted)]">{humanize(item.section)}</span>}
+                          </p>
+                          <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Target: {prescription(item) || "—"}</p>
+                          {item.notes && <p className="text-xs italic text-[var(--text-secondary)] mt-0.5">{item.notes}</p>}
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => showInfo(item)}><Info /> Form cues</Button>
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     {Array.from({ length: setCount(item) }, (_, i) => i + 1).map((n) => {

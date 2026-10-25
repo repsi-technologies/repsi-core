@@ -95,6 +95,9 @@ export interface ApiPlanItem extends ApiPlanItemInput {
   tracking_type: FitTracking;
   media_type?: FitMediaType | null;
   media_url?: string | null;
+  primary_muscles?: string[];
+  secondary_muscles?: string[];
+  equipment?: string[];
   position: number;
 }
 

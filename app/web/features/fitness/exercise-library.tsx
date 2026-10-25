@@ -1,12 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Archive, ChevronLeft, ChevronRight, Dumbbell, Loader2, Pencil, Plus, RotateCcw, Search } from "lucide-react";
+import { Archive, ChevronLeft, ChevronRight, Dumbbell, Loader2, Pencil, Plus, RotateCcw, Search, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fitnessApi, type ApiExercise, type ApiExerciseInput, type ApiFitnessMeta, type FitTracking } from "@/lib/fitness-api";
-import { EmptyBlock, ExerciseMedia, Field, humanize, inputClass, LoadingRow, Modal, Notice, useFitnessContext, useFitnessMeta } from "./shared";
+import {
+  DemonstrationPickerModal,
+  EmptyBlock,
+  ExerciseMedia,
+  Field,
+  humanize,
+  inputClass,
+  LoadingRow,
+  Modal,
+  Notice,
+  useFitnessContext,
+  useFitnessMeta,
+} from "./shared";
 
 const PAGE_SIZE = 18;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -126,22 +138,50 @@ export function ExerciseLibrary({ memberView = false }: { memberView?: boolean }
       ) : (
         <div className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-3 ${loading ? "opacity-60" : ""}`}>
           {data?.items.map((ex) => (
-            <button key={ex.id} type="button" onClick={() => setDetail(ex)}
-              className="text-left rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 hover:border-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="h-9 w-9 shrink-0 rounded-lg bg-[var(--primary-soft)] text-[var(--primary-dark)] flex items-center justify-center"><Dumbbell className="h-4 w-4" /></span>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-sm text-[var(--text)] truncate">{ex.name}</p>
-                    <p className="text-xs text-[var(--text-muted)] truncate">{ex.primary_muscles.map(humanize).join(", ")}</p>
-                  </div>
+            <button
+              key={ex.id}
+              type="button"
+              onClick={() => setDetail(ex)}
+              className="text-left rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 hover:border-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] transition-all flex flex-col justify-between group shadow-sm"
+            >
+              <div className="flex gap-3 items-start w-full">
+                <div className="w-24 shrink-0 aspect-[4/3] rounded-lg overflow-hidden border border-[var(--border)] bg-black/20">
+                  <ExerciseMedia
+                    type={ex.media_type}
+                    url={ex.media_url}
+                    name={ex.name}
+                    compact
+                    showControls={false}
+                  />
                 </div>
-                {ex.status === "archived" ? <Badge variant="outline">Archived</Badge> : ex.scope === "gym" ? <Badge variant="lime">Gym</Badge> : null}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-1">
+                    <p className="font-bold text-sm text-[var(--text)] truncate group-hover:text-[var(--primary)] transition-colors">
+                      {ex.name}
+                    </p>
+                    {ex.status === "archived" ? (
+                      <Badge variant="outline">Archived</Badge>
+                    ) : ex.scope === "gym" ? (
+                      <Badge variant="lime">Gym</Badge>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
+                    {ex.primary_muscles.map(humanize).join(", ")}
+                  </p>
+                  <p className="text-[11px] text-[var(--text-secondary)] truncate mt-0.5">
+                    {ex.equipment.map(humanize).join(", ") || "Bodyweight"}
+                  </p>
+                </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-1.5">
+
+              <div className="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-wrap gap-1">
                 <Badge variant="outline">{humanize(ex.category)}</Badge>
                 <Badge variant="outline">{humanize(ex.difficulty)}</Badge>
-                {ex.equipment.slice(0, 2).map((e) => <Badge key={e} variant="default">{humanize(e)}</Badge>)}
+                {ex.equipment.slice(0, 1).map((e) => (
+                  <Badge key={e} variant="default">
+                    {humanize(e)}
+                  </Badge>
+                ))}
               </div>
             </button>
           ))}
@@ -243,6 +283,7 @@ function ExerciseForm({ meta, initial, onClose, onSaved }: { meta: ApiFitnessMet
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
   const up = (k: keyof typeof f, v: unknown) => setF((s) => ({ ...s, [k]: v }));
   const toggle = (k: "primary_muscles" | "secondary_muscles" | "equipment", v: string) =>
     up(k, f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v]);
@@ -329,6 +370,23 @@ function ExerciseForm({ meta, initial, onClose, onSaved }: { meta: ApiFitnessMet
           <Field label="Common mistakes" htmlFor="ex-mistakes" hint="One per line."><textarea id="ex-mistakes" rows={3} value={f.common_mistakes} onChange={(e) => up("common_mistakes", e.target.value)} className={inputClass} /></Field>
         </div>
         <Field label="Breathing guidance" htmlFor="ex-breath"><input id="ex-breath" value={f.breathing} onChange={(e) => up("breathing", e.target.value)} className={inputClass} /></Field>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)]">
+          <div>
+            <p className="text-xs font-bold text-[var(--text)]">Exercise Demonstration Media</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Attach an open-source looping GIF or your custom video.</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPicker(true)}
+            className="flex items-center gap-1.5"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-[var(--primary)]" />
+            Pick from GIF Library
+          </Button>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-[160px_1fr]">
           <Field label="Media type" htmlFor="ex-mt">
             <select id="ex-mt" value={f.media_type} onChange={(e) => up("media_type", e.target.value)} className={inputClass}>
@@ -339,12 +397,31 @@ function ExerciseForm({ meta, initial, onClose, onSaved }: { meta: ApiFitnessMet
             <input id="ex-mu" type="url" inputMode="url" value={f.media_url} onChange={(e) => up("media_url", e.target.value)} placeholder="https://" className={inputClass} />
           </Field>
         </div>
-        {f.media_type && f.media_url.startsWith("https://") && <ExerciseMedia type={f.media_type} url={f.media_url} name={f.name || "Preview"} className="max-w-sm" />}
+        {f.media_type && f.media_url.startsWith("https://") && (
+          <ExerciseMedia
+            type={f.media_type}
+            url={f.media_url}
+            name={f.name || "Preview"}
+            className="max-w-sm"
+            onSelectMedia={() => setShowPicker(true)}
+          />
+        )}
         <div className="flex justify-end gap-2 border-t border-[var(--border)] pt-4">
           <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
           <Button type="submit" size="sm" disabled={saving}>{saving && <Loader2 className="animate-spin" />} {initial ? "Save changes" : "Create exercise"}</Button>
         </div>
       </form>
+      {showPicker && (
+        <DemonstrationPickerModal
+          currentName={f.name}
+          onSelect={(demo) => {
+            up("media_type", "gif");
+            up("media_url", demo.gifUrl);
+            setShowPicker(false);
+          }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </Modal>
   );
 }
