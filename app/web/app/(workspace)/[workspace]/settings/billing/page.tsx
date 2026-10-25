@@ -164,7 +164,9 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
       });
       setCheckoutError("Cashfree checkout session initialized. Ready to process subscription payment.");
     } catch (err: any) {
-      setCheckoutError(err.message || "Online payments through Cashfree are temporarily unavailable.");
+      setCheckoutError(
+        "Online automated gateway checkout is temporarily unavailable on this server. Please contact support at billing@repsi.app or view our full plans at /pricing."
+      );
     } finally {
       setIsProcessingCheckout(false);
     }
@@ -595,7 +597,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 my-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 my-6 items-stretch">
                 {GLOBAL_PLANS.map((p) => {
                   const isCurrent = activeSubscription.plan?.code === p.id;
                   const isSelected = selectedPlanCode === p.id;
@@ -605,11 +607,11 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                   const pricingInfo = p.pricing[currency][billingCycle];
 
                   return (
-                    <motion.div key={p.id} whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="h-full">
+                    <motion.div key={p.id} whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="h-full flex flex-col">
                       <SpotlightCard
                         onClick={() => setSelectedPlanCode(p.id)}
                         spotlightColor="rgba(226, 88, 34, 0.18)"
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between h-full ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between flex-1 ${
                           isSelected
                             ? "bg-primary-soft/30 border-primary shadow-xl ring-1 ring-primary/40"
                             : "bg-surface-elevated border-border hover:border-border/80"
@@ -621,7 +623,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                           </span>
                         )}
 
-                        <div>
+                        <div className="flex-1 flex flex-col">
                           <div className="font-bold text-base text-text mb-1 flex items-center justify-between">
                             {p.name}
                             {isCurrent && (
@@ -630,7 +632,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-text-secondary mb-3 min-h-[32px]">{p.tagline}</div>
+                          <div className="text-[11px] text-text-secondary mb-3 min-h-[34px] leading-snug">{p.tagline}</div>
 
                           <div className="flex items-baseline gap-1 mb-1">
                             {isEnterprise ? (
@@ -646,29 +648,20 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                               </>
                             )}
                           </div>
-                          <div className="text-[10px] font-mono text-text-muted mb-3">
+                          <div className="text-[10px] font-mono text-text-muted mb-2">
                             {isEnterprise ? "Custom contract" : isFree ? "14 days free" : pricingInfo.note}
                           </div>
 
-                          <div className="text-[10px] font-mono text-primary font-bold mb-3">
-                            Limit: {p.memberCount >= 9999 ? "Unlimited" : `${p.memberCapacity}`}
-                          </div>
-
-                          <div className="space-y-1.5 pt-3 border-t border-border mb-4">
-                            {p.features.map((f, i) => (
-                              <div key={i} className="flex items-start gap-1.5 text-[10px] text-text-secondary">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
-                                <span>{f}</span>
-                              </div>
-                            ))}
+                          <div className="text-[11px] font-mono text-primary font-bold mb-4 py-1 px-2 rounded-lg bg-surface border border-border inline-block">
+                            Limit: {p.memberCount >= 9999 ? "Unlimited" : p.memberCapacity}
                           </div>
                         </div>
 
-                        <div>
+                        <div className="mt-auto pt-3 border-t border-border/60">
                           {isCurrent ? (
                             <button
                               disabled
-                              className="w-full py-2 rounded-xl bg-surface text-text-muted border border-border text-xs font-bold text-center cursor-not-allowed"
+                              className="w-full py-2.5 rounded-xl bg-surface text-text-muted border border-border text-xs font-bold text-center cursor-not-allowed"
                             >
                               Current Plan
                             </button>
@@ -693,7 +686,7 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
                               {isProcessingCheckout && selectedPlanCode === p.id ? (
                                 <>
                                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                  Processing Checkout...
+                                  <span>Processing...</span>
                                 </>
                               ) : (
                                 <>
@@ -712,8 +705,18 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border text-xs text-text-muted">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span>Payments securely processed. Unused balance is credited instantly on upgrade.</span>
+                  <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>
+                    Need a detailed feature-by-feature comparison?{" "}
+                    <Link
+                      href="/pricing"
+                      target="_blank"
+                      className="text-primary hover:underline font-semibold inline-flex items-center gap-1"
+                    >
+                      View full pricing table on homepage
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </span>
                 </div>
                 <button
                   onClick={() => setShowPlanModal(false)}
