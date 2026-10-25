@@ -410,11 +410,11 @@ export default function SubscriptionBillingPage(props?: { params?: Promise<{ wor
               <div key={idx} className="p-4 rounded-2xl bg-surface-elevated border border-border flex flex-col justify-between">
                 <div>
                   <div className="font-bold text-sm text-text">{add.name}</div>
-                  <div className="text-xs text-text-secondary mt-1">{add.description}</div>
+                  <div className="text-xs text-text-secondary mt-1">{add.details}</div>
                 </div>
                 <div className="pt-3 mt-3 border-t border-border flex items-baseline justify-between">
                   <span className="font-mono font-bold text-xs text-primary">
-                    {add.priceByCurrency[currency].monthly}
+                    {add.priceByCurrency[currency]}
                   </span>
                   <button
                     onClick={() => setShowPlanModal(true)}
