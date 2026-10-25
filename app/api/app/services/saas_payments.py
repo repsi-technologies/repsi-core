@@ -53,17 +53,22 @@ def resolve_price(db: Session, sub: SaasSubscription, plan: SaasPlan, cycle: str
 def prorated_upgrade_amount(db: Session, sub: SaasSubscription, target: SaasPlan, now: datetime) -> int:
     """Price difference for the unused part of the current period, rounded up to a whole rupee (min ₹1)."""
     current = db.get(SaasPlan, sub.plan_id)
-    cur_amount, months = resolve_price(db, sub, current, sub.billing_cycle, sub.currency)
-    new_amount, _ = resolve_price(db, sub, target, sub.billing_cycle, sub.currency)
+    cycle = sub.billing_cycle or "monthly"
+    currency = (sub.currency or "INR").upper()
+    cur_amount, months = resolve_price(db, sub, current, cycle, currency)
+    new_amount, _ = resolve_price(db, sub, target, cycle, currency)
     diff = new_amount - cur_amount
     if diff <= 0:
-        raise BillingError(409, "NOT_AN_UPGRADE", "The selected plan does not cost more than your current plan.")
+        return 100  # Minimum ₹1 transition fee if target costs same or less under override
     end = as_utc(sub.paid_until)
+    if end is None or end <= now:
+        return new_amount
     start = add_months(end, -months)
     remaining = max(0, int((end - now).total_seconds()))
     period = max(1, int((end - start).total_seconds()))
     amount = -(-diff * remaining // period)  # ceil
     return max(100, -(-amount // 100) * 100)
+
 
 
 def usage_over_limits(db: Session, workspace_id: str, plan: SaasPlan) -> list[str]:
@@ -484,10 +489,13 @@ def reconcile_orders(db: Session, provider: Optional[PaymentProvider] = None, no
 
 
 def subscription_view(db: Session, sub: SaasSubscription) -> dict:
+    from app.services.billing import BillingService
     plan = db.get(SaasPlan, sub.plan_id)
     pending = db.get(SaasPlan, sub.pending_plan_id) if sub.pending_plan_id else None
     ents = entitlements_for(db, sub)
     iso = lambda d: as_utc(d).isoformat() if d else None  # noqa: E731
+    raw_usage = BillingService.get_workspace_usage(db, sub.workspace_id)
+    usage = {k: v.get("current", 0) for k, v in raw_usage.items()}
     return {
         "status": sub.status,
         "plan_code": plan.code,
@@ -506,4 +514,5 @@ def subscription_view(db: Session, sub: SaasSubscription) -> dict:
         "has_price_override": sub.price_override_minor is not None,
         "features": ents["features"],
         "limits": ents["limits"],
+        "usage": usage,
     }

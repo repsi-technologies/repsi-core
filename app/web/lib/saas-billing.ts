@@ -42,6 +42,7 @@ export interface SaasSubscription {
   has_price_override: boolean;
   can_manage: boolean;
   limits: Record<string, number>;
+  usage?: Record<string, number>;
 }
 
 export interface SaasOrder {

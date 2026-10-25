@@ -323,6 +323,17 @@ export interface AddOnItem {
 
 export const ADDONS_LIST: AddOnItem[] = [
   {
+    name: "Trainer pack (+5)",
+    priceByCurrency: {
+      INR: "₹199/mo",
+      USD: "$6/mo",
+      EUR: "€5.5/mo",
+      GBP: "£5/mo",
+      AED: "AED 22/mo",
+    },
+    details: "Add 5 trainer seats on Lite or Starter without moving to a higher tier",
+  },
+  {
     name: "Member pack (+50)",
     priceByCurrency: {
       INR: "₹299/mo",
