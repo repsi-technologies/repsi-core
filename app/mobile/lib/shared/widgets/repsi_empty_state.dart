@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import 'repsi_button.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiEmptyState extends StatelessWidget {
   final IconData icon;
@@ -34,13 +35,13 @@ class RepsiEmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSubtle,
+                color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSubtle,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 36,
-                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -48,7 +49,7 @@ class RepsiEmptyState extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: AppTypography.headingSmall.copyWith(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -56,7 +57,7 @@ class RepsiEmptyState extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
               ),
             ),
             if (actionLabel != null && onAction != null) ...[

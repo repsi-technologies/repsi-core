@@ -1829,5 +1829,282 @@
   "compoundHypertrophy": "Compound · Hypertrophy",
   "commonSave": "Save",
   "commonSaved": "Saved",
-  "startWorkout": "Start workout"
+  "startWorkout": "Start workout",
+  "languageBeta": "Beta",
+  "languageBetaNote": "Languages marked Beta are new translations and may contain mistakes. English is always complete.",
+  "appearance": "Appearance",
+  "themeSystem": "Use phone setting",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "commonDone": "Done",
+  "letsTrain": "Let's train",
+  "viewAll": "View all",
+  "tomorrow": "Tomorrow",
+  "yesterday": "Yesterday",
+  "thisWeek": "This week",
+  "decline": "Decline",
+  "pause": "Pause",
+  "resume": "Resume",
+  "past": "Past",
+  "errorLoadPlan": "Couldn't load your workout plan.",
+  "errorLoadTrainer": "Couldn't load your trainer details.",
+  "errorOpenChat": "Couldn't open the chat.",
+  "errorLoadSchedule": "Couldn't load your schedule.",
+  "errorLoadMessages": "Couldn't load messages.",
+  "unitMinutes": "{count} min",
+  "@unitMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitSeconds": "{count} s",
+  "@unitSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restSeconds": "Rest {seconds} s",
+  "@restSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "plusSeconds": "+{seconds} s",
+  "@plusSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "goalGeneralFitness": "Stay fit & healthy",
+  "goalMobility": "Mobility & flexibility",
+  "goalFatLossDesc": "Burn fat and get leaner with strength and conditioning.",
+  "goalMuscleGainDesc": "Build size with focused hypertrophy training.",
+  "goalStrengthDesc": "Lift heavier with low-rep compound lifts.",
+  "goalEnduranceDesc": "Boost stamina with cardio and circuits.",
+  "goalGeneralFitnessDesc": "A balanced mix to feel strong every day.",
+  "goalMobilityDesc": "Move better, ease stiffness and prevent injury.",
+  "levelBeginner": "Beginner",
+  "levelIntermediate": "Intermediate",
+  "levelAdvanced": "Advanced",
+  "levelBeginnerDesc": "New to training or coming back after a break.",
+  "levelIntermediateDesc": "Training regularly for 6 months or more.",
+  "levelAdvancedDesc": "Years of consistent, structured training.",
+  "focusFullBody": "Full body",
+  "focusUpperBody": "Upper body",
+  "focusLowerBody": "Lower body",
+  "focusCore": "Core & abs",
+  "focusArms": "Arms",
+  "focusBack": "Back",
+  "focusChest": "Chest",
+  "focusGlutes": "Glutes",
+  "focusCardio": "Cardio",
+  "focusFlexibility": "Flexibility",
+  "dayFullBody": "Full body",
+  "dayUpper": "Upper body",
+  "dayLower": "Lower body",
+  "dayPush": "Push",
+  "dayPull": "Pull",
+  "dayLegs": "Legs",
+  "dayConditioning": "Conditioning",
+  "dayCardio": "Cardio",
+  "dayMobility": "Mobility",
+  "dayNumber": "Day {number}",
+  "@dayNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "goalStepCounter": "Step {current} of {total}",
+  "@goalStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "goalQuestionTitle": "What's your main goal?",
+  "goalQuestionSubtitle": "We'll build a weekly plan around it. You can change it any time.",
+  "levelQuestionTitle": "How experienced are you?",
+  "levelQuestionSubtitle": "This sets the exercises, sets and rest for you.",
+  "scheduleQuestionTitle": "How often can you train?",
+  "scheduleQuestionSubtitle": "Pick what fits your week — consistency beats intensity.",
+  "daysPerWeekLabel": "Days per week",
+  "daysPerWeekValue": "{count} days a week",
+  "@daysPerWeekValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionLengthLabel": "Time per session",
+  "focusQuestionTitle": "Anything to focus on?",
+  "focusQuestionSubtitle": "Optional. Your trainer sees this too.",
+  "buildMyPlan": "Build my plan",
+  "goalSaveFailed": "Couldn't save your goal. Please try again.",
+  "goalSavedTitle": "Your plan is ready",
+  "goalSavedSubtitle": "Built around your goal and your week.",
+  "myWorkoutPlan": "My workout plan",
+  "editGoal": "Edit goal",
+  "yourGoal": "Your goal",
+  "noGoalTitle": "Set your goal first",
+  "noGoalMessage": "Tell us what you're training for and we'll suggest a weekly plan.",
+  "setMyGoal": "Set my goal",
+  "setGoalCardTitle": "What are you training for?",
+  "setGoalCardBody": "Answer 4 quick questions and get a weekly plan made for you.",
+  "exerciseCount": "{count, plural, =1{1 exercise} other{{count} exercises}}",
+  "@exerciseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "howToDoIt": "How to do it",
+  "myGoalAndPlan": "My goal & plan",
+  "exerciseOfTotal": "Exercise {current} of {total}",
+  "@exerciseOfTotal": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setOfTotal": "Set {current} of {total}",
+  "@setOfTotal": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "nextUpName": "Next: {name}",
+  "@nextUpName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "restTime": "Rest",
+  "repsLabel": "reps",
+  "holdOrMove": "keep going",
+  "startSet": "Start",
+  "setDone": "Set done",
+  "skipRest": "Skip rest",
+  "endWorkoutTitle": "End this workout?",
+  "endWorkoutBody": "Your progress in this session won't be kept.",
+  "keepGoing": "Keep going",
+  "endWorkout": "End workout",
+  "workoutCompleteTitle": "Workout complete!",
+  "workoutCompleteSubtitle": "Great {focus} session. Rest well and come back stronger.",
+  "@workoutCompleteSubtitle": {
+    "placeholders": {
+      "focus": {
+        "type": "String"
+      }
+    }
+  },
+  "statDuration": "Duration",
+  "statExercises": "Exercises",
+  "statSets": "Sets",
+  "myTrainer": "My trainer",
+  "yourTrainer": "Your trainer",
+  "messageTrainer": "Message trainer",
+  "getATrainer": "Get a personal trainer",
+  "getATrainerHint": "Ask your gym to assign a trainer to you.",
+  "noTrainerTitle": "Train with a coach",
+  "noTrainerMessage": "Request a trainer or personal training. Your gym owner will review it and assign someone.",
+  "trainerPerkPlan": "A plan tuned to your goal",
+  "trainerPerkChat": "Chat directly in the app",
+  "trainerPerkProgress": "Form checks and progress reviews",
+  "requestATrainer": "Request a trainer",
+  "requestPersonalTraining": "Request personal training",
+  "requestPersonalTrainingHint": "One-on-one sessions, arranged by your gym.",
+  "requestKindTrainer": "Trainer",
+  "requestKindPt": "Personal training",
+  "requestSheetTitle": "Ask for a trainer",
+  "requestSheetSubtitle": "Your gym owner gets this request and assigns a trainer.",
+  "preferredTrainerOptional": "Preferred trainer (optional)",
+  "anyTrainer": "Any trainer",
+  "anyTrainerHint": "Let the gym pick the best match",
+  "trainerFull": "Fully booked",
+  "requestMessageHint": "Anything the gym should know? Timings, injuries…",
+  "sendRequest": "Send request",
+  "requestSent": "Request sent to your gym",
+  "requestPendingTitle": "Request pending",
+  "requestPendingShort": "Waiting for your gym to assign a trainer.",
+  "requestPendingBody": "Your gym will review it soon. You'll get a notification when a trainer is assigned.",
+  "cancelRequest": "Cancel request",
+  "cancelRequestTitle": "Cancel this request?",
+  "cancelRequestBody": "You can send a new request any time.",
+  "requestHistory": "Past requests",
+  "requestApproved": "Approved",
+  "requestDeclined": "Declined",
+  "requestCancelled": "Cancelled",
+  "requestStatusPending": "Pending",
+  "preferredTrainerValue": "Preferred: {name}",
+  "@preferredTrainerValue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assignedTrainerValue": "Assigned to {name}",
+  "@assignedTrainerValue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatIntro": "Ask about your plan, form or diet. Your trainer replies here.",
+  "trainerRequests": "Trainer requests",
+  "trainerRequestsDesc": "Members asking for a trainer or PT",
+  "requestTabPending": "Pending",
+  "requestTabAll": "All",
+  "noPendingRequests": "No pending requests",
+  "noRequests": "No requests yet",
+  "noRequestsMessage": "When members ask for a trainer or personal training from the app, it shows up here.",
+  "assignTrainer": "Assign trainer",
+  "chooseTrainer": "Choose a trainer",
+  "memberPreferred": "Member's choice",
+  "noActiveTrainers": "No active trainers. Add one first.",
+  "declineRequestTitle": "Decline request",
+  "declineReasonHint": "Reason for the member (optional)",
+  "requestApprovedToast": "Trainer assigned. The member has been notified.",
+  "requestDeclinedToast": "Request declined.",
+  "clientNoGoal": "This member hasn't set a goal in the app yet.",
+  "sessionsToday": "Sessions today",
+  "activeClients": "Active clients",
+  "unreadMessages": "Unread messages",
+  "noSessionsToday": "No sessions booked for today.",
+  "noUpcomingSessions": "No upcoming sessions",
+  "noPastSessions": "No past sessions",
+  "sessionsBookedHint": "Sessions booked by your gym or members appear here.",
+  "myClasses": "My classes",
+  "sessionScheduled": "Scheduled",
+  "sessionCompleted": "Completed",
+  "sessionCancelled": "Cancelled",
+  "sessionNoShow": "No-show"
 }

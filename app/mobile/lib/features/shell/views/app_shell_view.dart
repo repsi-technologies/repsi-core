@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/navigation/repsi_bottom_nav.dart';
 import '../../workspaces/providers/workspace_provider.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AppShellView extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -37,7 +37,7 @@ class _AppShellViewState extends ConsumerState<AppShellView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       body: widget.navigationShell,
       bottomNavigationBar: RepsiBottomNav(
         currentIndex: widget.navigationShell.currentIndex,

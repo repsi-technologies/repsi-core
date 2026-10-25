@@ -6,6 +6,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../l10n/l10n.dart';
 import '../exercise_text.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class ExerciseItem {
   final String id;
@@ -330,8 +331,8 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
 
             return Container(
               height: MediaQuery.of(context).size.height * 0.88,
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.palette.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -422,9 +423,9 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceSecondary,
+                            color: context.palette.surfaceSecondary,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +435,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                   letterSpacing: 0.8,
                                 ),
                               ),
@@ -446,14 +447,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primarySoft,
+                                      color: context.palette.primarySoft,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                                     ),
                                     child: Text(
                                       context.l10n.exPrimary(exerciseText(context.l10n, item.subMuscle), exerciseText(context.l10n, item.category)),
-                                      style: const TextStyle(
-                                        color: AppColors.primaryDark,
+                                      style: TextStyle(
+                                        color: context.palette.primaryDark,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
                                       ),
@@ -465,12 +466,12 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: AppColors.border),
+                                        border: Border.all(color: context.palette.border),
                                       ),
                                       child: Text(
                                         context.l10n.exSecondary(exerciseText(context.l10n, m)),
-                                        style: const TextStyle(
-                                          color: AppColors.textSecondary,
+                                        style: TextStyle(
+                                          color: context.palette.textSecondary,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 12,
                                         ),
@@ -491,20 +492,20 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceSecondary,
+                                  color: context.palette.surfaceSecondary,
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: context.palette.border),
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(context.l10n.sets, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.sets, style: TextStyle(fontSize: 11, color: context.palette.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
                                       context.l10n.exSetsCount(item.defaultSets),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.text,
+                                        color: context.palette.text,
                                       ),
                                     ),
                                   ],
@@ -516,20 +517,20 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceSecondary,
+                                  color: context.palette.surfaceSecondary,
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: context.palette.border),
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(context.l10n.reps, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.reps, style: TextStyle(fontSize: 11, color: context.palette.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
                                       context.l10n.exRepsCount(item.defaultReps),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.text,
+                                        color: context.palette.text,
                                       ),
                                     ),
                                   ],
@@ -541,20 +542,20 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceSecondary,
+                                  color: context.palette.surfaceSecondary,
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: context.palette.border),
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(context.l10n.rest, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                    Text(context.l10n.rest, style: TextStyle(fontSize: 11, color: context.palette.textMuted)),
                                     const SizedBox(height: 2),
                                     Text(
                                       '${item.defaultRestSec}s',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.text,
+                                        color: context.palette.text,
                                       ),
                                     ),
                                   ],
@@ -570,7 +571,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                           Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppColors.primarySoft,
+                              color: context.palette.primarySoft,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                             ),
@@ -579,14 +580,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.verified_rounded, size: 16, color: AppColors.primaryDark),
+                                    Icon(Icons.verified_rounded, size: 16, color: context.palette.primaryDark),
                                     SizedBox(width: 6),
                                     Text(
                                       context.l10n.whyThisExercise,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.primaryDark,
+                                        color: context.palette.primaryDark,
                                       ),
                                     ),
                                   ],
@@ -594,10 +595,10 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 const SizedBox(height: 6),
                                 Text(
                                   '"${exerciseText(context.l10n, item.trainerNote!)}"',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
-                                    color: AppColors.textPrimary,
+                                    color: context.palette.textPrimary,
                                     height: 1.35,
                                   ),
                                 ),
@@ -610,7 +611,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         // Step-by-Step Instructions
                         Text(
                           context.l10n.howToPerform,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.text),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.palette.text),
                         ),
                         const SizedBox(height: 10),
                         ...item.steps.asMap().entries.map((entry) {
@@ -623,17 +624,17 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                   width: 22,
                                   height: 22,
                                   decoration: BoxDecoration(
-                                    color: AppColors.primarySoft,
+                                    color: context.palette.primarySoft,
                                     shape: BoxShape.circle,
                                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
                                   ),
                                   child: Center(
                                     child: Text(
                                       '${entry.key + 1}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.primaryDark,
+                                        color: context.palette.primaryDark,
                                       ),
                                     ),
                                   ),
@@ -642,9 +643,9 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 Expanded(
                                   child: Text(
                                     exerciseText(context.l10n, entry.value),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 13,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                       height: 1.4,
                                     ),
                                   ),
@@ -660,9 +661,9 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                   // Bottom Action Buttons
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(top: BorderSide(color: AppColors.border)),
+                      border: Border(top: BorderSide(color: context.palette.border)),
                     ),
                     child: SafeArea(
                       top: false,
@@ -676,13 +677,13 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               },
                               icon: Icon(
                                 isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                color: isFav ? AppColors.error : AppColors.textSecondary,
+                                color: isFav ? context.palette.error : context.palette.textSecondary,
                                 size: 18,
                               ),
                               label: Text(
                                 isFav ? context.l10n.favourited : context.l10n.favourite,
                                 style: TextStyle(
-                                  color: isFav ? AppColors.error : AppColors.text,
+                                  color: isFav ? context.palette.error : context.palette.text,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 13,
                                 ),
@@ -690,7 +691,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 side: BorderSide(
-                                  color: isFav ? AppColors.error.withValues(alpha: 0.3) : AppColors.border,
+                                  color: isFav ? context.palette.error.withValues(alpha: 0.3) : context.palette.border,
                                 ),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               ),
@@ -718,7 +719,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: inBasket ? AppColors.primaryDark : AppColors.primary,
+                                backgroundColor: inBasket ? context.palette.primaryDark : AppColors.primary,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -770,21 +771,21 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                           ),
                         ],
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(ctx),
-                        child: const Icon(Icons.close_rounded, color: AppColors.textMuted),
+                        child: Icon(Icons.close_rounded, color: context.palette.textMuted),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Text(
                     context.l10n.routineName,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 6),
                   TextField(
@@ -792,22 +793,22 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                     style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: AppColors.surfaceSecondary,
+                      fillColor: context.palette.surfaceSecondary,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: context.palette.border),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: context.palette.border),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     context.l10n.exSelectedCount(_workoutBasket.length),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   Expanded(
@@ -816,7 +817,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                             child: Text(
                               context.l10n.noExercisesSelected,
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                              style: TextStyle(color: context.palette.textMuted, fontSize: 13),
                             ),
                           )
                         : ListView.separated(
@@ -827,9 +828,9 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               return Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceSecondary,
+                                  color: context.palette.surfaceSecondary,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: context.palette.border),
                                 ),
                                 child: Row(
                                   children: [
@@ -837,17 +838,17 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                       width: 24,
                                       height: 24,
                                       decoration: BoxDecoration(
-                                        color: AppColors.primarySoft,
+                                        color: context.palette.primarySoft,
                                         shape: BoxShape.circle,
                                         border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
                                       ),
                                       child: Center(
                                         child: Text(
                                           '${index + 1}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.primaryDark,
+                                            color: context.palette.primaryDark,
                                           ),
                                         ),
                                       ),
@@ -859,22 +860,22 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                         children: [
                                           Text(
                                             ex.name,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w700,
                                               fontSize: 13,
-                                              color: AppColors.text,
+                                              color: context.palette.text,
                                             ),
                                           ),
                                           Text(
                                             context.l10n.exSetsReps(ex.defaultSets, ex.defaultReps),
-                                            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                            style: TextStyle(fontSize: 11, color: context.palette.textMuted),
                                           ),
                                         ],
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.remove_circle_outline_rounded,
-                                          color: AppColors.error, size: 20),
+                                      icon: Icon(Icons.remove_circle_outline_rounded,
+                                          color: context.palette.error, size: 20),
                                       onPressed: () {
                                         setState(() {
                                           _workoutBasket.removeAt(index);
@@ -898,7 +899,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  backgroundColor: AppColors.primaryDark,
+                                  backgroundColor: context.palette.primaryDark,
                                   content: Row(
                                     children: [
                                       const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
@@ -942,7 +943,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
     final exercises = _filteredExercises;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -995,7 +996,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.palette.border),
                   boxShadow: const [
                     BoxShadow(color: Color(0x05000000), blurRadius: 4, offset: Offset(0, 2)),
                   ],
@@ -1006,15 +1007,15 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   decoration: InputDecoration(
                     hintText: context.l10n.searchExercises,
-                    hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
+                    hintStyle: TextStyle(color: context.palette.textMuted, fontSize: 13),
+                    prefixIcon: Icon(Icons.search_rounded, color: context.palette.textMuted, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               setState(() => _searchQuery = '');
                             },
-                            child: const Icon(Icons.clear_rounded, color: AppColors.textMuted, size: 18),
+                            child: Icon(Icons.clear_rounded, color: context.palette.textMuted, size: 18),
                           )
                         : null,
                     border: InputBorder.none,
@@ -1043,14 +1044,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         color: isSelected ? AppColors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : AppColors.border,
+                          color: isSelected ? AppColors.primary : context.palette.border,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           exerciseText(context.l10n, cat),
                           style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            color: isSelected ? Colors.white : context.palette.textSecondary,
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                             fontSize: 12,
                           ),
@@ -1076,14 +1077,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedEquipment,
                           isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textMuted),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text),
+                          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: context.palette.textMuted),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.palette.text),
                           items: _equipmentOptions
                               .map((eq) => DropdownMenuItem(value: eq, child: Text(exerciseText(context.l10n, eq), maxLines: 1, overflow: TextOverflow.ellipsis)))
                               .toList(),
@@ -1102,14 +1103,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedDifficulty,
                           isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textMuted),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text),
+                          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: context.palette.textMuted),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: context.palette.text),
                           items: _difficultyOptions
                               .map((d) => DropdownMenuItem(value: d, child: Text(exerciseText(context.l10n, d), maxLines: 1, overflow: TextOverflow.ellipsis)))
                               .toList(),
@@ -1129,9 +1130,9 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
               child: Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceSecondary,
+                  color: context.palette.surfaceSecondary,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.palette.border),
                 ),
                 child: Row(
                   children: [
@@ -1153,7 +1154,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: _selectedTab == 'all' ? FontWeight.w800 : FontWeight.w600,
-                              color: _selectedTab == 'all' ? AppColors.text : AppColors.textMuted,
+                              color: _selectedTab == 'all' ? context.palette.text : context.palette.textMuted,
                             ),
                           ),
                         ),
@@ -1174,14 +1175,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.favorite_rounded, size: 12, color: AppColors.error),
+                              Icon(Icons.favorite_rounded, size: 12, color: context.palette.error),
                               const SizedBox(width: 4),
                               Text(
                                 context.l10n.exFavsCount(_favorites.length),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedTab == 'favorites' ? FontWeight.w800 : FontWeight.w600,
-                                  color: _selectedTab == 'favorites' ? AppColors.text : AppColors.textMuted,
+                                  color: _selectedTab == 'favorites' ? context.palette.text : context.palette.textMuted,
                                 ),
                               ),
                             ],
@@ -1211,7 +1212,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedTab == 'recommended' ? FontWeight.w800 : FontWeight.w600,
-                                  color: _selectedTab == 'recommended' ? AppColors.text : AppColors.textMuted,
+                                  color: _selectedTab == 'recommended' ? context.palette.text : context.palette.textMuted,
                                 ),
                               ),
                             ],
@@ -1232,7 +1233,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.fitness_center_rounded, size: 36, color: AppColors.textMuted),
+                          Icon(Icons.fitness_center_rounded, size: 36, color: context.palette.textMuted),
                           const SizedBox(height: 10),
                           Text(
                             context.l10n.noExercisesMatch,
@@ -1272,7 +1273,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(18),
-                                border: Border.all(color: AppColors.border),
+                                border: Border.all(color: context.palette.border),
                                 boxShadow: const [
                                   BoxShadow(color: Color(0x06000000), blurRadius: 6, offset: Offset(0, 2)),
                                 ],
@@ -1318,7 +1319,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                               decoration: BoxDecoration(
-                                                color: AppColors.primaryDark.withValues(alpha: 0.6),
+                                                color: context.palette.primaryDark.withValues(alpha: 0.6),
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Row(
@@ -1349,7 +1350,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                 ),
                                                 child: Icon(
                                                   isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                                  color: isFav ? AppColors.error : Colors.white,
+                                                  color: isFav ? context.palette.error : Colors.white,
                                                   size: 16,
                                                 ),
                                               ),
@@ -1371,10 +1372,10 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             Expanded(
                                               child: Text(
                                                 ex.name,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w800,
-                                                  color: AppColors.text,
+                                                  color: context.palette.text,
                                                 ),
                                               ),
                                             ),
@@ -1386,14 +1387,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: AppColors.surfaceSecondary,
+                                                color: context.palette.surfaceSecondary,
                                                 borderRadius: BorderRadius.circular(6),
                                               ),
                                               child: Text(
                                                 exerciseText(context.l10n, ex.equipment),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
-                                                  color: AppColors.textSecondary,
+                                                  color: context.palette.textSecondary,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
@@ -1402,14 +1403,14 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: AppColors.surfaceSecondary,
+                                                color: context.palette.surfaceSecondary,
                                                 borderRadius: BorderRadius.circular(6),
                                               ),
                                               child: Text(
                                                 exerciseText(context.l10n, ex.difficulty),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
-                                                  color: AppColors.textSecondary,
+                                                  color: context.palette.textSecondary,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
@@ -1427,10 +1428,10 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                   context.l10n.exCoachNote(exerciseText(context.l10n, ex.trainerNote!)),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontSize: 11,
                                                     fontStyle: FontStyle.italic,
-                                                    color: AppColors.primaryDark,
+                                                    color: context.palette.primaryDark,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
@@ -1439,17 +1440,17 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                           ),
                                         ],
                                         const SizedBox(height: 12),
-                                        const Divider(height: 1, color: AppColors.border),
+                                        Divider(height: 1, color: context.palette.border),
                                         const SizedBox(height: 10),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               context.l10n.exSetsReps(ex.defaultSets, ex.defaultReps),
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w700,
-                                                color: AppColors.textMuted,
+                                                color: context.palette.textMuted,
                                               ),
                                             ),
                                             GestureDetector(
@@ -1457,7 +1458,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                               child: Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                                 decoration: BoxDecoration(
-                                                  color: inBasket ? AppColors.primaryDark : AppColors.primarySoft,
+                                                  color: inBasket ? context.palette.primaryDark : context.palette.primarySoft,
                                                   borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: Row(
@@ -1466,7 +1467,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                     Icon(
                                                       inBasket ? Icons.check_rounded : Icons.add_rounded,
                                                       size: 14,
-                                                      color: inBasket ? Colors.white : AppColors.primaryDark,
+                                                      color: inBasket ? Colors.white : context.palette.primaryDark,
                                                     ),
                                                     const SizedBox(width: 4),
                                                     Text(
@@ -1474,7 +1475,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                                       style: TextStyle(
                                                         fontSize: 11,
                                                         fontWeight: FontWeight.w700,
-                                                        color: inBasket ? Colors.white : AppColors.primaryDark,
+                                                        color: inBasket ? Colors.white : context.palette.primaryDark,
                                                       ),
                                                     ),
                                                   ],
@@ -1502,7 +1503,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: const Border(top: BorderSide(color: AppColors.border)),
+                border: Border(top: BorderSide(color: context.palette.border)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -1521,15 +1522,15 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                         children: [
                           Text(
                             context.l10n.exBasketCount(_workoutBasket.length),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                           ),
                           Text(
                             context.l10n.readyToBuild,
-                            style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            style: TextStyle(fontSize: 11, color: context.palette.textMuted),
                           ),
                         ],
                       ),

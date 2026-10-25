@@ -8,6 +8,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class ProgressDashboardView extends StatefulWidget {
   const ProgressDashboardView({super.key});
@@ -29,7 +30,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -58,7 +59,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.palette.border),
                   ),
                   padding: const EdgeInsets.all(3),
                   child: Row(
@@ -73,14 +74,14 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primarySoft : Colors.transparent,
+                              color: isSelected ? context.palette.primarySoft : Colors.transparent,
                               borderRadius: BorderRadius.circular(9),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               metricTabs[index],
                               style: AppTypography.caption.copyWith(
-                                color: isSelected ? AppColors.primaryDark : AppColors.textSecondary,
+                                color: isSelected ? context.palette.primaryDark : context.palette.textSecondary,
                                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 12,
                               ),
@@ -112,7 +113,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                               context.l10n.tabWeight,
                               style: AppTypography.caption.copyWith(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -125,7 +126,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                                   style: AppTypography.display.copyWith(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.text,
+                                    color: context.palette.text,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -133,7 +134,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                                 Text(
                                   '3.7 kg',
                                   style: AppTypography.caption.copyWith(
-                                    color: AppColors.primaryDark,
+                                    color: context.palette.primaryDark,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12,
                                   ),
@@ -144,7 +145,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                             Text(
                               context.l10n.startedWeightSubtitle('82.1', 'Aug 2025'),
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 11,
                               ),
                             ),
@@ -164,7 +165,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                               context.l10n.bmiTitle,
                               style: AppTypography.caption.copyWith(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -173,14 +174,14 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                               style: AppTypography.display.copyWith(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.primaryDark,
+                                color: context.palette.primaryDark,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               context.l10n.calculatedHeight('178'),
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 11,
                               ),
                             ),
@@ -199,19 +200,19 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceSubtle,
+                    color: context.palette.surfaceSubtle,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.palette.border),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textSecondary),
+                      Icon(Icons.info_outline_rounded, size: 14, color: context.palette.textSecondary),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           context.l10n.bmiHealthNote,
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                             fontSize: 10,
                           ),
                         ),
@@ -266,7 +267,7 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
               ),
               Text(
                 '60 Days',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
+                style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 12),
               ),
             ],
           ),
@@ -380,9 +381,9 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
   Widget _buildAttendanceMetric(String val, String lbl) {
     return Column(
       children: [
-        Text(val, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.primaryDark)),
+        Text(val, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: context.palette.primaryDark)),
         const SizedBox(height: 2),
-        Text(lbl, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+        Text(lbl, style: TextStyle(fontSize: 11, color: context.palette.textSecondary)),
       ],
     );
   }
@@ -414,10 +415,10 @@ class _ProgressDashboardViewState extends State<ProgressDashboardView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(p['lift']!, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        Text(p['date']!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                        Text(p['date']!, style: TextStyle(color: context.palette.textSecondary, fontSize: 11)),
                       ],
                     ),
-                    Text(p['weight']!, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primaryDark, fontSize: 13)),
+                    Text(p['weight']!, style: TextStyle(fontWeight: FontWeight.w700, color: context.palette.primaryDark, fontSize: 13)),
                   ],
                 ),
               )),
@@ -500,18 +501,18 @@ class _MeasurementTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceSubtle,
+        color: context.palette.surfaceSubtle,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(label, style: TextStyle(fontSize: 11, color: context.palette.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.text)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: context.palette.text)),
           const SizedBox(height: 2),
-          Text(change, style: const TextStyle(fontSize: 10, color: AppColors.primaryDark, fontWeight: FontWeight.bold)),
+          Text(change, style: TextStyle(fontSize: 10, color: context.palette.primaryDark, fontWeight: FontWeight.bold)),
         ],
       ),
     );

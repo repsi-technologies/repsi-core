@@ -6,6 +6,7 @@ import '../../../app/theme/app_typography.dart';
 
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/language_selector_sheet.dart';
+import '../../../app/theme/repsi_palette.dart';
 /// Shared frame for the sign-in screens: a quiet canvas with one warm wash in the corner, a
 /// predictable back button, and content that scrolls above the keyboard with [footer] kept at the
 /// bottom on tall screens.
@@ -20,7 +21,7 @@ class AuthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final canvas = isDark ? AppColors.darkBackground : AppColors.surface;
+    final canvas = isDark ? AppColors.darkBackground : context.palette.surface;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -98,10 +99,10 @@ class _BackButton extends StatelessWidget {
       onPressed: onPressed,
       style: IconButton.styleFrom(
         fixedSize: const Size.square(44),
-        side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+        side: BorderSide(color: isDark ? AppColors.darkBorder : context.palette.border),
+        backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
       ),
-      icon: Icon(Icons.arrow_back_rounded, size: 20, color: isDark ? AppColors.darkText : AppColors.text),
+      icon: Icon(Icons.arrow_back_rounded, size: 20, color: isDark ? AppColors.darkText : context.palette.text),
     );
   }
 }
@@ -126,14 +127,14 @@ class AuthHeading extends StatelessWidget {
             style: AppTypography.display.copyWith(
               fontSize: 28,
               letterSpacing: -0.6,
-              color: isDark ? AppColors.darkText : AppColors.text,
+              color: isDark ? AppColors.darkText : context.palette.text,
             ),
           ),
         ),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpacing.sm),
           DefaultTextStyle.merge(
-            style: AppTypography.body.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+            style: AppTypography.body.copyWith(color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary),
             child: subtitle!,
           ),
         ],
@@ -160,12 +161,12 @@ class IndiaDialCode extends StatelessWidget {
             '+91',
             style: AppTypography.body.copyWith(
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkText : AppColors.text,
+              color: isDark ? AppColors.darkText : context.palette.text,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
           const SizedBox(width: 10),
-          Container(width: 1, height: 22, color: isDark ? AppColors.darkBorder : AppColors.border),
+          Container(width: 1, height: 22, color: isDark ? AppColors.darkBorder : context.palette.border),
         ],
       ),
     );

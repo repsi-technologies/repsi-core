@@ -9,6 +9,7 @@ import 'repsi_avatar.dart';
 import 'repsi_bottom_sheet.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 /// A picked photo, already downscaled on the device (max 1024px, JPEG quality 85) so uploads stay
 /// small on mobile data.
 class PickedPhoto {
@@ -91,7 +92,7 @@ class RepsiAvatarPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ring = isDark ? AppColors.darkBorderStrong : AppColors.borderStrong;
+    final ring = isDark ? AppColors.darkBorderStrong : context.palette.borderStrong;
 
     final Widget face;
     if (previewBytes != null) {
@@ -104,10 +105,10 @@ class RepsiAvatarPicker extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isDark ? AppColors.darkSurface : AppColors.background,
+          color: isDark ? AppColors.darkSurface : context.palette.background,
           border: Border.all(color: ring),
         ),
-        child: Icon(Icons.person_outline_rounded, size: size * 0.42, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+        child: Icon(Icons.person_outline_rounded, size: size * 0.42, color: isDark ? AppColors.darkTextMuted : context.palette.textMuted),
       );
     }
 
@@ -147,7 +148,7 @@ class RepsiAvatarPicker extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: isDark ? AppColors.darkBackground : AppColors.surface, width: 2.5),
+                        border: Border.all(color: isDark ? AppColors.darkBackground : context.palette.surface, width: 2.5),
                       ),
                       child: Icon(Icons.photo_camera_rounded, size: size * 0.17, color: Colors.white),
                     ),
@@ -159,7 +160,7 @@ class RepsiAvatarPicker extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 caption!,
-                style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary),
               ),
             ],
           ],
@@ -180,7 +181,7 @@ class _SheetAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = destructive ? AppColors.error : (isDark ? AppColors.darkText : AppColors.text);
+    final color = destructive ? context.palette.error : (isDark ? AppColors.darkText : context.palette.text);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       minTileHeight: 52,

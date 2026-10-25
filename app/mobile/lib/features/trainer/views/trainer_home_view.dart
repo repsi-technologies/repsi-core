@@ -1,609 +1,364 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import '../../../app/routes/route_names.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
-import '../../../shared/animations/repsi_stagger.dart';
-import '../../../shared/widgets/repsi_card.dart';
-import 'trainer_client_detail_view.dart';
-import 'trainer_create_workout_view.dart';
-import 'trainer_clients_view.dart';
-import 'trainer_sessions_view.dart';
-import '../../member/presentation/views/trainer_chat_view.dart';
+import '../../../app/theme/repsi_palette.dart';
 import '../../../l10n/l10n.dart';
+import '../../../shared/animations/repsi_stagger.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
+import '../../../shared/widgets/repsi_card.dart';
+import '../../../shared/widgets/repsi_skeleton.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../member/presentation/views/trainer_chat_view.dart';
+import '../../nutrition/data/coaching_repository.dart';
+import '../data/trainer_schedule.dart';
+import 'trainer_client_detail_view.dart';
 
-class TrainerHomeView extends StatefulWidget {
-  const TrainerHomeView({super.key});
+/// Trainer dashboard: today's sessions, unread messages and clients, all from the API.
+class TrainerHomeView extends ConsumerWidget {
+  /// Switches the trainer shell to another tab (1 clients, 2 schedule, 3 messages).
+  final ValueChanged<int>? onSelectTab;
 
-  @override
-  State<TrainerHomeView> createState() => _TrainerHomeViewState();
-}
+  const TrainerHomeView({super.key, this.onSelectTab});
 
-class _TrainerHomeViewState extends State<TrainerHomeView> {
-  final List<Map<String, dynamic>> _todaySessions = [
-    {
-      'time': '09:00',
-      'client': 'Rahul Sharma',
-      'type': 'Weight Loss',
-      'status': 'Confirmed',
-      'statusColor': AppColors.primary,
-      'isLive': true,
-      'plan': 'Gold Membership',
-      'weight': '78.4 kg',
-      'attendance': '82%',
-    },
-    {
-      'time': '10:00',
-      'client': 'Priya Nair',
-      'type': 'Strength',
-      'status': 'Confirmed',
-      'statusColor': AppColors.primary,
-      'isLive': false,
-      'plan': 'Platinum Plan',
-      'weight': '58.2 kg',
-      'attendance': '90%',
-    },
-    {
-      'time': '12:00',
-      'client': 'Arjun Nair',
-      'type': 'PT Session',
-      'status': 'Confirmed',
-      'statusColor': AppColors.primary,
-      'isLive': false,
-      'plan': 'Gold Membership',
-      'weight': '74.1 kg',
-      'attendance': '75%',
-    },
-    {
-      'time': '16:00',
-      'client': 'Sneha Rao',
-      'type': 'Mobility & Core',
-      'status': 'Scheduled',
-      'statusColor': AppColors.info,
-      'isLive': false,
-      'plan': 'Silver Plan',
-      'weight': '61.0 kg',
-      'attendance': '85%',
-    },
-  ];
+  String _greeting(AppLocalizations l) {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return l.greetingMorning;
+    if (hour < 17) return l.greetingAfternoon;
+    return l.greetingEvening;
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final palette = context.palette;
+    final name = ref.watch(authProvider.select((s) => s.user?.fullName)) ?? '';
+    final firstName = name.trim().split(' ').firstOrNull ?? '';
+    final schedule = ref.watch(trainerScheduleProvider);
+    final clients = ref.watch(trainerClientsProvider);
+    final convs = ref.watch(conversationsProvider);
+    final now = DateTime.now();
+    final today = schedule.valueOrNull?.sessionsOn(now) ?? const <TrainerSessionItem>[];
+    final unread = convs.valueOrNull?.fold<int>(0, (s, c) => s + c.unread) ?? 0;
+    var i = 0;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pageHorizontalPadding,
-            vertical: 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(trainerScheduleProvider);
+            ref.invalidate(trainerClientsProvider);
+            ref.invalidate(conversationsProvider);
+            await ref.read(trainerScheduleProvider.future).then((_) {}, onError: (_) {});
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.pageHorizontalPadding, 12, AppSpacing.pageHorizontalPadding, 24),
             children: [
-              // 1. Header: Coaching Workspace
               RepsiStaggerItem(
-                index: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primarySoft,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  context.l10n.coachingWorkspace,
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.primaryDark,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 10,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  context.l10n.greetingMorning,
-                                  style: AppTypography.heading.copyWith(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.text,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              const Text('👋', style: TextStyle(fontSize: 20)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.border, width: 1.5),
-                        color: Colors.white,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'AL',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                index: i++,
+                child: Row(children: [
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(_greeting(l),
+                          style: AppTypography.caption.copyWith(color: palette.textSecondary, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 2),
+                      Text(firstName.isEmpty ? l.commonTrainer : firstName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.heading.copyWith(fontSize: 26, fontWeight: FontWeight.w800, color: palette.text)),
+                    ]),
+                  ),
+                  IconButton.filledTonal(
+                    tooltip: l.commonNotifications,
+                    style: IconButton.styleFrom(backgroundColor: palette.surface, minimumSize: const Size(48, 48)),
+                    onPressed: () => context.push(RouteNames.notifications),
+                    icon: Icon(Icons.notifications_none_rounded, color: palette.text),
+                  ),
+                ]),
               ),
               const SizedBox(height: 16),
-
-              // 2. Coaching Metrics Bar: Clients 12 | Pending Plans 4 | Messages 3 | Attendance 8
               RepsiStaggerItem(
-                index: 1,
-                child: RepsiCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildMetricTile('12', context.l10n.todaysClients, Icons.people_outline_rounded, AppColors.primary),
-                      _buildDivider(),
-                      _buildMetricTile('4', context.l10n.pendingPlans, Icons.assignment_outlined, const Color(0xFFF59E0B)),
-                      _buildDivider(),
-                      _buildMetricTile('3', context.l10n.messages, Icons.chat_bubble_outline_rounded, const Color(0xFF3B82F6), hasBadge: true),
-                      _buildDivider(),
-                      _buildMetricTile('8', context.l10n.commonAttendance, Icons.check_circle_outline_rounded, AppColors.primaryDark),
-                    ],
+                index: i++,
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                    gradient: const LinearGradient(
+                        colors: AppColors.energyGradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 24, offset: const Offset(0, 10))],
                   ),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(DateFormat.MMMMEEEEd(L10n.localeName).format(now),
+                        style: AppTypography.caption.copyWith(color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 14),
+                    Row(children: [
+                      _HeroStat(value: schedule.hasValue ? '${today.where((s) => s.isScheduled).length}' : '–', label: l.sessionsToday,
+                          onTap: () => onSelectTab?.call(2)),
+                      _HeroStat(value: clients.hasValue ? '${clients.value!.length}' : '–', label: l.activeClients,
+                          onTap: () => onSelectTab?.call(1)),
+                      _HeroStat(value: convs.hasValue ? '$unread' : '–', label: l.unreadMessages, onTap: () => onSelectTab?.call(3)),
+                    ]),
+                  ]),
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // 3. Quick Coaching Actions
-              RepsiStaggerItem(
-                index: 2,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildActionTile(
-                        icon: Icons.fitness_center_rounded,
-                        label: context.l10n.workoutBuilder,
-                        color: AppColors.primarySoft,
-                        iconColor: AppColors.primaryDark,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const TrainerCreateWorkoutView()),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildActionTile(
-                        icon: Icons.restaurant_menu_rounded,
-                        label: context.l10n.dietPlan,
-                        color: const Color(0xFFFEF3C7),
-                        iconColor: const Color(0xFFD97706),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const TrainerClientsView()),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildActionTile(
-                        icon: Icons.chat_rounded,
-                        label: context.l10n.clientChat,
-                        color: const Color(0xFFEFF6FF),
-                        iconColor: const Color(0xFF2563EB),
-                        badgeText: '3',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const TrainerChatView(asTrainer: true)),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 22),
+              _SectionHeader(title: l.todaysSessions, action: l.viewAll, onAction: () => onSelectTab?.call(2)),
+              const SizedBox(height: 8),
+              schedule.when(
+                loading: () => const RepsiSkeleton(height: 72),
+                error: (_, __) => _InlineNote(text: l.errorLoadSchedule, onRetry: () => ref.invalidate(trainerScheduleProvider)),
+                data: (_) => today.isEmpty
+                    ? _InlineNote(text: l.noSessionsToday)
+                    : Column(children: [
+                        for (final s in today)
+                          RepsiStaggerItem(
+                            index: i++,
+                            child: Padding(padding: const EdgeInsets.only(bottom: 8), child: SessionTile(session: s)),
+                          ),
+                      ]),
               ),
-              const SizedBox(height: 24),
-
-              // 4. Today's Sessions Section Header
-              RepsiStaggerItem(
-                index: 3,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          context.l10n.todaysSessions,
-                          style: AppTypography.sectionHeading.copyWith(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.text,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.primarySoft,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '${_todaySessions.length}',
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.primaryDark,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const TrainerSessionsView()),
-                        );
-                      },
-                      child: Text(
-                        context.l10n.fullSchedule,
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // 5. Today's Sessions Cards
-              ...List.generate(_todaySessions.length, (index) {
-                final session = _todaySessions[index];
-                return RepsiStaggerItem(
-                  index: 4 + index,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: RepsiCard(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TrainerClientDetailView(
-                              client: {
-                                'name': session['client'] as String,
-                                'plan': session['plan'] as String,
-                                'goal': session['type'] as String,
-                                'status': context.l10n.commonActive,
-                                'weight': session['weight'] as String,
-                                'attendance': session['attendance'] as String,
+              const SizedBox(height: 18),
+              _SectionHeader(title: l.messages, action: l.viewAll, onAction: () => onSelectTab?.call(3)),
+              const SizedBox(height: 8),
+              convs.when(
+                loading: () => const RepsiSkeleton(height: 64),
+                error: (_, __) => _InlineNote(text: l.errorLoadMessages, onRetry: () => ref.invalidate(conversationsProvider)),
+                data: (rows) => rows.isEmpty
+                    ? _InlineNote(text: l.noConversationsTrainer)
+                    : Column(children: [
+                        for (final c in rows.take(3))
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: RepsiCard(
+                              padding: const EdgeInsets.all(12),
+                              onTap: () async {
+                                await Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (_) => ChatThreadView(conversation: c, asTrainer: true)));
+                                ref.invalidate(conversationsProvider);
                               },
+                              child: Row(children: [
+                                RepsiAvatar(name: c.memberName, size: 40),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                    Text(c.memberName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: palette.text)),
+                                    Text(c.lastMessage ?? l.noMessagesYet,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.caption.copyWith(color: palette.textSecondary)),
+                                  ]),
+                                ),
+                                if (c.unread > 0) UnreadBadge(count: c.unread),
+                              ]),
                             ),
                           ),
-                        );
-                      },
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: session['isLive'] ? AppColors.primary : AppColors.surfaceSubtle,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  session['time'] as String,
-                                  style: AppTypography.caption.copyWith(
-                                    color: session['isLive'] ? Colors.white : AppColors.text,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
+                      ]),
+              ),
+              const SizedBox(height: 18),
+              _SectionHeader(title: l.myClients, action: l.viewAll, onAction: () => onSelectTab?.call(1)),
+              const SizedBox(height: 8),
+              clients.when(
+                loading: () => const RepsiSkeleton(height: 96),
+                error: (_, __) => _InlineNote(text: l.errorGeneric, onRetry: () => ref.invalidate(trainerClientsProvider)),
+                data: (rows) => rows.isEmpty
+                    ? _InlineNote(text: l.noClientsAssigned)
+                    : SizedBox(
+                        height: 96,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: rows.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (_, n) {
+                            final c = rows[n];
+                            final clientName = c['name'] as String? ?? '';
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => TrainerClientDetailView(client: clientArgs(c)))),
+                              child: SizedBox(
+                                width: 72,
+                                child: Column(children: [
+                                  RepsiAvatar(name: clientName, size: 56),
+                                  const SizedBox(height: 6),
+                                  Text(clientName.split(' ').first,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTypography.caption.copyWith(color: palette.text, fontWeight: FontWeight.w600)),
+                                ]),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            session['client'] as String,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: AppTypography.headingSmall.copyWith(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.text,
-                                            ),
-                                          ),
-                                        ),
-                                        if (session['isLive']) ...[
-                                          const SizedBox(width: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFDC2626).withValues(alpha: 0.12),
-                                              borderRadius: BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              context.l10n.nextUp,
-                                              style: TextStyle(
-                                                color: Color(0xFFDC2626),
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      session['type'] as String,
-                                      style: AppTypography.caption.copyWith(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primarySoft,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      session['status'] as String,
-                                      style: AppTypography.caption.copyWith(
-                                        color: AppColors.primaryDark,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Divider(height: 1, color: AppColors.border),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  context.l10n.trainerWeightAttendance('${session['weight']}', '${session['attendance']}'),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      HapticFeedback.lightImpact();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(context.l10n.trainerSessionStarted('${session['client']}')),
-                                          backgroundColor: AppColors.primary,
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        context.l10n.startSession,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const TrainerChatView(asTrainer: true),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: AppColors.border),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: const Icon(Icons.chat_bubble_outline_rounded, size: 14, color: AppColors.textSecondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildMetricTile(String value, String label, IconData icon, Color color, {bool hasBadge = false}) {
-    return Expanded(
-      child: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Text(
-                value,
-                style: AppTypography.headingSmall.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.text,
-                ),
-              ),
-              if (hasBadge)
-                Positioned(
-                  right: -6,
-                  top: -2,
-                  child: Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEF4444),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.caption.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+/// Arguments TrainerClientDetailView expects, from a `/trainers/me/clients` row.
+Map<String, String> clientArgs(Map<String, dynamic> c) => {
+      'client_id': c['client_id'] as String? ?? '',
+      'name': c['name'] as String? ?? '',
+      'status': c['membership_status'] as String? ?? '',
+      if (c['phone'] != null) 'phone': c['phone'] as String,
+      if (c['email'] != null) 'email': c['email'] as String,
+    };
 
-  Widget _buildDivider() {
-    return Container(
-      width: 1,
-      height: 24,
-      color: AppColors.border,
-    );
-  }
+class UnreadBadge extends StatelessWidget {
+  final int count;
+  const UnreadBadge({super.key, required this.count});
 
-  Widget _buildActionTile({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color iconColor,
-    required VoidCallback onTap,
-    String? badgeText,
-  }) {
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: context.l10n.chatUnread(count),
+        excludeSemantics: true,
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 22),
+          height: 22,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(11)),
+          child: Text(count > 99 ? '99+' : '$count',
+              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+        ),
+      );
+}
+
+class SessionTile extends StatelessWidget {
+  final TrainerSessionItem session;
+  const SessionTile({super.key, required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final palette = context.palette;
+    final s = session;
+    final (label, fg, bg) = switch (s.status) {
+      'COMPLETED' => (l.sessionCompleted, palette.successDark, palette.successSoft),
+      'CANCELLED' => (l.sessionCancelled, palette.textSecondary, palette.surfaceSecondary),
+      'NO_SHOW' => (l.sessionNoShow, palette.errorDark, palette.errorSoft),
+      _ => (l.sessionScheduled, palette.primaryDark, palette.primarySoft),
+    };
     return RepsiCard(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-      child: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              if (badgeText != null)
-                Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEF4444),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      badgeText,
-                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: AppTypography.caption.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-              color: AppColors.text,
+      padding: const EdgeInsets.all(12),
+      child: Row(children: [
+        Container(
+          width: 64,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(color: palette.surfaceSecondary, borderRadius: BorderRadius.circular(10)),
+          child: Column(children: [
+            Text(DateFormat.jm(L10n.localeName).format(s.scheduledAt),
+                textAlign: TextAlign.center,
+                style: AppTypography.caption.copyWith(fontWeight: FontWeight.w800, color: palette.text)),
+            Text(l.unitMinutes(s.durationMinutes), style: AppTypography.caption.copyWith(fontSize: 10, color: palette.textSecondary)),
+          ]),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(s.clientName ?? s.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: palette.text, fontSize: 15)),
+            if (s.clientName != null)
+              Text(s.title,
+                  maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.caption.copyWith(color: palette.textSecondary)),
+            const SizedBox(height: 6),
+            // Under the title, not trailing: Indic status words are too wide for a 320px row.
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+              child: Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(color: fg, fontWeight: FontWeight.w700)),
             ),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+class _HeroStat extends StatelessWidget {
+  final String value;
+  final String label;
+  final VoidCallback? onTap;
+  const _HeroStat({required this.value, required this.label, this.onTap});
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.6, end: 1),
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOutBack,
+                builder: (_, v, child) => Transform.scale(scale: v, alignment: Alignment.centerLeft, child: child),
+                child: Text(value,
+                    style: AppTypography.heading.copyWith(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
+              ),
+              Text(label,
+                  maxLines: 2,
+                  style: AppTypography.caption.copyWith(color: Colors.white.withValues(alpha: 0.9), height: 1.2)),
+            ]),
           ),
-        ],
+        ),
+      );
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String action;
+  final VoidCallback onAction;
+  const _SectionHeader({required this.title, required this.action, required this.onAction});
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Expanded(
+          child: Text(title, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: context.palette.text)),
+        ),
+        TextButton(onPressed: onAction, child: Text(action)),
+      ]);
+}
+
+class _InlineNote extends StatelessWidget {
+  final String text;
+  final VoidCallback? onRetry;
+  const _InlineNote({required this.text, this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: palette.border),
       ),
+      child: Row(children: [
+        Expanded(child: Text(text, style: AppTypography.bodySmall.copyWith(color: palette.textSecondary))),
+        if (onRetry != null) TextButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
+      ]),
     );
   }
 }

@@ -10,6 +10,7 @@ import '../../../shared/widgets/repsi_error_state.dart';
 import '../../../shared/widgets/repsi_skeleton.dart';
 import '../providers/finance_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 final _compact = NumberFormat.compactCurrency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
@@ -22,7 +23,7 @@ class OwnerFinanceView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
+    final canvas = isDark ? AppColors.darkBackground : context.palette.background;
 
     Future<void> refresh() async {
       ref.invalidate(financeSummaryProvider);
@@ -114,8 +115,8 @@ class _SummarySection extends ConsumerWidget {
                 Row(
                   children: [
                     _Mini(context.l10n.expenses, _inr.format(s.expenses), _text(d)),
-                    _Mini(context.l10n.net, _inr.format(s.net), s.net >= 0 ? (d ? AppColors.darkSuccess : AppColors.success) : (d ? AppColors.darkError : AppColors.error)),
-                    _Mini(context.l10n.duesToCollect, _inr.format(s.pendingDues), s.pendingDues > 0 ? (d ? AppColors.darkWarning : AppColors.warning) : _text(d)),
+                    _Mini(context.l10n.net, _inr.format(s.net), s.net >= 0 ? (d ? AppColors.darkSuccess : context.palette.success) : (d ? AppColors.darkError : context.palette.error)),
+                    _Mini(context.l10n.duesToCollect, _inr.format(s.pendingDues), s.pendingDues > 0 ? (d ? AppColors.darkWarning : context.palette.warning) : _text(d)),
                   ],
                 ),
               ],
@@ -237,7 +238,7 @@ class _CollectionsSection extends ConsumerWidget {
                                       value: e.value / methodTotal,
                                       minHeight: 6,
                                       color: AppColors.primary,
-                                      backgroundColor: d ? AppColors.darkSurfaceElevated : AppColors.surfaceSecondary,
+                                      backgroundColor: d ? AppColors.darkSurfaceElevated : context.palette.surfaceSecondary,
                                     ),
                                   ),
                                 ),
@@ -298,7 +299,7 @@ class _DuesSection extends ConsumerWidget {
                           subtitle: Text(
                             list[i].daysOverdue > 0 ? context.l10n.financeDaysOverdue(list[i].daysOverdue) : context.l10n.dueNow,
                             style: AppTypography.caption.copyWith(
-                                color: list[i].daysOverdue > 14 ? (d ? AppColors.darkError : AppColors.error) : _secondary(d)),
+                                color: list[i].daysOverdue > 14 ? (d ? AppColors.darkError : context.palette.error) : _secondary(d)),
                           ),
                           trailing: Text(_inr.format(list[i].balance),
                               style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w700, color: _text(d))),

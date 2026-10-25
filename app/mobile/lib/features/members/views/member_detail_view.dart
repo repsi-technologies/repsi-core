@@ -16,6 +16,7 @@ import '../../../shared/widgets/repsi_status_badge.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/member_detail_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 DateFormat get _day => DateFormat('d MMM yyyy', L10n.localeName);
@@ -31,7 +32,7 @@ class MemberDetailView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final member = ref.watch(memberDetailProvider(memberId));
-    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
+    final canvas = isDark ? AppColors.darkBackground : context.palette.background;
 
     return Scaffold(
       backgroundColor: canvas,
@@ -176,7 +177,7 @@ class _TabsHeader extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: isDark ? AppColors.darkBackground : AppColors.background,
+      color: isDark ? AppColors.darkBackground : context.palette.background,
       child: TabBar(
         isScrollable: true,
         tabAlignment: TabAlignment.start,
@@ -298,7 +299,7 @@ class _OverviewTab extends ConsumerWidget {
                           ? context.l10n.memberLastVisit(DateFormat('d MMM, h:mm a').format(v.lastVisit!))
                           : context.l10n.noVisitsYet,
                   style: AppTypography.caption.copyWith(
-                    color: v.insideNow ? (isDark ? AppColors.darkSuccess : AppColors.success) : _secondary(isDark),
+                    color: v.insideNow ? (isDark ? AppColors.darkSuccess : context.palette.success) : _secondary(isDark),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -420,7 +421,7 @@ class _PaymentsTab extends ConsumerWidget {
                                     style: AppTypography.tabularNumber(fontSize: 15, fontWeight: FontWeight.w700, color: _text(isDark))),
                                 if (list[i].status != 'success')
                                   Text(list[i].status[0].toUpperCase() + list[i].status.substring(1),
-                                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : AppColors.error)),
+                                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : context.palette.error)),
                               ],
                             ),
                           ],

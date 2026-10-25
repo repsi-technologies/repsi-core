@@ -3219,4 +3219,560 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get startWorkout => 'वर्कआउट शुरू करें';
+
+  @override
+  String get languageBeta => 'बीटा';
+
+  @override
+  String get languageBetaNote =>
+      'बीटा वाली भाषाएँ नए अनुवाद हैं और इनमें गलतियाँ हो सकती हैं। अंग्रेज़ी हमेशा पूरी है।';
+
+  @override
+  String get appearance => 'दिखावट';
+
+  @override
+  String get themeSystem => 'फ़ोन सेटिंग';
+
+  @override
+  String get themeLight => 'लाइट';
+
+  @override
+  String get themeDark => 'डार्क';
+
+  @override
+  String get commonDone => 'हो गया';
+
+  @override
+  String get letsTrain => 'चलो ट्रेनिंग करें';
+
+  @override
+  String get viewAll => 'सभी देखें';
+
+  @override
+  String get tomorrow => 'कल';
+
+  @override
+  String get yesterday => 'बीता कल';
+
+  @override
+  String get thisWeek => 'इस हफ़्ते';
+
+  @override
+  String get decline => 'अस्वीकार करें';
+
+  @override
+  String get pause => 'रोकें';
+
+  @override
+  String get resume => 'फिर शुरू करें';
+
+  @override
+  String get past => 'पिछले';
+
+  @override
+  String get errorLoadPlan => 'आपका वर्कआउट प्लान लोड नहीं हो सका।';
+
+  @override
+  String get errorLoadTrainer => 'ट्रेनर की जानकारी लोड नहीं हो सकी।';
+
+  @override
+  String get errorOpenChat => 'चैट नहीं खुल सकी।';
+
+  @override
+  String get errorLoadSchedule => 'शेड्यूल लोड नहीं हो सका।';
+
+  @override
+  String get errorLoadMessages => 'संदेश लोड नहीं हो सके।';
+
+  @override
+  String unitMinutes(int count) {
+    return '$count मिनट';
+  }
+
+  @override
+  String unitSeconds(int count) {
+    return '$count से';
+  }
+
+  @override
+  String restSeconds(int seconds) {
+    return 'आराम $seconds से';
+  }
+
+  @override
+  String plusSeconds(int seconds) {
+    return '+$seconds से';
+  }
+
+  @override
+  String get goalGeneralFitness => 'फ़िट और स्वस्थ रहना';
+
+  @override
+  String get goalMobility => 'मोबिलिटी और लचीलापन';
+
+  @override
+  String get goalFatLossDesc => 'स्ट्रेंथ और कंडीशनिंग से फ़ैट घटाएँ।';
+
+  @override
+  String get goalMuscleGainDesc => 'फ़ोकस्ड ट्रेनिंग से मसल्स बढ़ाएँ।';
+
+  @override
+  String get goalStrengthDesc =>
+      'कम रेप वाले कंपाउंड लिफ़्ट से ज़्यादा वज़न उठाएँ।';
+
+  @override
+  String get goalEnduranceDesc => 'कार्डियो और सर्किट से स्टैमिना बढ़ाएँ।';
+
+  @override
+  String get goalGeneralFitnessDesc =>
+      'हर दिन मज़बूत महसूस करने के लिए संतुलित मिश्रण।';
+
+  @override
+  String get goalMobilityDesc => 'बेहतर मूव करें, जकड़न कम करें, चोट से बचें।';
+
+  @override
+  String get levelBeginner => 'शुरुआती';
+
+  @override
+  String get levelIntermediate => 'मध्यम';
+
+  @override
+  String get levelAdvanced => 'एडवांस्ड';
+
+  @override
+  String get levelBeginnerDesc =>
+      'ट्रेनिंग में नए हैं या ब्रेक के बाद लौट रहे हैं।';
+
+  @override
+  String get levelIntermediateDesc =>
+      '6 महीने या उससे ज़्यादा से नियमित ट्रेनिंग।';
+
+  @override
+  String get levelAdvancedDesc => 'सालों से लगातार, व्यवस्थित ट्रेनिंग।';
+
+  @override
+  String get focusFullBody => 'पूरा शरीर';
+
+  @override
+  String get focusUpperBody => 'ऊपरी शरीर';
+
+  @override
+  String get focusLowerBody => 'निचला शरीर';
+
+  @override
+  String get focusCore => 'कोर और ऐब्स';
+
+  @override
+  String get focusArms => 'बाज़ू';
+
+  @override
+  String get focusBack => 'पीठ';
+
+  @override
+  String get focusChest => 'छाती';
+
+  @override
+  String get focusGlutes => 'ग्लूट्स';
+
+  @override
+  String get focusCardio => 'कार्डियो';
+
+  @override
+  String get focusFlexibility => 'लचीलापन';
+
+  @override
+  String get dayFullBody => 'फ़ुल बॉडी';
+
+  @override
+  String get dayUpper => 'अपर बॉडी';
+
+  @override
+  String get dayLower => 'लोअर बॉडी';
+
+  @override
+  String get dayPush => 'पुश';
+
+  @override
+  String get dayPull => 'पुल';
+
+  @override
+  String get dayLegs => 'लेग्स';
+
+  @override
+  String get dayConditioning => 'कंडीशनिंग';
+
+  @override
+  String get dayCardio => 'कार्डियो';
+
+  @override
+  String get dayMobility => 'मोबिलिटी';
+
+  @override
+  String dayNumber(int number) {
+    return 'दिन $number';
+  }
+
+  @override
+  String goalStepCounter(int current, int total) {
+    return 'चरण $current / $total';
+  }
+
+  @override
+  String get goalQuestionTitle => 'आपका मुख्य लक्ष्य क्या है?';
+
+  @override
+  String get goalQuestionSubtitle =>
+      'हम इसके आधार पर साप्ताहिक प्लान बनाएँगे। आप इसे कभी भी बदल सकते हैं।';
+
+  @override
+  String get levelQuestionTitle => 'आपका अनुभव कितना है?';
+
+  @override
+  String get levelQuestionSubtitle =>
+      'इसी से आपके एक्सरसाइज़, सेट और आराम तय होंगे।';
+
+  @override
+  String get scheduleQuestionTitle => 'आप कितनी बार ट्रेनिंग कर सकते हैं?';
+
+  @override
+  String get scheduleQuestionSubtitle =>
+      'जो आपके हफ़्ते में फ़िट हो वही चुनें — नियमितता सबसे ज़रूरी है।';
+
+  @override
+  String get daysPerWeekLabel => 'हफ़्ते में दिन';
+
+  @override
+  String daysPerWeekValue(int count) {
+    return 'हफ़्ते में $count दिन';
+  }
+
+  @override
+  String get sessionLengthLabel => 'हर सेशन का समय';
+
+  @override
+  String get focusQuestionTitle => 'किस पर ज़्यादा ध्यान देना है?';
+
+  @override
+  String get focusQuestionSubtitle => 'वैकल्पिक। आपके ट्रेनर भी इसे देखेंगे।';
+
+  @override
+  String get buildMyPlan => 'मेरा प्लान बनाएँ';
+
+  @override
+  String get goalSaveFailed => 'लक्ष्य सेव नहीं हो सका। फिर से कोशिश करें।';
+
+  @override
+  String get goalSavedTitle => 'आपका प्लान तैयार है';
+
+  @override
+  String get goalSavedSubtitle =>
+      'आपके लक्ष्य और हफ़्ते के हिसाब से बनाया गया।';
+
+  @override
+  String get myWorkoutPlan => 'मेरा वर्कआउट प्लान';
+
+  @override
+  String get editGoal => 'लक्ष्य बदलें';
+
+  @override
+  String get yourGoal => 'आपका लक्ष्य';
+
+  @override
+  String get noGoalTitle => 'पहले अपना लक्ष्य चुनें';
+
+  @override
+  String get noGoalMessage =>
+      'बताइए आप किसके लिए ट्रेनिंग कर रहे हैं, हम साप्ताहिक प्लान सुझाएँगे।';
+
+  @override
+  String get setMyGoal => 'मेरा लक्ष्य चुनें';
+
+  @override
+  String get setGoalCardTitle => 'आप किसके लिए ट्रेनिंग कर रहे हैं?';
+
+  @override
+  String get setGoalCardBody =>
+      '4 छोटे सवालों के जवाब दें और अपना साप्ताहिक प्लान पाएँ।';
+
+  @override
+  String exerciseCount(int count) {
+    return '$count एक्सरसाइज़';
+  }
+
+  @override
+  String get howToDoIt => 'कैसे करें';
+
+  @override
+  String get myGoalAndPlan => 'मेरा लक्ष्य और प्लान';
+
+  @override
+  String exerciseOfTotal(int current, int total) {
+    return 'एक्सरसाइज़ $current / $total';
+  }
+
+  @override
+  String setOfTotal(int current, int total) {
+    return 'सेट $current / $total';
+  }
+
+  @override
+  String nextUpName(String name) {
+    return 'अगला: $name';
+  }
+
+  @override
+  String get restTime => 'आराम';
+
+  @override
+  String get repsLabel => 'रेप्स';
+
+  @override
+  String get holdOrMove => 'चलते रहें';
+
+  @override
+  String get startSet => 'शुरू करें';
+
+  @override
+  String get setDone => 'सेट पूरा';
+
+  @override
+  String get skipRest => 'आराम छोड़ें';
+
+  @override
+  String get endWorkoutTitle => 'यह वर्कआउट खत्म करें?';
+
+  @override
+  String get endWorkoutBody => 'इस सेशन की प्रगति सेव नहीं होगी।';
+
+  @override
+  String get keepGoing => 'जारी रखें';
+
+  @override
+  String get endWorkout => 'वर्कआउट खत्म करें';
+
+  @override
+  String get workoutCompleteTitle => 'वर्कआउट पूरा!';
+
+  @override
+  String workoutCompleteSubtitle(String focus) {
+    return 'शानदार $focus सेशन। अच्छे से आराम करें और और मज़बूत होकर लौटें।';
+  }
+
+  @override
+  String get statDuration => 'अवधि';
+
+  @override
+  String get statExercises => 'एक्सरसाइज़';
+
+  @override
+  String get statSets => 'सेट';
+
+  @override
+  String get myTrainer => 'मेरे ट्रेनर';
+
+  @override
+  String get yourTrainer => 'आपके ट्रेनर';
+
+  @override
+  String get messageTrainer => 'ट्रेनर को मैसेज करें';
+
+  @override
+  String get getATrainer => 'पर्सनल ट्रेनर पाएँ';
+
+  @override
+  String get getATrainerHint => 'अपने जिम से ट्रेनर असाइन करने को कहें।';
+
+  @override
+  String get noTrainerTitle => 'कोच के साथ ट्रेनिंग करें';
+
+  @override
+  String get noTrainerMessage =>
+      'ट्रेनर या पर्सनल ट्रेनिंग का अनुरोध करें। जिम मालिक इसे देखकर किसी को असाइन करेंगे।';
+
+  @override
+  String get trainerPerkPlan => 'आपके लक्ष्य के हिसाब से प्लान';
+
+  @override
+  String get trainerPerkChat => 'ऐप में सीधे चैट';
+
+  @override
+  String get trainerPerkProgress => 'फ़ॉर्म चेक और प्रगति की समीक्षा';
+
+  @override
+  String get requestATrainer => 'ट्रेनर का अनुरोध करें';
+
+  @override
+  String get requestPersonalTraining => 'पर्सनल ट्रेनिंग का अनुरोध करें';
+
+  @override
+  String get requestPersonalTrainingHint => 'जिम द्वारा तय वन-ऑन-वन सेशन।';
+
+  @override
+  String get requestKindTrainer => 'ट्रेनर';
+
+  @override
+  String get requestKindPt => 'पर्सनल ट्रेनिंग';
+
+  @override
+  String get requestSheetTitle => 'ट्रेनर माँगें';
+
+  @override
+  String get requestSheetSubtitle =>
+      'यह अनुरोध जिम मालिक को जाएगा और वे ट्रेनर असाइन करेंगे।';
+
+  @override
+  String get preferredTrainerOptional => 'पसंदीदा ट्रेनर (वैकल्पिक)';
+
+  @override
+  String get anyTrainer => 'कोई भी ट्रेनर';
+
+  @override
+  String get anyTrainerHint => 'जिम सबसे सही ट्रेनर चुनेगा';
+
+  @override
+  String get trainerFull => 'पूरी तरह बुक';
+
+  @override
+  String get requestMessageHint => 'जिम को कुछ बताना है? समय, चोट…';
+
+  @override
+  String get sendRequest => 'अनुरोध भेजें';
+
+  @override
+  String get requestSent => 'अनुरोध जिम को भेज दिया गया';
+
+  @override
+  String get requestPendingTitle => 'अनुरोध लंबित';
+
+  @override
+  String get requestPendingShort => 'जिम के ट्रेनर असाइन करने का इंतज़ार है।';
+
+  @override
+  String get requestPendingBody =>
+      'जिम जल्द ही देखेगा। ट्रेनर असाइन होने पर आपको सूचना मिलेगी।';
+
+  @override
+  String get cancelRequest => 'अनुरोध रद्द करें';
+
+  @override
+  String get cancelRequestTitle => 'यह अनुरोध रद्द करें?';
+
+  @override
+  String get cancelRequestBody => 'आप कभी भी नया अनुरोध भेज सकते हैं।';
+
+  @override
+  String get requestHistory => 'पिछले अनुरोध';
+
+  @override
+  String get requestApproved => 'स्वीकृत';
+
+  @override
+  String get requestDeclined => 'अस्वीकृत';
+
+  @override
+  String get requestCancelled => 'रद्द';
+
+  @override
+  String get requestStatusPending => 'लंबित';
+
+  @override
+  String preferredTrainerValue(String name) {
+    return 'पसंद: $name';
+  }
+
+  @override
+  String assignedTrainerValue(String name) {
+    return '$name को असाइन किया गया';
+  }
+
+  @override
+  String get chatIntro =>
+      'अपने प्लान, फ़ॉर्म या डाइट के बारे में पूछें। ट्रेनर यहीं जवाब देंगे।';
+
+  @override
+  String get trainerRequests => 'ट्रेनर अनुरोध';
+
+  @override
+  String get trainerRequestsDesc => 'ट्रेनर या PT माँगने वाले सदस्य';
+
+  @override
+  String get requestTabPending => 'लंबित';
+
+  @override
+  String get requestTabAll => 'सभी';
+
+  @override
+  String get noPendingRequests => 'कोई लंबित अनुरोध नहीं';
+
+  @override
+  String get noRequests => 'अभी कोई अनुरोध नहीं';
+
+  @override
+  String get noRequestsMessage =>
+      'जब सदस्य ऐप से ट्रेनर या PT माँगेंगे, तो वह यहाँ दिखेगा।';
+
+  @override
+  String get assignTrainer => 'ट्रेनर असाइन करें';
+
+  @override
+  String get chooseTrainer => 'ट्रेनर चुनें';
+
+  @override
+  String get memberPreferred => 'सदस्य की पसंद';
+
+  @override
+  String get noActiveTrainers => 'कोई सक्रिय ट्रेनर नहीं। पहले एक जोड़ें।';
+
+  @override
+  String get declineRequestTitle => 'अनुरोध अस्वीकार करें';
+
+  @override
+  String get declineReasonHint => 'सदस्य के लिए कारण (वैकल्पिक)';
+
+  @override
+  String get requestApprovedToast =>
+      'ट्रेनर असाइन हो गया। सदस्य को सूचना भेज दी गई।';
+
+  @override
+  String get requestDeclinedToast => 'अनुरोध अस्वीकार किया गया।';
+
+  @override
+  String get clientNoGoal => 'इस सदस्य ने अभी ऐप में लक्ष्य नहीं चुना है।';
+
+  @override
+  String get sessionsToday => 'आज के सेशन';
+
+  @override
+  String get activeClients => 'सक्रिय क्लाइंट';
+
+  @override
+  String get unreadMessages => 'अपठित संदेश';
+
+  @override
+  String get noSessionsToday => 'आज कोई सेशन बुक नहीं है।';
+
+  @override
+  String get noUpcomingSessions => 'कोई आने वाला सेशन नहीं';
+
+  @override
+  String get noPastSessions => 'कोई पिछला सेशन नहीं';
+
+  @override
+  String get sessionsBookedHint =>
+      'जिम या सदस्यों द्वारा बुक किए गए सेशन यहाँ दिखेंगे।';
+
+  @override
+  String get myClasses => 'मेरी क्लास';
+
+  @override
+  String get sessionScheduled => 'तय';
+
+  @override
+  String get sessionCompleted => 'पूरा';
+
+  @override
+  String get sessionCancelled => 'रद्द';
+
+  @override
+  String get sessionNoShow => 'नहीं आए';
 }

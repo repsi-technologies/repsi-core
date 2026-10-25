@@ -12,6 +12,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/auth_layout.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 /// Requests a password reset email. The link in that email opens the website, where the new
 /// password is set; the server answers the same way whether or not the address has an account.
 class ForgotPasswordView extends ConsumerStatefulWidget {
@@ -56,7 +57,7 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final text = isDark ? AppColors.darkText : AppColors.text;
+    final text = isDark ? AppColors.darkText : context.palette.text;
 
     if (_sent) {
       return AuthLayout(
@@ -69,10 +70,10 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSuccessSoft : AppColors.successSoft,
+                  color: isDark ? AppColors.darkSuccessSoft : context.palette.successSoft,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
                 ),
-                child: Icon(Icons.mark_email_read_outlined, color: isDark ? AppColors.darkSuccess : AppColors.success),
+                child: Icon(Icons.mark_email_read_outlined, color: isDark ? AppColors.darkSuccess : context.palette.success),
               ),
             ),
             const SizedBox(height: AppSpacing.xl),

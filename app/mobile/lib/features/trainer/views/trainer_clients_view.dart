@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
 import '../../nutrition/data/coaching_repository.dart';
@@ -76,11 +76,7 @@ class _TrainerClientsViewState extends ConsumerState<TrainerClientsView> {
                         }),
                       )),
                       child: Row(children: [
-                        CircleAvatar(
-                          backgroundColor: AppColors.primarySoft,
-                          child: Text((c['name'] as String? ?? '?').characters.first,
-                              style: const TextStyle(color: AppColors.primary)),
-                        ),
+                        RepsiAvatar(name: c['name'] as String? ?? '', size: 40),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

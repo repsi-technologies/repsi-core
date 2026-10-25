@@ -23,6 +23,7 @@ import '../../../shared/widgets/repsi_text_field.dart';
 import '../../members/providers/member_provider.dart';
 import '../providers/operations_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 /// Front desk: today's attendance with check-in/check-out, the sales pipeline, the gym's live
 /// check-in QR and the team. Everything is read from and written to the API.
@@ -32,7 +33,7 @@ class OperationsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final canvas = isDark ? AppColors.darkBackground : AppColors.background;
+    final canvas = isDark ? AppColors.darkBackground : context.palette.background;
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -286,7 +287,7 @@ class _CheckInSheetState extends ConsumerState<_CheckInSheet> {
           RepsiSearchField(hintText: context.l10n.searchNameOrPhone, onChanged: _search),
           if (_error != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(_error!, style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : AppColors.error)),
+            Text(_error!, style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkError : context.palette.error)),
           ],
           const SizedBox(height: AppSpacing.sm),
           Expanded(
@@ -436,12 +437,12 @@ class _LeadRow extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTypography.caption.copyWith(
-            color: overdue ? (isDark ? AppColors.darkWarning : AppColors.warning) : _secondary(isDark),
+            color: overdue ? (isDark ? AppColors.darkWarning : context.palette.warning) : _secondary(isDark),
           )),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSecondary,
+          color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSecondary,
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
         ),
         child: Text(leadStageLabel(lead.status), style: AppTypography.caption.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),

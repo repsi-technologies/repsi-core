@@ -5,6 +5,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
 import '../../../../shared/widgets/repsi_card.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class MemberMembershipView extends StatelessWidget {
   const MemberMembershipView({super.key});
@@ -12,12 +13,12 @@ class MemberMembershipView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.palette.text),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -46,11 +47,11 @@ class MemberMembershipView extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 26,
-                            backgroundColor: AppColors.primarySoft,
-                            child: const Text(
+                            backgroundColor: context.palette.primarySoft,
+                            child: Text(
                               'RK',
                               style: TextStyle(
-                                color: AppColors.primaryDark,
+                                color: context.palette.primaryDark,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16,
                               ),
@@ -66,20 +67,20 @@ class MemberMembershipView extends StatelessWidget {
                                   style: AppTypography.headingSmall.copyWith(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.text,
+                                    color: context.palette.text,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primarySoft,
+                                    color: context.palette.primarySoft,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
                                     context.l10n.commonActive,
                                     style: AppTypography.caption.copyWith(
-                                      color: AppColors.primaryDark,
+                                      color: context.palette.primaryDark,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 11,
                                     ),
@@ -115,7 +116,7 @@ class MemberMembershipView extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: 0.65,
                           minHeight: 8,
-                          backgroundColor: AppColors.border,
+                          backgroundColor: context.palette.border,
                           valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                         ),
                       ),
@@ -176,7 +177,7 @@ class _ActionTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.textSecondary),
+          Icon(icon, size: 20, color: context.palette.textSecondary),
           const SizedBox(width: 14),
           Expanded(
             child: Text(
@@ -184,11 +185,11 @@ class _ActionTile extends StatelessWidget {
               style: AppTypography.headingSmall.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textMuted),
+          Icon(Icons.chevron_right_rounded, size: 20, color: context.palette.textMuted),
         ],
       ),
     );

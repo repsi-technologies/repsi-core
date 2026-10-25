@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../app/routes/route_names.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../shared/animations/repsi_stagger.dart';
@@ -15,8 +14,13 @@ import '../../../auth/widgets/my_profile_photo.dart';
 import '../../../notifications/views/notification_inbox_view.dart';
 import 'membership_payments_view.dart';
 import 'qr_attendance_view.dart';
+import 'trainer_chat_view.dart';
+import '../../../coaching/views/my_trainer_view.dart';
+import '../../../coaching/views/workout_plan_view.dart';
+import '../../../../shared/widgets/theme_mode_sheet.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../shared/widgets/language_selector_sheet.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class MemberProfileView extends ConsumerWidget {
   const MemberProfileView({super.key});
@@ -25,6 +29,24 @@ class MemberProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Only destinations backed by real data are listed.
     final menuItems = [
+      {
+        'icon': LucideIcons.userRound,
+        'title': context.l10n.myTrainer,
+        'route': 'trainer',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.messageCircle,
+        'title': context.l10n.messages,
+        'route': 'messages',
+        'badge': null
+      },
+      {
+        'icon': LucideIcons.flag,
+        'title': context.l10n.myGoalAndPlan,
+        'route': 'goal',
+        'badge': null
+      },
       {
         'icon': LucideIcons.sparkles,
         'title': context.l10n.aiWorkoutCoach,
@@ -56,6 +78,12 @@ class MemberProfileView extends ConsumerWidget {
         'badge': null
       },
       {
+        'icon': LucideIcons.sunMoon,
+        'title': context.l10n.appearance,
+        'route': 'theme',
+        'badge': null
+      },
+      {
         'icon': LucideIcons.keyRound,
         'title': context.l10n.changePassword,
         'route': 'password',
@@ -75,7 +103,7 @@ class MemberProfileView extends ConsumerWidget {
     final userEmail = user?.email ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -114,7 +142,7 @@ class MemberProfileView extends ConsumerWidget {
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -123,7 +151,7 @@ class MemberProfileView extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -148,7 +176,15 @@ class MemberProfileView extends ConsumerWidget {
                     child: RepsiCard(
                       onTap: () {
                         final route = item['route'];
-                        if (route == 'aiCoach') {
+                        if (route == 'trainer') {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const MyTrainerView()));
+                        } else if (route == 'messages') {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const TrainerChatView()));
+                        } else if (route == 'goal') {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkoutPlanView()));
+                        } else if (route == 'theme') {
+                          ThemeModeSheet.show(context);
+                        } else if (route == 'aiCoach') {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -182,7 +218,7 @@ class MemberProfileView extends ConsumerWidget {
                       child: Row(
                         children: [
                           Icon(item['icon'] as IconData,
-                              size: 20, color: AppColors.textSecondary),
+                              size: 20, color: context.palette.textSecondary),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
@@ -190,7 +226,7 @@ class MemberProfileView extends ConsumerWidget {
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                           ),
@@ -199,13 +235,13 @@ class MemberProfileView extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.primarySoft,
+                                color: context.palette.primarySoft,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 badge as String,
-                                style: const TextStyle(
-                                  color: AppColors.primaryDark,
+                                style: TextStyle(
+                                  color: context.palette.primaryDark,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 10,
                                 ),
@@ -213,8 +249,8 @@ class MemberProfileView extends ConsumerWidget {
                             ),
                             const SizedBox(width: 6),
                           ],
-                          const Icon(Icons.chevron_right_rounded,
-                              size: 20, color: AppColors.textMuted),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 20, color: context.palette.textMuted),
                         ],
                       ),
                     ),
@@ -237,15 +273,15 @@ class MemberProfileView extends ConsumerWidget {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded,
-                          size: 20, color: AppColors.error),
+                      Icon(Icons.logout_rounded,
+                          size: 20, color: context.palette.error),
                       const SizedBox(width: 14),
                       Text(
                         context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.error,
+                          color: context.palette.error,
                         ),
                       ),
                     ],

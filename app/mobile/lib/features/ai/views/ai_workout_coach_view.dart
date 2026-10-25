@@ -13,6 +13,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../member/presentation/views/active_workout_view.dart';
 import '../providers/ai_coach_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AiWorkoutCoachView extends ConsumerStatefulWidget {
   const AiWorkoutCoachView({super.key});
@@ -55,7 +56,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
     final selectedEquip = state.answers['equipment']?.toString() ?? 'full_gym';
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         title: Row(
           children: [
@@ -63,7 +64,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color:
-                    isDark ? AppColors.darkPrimarySoft : AppColors.primarySoft,
+                    isDark ? AppColors.darkPrimarySoft : context.palette.primarySoft,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(LucideIcons.sparkles,
@@ -74,7 +75,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
               context.l10n.aiWorkoutCoach,
               style: AppTypography.headingSmall.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.darkText : AppColors.text,
+                color: isDark ? AppColors.darkText : context.palette.text,
               ),
             ),
           ],
@@ -112,7 +113,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                             ]
                           : [
                               const Color(0xFFFFF6F1),
-                              AppColors.surface,
+                              context.palette.surface,
                             ],
                     ),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
@@ -155,7 +156,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                         context.l10n.tailoredRoutine,
                         style: AppTypography.headingSmall.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: isDark ? AppColors.darkText : AppColors.text,
+                          color: isDark ? AppColors.darkText : context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -164,7 +165,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                         style: AppTypography.caption.copyWith(
                           color: isDark
                               ? AppColors.darkTextSecondary
-                              : AppColors.textSecondary,
+                              : context.palette.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -248,14 +249,14 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                                         ? AppColors.primary
                                         : (isDark
                                             ? AppColors.darkSurfaceElevated
-                                            : AppColors.surfaceSubtle),
+                                            : context.palette.surfaceSubtle),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: isSelected
                                           ? AppColors.primary
                                           : (isDark
                                               ? AppColors.darkBorder
-                                              : AppColors.border),
+                                              : context.palette.border),
                                     ),
                                   ),
                                   alignment: Alignment.center,
@@ -266,7 +267,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                                           ? Colors.white
                                           : (isDark
                                               ? AppColors.darkText
-                                              : AppColors.text),
+                                              : context.palette.text),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
                                     ),
@@ -373,13 +374,13 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isDark ? AppColors.darkPrimarySoft : AppColors.primarySoft)
-              : (isDark ? AppColors.darkSurfaceElevated : AppColors.surface),
+              ? (isDark ? AppColors.darkPrimarySoft : context.palette.primarySoft)
+              : (isDark ? AppColors.darkSurfaceElevated : context.palette.surface),
           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
-                : (isDark ? AppColors.darkBorder : AppColors.border),
+                : (isDark ? AppColors.darkBorder : context.palette.border),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -387,8 +388,8 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
           label,
           style: AppTypography.caption.copyWith(
             color: isSelected
-                ? AppColors.primaryDark
-                : (isDark ? AppColors.darkText : AppColors.text),
+                ? context.palette.primaryDark
+                : (isDark ? AppColors.darkText : context.palette.text),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 12.5,
           ),
@@ -405,8 +406,8 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Icon(LucideIcons.alertTriangle,
-                color: AppColors.warning, size: 36),
+            Icon(LucideIcons.alertTriangle,
+                color: context.palette.warning, size: 36),
             const SizedBox(height: 10),
             Text(suggestion.safetyMessage ??
                 context.l10n.noPlanForCriteria),
@@ -427,7 +428,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                 style: AppTypography.heading.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkText : AppColors.text,
+                  color: isDark ? AppColors.darkText : context.palette.text,
                 ),
               ),
             ),
@@ -446,7 +447,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
           plan.overview,
           style: AppTypography.bodySecondary.copyWith(
             color:
-                isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
             fontSize: 13.5,
           ),
         ),
@@ -472,14 +473,14 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: AppColors.primarySoft,
+                              color: context.palette.primarySoft,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               '${dayIndex + 1}',
-                              style: const TextStyle(
-                                color: AppColors.primaryDark,
+                              style: TextStyle(
+                                color: context.palette.primaryDark,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 13,
                               ),
@@ -492,7 +493,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color:
-                                  isDark ? AppColors.darkText : AppColors.text,
+                                  isDark ? AppColors.darkText : context.palette.text,
                             ),
                           ),
                         ],
@@ -543,7 +544,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                                     fontSize: 14,
                                     color: isDark
                                         ? AppColors.darkText
-                                        : AppColors.text,
+                                        : context.palette.text,
                                   ),
                                 ),
                                 if (ex.note != null && ex.note!.isNotEmpty)
@@ -553,7 +554,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                                       fontSize: 11,
                                       color: isDark
                                           ? AppColors.darkTextMuted
-                                          : AppColors.textMuted,
+                                          : context.palette.textMuted,
                                     ),
                                   ),
                               ],
@@ -565,7 +566,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                             decoration: BoxDecoration(
                               color: isDark
                                   ? AppColors.darkSurfaceElevated
-                                  : AppColors.surfaceSubtle,
+                                  : context.palette.surfaceSubtle,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -575,7 +576,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                                 fontWeight: FontWeight.w600,
                                 color: isDark
                                     ? AppColors.darkText
-                                    : AppColors.text,
+                                    : context.palette.text,
                               ),
                             ),
                           ),
@@ -629,7 +630,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
                               fontSize: 12,
                               color: isDark
                                   ? AppColors.darkTextSecondary
-                                  : AppColors.textSecondary,
+                                  : context.palette.textSecondary,
                             ),
                           ),
                         ),
@@ -648,7 +649,7 @@ class _AiWorkoutCoachViewState extends ConsumerState<AiWorkoutCoachView> {
           textAlign: TextAlign.center,
           style: AppTypography.caption.copyWith(
             fontSize: 11,
-            color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+            color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
           ),
         ),
       ],

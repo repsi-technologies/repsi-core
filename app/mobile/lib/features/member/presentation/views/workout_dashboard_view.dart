@@ -8,6 +8,7 @@ import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import 'active_workout_view.dart';
 import 'exercise_library_view.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class WorkoutDashboardView extends StatelessWidget {
   const WorkoutDashboardView({super.key});
@@ -22,7 +23,7 @@ class WorkoutDashboardView extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -69,7 +70,7 @@ class WorkoutDashboardView extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-                    border: Border.all(color: AppColors.border, width: 1),
+                    border: Border.all(color: context.palette.border, width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,18 +80,18 @@ class WorkoutDashboardView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primarySoft,
+                              color: context.palette.primarySoft,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.bolt_rounded, size: 14, color: AppColors.primaryDark),
+                                Icon(Icons.bolt_rounded, size: 14, color: context.palette.primaryDark),
                                 const SizedBox(width: 4),
                                 Text(
                                   context.l10n.todaysWorkout,
                                   style: AppTypography.caption.copyWith(
-                                    color: AppColors.primaryDark,
+                                    color: context.palette.primaryDark,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12,
                                   ),
@@ -106,14 +107,14 @@ class WorkoutDashboardView extends StatelessWidget {
                         style: AppTypography.heading.copyWith(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         context.l10n.exercisesDuration(4, 45),
                         style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                           fontSize: 14,
                         ),
                       ),
@@ -172,7 +173,7 @@ class WorkoutDashboardView extends StatelessWidget {
                   style: AppTypography.sectionHeading.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
               ),
@@ -193,14 +194,14 @@ class WorkoutDashboardView extends StatelessWidget {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceSubtle,
+                              color: context.palette.surfaceSubtle,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.border, width: 0.8),
+                              border: Border.all(color: context.palette.border, width: 0.8),
                             ),
                             child: Icon(
                               ex['icon'] as IconData,
                               size: 22,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -213,24 +214,24 @@ class WorkoutDashboardView extends StatelessWidget {
                                   style: AppTypography.headingSmall.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.text,
+                                    color: context.palette.text,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${ex['sets']} · ${ex['weight']}',
                                   style: AppTypography.caption.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                     fontSize: 13,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right_rounded,
                             size: 20,
-                            color: AppColors.textMuted,
+                            color: context.palette.textMuted,
                           ),
                         ],
                       ),

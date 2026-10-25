@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
+import '../../../shared/widgets/repsi_avatar.dart';
 import '../../../shared/widgets/repsi_card.dart';
+import '../../coaching/coaching_labels.dart';
+import '../../coaching/data/coaching_api.dart';
 import '../../member/presentation/views/trainer_chat_view.dart';
 import '../../nutrition/data/coaching_repository.dart';
 import 'trainer_diet_plan_view.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 /// An assigned client: contact, diet adherence and shortcuts to chat and the diet plan.
 /// `client['client_id']` is the member id; without it (legacy callers) the actions are hidden.
@@ -28,12 +31,7 @@ class TrainerClientDetailView extends ConsumerWidget {
         children: [
           RepsiCard(
             child: Row(children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: AppColors.primarySoft,
-                child: Text(name.isEmpty ? '?' : name.characters.first,
-                    style: const TextStyle(color: AppColors.primary, fontSize: 22)),
-              ),
+              RepsiAvatar(name: name, size: 56),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -48,6 +46,8 @@ class TrainerClientDetailView extends ConsumerWidget {
           if (id == null)
             Text(context.l10n.openFromMyClients, style: AppTypography.bodySecondary)
           else ...[
+            _ClientGoalCard(memberId: id),
+            const SizedBox(height: 12),
             Row(children: [
               Expanded(
                 child: FilledButton.icon(
@@ -92,6 +92,62 @@ class TrainerClientDetailView extends ConsumerWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+
+/// The member's current goal, as they set it in the app.
+class _ClientGoalCard extends ConsumerWidget {
+  final String memberId;
+  const _ClientGoalCard({required this.memberId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final palette = context.palette;
+    final goal = ref.watch(memberGoalProvider(memberId));
+    return RepsiCard(
+      child: goal.when(
+        loading: () => const SizedBox(height: 40, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+        error: (_, __) => Text(l.errorGeneric, style: AppTypography.caption),
+        data: (g) => g == null
+            ? Row(children: [
+                Icon(Icons.flag_outlined, color: palette.textMuted),
+                const SizedBox(width: 10),
+                Expanded(child: Text(l.clientNoGoal, style: AppTypography.bodySecondary.copyWith(color: palette.textSecondary))),
+              ])
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(l.yourGoal.toUpperCase(),
+                    style: AppTypography.caption.copyWith(
+                        color: palette.textSecondary, fontWeight: FontWeight.w700, letterSpacing: 0.8)),
+                const SizedBox(height: 6),
+                Row(children: [
+                  Icon(g.goal.icon, color: g.goal.color),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(g.goal.label(l),
+                        style: AppTypography.sectionHeading.copyWith(fontSize: 17, color: palette.text)),
+                  ),
+                ]),
+                const SizedBox(height: 8),
+                Text(
+                  [g.level.label(l), l.daysPerWeekValue(g.daysPerWeek), l.unitMinutes(g.sessionMinutes)].join(' · '),
+                  style: AppTypography.caption.copyWith(color: palette.textSecondary),
+                ),
+                if (g.focusAreas.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(spacing: 6, runSpacing: 6, children: [
+                    for (final f in g.focusAreas)
+                      Chip(
+                        label: Text(focusAreaLabel(l, f)),
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                  ]),
+                ],
+              ]),
       ),
     );
   }

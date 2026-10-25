@@ -6,6 +6,7 @@ import '../../app/theme/app_typography.dart';
 import 'repsi_button.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiErrorState extends StatelessWidget {
   /// Defaults to a generic "Something went wrong" in the current language.
   final String? title;
@@ -32,13 +33,13 @@ class RepsiErrorState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.error.withValues(alpha: 0.15) : AppColors.errorLight,
+                color: isDark ? context.palette.error.withValues(alpha: 0.15) : context.palette.errorLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 LucideIcons.alertTriangle,
                 size: 36,
-                color: AppColors.error,
+                color: context.palette.error,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -46,7 +47,7 @@ class RepsiErrorState extends StatelessWidget {
               title ?? context.l10n.errorStateTitle,
               textAlign: TextAlign.center,
               style: AppTypography.headingSmall.copyWith(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -54,7 +55,7 @@ class RepsiErrorState extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
               ),
             ),
             if (onRetry != null) ...[

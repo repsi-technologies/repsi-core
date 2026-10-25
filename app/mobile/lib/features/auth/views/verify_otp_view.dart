@@ -19,6 +19,7 @@ import '../widgets/auth_layout.dart';
 import 'complete_profile_view.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 class VerifyOtpArgs {
   final PhoneOtpChallenge challenge;
 
@@ -130,8 +131,8 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final text = isDark ? AppColors.darkText : AppColors.text;
-    final secondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final text = isDark ? AppColors.darkText : context.palette.text;
+    final secondary = isDark ? AppColors.darkTextSecondary : context.palette.textSecondary;
     final minutes = (_resendIn ~/ 60).toString().padLeft(2, '0');
     final seconds = (_resendIn % 60).toString().padLeft(2, '0');
 
@@ -156,7 +157,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
               child: Text(
                 context.l10n.changeNumber,
                 style: AppTypography.bodySmall.copyWith(
-                  color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
+                  color: isDark ? AppColors.darkPrimaryLight : context.palette.primaryDark,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -177,9 +178,9 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
                     key: ValueKey(_error),
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.error_outline_rounded, size: 16, color: AppColors.error),
+                      Icon(Icons.error_outline_rounded, size: 16, color: context.palette.error),
                       const SizedBox(width: 6),
-                      Expanded(child: Text(_error!, style: AppTypography.caption.copyWith(color: AppColors.error))),
+                      Expanded(child: Text(_error!, style: AppTypography.caption.copyWith(color: context.palette.error))),
                     ],
                   )
                 : const SizedBox(height: 18),
@@ -202,7 +203,7 @@ class _VerifyOtpViewState extends ConsumerState<VerifyOtpView> {
                   child: Text(
                     _resending ? context.l10n.commonSending : context.l10n.resendCode,
                     style: AppTypography.bodySmall.copyWith(
-                      color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
+                      color: isDark ? AppColors.darkPrimaryLight : context.palette.primaryDark,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

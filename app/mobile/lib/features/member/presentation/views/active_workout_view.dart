@@ -8,6 +8,7 @@ import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import 'workout_completion_view.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class ActiveWorkoutView extends StatefulWidget {
   const ActiveWorkoutView({super.key});
@@ -193,10 +194,10 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: isSetDone ? AppColors.primary : AppColors.surfaceSubtle,
+                              color: isSetDone ? AppColors.primary : context.palette.surfaceSubtle,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: isSetDone ? AppColors.primary : AppColors.border,
+                                color: isSetDone ? AppColors.primary : context.palette.border,
                                 width: 1.5,
                               ),
                             ),
@@ -204,7 +205,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                               child: Text(
                                 'S${sIdx + 1}',
                                 style: TextStyle(
-                                  color: isSetDone ? Colors.white : AppColors.textSecondary,
+                                  color: isSetDone ? Colors.white : context.palette.textSecondary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
@@ -261,19 +262,19 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
     final progressPct = (_progress * 100).toInt();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.palette.text),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
           children: [
             Text(
               context.l10n.todaysWorkout,
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
+              style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 12),
             ),
             Text(
               'Upper Body A',
@@ -306,14 +307,14 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                             context.l10n.workoutProgress,
                             style: AppTypography.caption.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.text,
+                              color: context.palette.text,
                               fontSize: 13,
                             ),
                           ),
                           Text(
                             '$progressPct%',
-                            style: const TextStyle(
-                              color: AppColors.primaryDark,
+                            style: TextStyle(
+                              color: context.palette.primaryDark,
                               fontWeight: FontWeight.w800,
                               fontSize: 15,
                             ),
@@ -326,7 +327,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                         child: LinearProgressIndicator(
                           value: _progress,
                           minHeight: 10,
-                          backgroundColor: AppColors.surfaceSubtle,
+                          backgroundColor: context.palette.surfaceSubtle,
                           valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                         ),
                       ),
@@ -334,8 +335,8 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(context.l10n.targetSixExercises, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                          Text(context.l10n.estDuration, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          Text(context.l10n.targetSixExercises, style: TextStyle(fontSize: 11, color: context.palette.textSecondary)),
+                          Text(context.l10n.estDuration, style: TextStyle(fontSize: 11, color: context.palette.textSecondary)),
                         ],
                       ),
                     ],
@@ -363,7 +364,7 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: isComplete ? AppColors.primary : AppColors.primarySoft,
+                                color: isComplete ? AppColors.primary : context.palette.primarySoft,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -371,8 +372,8 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                                     ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
                                     : Text(
                                         '${index + 1}',
-                                        style: const TextStyle(
-                                          color: AppColors.primaryDark,
+                                        style: TextStyle(
+                                          color: context.palette.primaryDark,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
                                         ),
@@ -389,14 +390,14 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
                                     style: AppTypography.headingSmall.copyWith(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.text,
+                                      color: context.palette.text,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '${ex['sets']} × ${ex['reps']} · ${ex['weight']}',
                                     style: AppTypography.caption.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                       fontSize: 12,
                                     ),
                                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiBottomSheet extends StatelessWidget {
   final String? title;
@@ -29,7 +30,7 @@ class RepsiBottomSheet extends StatelessWidget {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: isScrollControlled,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+      backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
       ),
@@ -60,7 +61,7 @@ class RepsiBottomSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkBorder : AppColors.border,
+                  color: isDark ? AppColors.darkBorder : context.palette.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -80,7 +81,7 @@ class RepsiBottomSheet extends StatelessWidget {
                       Text(
                         title!,
                         style: AppTypography.headingSmall.copyWith(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                          color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
                         ),
                       )
                     else
@@ -90,7 +91,7 @@ class RepsiBottomSheet extends StatelessWidget {
                 ),
               ),
               Divider(
-                color: isDark ? AppColors.darkBorder : AppColors.border,
+                color: isDark ? AppColors.darkBorder : context.palette.border,
                 height: 1,
               ),
             ],

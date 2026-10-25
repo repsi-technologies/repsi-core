@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'storage_provider.dart';
+
 enum AppThemeMode {
   light,
   dark,
@@ -17,45 +19,32 @@ enum AppThemeMode {
         return ThemeMode.system;
     }
   }
+
+  static AppThemeMode fromName(String? name) =>
+      AppThemeMode.values.firstWhere((e) => e.name == name, orElse: () => AppThemeMode.system);
 }
 
+/// Light, dark or follow the phone. Read synchronously from the preferences loaded in `main()`,
+/// so the first frame already has the right theme (no light flash for dark-mode users).
 class ThemeNotifier extends StateNotifier<AppThemeMode> {
   static const String _key = 'repsi_theme_mode';
+  final SharedPreferences? _prefs;
 
-  ThemeNotifier() : super(AppThemeMode.light) {
-    _loadTheme();
-  }
-
-  Future<void> _loadTheme() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final modeStr = prefs.getString(_key);
-      if (modeStr != null) {
-        state = AppThemeMode.values.firstWhere(
-          (e) => e.name == modeStr,
-          orElse: () => AppThemeMode.light,
-        );
-      }
-    } catch (_) {}
-  }
+  ThemeNotifier(this._prefs) : super(AppThemeMode.fromName(_prefs?.getString(_key)));
 
   Future<void> setTheme(AppThemeMode mode) async {
     state = mode;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
       await prefs.setString(_key, mode.name);
     } catch (_) {}
   }
 
   Future<void> toggleTheme() async {
-    if (state == AppThemeMode.light) {
-      await setTheme(AppThemeMode.dark);
-    } else {
-      await setTheme(AppThemeMode.light);
-    }
+    await setTheme(state == AppThemeMode.dark ? AppThemeMode.light : AppThemeMode.dark);
   }
 }
 
 final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, AppThemeMode>((ref) {
-  return ThemeNotifier();
+  return ThemeNotifier(ref.watch(sharedPreferencesProvider));
 });

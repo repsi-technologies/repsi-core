@@ -11,6 +11,7 @@ import '../../../shared/models/workspace_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/workspace_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class WorkspaceSelectionView extends ConsumerStatefulWidget {
   const WorkspaceSelectionView({super.key});
@@ -52,7 +53,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
     final workspaces = workspaceState.workspaces;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -83,7 +84,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.logout_rounded, color: AppColors.textSecondary),
+                      icon: Icon(Icons.logout_rounded, color: context.palette.textSecondary),
                       tooltip: context.l10n.commonSignOut,
                       onPressed: () {
                         ref.read(authProvider.notifier).logout();
@@ -105,7 +106,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       style: AppTypography.caption.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primaryDark,
+                        color: context.palette.primaryDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -114,14 +115,14 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       style: AppTypography.heading.copyWith(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       context.l10n.chooseGymSubtitle,
                       style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -144,11 +145,11 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.palette.border),
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.fitness_center_outlined, size: 40, color: AppColors.textMuted),
+                      Icon(Icons.fitness_center_outlined, size: 40, color: context.palette.textMuted),
                       const SizedBox(height: 12),
                       Text(
                         context.l10n.noGymsFound,
@@ -158,7 +159,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                       Text(
                         context.l10n.registerGymOnWeb,
                         textAlign: TextAlign.center,
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        style: AppTypography.caption.copyWith(color: context.palette.textSecondary),
                       ),
                     ],
                   ),
@@ -176,7 +177,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border, width: 1),
+                          border: Border.all(color: context.palette.border, width: 1),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.03),
@@ -195,7 +196,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primarySoft,
+                                    color: context.palette.primarySoft,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Row(
@@ -205,7 +206,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                         width: 6,
                                         height: 6,
                                         decoration: BoxDecoration(
-                                          color: gym.isActive ? AppColors.primary : AppColors.error,
+                                          color: gym.isActive ? AppColors.primary : context.palette.error,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -213,7 +214,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                       Text(
                                         gym.isActive ? context.l10n.commonActive : context.l10n.commonSuspended,
                                         style: AppTypography.caption.copyWith(
-                                          color: AppColors.primaryDark,
+                                          color: context.palette.primaryDark,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 12,
                                         ),
@@ -224,7 +225,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                                 Text(
                                   gym.city ?? context.l10n.gymWorkspace,
                                   style: AppTypography.caption.copyWith(
-                                    color: AppColors.textMuted,
+                                    color: context.palette.textMuted,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -236,14 +237,14 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               context.l10n.workspaceSlug(gym.slug),
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -288,9 +289,9 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.palette.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.palette.border),
                   ),
                   child: Column(
                     children: [
@@ -299,7 +300,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                         textAlign: TextAlign.center,
                         style: AppTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -307,7 +308,7 @@ class _WorkspaceSelectionViewState extends ConsumerState<WorkspaceSelectionView>
                         context.l10n.createGymOnDesktop,
                         textAlign: TextAlign.center,
                         style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],

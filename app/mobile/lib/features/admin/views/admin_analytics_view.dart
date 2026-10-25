@@ -6,6 +6,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AdminAnalyticsView extends StatelessWidget {
   const AdminAnalyticsView({super.key});
@@ -13,7 +14,7 @@ class AdminAnalyticsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -45,7 +46,7 @@ class AdminAnalyticsView extends StatelessWidget {
                         style: AppTypography.display.copyWith(
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                       ),
                       const SizedBox(height: 18),

@@ -17,6 +17,7 @@ import '../../../shared/widgets/repsi_skeleton.dart';
 import '../../../shared/widgets/repsi_status_badge.dart';
 import '../providers/member_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 /// Member directory: search (name, phone, email), membership-state filters, paged rows.
 class MembersListView extends ConsumerStatefulWidget {
@@ -61,12 +62,12 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(memberListProvider);
     final notifier = ref.read(memberListProvider.notifier);
-    final text = isDark ? AppColors.darkText : AppColors.text;
+    final text = isDark ? AppColors.darkText : context.palette.text;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+        backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
         title: Text(context.l10n.commonMembers, style: AppTypography.heading.copyWith(color: text, fontWeight: FontWeight.w700)),
         actions: [
           Padding(
@@ -115,8 +116,8 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
                     color: selected ? Colors.white : text,
                   ),
                   selectedColor: AppColors.primary,
-                  backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
-                  side: BorderSide(color: selected ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.border)),
+                  backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
+                  side: BorderSide(color: selected ? AppColors.primary : (isDark ? AppColors.darkBorder : context.palette.border)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusPill)),
                 );
               },
@@ -154,7 +155,7 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
         itemCount: state.members.length + (state.isLoadingMore ? 1 : 0),
-        separatorBuilder: (_, __) => Divider(height: 1, indent: 76, color: isDark ? AppColors.darkBorder : AppColors.border),
+        separatorBuilder: (_, __) => Divider(height: 1, indent: 76, color: isDark ? AppColors.darkBorder : context.palette.border),
         itemBuilder: (context, i) {
           if (i >= state.members.length) {
             return const Padding(
@@ -207,7 +208,7 @@ class _MemberRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.body.copyWith(
-                      color: isDark ? AppColors.darkText : AppColors.text,
+                      color: isDark ? AppColors.darkText : context.palette.text,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -216,7 +217,7 @@ class _MemberRow extends StatelessWidget {
                       line,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                      style: AppTypography.caption.copyWith(color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary),
                     ),
                 ],
               ),

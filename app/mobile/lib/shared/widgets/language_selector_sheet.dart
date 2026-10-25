@@ -5,6 +5,7 @@ import '../../core/localization/locale_provider.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 
 /// Language picker. Each language is listed in its own script (English and Tamil first), and
 /// the choice applies immediately: no restart, kept across sign-out and gym switches.
@@ -16,7 +17,7 @@ class LanguageSelectorSheet extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+      backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -28,8 +29,8 @@ class LanguageSelectorSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(localeNotifierProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final text = isDark ? AppColors.darkText : AppColors.text;
-    final secondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final text = isDark ? AppColors.darkText : context.palette.text;
+    final secondary = isDark ? AppColors.darkTextSecondary : context.palette.textSecondary;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -59,6 +60,27 @@ class LanguageSelectorSheet extends ConsumerWidget {
               context.l10n.languageSheetSubtitle,
               style: AppTypography.caption.copyWith(color: secondary),
             ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: context.palette.warningSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.science_outlined, size: 18, color: context.palette.warningDark),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      context.l10n.languageBetaNote,
+                      style: AppTypography.caption.copyWith(color: context.palette.text, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             for (final lang in AppLanguage.values)
               _LanguageTile(
@@ -87,14 +109,14 @@ class _LanguageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final border = isDark ? AppColors.darkBorder : AppColors.border;
+    final border = isDark ? AppColors.darkBorder : context.palette.border;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Semantics(
         selected: selected,
         button: true,
         child: Material(
-          color: selected ? AppColors.primarySoft : Colors.transparent,
+          color: selected ? context.palette.primarySoft : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: selected ? AppColors.primary : border, width: selected ? 1.5 : 1),
@@ -121,7 +143,7 @@ class _LanguageTile extends StatelessWidget {
                         language.badge,
                         locale: language.locale,
                         style: TextStyle(
-                          color: selected ? Colors.white : AppColors.primaryDark,
+                          color: selected ? Colors.white : context.palette.primaryDark,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                         ),
@@ -138,7 +160,7 @@ class _LanguageTile extends StatelessWidget {
                             locale: language.locale,
                             style: TextStyle(
                               fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                              color: selected ? AppColors.primaryDark : (isDark ? AppColors.darkText : AppColors.text),
+                              color: selected ? context.palette.primaryDark : (isDark ? AppColors.darkText : context.palette.text),
                               fontSize: 15,
                               height: 1.4,
                             ),
@@ -147,18 +169,57 @@ class _LanguageTile extends StatelessWidget {
                             Text(
                               language.englishName,
                               style: AppTypography.caption.copyWith(
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                                color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                                 fontSize: 12,
                               ),
                             ),
                         ],
                       ),
                     ),
-                    if (selected) const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
+                    if (language.isBeta) ...[
+                      const BetaBadge(),
+                      const SizedBox(width: 8),
+                    ],
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      transitionBuilder: (child, a) => ScaleTransition(scale: a, child: child),
+                      child: selected
+                          ? const Icon(Icons.check_circle_rounded, key: ValueKey('on'), color: AppColors.primary, size: 20)
+                          : const SizedBox(key: ValueKey('off'), width: 20),
+                    ),
                   ],
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small "Beta" pill for languages whose translation is still a draft.
+class BetaBadge extends StatelessWidget {
+  const BetaBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: context.l10n.languageBeta,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: context.palette.warningSoft,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: context.palette.warning.withValues(alpha: 0.4)),
+        ),
+        child: Text(
+          context.l10n.languageBeta.toUpperCase(),
+          style: AppTypography.caption.copyWith(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.6,
+            color: context.palette.warningDark,
           ),
         ),
       ),
@@ -177,7 +238,7 @@ class LanguageButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(localeNotifierProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = this.color ?? (isDark ? AppColors.darkText : AppColors.text);
+    final color = this.color ?? (isDark ? AppColors.darkText : context.palette.text);
     return Tooltip(
       message: '${context.l10n.languageSheetTitle}: ${lang.nativeName}',
       child: TextButton.icon(

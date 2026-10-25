@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiSkeleton extends StatelessWidget {
   final double width;
@@ -26,8 +27,8 @@ class RepsiSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final baseColor = isDark ? AppColors.darkSurfaceSecondary : AppColors.surfaceSecondary;
-    final highlightColor = isDark ? AppColors.darkBorderStrong : AppColors.background;
+    final baseColor = isDark ? AppColors.darkSurfaceSecondary : context.palette.surfaceSecondary;
+    final highlightColor = isDark ? AppColors.darkBorderStrong : context.palette.background;
 
     return Shimmer.fromColors(
       baseColor: baseColor,

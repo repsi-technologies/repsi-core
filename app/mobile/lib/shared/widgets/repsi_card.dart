@@ -3,6 +3,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../animations/repsi_press.dart';
 import 'repsi_skeleton.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiCard extends StatelessWidget {
   final Widget child;
@@ -34,10 +35,10 @@ class RepsiCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(borderRadius ?? AppSpacing.radiusCard);
-    final bg = backgroundColor ?? (isDark ? AppColors.darkSurface : AppColors.surface);
+    final bg = backgroundColor ?? (isDark ? AppColors.darkSurface : context.palette.surface);
     final border = borderSide ??
         BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
+          color: isDark ? AppColors.darkBorder : context.palette.border,
           width: 1,
         );
 

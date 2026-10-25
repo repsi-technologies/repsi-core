@@ -1,3 +1,6 @@
+import '../../coaching/data/coaching_api.dart';
+import '../../coaching/views/trainer_requests_view.dart';
+import '../../../shared/widgets/theme_mode_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +21,7 @@ import '../../workspaces/providers/workspace_provider.dart';
 import '../../../l10n/l10n.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../shared/widgets/language_selector_sheet.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 final _branchesProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
   final list = (await ref.watch(apiClientProvider).get('/branches')).data as List<dynamic>? ?? const [];
@@ -32,7 +36,7 @@ class MoreView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final d = Theme.of(context).brightness == Brightness.dark;
-    final canvas = d ? AppColors.darkBackground : AppColors.background;
+    final canvas = d ? AppColors.darkBackground : context.palette.background;
     final user = ref.watch(authProvider).user;
     final gym = ref.watch(workspaceProvider).activeWorkspace?.name ?? user?.gymName;
     final theme = ref.watch(themeNotifierProvider);
@@ -77,6 +81,13 @@ class MoreView extends ConsumerWidget {
             _Item(Icons.notifications_none_rounded, context.l10n.commonNotifications, onTap: () => context.push(RouteNames.notifications)),
             _Item(Icons.store_mall_directory_outlined, context.l10n.branches, onTap: () => _showBranches(context)),
             _Item(Icons.card_membership_outlined, context.l10n.membershipPlans, onTap: () => _showPlans(context)),
+            _Item(
+              Icons.how_to_reg_outlined,
+              context.l10n.trainerRequests,
+              subtitle: context.l10n.trainerRequestsDesc,
+              trailing: _PendingRequestsBadge(),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrainerRequestsView())),
+            ),
             _Item(Icons.person_add_outlined, context.l10n.addTrainer, subtitle: context.l10n.addTrainerDesc, onTap: () => context.push(RouteNames.addTrainer)),
           ]),
           _Group(title: context.l10n.app, items: [
@@ -87,12 +98,10 @@ class MoreView extends ConsumerWidget {
               onTap: () => LanguageSelectorSheet.show(context),
             ),
             _Item(
-              Icons.dark_mode_outlined,
-              context.l10n.darkMode,
-              trailing: Switch(
-                value: theme == AppThemeMode.dark,
-                onChanged: (on) => ref.read(themeNotifierProvider.notifier).setTheme(on ? AppThemeMode.dark : AppThemeMode.light),
-              ),
+              Icons.contrast_rounded,
+              context.l10n.appearance,
+              subtitle: ThemeModeSheet.label(context.l10n, theme),
+              onTap: () => ThemeModeSheet.show(context),
             ),
           ]),
           _Group(title: context.l10n.onTheWeb, items: [
@@ -109,8 +118,8 @@ class MoreView extends ConsumerWidget {
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton.icon(
             onPressed: () => SignOutDialog.show(context),
-            icon: Icon(Icons.logout_rounded, color: d ? AppColors.darkError : AppColors.error),
-            label: Text(context.l10n.commonSignOut, style: AppTypography.button.copyWith(color: d ? AppColors.darkError : AppColors.error)),
+            icon: Icon(Icons.logout_rounded, color: d ? AppColors.darkError : context.palette.error),
+            label: Text(context.l10n.commonSignOut, style: AppTypography.button.copyWith(color: d ? AppColors.darkError : context.palette.error)),
             style: OutlinedButton.styleFrom(side: BorderSide(color: _border(d))),
           ),
         ],
@@ -194,6 +203,21 @@ class MoreView extends ConsumerWidget {
   }
 }
 
+/// Pending trainer requests count; hidden when zero or unavailable (no permission).
+class _PendingRequestsBadge extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(trainerRequestsProvider('pending')).valueOrNull?.pendingCount ?? 0;
+    if (count == 0) return Icon(Icons.chevron_right_rounded, color: context.palette.textMuted);
+    // No `alignment`: inside a ListTile trailing slot it would stretch to the full tile width.
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(12)),
+      child: Text('$count', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+    );
+  }
+}
+
 Color _text(bool d) => d ? AppColors.darkText : AppColors.text;
 Color _secondary(bool d) => d ? AppColors.darkTextSecondary : AppColors.textSecondary;
 Color _border(bool d) => d ? AppColors.darkBorder : AppColors.border;
@@ -230,7 +254,7 @@ class _Group extends StatelessWidget {
             ),
           ),
           Material(
-            color: d ? AppColors.darkSurface : AppColors.surface,
+            color: d ? AppColors.darkSurface : context.palette.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
               side: BorderSide(color: _border(d)),

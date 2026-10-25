@@ -6,6 +6,7 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AdminUsersView extends StatefulWidget {
   const AdminUsersView({super.key});
@@ -29,7 +30,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -66,13 +67,13 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                           color: isSelected ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isSelected ? AppColors.primary : AppColors.border,
+                            color: isSelected ? AppColors.primary : context.palette.border,
                           ),
                         ),
                         child: Text(
                           _filters[index],
                           style: AppTypography.caption.copyWith(
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            color: isSelected ? Colors.white : context.palette.textSecondary,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                           ),
                         ),
@@ -97,11 +98,11 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                           children: [
                             CircleAvatar(
                               radius: 22,
-                              backgroundColor: AppColors.primarySoft,
+                              backgroundColor: context.palette.primarySoft,
                               child: Text(
                                 u['name']![0],
-                                style: const TextStyle(
-                                  color: AppColors.primaryDark,
+                                style: TextStyle(
+                                  color: context.palette.primaryDark,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -118,21 +119,21 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                                         style: AppTypography.headingSmall.copyWith(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.text,
+                                          color: context.palette.text,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: AppColors.surfaceSubtle,
+                                          color: context.palette.surfaceSubtle,
                                           borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: AppColors.border),
+                                          border: Border.all(color: context.palette.border),
                                         ),
                                         child: Text(
                                           u['role']!,
                                           style: AppTypography.caption.copyWith(
-                                            color: AppColors.textSecondary,
+                                            color: context.palette.textSecondary,
                                             fontWeight: FontWeight.w700,
                                             fontSize: 10,
                                           ),
@@ -144,14 +145,14 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                                   Text(
                                     '${u['email']} · ${u['gym']}',
                                     style: AppTypography.caption.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                       fontSize: 13,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+                            Icon(Icons.chevron_right_rounded, color: context.palette.textMuted, size: 20),
                           ],
                         ),
                       ),

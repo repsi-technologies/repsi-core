@@ -11,6 +11,7 @@ import '../../features/auth/views/sign_out_dialog.dart';
 import '../../features/auth/widgets/my_profile_photo.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiProfileBottomSheet extends ConsumerWidget {
   const RepsiProfileBottomSheet({super.key});
 
@@ -31,7 +32,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        color: isDark ? AppColors.darkSurface : context.palette.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
       ),
       padding: const EdgeInsets.only(
@@ -52,7 +53,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: AppSpacing.lg),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkBorder : AppColors.border,
+                  color: isDark ? AppColors.darkBorder : context.palette.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -60,7 +61,7 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             Text(
               context.l10n.ownerProfileTitle,
               style: AppTypography.headingSmall.copyWith(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -77,14 +78,14 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
                       Text(
                         user?.fullName ?? context.l10n.gymOwner,
                         style: AppTypography.labelLarge.copyWith(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                          color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         [user?.gymName, _roleLabel(user?.role)].whereType<String>().join(' · '),
                         style: AppTypography.caption.copyWith(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                          color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -93,29 +94,29 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            Divider(color: isDark ? AppColors.darkBorder : AppColors.border, height: 1),
+            Divider(color: isDark ? AppColors.darkBorder : context.palette.border, height: 1),
             const SizedBox(height: AppSpacing.sm),
             
             // Navigation Links
             ListTile(
-              leading: Icon(LucideIcons.user, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text(context.l10n.commonProfile, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              leading: Icon(LucideIcons.user, size: 20, color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary),
+              title: Text(context.l10n.commonProfile, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings); // Or specific profile route
               },
             ),
             ListTile(
-              leading: Icon(LucideIcons.settings, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text(context.l10n.gymSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              leading: Icon(LucideIcons.settings, size: 20, color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary),
+              title: Text(context.l10n.gymSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings);
               },
             ),
             ListTile(
-              leading: Icon(LucideIcons.shield, size: 20, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-              title: Text(context.l10n.accountSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+              leading: Icon(LucideIcons.shield, size: 20, color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary),
+              title: Text(context.l10n.accountSettings, style: AppTypography.bodyMedium.copyWith(color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 context.push(RouteNames.settings);
@@ -123,16 +124,16 @@ class RepsiProfileBottomSheet extends ConsumerWidget {
             ),
             
             const SizedBox(height: AppSpacing.sm),
-            Divider(color: isDark ? AppColors.darkBorder : AppColors.border, height: 1),
+            Divider(color: isDark ? AppColors.darkBorder : context.palette.border, height: 1),
             const SizedBox(height: AppSpacing.sm),
             
             // Sign Out
             ListTile(
-              leading: const Icon(LucideIcons.logOut, size: 20, color: AppColors.error),
+              leading: Icon(LucideIcons.logOut, size: 20, color: context.palette.error),
               title: Text(
                 context.l10n.commonSignOut,
                 style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.error,
+                  color: context.palette.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),

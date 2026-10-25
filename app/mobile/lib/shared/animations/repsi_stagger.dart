@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'repsi_motion.dart';
 
@@ -28,6 +30,7 @@ class _RepsiStaggerItemState extends State<RepsiStaggerItem> with SingleTickerPr
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
+  Timer? _start;
 
   @override
   void initState() {
@@ -45,16 +48,31 @@ class _RepsiStaggerItemState extends State<RepsiStaggerItem> with SingleTickerPr
       CurvedAnimation(parent: _controller, curve: RepsiMotion.easeOut),
     );
 
-    final totalDelay = widget.delay * widget.index;
-    Future.delayed(totalDelay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
+    // Long lists cap the delay so items far down never wait seconds to appear.
+    final totalDelay = widget.delay * widget.index.clamp(0, 10);
+    if (totalDelay == Duration.zero) {
+      _controller.forward();
+    } else {
+      // A Timer (not Future.delayed) so it is cancelled when the item leaves the tree.
+      _start = Timer(totalDelay, () {
+        if (mounted) _controller.forward();
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Respect the system "remove animations" accessibility setting.
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _start?.cancel();
+      _controller.value = 1;
+    }
   }
 
   @override
   void dispose() {
+    _start?.cancel();
     _controller.dispose();
     super.dispose();
   }

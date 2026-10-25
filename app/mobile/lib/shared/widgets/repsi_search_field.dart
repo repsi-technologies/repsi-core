@@ -5,6 +5,7 @@ import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiSearchField extends StatefulWidget {
   /// Defaults to "Search…" in the current language.
   final String? hintText;
@@ -62,32 +63,32 @@ class _RepsiSearchFieldState extends State<RepsiSearchField> {
     return Container(
       height: 42,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        color: isDark ? AppColors.darkSurface : context.palette.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
+          color: isDark ? AppColors.darkBorder : context.palette.border,
         ),
       ),
       child: TextField(
         controller: _controller,
         onChanged: widget.onChanged,
         style: AppTypography.bodyMedium.copyWith(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
         ),
         decoration: InputDecoration(
           hintText: widget.hintText ?? context.l10n.commonSearchHint,
           hintStyle: AppTypography.bodyMedium.copyWith(
-            color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+            color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
           ),
           prefixIcon: Icon(
             LucideIcons.search,
             size: 18,
-            color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+            color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
           ),
           suffixIcon: _hasText
               ? IconButton(
                   icon: const Icon(Icons.close, size: 16),
-                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                  color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
                   onPressed: () {
                     _controller.clear();
                     widget.onChanged?.call('');

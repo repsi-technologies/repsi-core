@@ -19,6 +19,7 @@ import '../../../../shared/widgets/repsi_error_state.dart';
 import '../../../attendance/providers/attendance_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 /// Check-in screen.
 ///
@@ -50,14 +51,14 @@ class _QrAttendanceViewState extends ConsumerState<QrAttendanceView> {
   Widget build(BuildContext context) {
     final isStaff = _isStaff;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           tooltip: context.l10n.commonBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              size: 20, color: AppColors.text),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              size: 20, color: context.palette.text),
           onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
         title: Text(isStaff ? context.l10n.scanMemberPass : context.l10n.qrGymCheckIn,
@@ -184,18 +185,18 @@ class _CameraError extends StatelessWidget {
   Widget build(BuildContext context) {
     final denied = error.errorCode == MobileScannerErrorCode.permissionDenied;
     return Container(
-      color: AppColors.surfaceSecondary,
+      color: context.palette.surfaceSecondary,
       padding: const EdgeInsets.all(AppSpacing.xxl),
       alignment: Alignment.center,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.no_photography_outlined,
-              size: 40, color: AppColors.textSecondary),
+          Icon(Icons.no_photography_outlined,
+              size: 40, color: context.palette.textSecondary),
           const SizedBox(height: 12),
           Text(
             denied ? context.l10n.cameraAccessOff : context.l10n.cameraUnavailable,
-            style: AppTypography.sectionHeading.copyWith(color: AppColors.text),
+            style: AppTypography.sectionHeading.copyWith(color: context.palette.text),
           ),
           const SizedBox(height: 6),
           Text(
@@ -204,7 +205,7 @@ class _CameraError extends StatelessWidget {
                 : context.l10n.cameraStartFailed,
             textAlign: TextAlign.center,
             style: AppTypography.bodySecondary
-                .copyWith(color: AppColors.textSecondary),
+                .copyWith(color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -337,7 +338,7 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
               context.l10n.pointCamera,
               textAlign: TextAlign.center,
               style: AppTypography.caption
-                  .copyWith(color: AppColors.textSecondary),
+                  .copyWith(color: context.palette.textSecondary),
             ),
           ],
           if (_message != null) ...[
@@ -348,16 +349,16 @@ class _MemberCheckInState extends ConsumerState<_MemberCheckIn> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: _messageIsError
-                      ? AppColors.errorSoft
-                      : AppColors.successSoft,
+                      ? context.palette.errorSoft
+                      : context.palette.successSoft,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
                 ),
                 child: Text(
                   _message!,
                   style: AppTypography.body.copyWith(
                       color: _messageIsError
-                          ? AppColors.errorDark
-                          : AppColors.successDark),
+                          ? context.palette.errorDark
+                          : context.palette.successDark),
                 ),
               ),
             ),
@@ -394,8 +395,8 @@ class _StatusCard extends StatelessWidget {
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
                   color: active != null
-                      ? AppColors.success
-                      : AppColors.textSecondary),
+                      ? context.palette.success
+                      : context.palette.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -403,7 +404,7 @@ class _StatusCard extends StatelessWidget {
                       ? context.l10n.youAreCheckedIn
                       : context.l10n.youAreNotCheckedIn,
                   style: AppTypography.sectionHeading
-                      .copyWith(color: AppColors.text),
+                      .copyWith(color: context.palette.text),
                 ),
               ),
             ],
@@ -412,7 +413,7 @@ class _StatusCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(context.l10n.qrSince(DateFormat.jm().format(active.checkInTime)),
                 style: AppTypography.bodySecondary
-                    .copyWith(color: AppColors.textSecondary)),
+                    .copyWith(color: context.palette.textSecondary)),
             const SizedBox(height: 12),
             RepsiButton(
               text: context.l10n.commonCheckOut,
@@ -450,10 +451,10 @@ class _Stat extends StatelessWidget {
         children: [
           Text(value,
               style: AppTypography.heading
-                  .copyWith(fontSize: 22, color: AppColors.text)),
+                  .copyWith(fontSize: 22, color: context.palette.text)),
           Text(label,
               style: AppTypography.caption
-                  .copyWith(color: AppColors.textSecondary)),
+                  .copyWith(color: context.palette.textSecondary)),
         ],
       ),
     );
@@ -473,7 +474,7 @@ class _RecentVisits extends StatelessWidget {
         child: Text(context.l10n.noVisitsYetDesc,
             textAlign: TextAlign.center,
             style: AppTypography.bodySecondary
-                .copyWith(color: AppColors.textSecondary)),
+                .copyWith(color: context.palette.textSecondary)),
       );
     }
     return Column(
@@ -481,7 +482,7 @@ class _RecentVisits extends StatelessWidget {
       children: [
         Text(context.l10n.recentVisits,
             style:
-                AppTypography.sectionHeading.copyWith(color: AppColors.text)),
+                AppTypography.sectionHeading.copyWith(color: context.palette.text)),
         const SizedBox(height: 8),
         for (final v in visits.take(10))
           ListTile(
@@ -570,13 +571,13 @@ class _MemberPassState extends ConsumerState<_MemberPass> {
               const SizedBox(height: 12),
               Text(context.l10n.showFrontDesk,
                   style: AppTypography.sectionHeading
-                      .copyWith(color: AppColors.text)),
+                      .copyWith(color: context.palette.text)),
               const SizedBox(height: 4),
               Text(
                 context.l10n.passRefreshNote,
                 textAlign: TextAlign.center,
                 style: AppTypography.caption
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: context.palette.textSecondary),
               ),
             ],
           ),
@@ -642,8 +643,8 @@ class _StaffScannerState extends ConsumerState<_StaffScanner> {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: _message == null
-                    ? AppColors.surfaceSecondary
-                    : (_isError ? AppColors.errorSoft : AppColors.successSoft),
+                    ? context.palette.surfaceSecondary
+                    : (_isError ? context.palette.errorSoft : context.palette.successSoft),
                 borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
               ),
               child: Text(
@@ -651,10 +652,10 @@ class _StaffScannerState extends ConsumerState<_StaffScanner> {
                 textAlign: TextAlign.center,
                 style: AppTypography.body.copyWith(
                   color: _message == null
-                      ? AppColors.textSecondary
+                      ? context.palette.textSecondary
                       : (_isError
-                          ? AppColors.errorDark
-                          : AppColors.successDark),
+                          ? context.palette.errorDark
+                          : context.palette.successDark),
                 ),
               ),
             ),

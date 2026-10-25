@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes/route_names.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
@@ -11,6 +10,7 @@ import '../../../shared/widgets/repsi_screen_background.dart';
 import '../providers/auth_provider.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 class RoleSelectionView extends ConsumerWidget {
   const RoleSelectionView({super.key});
 
@@ -22,12 +22,12 @@ class RoleSelectionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.palette.text),
           onPressed: () => context.pop(),
         ),
       ),
@@ -52,7 +52,7 @@ class RoleSelectionView extends ConsumerWidget {
                     style: AppTypography.heading.copyWith(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
                 ),
@@ -63,7 +63,7 @@ class RoleSelectionView extends ConsumerWidget {
                     context.l10n.chooseWorkspaceSubtitle,
                     style: AppTypography.body.copyWith(
                       fontSize: 15,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -77,7 +77,7 @@ class RoleSelectionView extends ConsumerWidget {
                     title: context.l10n.roleOwnerTitle,
                     subtitle: context.l10n.roleOwnerDesc,
                     tag: 'Indiranagar Hub',
-                    iconBgColor: AppColors.primarySoft,
+                    iconBgColor: context.palette.primarySoft,
                     onTap: () => _selectRole(context, ref, 'OWNER'),
                   ),
                 ),
@@ -184,7 +184,7 @@ class _RoleCard extends StatelessWidget {
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.text,
+                          color: context.palette.text,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -196,7 +196,7 @@ class _RoleCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.primarySoft,
+                            color: context.palette.primarySoft,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -206,7 +206,7 @@ class _RoleCard extends StatelessWidget {
                             style: AppTypography.caption.copyWith(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.primaryDark,
+                              color: context.palette.primaryDark,
                             ),
                           ),
                         ),
@@ -219,7 +219,7 @@ class _RoleCard extends StatelessWidget {
                   subtitle,
                   style: AppTypography.caption.copyWith(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     height: 1.3,
                   ),
                 ),
@@ -227,10 +227,10 @@ class _RoleCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(
+          Icon(
             Icons.chevron_right_rounded,
             size: 20,
-            color: AppColors.textMuted,
+            color: context.palette.textMuted,
           ),
         ],
       ),

@@ -8,6 +8,8 @@ import 'package:mobile/core/storage/secure_storage_service.dart';
 import 'package:mobile/features/attendance/providers/attendance_provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/auth/services/auth_service.dart';
+import 'package:mobile/features/coaching/data/coaching_api.dart';
+import 'package:mobile/features/coaching/data/coaching_models.dart';
 import 'package:mobile/features/health/data/health_data_source.dart';
 import 'package:mobile/features/health/data/health_models.dart';
 import 'package:mobile/features/health/data/health_repository.dart';
@@ -78,6 +80,7 @@ void main() {
     HealthSummary summary = const HealthSummary(),
     Future<MemberAttendance>? attendance,
     Future<MemberSelf> Function()? profile,
+    CoachingOverview coaching = const CoachingOverview(memberId: 'm1', trainers: [], requests: [], hasPendingRequest: false),
   }) async {
     tester.view.physicalSize = const Size(360, 800); // small Android phone
     tester.view.devicePixelRatio = 1;
@@ -90,6 +93,8 @@ void main() {
         healthDataSourceProvider.overrideWithValue(source),
         healthRepositoryProvider.overrideWithValue(_Repo(summary)),
         myAttendanceProvider.overrideWith((ref) => attendance ?? Future.value(const MemberAttendance(streakDays: 4, thisWeekVisits: 3, thisMonthVisits: 11))),
+        coachingOverviewProvider.overrideWith((ref) => Future.value(coaching)),
+        workoutSuggestionsProvider.overrideWith((ref) => Future.value(null)),
         memberSelfProvider.overrideWith(
           (ref) =>
               profile?.call() ??

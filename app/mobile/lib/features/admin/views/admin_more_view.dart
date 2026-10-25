@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes/route_names.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
@@ -10,6 +9,7 @@ import '../../../shared/widgets/repsi_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/language_selector_sheet.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AdminMoreView extends ConsumerWidget {
   const AdminMoreView({super.key});
@@ -26,7 +26,7 @@ class AdminMoreView extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -71,14 +71,14 @@ class AdminMoreView extends ConsumerWidget {
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               context.l10n.adminFullAccess('admin@repsi.com'),
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -110,7 +110,7 @@ class AdminMoreView extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                       child: Row(
                         children: [
-                          Icon(item['icon'] as IconData, size: 20, color: AppColors.textSecondary),
+                          Icon(item['icon'] as IconData, size: 20, color: context.palette.textSecondary),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
@@ -118,11 +118,11 @@ class AdminMoreView extends ConsumerWidget {
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                           ),
-                          const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textMuted),
+                          Icon(Icons.chevron_right_rounded, size: 20, color: context.palette.textMuted),
                         ],
                       ),
                     ),
@@ -143,14 +143,14 @@ class AdminMoreView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded, size: 20, color: AppColors.error),
+                      Icon(Icons.logout_rounded, size: 20, color: context.palette.error),
                       const SizedBox(width: 14),
                       Text(
                         context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.error,
+                          color: context.palette.error,
                         ),
                       ),
                     ],

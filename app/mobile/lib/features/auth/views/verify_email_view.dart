@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_button.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 class VerifyEmailView extends StatelessWidget {
   final String? email;
 
@@ -18,14 +19,14 @@ class VerifyEmailView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             LucideIcons.arrowLeft,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
@@ -59,7 +60,7 @@ class VerifyEmailView extends StatelessWidget {
                   context.l10n.verifyEmailTitle,
                   textAlign: TextAlign.center,
                   style: AppTypography.headingLarge.copyWith(
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                    color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -67,7 +68,7 @@ class VerifyEmailView extends StatelessWidget {
                   context.l10n.verifyEmailSentTo(email ?? context.l10n.verifyEmailYourAddress),
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),

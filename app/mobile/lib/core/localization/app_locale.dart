@@ -19,6 +19,10 @@ enum AppLanguage {
 
   Locale get locale => Locale(code);
 
+  /// Only English is reviewed end to end; the Indian-language catalogues are drafts awaiting
+  /// native-speaker review (docs/MULTILINGUAL.md), so the picker labels them Beta.
+  bool get isBeta => this != AppLanguage.en;
+
   static bool isSupported(String? code) => AppLanguage.values.any((lang) => lang.code == code);
 
   static AppLanguage fromCode(String? code) {

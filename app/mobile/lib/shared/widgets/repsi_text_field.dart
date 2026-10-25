@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../animations/repsi_motion.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiTextField extends StatefulWidget {
   final String? label;
@@ -116,8 +117,8 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
 
     final Color activeBorderColor = hasError
-        ? AppColors.error
-        : (_isFocused ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.border));
+        ? context.palette.error
+        : (_isFocused ? AppColors.primary : (isDark ? AppColors.darkBorder : context.palette.border));
 
     final double activeBorderWidth = _isFocused ? 1.5 : 1.0;
 
@@ -155,8 +156,8 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
               style: AppTypography.caption.copyWith(
                 fontWeight: FontWeight.w600,
                 color: hasError
-                    ? AppColors.error
-                    : (_isFocused ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary)),
+                    ? context.palette.error
+                    : (_isFocused ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : context.palette.textSecondary)),
               ),
               child: Text(widget.label!),
             ),
@@ -166,7 +167,7 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
             duration: RepsiMotion.input,
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.surface,
+              color: isDark ? AppColors.darkSurface : context.palette.surface,
               borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
               border: Border.all(
                 color: activeBorderColor,
@@ -191,12 +192,12 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
               autofillHints: widget.autofillHints,
               textCapitalization: widget.textCapitalization,
               style: AppTypography.body.copyWith(
-                color: isDark ? AppColors.darkText : AppColors.text,
+                color: isDark ? AppColors.darkText : context.palette.text,
               ),
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 hintStyle: AppTypography.body.copyWith(
-                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                  color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
                 ),
                 prefixIcon: widget.prefixIcon != null
                     ? AnimatedTheme(
@@ -204,7 +205,7 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
                           iconTheme: IconThemeData(
                             color: _isFocused
                                 ? AppColors.primary
-                                : (isDark ? AppColors.darkTextMuted : AppColors.textSecondary),
+                                : (isDark ? AppColors.darkTextMuted : context.palette.textSecondary),
                             size: 20,
                           ),
                         ),
@@ -218,7 +219,7 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
                           size: 20,
                           color: _isFocused
                               ? AppColors.primary
-                              : (isDark ? AppColors.darkTextMuted : AppColors.textSecondary),
+                              : (isDark ? AppColors.darkTextMuted : context.palette.textSecondary),
                         ),
                         onPressed: () {
                           setState(() {
@@ -247,7 +248,7 @@ class _RepsiTextFieldState extends State<RepsiTextField> with SingleTickerProvid
               child: Text(
                 widget.errorText!,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.error,
+                  color: context.palette.error,
                   fontSize: 12,
                 ),
               ),

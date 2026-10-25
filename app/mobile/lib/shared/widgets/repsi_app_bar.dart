@@ -12,6 +12,7 @@ import '../models/workspace_model.dart';
 import 'repsi_avatar.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String? title;
   final bool showWorkspaceSelector;
@@ -56,10 +57,10 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
         right: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackground : AppColors.background,
+        color: isDark ? AppColors.darkBackground : context.palette.background,
         border: Border(
           bottom: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
+            color: isDark ? AppColors.darkBorder : context.palette.border,
             width: 1,
           ),
         ),
@@ -127,7 +128,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                                       fontWeight: FontWeight.w600,
                                       color: isDark
                                           ? AppColors.darkTextPrimary
-                                          : AppColors.textPrimary,
+                                          : context.palette.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -138,7 +139,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                                     size: 14,
                                     color: isDark
                                         ? AppColors.darkTextMuted
-                                        : AppColors.textMuted,
+                                        : context.palette.textMuted,
                                   ),
                                 ],
                               ],
@@ -149,7 +150,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                                 fontSize: 11,
                                 color: isDark
                                     ? AppColors.darkTextMuted
-                                    : AppColors.textMuted,
+                                    : context.palette.textMuted,
                               ),
                             ),
                           ],
@@ -167,7 +168,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 style: AppTypography.headingMedium.copyWith(
                   color: isDark
                       ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
+                      : context.palette.textPrimary,
                 ),
               ),
             )
@@ -188,7 +189,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     size: 20,
                     color: isDark
                         ? AppColors.darkTextSecondary
-                        : AppColors.textSecondary,
+                        : context.palette.textSecondary,
                   ),
                   if (unreadCount > 0)
                     Positioned(
@@ -232,10 +233,10 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
             // Explicit Logout Button
             IconButton(
               tooltip: context.l10n.commonSignOut,
-              icon: const Icon(
+              icon: Icon(
                 LucideIcons.logOut,
                 size: 19,
-                color: AppColors.error,
+                color: context.palette.error,
               ),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
@@ -252,7 +253,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
-                            foregroundColor: AppColors.error),
+                            foregroundColor: context.palette.error),
                         child: Text(context.l10n.commonSignOut),
                       ),
                     ],
@@ -274,7 +275,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+      backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
@@ -295,7 +296,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBorder : AppColors.border,
+                      color: isDark ? AppColors.darkBorder : context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -306,7 +307,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   style: AppTypography.headingSmall.copyWith(
                     color: isDark
                         ? AppColors.darkTextPrimary
-                        : AppColors.textPrimary,
+                        : context.palette.textPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -329,7 +330,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                               ? AppColors.primary
                               : (isDark
                                   ? AppColors.darkSurfaceElevated
-                                  : AppColors.surfaceSubtle),
+                                  : context.palette.surfaceSubtle),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
@@ -340,7 +341,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                                 ? Colors.white
                                 : (isDark
                                     ? AppColors.darkTextPrimary
-                                    : AppColors.textPrimary),
+                                    : context.palette.textPrimary),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -350,7 +351,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                         style: AppTypography.labelLarge.copyWith(
                           color: isDark
                               ? AppColors.darkTextPrimary
-                              : AppColors.textPrimary,
+                              : context.palette.textPrimary,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
@@ -360,7 +361,7 @@ class RepsiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                         style: AppTypography.caption.copyWith(
                           color: isDark
                               ? AppColors.darkTextMuted
-                              : AppColors.textMuted,
+                              : context.palette.textMuted,
                         ),
                       ),
                       trailing: isSelected

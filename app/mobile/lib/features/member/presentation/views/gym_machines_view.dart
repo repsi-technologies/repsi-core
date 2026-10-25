@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../shared/models/fitness_models.dart';
 import '../../data/member_repository.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class GymMachinesView extends ConsumerWidget {
   const GymMachinesView({super.key});
@@ -94,18 +94,18 @@ class GymMachinesView extends ConsumerWidget {
 
     switch (status) {
       case MachineStatus.available:
-        bg = AppColors.success.withValues(alpha: 0.15);
-        text = AppColors.success;
+        bg = context.palette.success.withValues(alpha: 0.15);
+        text = context.palette.success;
         label = context.l10n.machineStatusAvailable.toUpperCase();
         break;
       case MachineStatus.inUse:
-        bg = AppColors.info.withValues(alpha: 0.15);
-        text = AppColors.info;
+        bg = context.palette.info.withValues(alpha: 0.15);
+        text = context.palette.info;
         label = context.l10n.machineStatusInUse.toUpperCase();
         break;
       case MachineStatus.maintenance:
-        bg = AppColors.error.withValues(alpha: 0.15);
-        text = AppColors.error;
+        bg = context.palette.error.withValues(alpha: 0.15);
+        text = context.palette.error;
         label = context.l10n.machineStatusMaintenance.toUpperCase();
         break;
       case MachineStatus.unavailable:

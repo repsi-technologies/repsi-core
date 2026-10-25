@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes/route_names.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
@@ -11,26 +10,30 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/widgets/my_profile_photo.dart';
 import '../../../l10n/l10n.dart';
 import '../../../shared/widgets/language_selector_sheet.dart';
+import '../../../shared/widgets/theme_mode_sheet.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class TrainerMoreView extends ConsumerWidget {
-  const TrainerMoreView({super.key});
+  /// Switches the trainer shell to another tab (clients, schedule, plans).
+  final ValueChanged<int>? onSelectTab;
+
+  const TrainerMoreView({super.key, this.onSelectTab});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
-    final menuItems = [
-      {'icon': Icons.translate_rounded, 'title': context.l10n.commonLanguage, 'id': 'language'},
-      {'icon': Icons.person_outline_rounded, 'title': context.l10n.myProfile},
-      {'icon': Icons.people_outline_rounded, 'title': context.l10n.myClients},
-      {'icon': Icons.calendar_today_outlined, 'title': context.l10n.mySchedule},
-      {'icon': Icons.fitness_center_outlined, 'title': context.l10n.workoutTemplates},
-      {'icon': Icons.restaurant_outlined, 'title': context.l10n.dietTemplates},
-      {'icon': Icons.notifications_none_rounded, 'title': context.l10n.commonNotifications},
-      {'icon': Icons.settings_outlined, 'title': context.l10n.commonSettings},
+    final l = context.l10n;
+    final menuItems = <(IconData, String, VoidCallback)>[
+      (Icons.chat_bubble_outline_rounded, l.messages, () => onSelectTab?.call(3)),
+      (Icons.people_outline_rounded, l.myClients, () => onSelectTab?.call(1)),
+      (Icons.calendar_today_outlined, l.mySchedule, () => onSelectTab?.call(2)),
+      (Icons.notifications_none_rounded, l.commonNotifications, () => context.push(RouteNames.notifications)),
+      (Icons.translate_rounded, l.commonLanguage, () => LanguageSelectorSheet.show(context)),
+      (Icons.contrast_rounded, l.appearance, () => ThemeModeSheet.show(context)),
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -67,7 +70,7 @@ class TrainerMoreView extends ConsumerWidget {
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -76,7 +79,7 @@ class TrainerMoreView extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -91,37 +94,29 @@ class TrainerMoreView extends ConsumerWidget {
 
               // Menu List (Trainer Mockup Screen 8)
               ...List.generate(menuItems.length, (index) {
-                final item = menuItems[index];
+                final (icon, title, onTap) = menuItems[index];
                 return RepsiStaggerItem(
                   index: index + 1,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: RepsiCard(
-                      onTap: () {
-                        if (item['id'] == 'language') {
-                          LanguageSelectorSheet.show(context);
-                          return;
-                        }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.l10n.comingSoon('${item['title']}'))),
-                        );
-                      },
+                      onTap: onTap,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                       child: Row(
                         children: [
-                          Icon(item['icon'] as IconData, size: 20, color: AppColors.textSecondary),
+                          Icon(icon, size: 20, color: context.palette.textSecondary),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              item['title'] as String,
+                              title,
                               style: AppTypography.headingSmall.copyWith(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.text,
+                                color: context.palette.text,
                               ),
                             ),
                           ),
-                          const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textMuted),
+                          Icon(Icons.chevron_right_rounded, size: 20, color: context.palette.textMuted),
                         ],
                       ),
                     ),
@@ -143,14 +138,14 @@ class TrainerMoreView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded, size: 20, color: AppColors.error),
+                      Icon(Icons.logout_rounded, size: 20, color: context.palette.error),
                       const SizedBox(width: 14),
                       Text(
                         context.l10n.commonSignOut,
                         style: AppTypography.headingSmall.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.error,
+                          color: context.palette.error,
                         ),
                       ),
                     ],

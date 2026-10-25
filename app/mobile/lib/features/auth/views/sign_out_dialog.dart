@@ -7,6 +7,7 @@ import '../../../app/theme/app_typography.dart';
 import '../providers/auth_provider.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 class SignOutDialog extends ConsumerStatefulWidget {
   const SignOutDialog({super.key});
 
@@ -53,11 +54,11 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AlertDialog(
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+      backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
       title: Text(
         context.l10n.signOutTitle,
         style: AppTypography.headingSmall.copyWith(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
         ),
       ),
       content: Column(
@@ -66,21 +67,21 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
           Text(
             context.l10n.signOutConfirmOwner,
             style: AppTypography.bodyMedium.copyWith(
-              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
             ),
           ),
           if (_isSigningOut) ...[
             const SizedBox(height: 24),
-            const Center(
+            Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.error),
+                valueColor: AlwaysStoppedAnimation<Color>(context.palette.error),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               context.l10n.signingOut,
               style: AppTypography.caption.copyWith(
-                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
               ),
             ),
           ],
@@ -94,7 +95,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
                 child: Text(
                   context.l10n.commonCancel,
                   style: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -102,7 +103,7 @@ class _SignOutDialogState extends ConsumerState<SignOutDialog> {
               ElevatedButton(
                 onPressed: _handleSignOut,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error,
+                  backgroundColor: context.palette.error,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

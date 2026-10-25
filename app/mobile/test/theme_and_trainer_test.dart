@@ -18,8 +18,9 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 300));
 
+    // Follows the phone until the user picks a theme.
     var app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(app.themeMode, ThemeMode.light);
+    expect(app.themeMode, ThemeMode.system);
 
     container.read(themeNotifierProvider.notifier).setTheme(AppThemeMode.dark);
     await tester.pump(const Duration(milliseconds: 100));

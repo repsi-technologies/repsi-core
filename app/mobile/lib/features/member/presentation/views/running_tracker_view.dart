@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class RunningTrackerView extends StatefulWidget {
   const RunningTrackerView({super.key});
@@ -162,9 +163,9 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                 ),
                 const SizedBox(height: 10),
                 ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: AppColors.primarySoft,
-                    child: Icon(Icons.directions_run, color: AppColors.primaryDark),
+                  leading: CircleAvatar(
+                    backgroundColor: context.palette.primarySoft,
+                    child: Icon(Icons.directions_run, color: context.palette.primaryDark),
                   ),
                   title: Text(
                     '5.42 km · ${context.l10n.morningRun}',
@@ -174,9 +175,9 @@ class _RunningTrackerViewState extends State<RunningTrackerView> {
                   trailing: Text(context.l10n.timeYesterday, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ),
                 ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: AppColors.primarySoft,
-                    child: Icon(Icons.directions_run, color: AppColors.primaryDark),
+                  leading: CircleAvatar(
+                    backgroundColor: context.palette.primarySoft,
+                    child: Icon(Icons.directions_run, color: context.palette.primaryDark),
                   ),
                   title: const Text(
                     '3.10 km · Interval Jog',

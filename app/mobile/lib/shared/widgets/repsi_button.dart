@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../animations/repsi_motion.dart';
+import '../../app/theme/repsi_palette.dart';
 
 enum RepsiButtonVariant {
   primary,
@@ -137,21 +138,21 @@ class _RepsiButtonState extends State<RepsiButton> with SingleTickerProviderStat
         fgColor = Colors.white;
         break;
       case RepsiButtonVariant.secondary:
-        bgColor = isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSubtle;
-        fgColor = isDark ? AppColors.darkText : AppColors.text;
+        bgColor = isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSubtle;
+        fgColor = isDark ? AppColors.darkText : context.palette.text;
         break;
       case RepsiButtonVariant.outline:
         bgColor = Colors.transparent;
-        fgColor = isDark ? AppColors.darkText : AppColors.text;
-        borderSide = BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border, width: 1);
+        fgColor = isDark ? AppColors.darkText : context.palette.text;
+        borderSide = BorderSide(color: isDark ? AppColors.darkBorder : context.palette.border, width: 1);
         break;
       case RepsiButtonVariant.destructive:
-        bgColor = AppColors.error;
+        bgColor = context.palette.error;
         fgColor = Colors.white;
         break;
       case RepsiButtonVariant.ghost:
         bgColor = Colors.transparent;
-        fgColor = isDark ? AppColors.darkText : AppColors.text;
+        fgColor = isDark ? AppColors.darkText : context.palette.text;
         break;
     }
 
@@ -183,7 +184,7 @@ class _RepsiButtonState extends State<RepsiButton> with SingleTickerProviderStat
             overflow: TextOverflow.ellipsis,
             style: textStyle.copyWith(
               color: isDisabled && !widget.isLoading
-                  ? (isDark ? AppColors.darkTextMuted : AppColors.textMuted)
+                  ? (isDark ? AppColors.darkTextMuted : context.palette.textMuted)
                   : fgColor,
               fontWeight: FontWeight.w600,
             ),
@@ -221,7 +222,7 @@ class _RepsiButtonState extends State<RepsiButton> with SingleTickerProviderStat
             padding: padding,
             decoration: BoxDecoration(
               color: isDisabled && widget.variant != RepsiButtonVariant.outline && widget.variant != RepsiButtonVariant.ghost
-                  ? (isDark ? AppColors.darkSurface : AppColors.borderLight)
+                  ? (isDark ? AppColors.darkSurface : context.palette.borderLight)
                   : bgColor,
               borderRadius: radius,
               border: borderSide != BorderSide.none ? Border.fromBorderSide(borderSide) : null,

@@ -8,6 +8,7 @@ import '../../../core/providers/api_provider.dart';
 import '../../../shared/widgets/repsi_error_state.dart';
 import '../../../shared/widgets/repsi_skeleton.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class BusinessInsights {
   final String summary;
@@ -45,9 +46,9 @@ class AiInsightsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final d = Theme.of(context).brightness == Brightness.dark;
-    final canvas = d ? AppColors.darkBackground : AppColors.background;
-    final text = d ? AppColors.darkText : AppColors.text;
-    final secondary = d ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final canvas = d ? AppColors.darkBackground : context.palette.background;
+    final text = d ? AppColors.darkText : context.palette.text;
+    final secondary = d ? AppColors.darkTextSecondary : context.palette.textSecondary;
 
     return Scaffold(
       backgroundColor: canvas,
@@ -82,7 +83,7 @@ class AiInsightsView extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
-                      color: d ? AppColors.darkPrimarySoft : AppColors.primarySoft,
+                      color: d ? AppColors.darkPrimarySoft : context.palette.primarySoft,
                       borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
                     ),
                     child: Column(
@@ -91,11 +92,11 @@ class AiInsightsView extends ConsumerWidget {
                         Row(
                           children: [
                             Icon(i.generatedByAi ? Icons.auto_awesome_rounded : Icons.insights_rounded,
-                                size: 18, color: d ? AppColors.darkPrimaryLight : AppColors.primaryDark),
+                                size: 18, color: d ? AppColors.darkPrimaryLight : context.palette.primaryDark),
                             const SizedBox(width: AppSpacing.sm),
                             Text(i.generatedByAi ? context.l10n.summaryByAi : context.l10n.summary,
                                 style: AppTypography.caption.copyWith(
-                                    color: d ? AppColors.darkPrimaryLight : AppColors.primaryDark, fontWeight: FontWeight.w600)),
+                                    color: d ? AppColors.darkPrimaryLight : context.palette.primaryDark, fontWeight: FontWeight.w600)),
                           ],
                         ),
                         const SizedBox(height: AppSpacing.sm),
@@ -143,7 +144,7 @@ class _Line extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: 22, child: Padding(padding: const EdgeInsets.only(top: 6), child: Icon(icon, size: size, color: AppColors.primary))),
-          Expanded(child: Text(text, style: AppTypography.bodySmall.copyWith(color: d ? AppColors.darkText : AppColors.text))),
+          Expanded(child: Text(text, style: AppTypography.bodySmall.copyWith(color: d ? AppColors.darkText : context.palette.text))),
         ],
       ),
     );

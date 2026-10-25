@@ -9,6 +9,7 @@ import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/member_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AddMemberView extends ConsumerStatefulWidget {
   const AddMemberView({super.key});
@@ -71,20 +72,20 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           context.l10n.addNewMember,
           style: AppTypography.headingSmall.copyWith(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
         ),
         leading: IconButton(
           icon: Icon(
             LucideIcons.arrowLeft,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
@@ -149,7 +150,7 @@ class _AddMemberViewState extends ConsumerState<AddMemberView> {
                       selected: isSelected,
                       selectedColor: AppColors.primary,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                        color: isSelected ? Colors.white : (isDark ? AppColors.darkTextPrimary : context.palette.textPrimary),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       ),
                       onSelected: (val) {

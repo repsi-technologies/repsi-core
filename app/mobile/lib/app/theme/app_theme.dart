@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
+import 'repsi_palette.dart';
 
 class AppTheme {
   static ThemeData light() {
@@ -14,6 +15,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      extensions: const [RepsiPalette.light],
       brightness: Brightness.light,
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.background,
@@ -159,6 +161,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      extensions: const [RepsiPalette.dark],
       brightness: Brightness.dark,
       primaryColor: AppColors.darkPrimary,
       scaffoldBackgroundColor: AppColors.darkBackground,

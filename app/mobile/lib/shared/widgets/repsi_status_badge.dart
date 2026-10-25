@@ -3,6 +3,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../models/member_model.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiStatusBadge extends StatelessWidget {
   final MemberStatus status;
@@ -21,29 +22,29 @@ class RepsiStatusBadge extends StatelessWidget {
 
     switch (status) {
       case MemberStatus.active:
-        bg = AppColors.badgeActiveBg;
-        fg = AppColors.badgeActiveFg;
+        bg = context.palette.badgeActiveBg;
+        fg = context.palette.badgeActiveFg;
         break;
       case MemberStatus.expiring:
-        bg = AppColors.badgeExpiringBg;
-        fg = AppColors.badgeExpiringFg;
+        bg = context.palette.badgeExpiringBg;
+        fg = context.palette.badgeExpiringFg;
         break;
       case MemberStatus.expired:
-        bg = AppColors.badgeExpiredBg;
-        fg = AppColors.badgeExpiredFg;
+        bg = context.palette.badgeExpiredBg;
+        fg = context.palette.badgeExpiredFg;
         break;
       case MemberStatus.frozen:
-        bg = AppColors.badgeFrozenBg;
-        fg = AppColors.badgeFrozenFg;
+        bg = context.palette.badgeFrozenBg;
+        fg = context.palette.badgeFrozenFg;
         break;
       case MemberStatus.cancelled:
       case MemberStatus.inactive:
-        bg = AppColors.badgeCancelledBg;
-        fg = AppColors.badgeCancelledFg;
+        bg = context.palette.badgeCancelledBg;
+        fg = context.palette.badgeCancelledFg;
         break;
       case MemberStatus.suspended:
-        bg = AppColors.badgeExpiredBg;
-        fg = AppColors.badgeExpiredFg;
+        bg = context.palette.badgeExpiredBg;
+        fg = context.palette.badgeExpiredFg;
         break;
     }
 

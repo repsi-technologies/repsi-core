@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import '../../shared/models/user_model.dart';
+import '../animations/repsi_motion.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiNavItem {
   final IconData icon;
   final IconData? activeIcon;
@@ -38,7 +40,7 @@ class RepsiBottomNav extends StatelessWidget {
           RepsiNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: context.l10n.commonHome),
           RepsiNavItem(icon: Icons.people_outline_rounded, activeIcon: Icons.people_rounded, label: context.l10n.navClients),
           RepsiNavItem(icon: Icons.calendar_today_outlined, activeIcon: Icons.calendar_today_rounded, label: context.l10n.navSchedule),
-          RepsiNavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center_rounded, label: context.l10n.navPlans),
+          RepsiNavItem(icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: context.l10n.messages),
           RepsiNavItem(icon: Icons.menu_rounded, activeIcon: Icons.menu_rounded, label: context.l10n.commonMore),
         ];
       case UserRole.owner:
@@ -74,39 +76,56 @@ class RepsiBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = customItems ?? getItemsForRole(context, role);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = context.palette;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkNavigation : AppColors.surface,
-        border: Border(
-          top: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
-            width: 1.0,
-          ),
-        ),
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border, width: 1.0)),
+        boxShadow: [BoxShadow(color: palette.shadow, blurRadius: 16, offset: const Offset(0, -4))],
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(items.length, (index) {
-              final isSelected = currentIndex == index;
-              final item = items[index];
-
-              return Expanded(
-                child: _RepsiNavItemWidget(
-                  item: item,
-                  isSelected: isSelected,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    onTap(index);
-                  },
-                ),
+          height: 68,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final slot = constraints.maxWidth / items.length;
+              final pillWidth = (slot - 16).clamp(40.0, 72.0);
+              return Stack(
+                children: [
+                  // Sliding pill behind the selected icon.
+                  AnimatedPositioned(
+                    duration: RepsiMotion.nav,
+                    curve: RepsiMotion.easeOut,
+                    top: 8,
+                    left: slot * currentIndex + (slot - pillWidth) / 2,
+                    width: pillWidth,
+                    height: 32,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: palette.primarySoft,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: List.generate(items.length, (index) {
+                      return Expanded(
+                        child: _RepsiNavItemWidget(
+                          item: items[index],
+                          isSelected: currentIndex == index,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            onTap(index);
+                          },
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               );
-            }),
+            },
           ),
         ),
       ),
@@ -127,52 +146,60 @@ class _RepsiNavItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = AppColors.primary;
-    final inactiveColor = isDark ? AppColors.darkTextMuted : AppColors.textSecondary;
+    final palette = context.palette;
+    final color = isSelected ? (context.isDarkMode ? AppColors.primaryBright : AppColors.primary) : palette.textMuted;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Subtle green indicator line at top of item
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            height: 3,
-            width: isSelected ? 20 : 0,
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(1.5),
-            ),
+    return Semantics(
+      selected: isSelected,
+      button: true,
+      label: item.label,
+      excludeSemantics: true,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 36,
+        highlightShape: BoxShape.rectangle,
+        containedInkWell: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedScale(
+                scale: isSelected ? 1.1 : 1.0,
+                duration: RepsiMotion.nav,
+                curve: RepsiMotion.easeBack,
+                child: AnimatedSwitcher(
+                  duration: RepsiMotion.icon,
+                  child: Icon(
+                    isSelected ? (item.activeIcon ?? item.icon) : item.icon,
+                    key: ValueKey(isSelected),
+                    size: 22,
+                    color: color,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: AnimatedDefaultTextStyle(
+                  duration: RepsiMotion.nav,
+                  curve: RepsiMotion.easeOut,
+                  style: AppTypography.caption.copyWith(
+                    fontSize: 11,
+                    height: 1.2,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: color,
+                  ),
+                  // Tamil/Malayalam labels are long: one line, shrink before clipping.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(item.label, maxLines: 1, softWrap: false),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
-          // Icon with scale animation 1.0 -> 1.08
-          AnimatedScale(
-            scale: isSelected ? 1.08 : 1.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            child: Icon(
-              isSelected ? (item.activeIcon ?? item.icon) : item.icon,
-              size: 22,
-              color: isSelected ? activeColor : inactiveColor,
-            ),
-          ),
-          const SizedBox(height: 3),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            style: AppTypography.caption.copyWith(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? activeColor : inactiveColor,
-            ),
-            child: Text(item.label),
-          ),
-          const SizedBox(height: 6),
-        ],
+        ),
       ),
     );
   }

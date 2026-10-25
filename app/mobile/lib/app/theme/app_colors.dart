@@ -23,7 +23,7 @@ class AppColors {
   static const Color whatsapp = Color(0xFF25D366);
 
   // ─── Light Surfaces & Neutrals ──────────────────────────────────────────────
-  static const Color background = Color(0xFFF7F7F5);
+  static const Color background = Color(0xFFF6F6F3);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceSecondary = Color(0xFFEFEEEA);
   static const Color surfaceSubtle = Color(0xFFEFEEEA);
@@ -64,38 +64,38 @@ class AppColors {
   static const Color infoLight = Color(0xFFF1F5F9);
 
   // ─── Dark Theme ─────────────────────────────────────────────────────────────
-  static const Color darkBackground = Color(0xFF17191C);
-  static const Color darkSurface = Color(0xFF24272B);
-  static const Color darkSurfaceSecondary = Color(0xFF2E3237);
-  static const Color darkSurfaceElevated = Color(0xFF2E3237);
-  static const Color darkSurfaceSoft = Color(0xFF2E3237);
+  static const Color darkBackground = Color(0xFF0E0F12);
+  static const Color darkSurface = Color(0xFF17191D);
+  static const Color darkSurfaceSecondary = Color(0xFF20232A);
+  static const Color darkSurfaceElevated = Color(0xFF242830);
+  static const Color darkSurfaceSoft = Color(0xFF20232A);
 
   static const Color darkPrimary = Color(0xFFE25822);
-  static const Color darkPrimaryHover = Color(0xFFEB6D3A);
-  static const Color darkPrimaryDark = Color(0xFFEB6D3A);
-  static const Color darkPrimaryLight = Color(0xFFEB6D3A);
-  static const Color darkPrimarySoft = Color(0x26E25822); // 15% orange tint
+  static const Color darkPrimaryHover = Color(0xFFFF7A3D);
+  static const Color darkPrimaryDark = Color(0xFFFF8A4F);
+  static const Color darkPrimaryLight = Color(0xFFFF8A4F);
+  static const Color darkPrimarySoft = Color(0x2EFF6B1A); // 18% orange tint
   static const Color darkOnPrimary = Color(0xFFFFFFFF);
 
-  static const Color darkText = Color(0xFFF7F7F5);
-  static const Color darkTextPrimary = Color(0xFFF7F7F5);
-  static const Color darkTextSecondary = Color(0xFFA6A8AC);
-  static const Color darkTextMuted = Color(0xFFA6A8AC);
+  static const Color darkText = Color(0xFFF5F5F4);
+  static const Color darkTextPrimary = Color(0xFFF5F5F4);
+  static const Color darkTextSecondary = Color(0xFFA9ACB3);
+  static const Color darkTextMuted = Color(0xFF8C9099);
   static const Color darkTextDisabled = Color(0xFF70747A);
   static const Color darkTextTertiary = darkTextMuted;
 
-  static const Color darkBorder = Color(0xFF3A3F45);
-  static const Color darkBorderStrong = Color(0xFF4B5158);
-  static const Color darkDivider = Color(0xFF3A3F45);
+  static const Color darkBorder = Color(0xFF2A2E35);
+  static const Color darkBorderStrong = Color(0xFF3A3F48);
+  static const Color darkDivider = Color(0xFF2A2E35);
 
   static const Color darkSuccess = Color(0xFF34D399);
-  static const Color darkSuccessSoft = Color(0x26047857);
+  static const Color darkSuccessSoft = Color(0x2934D399);
   static const Color darkWarning = Color(0xFFFACC15);
-  static const Color darkWarningSoft = Color(0x26A16207);
+  static const Color darkWarningSoft = Color(0x29FACC15);
   static const Color darkError = Color(0xFFF43F5E);
-  static const Color darkErrorSoft = Color(0x26BE123C);
+  static const Color darkErrorSoft = Color(0x29F43F5E);
   static const Color darkInfo = Color(0xFF94A3B8);
-  static const Color darkInfoSoft = Color(0x26475569);
+  static const Color darkInfoSoft = Color(0x2994A3B8);
 
   static const Color darkNavigation = darkSurface;
 
@@ -105,6 +105,26 @@ class AppColors {
     Color(0xFFE25822),
     Color(0xFFEB6D3A),
   ];
+
+  /// Hero cards, primary CTAs and progress rings: bright flame to deep ember.
+  static const List<Color> energyGradient = [
+    Color(0xFFFF8A3D),
+    Color(0xFFE25822),
+    Color(0xFFB83A0C),
+  ];
+
+  /// Hero cards on dark/ink surfaces.
+  static const List<Color> inkGradient = [
+    Color(0xFF23262D),
+    Color(0xFF16181C),
+  ];
+
+  // Accent tints for workout categories and charts (readable on light and dark).
+  static const Color accentBlue = Color(0xFF3B82F6);
+  static const Color accentViolet = Color(0xFF8B5CF6);
+  static const Color accentTeal = Color(0xFF14B8A6);
+  static const Color accentPink = Color(0xFFEC4899);
+  static const Color accentAmber = Color(0xFFF59E0B);
 
   static const List<Color> warmOrangeGradient = [
     Color(0xFFFDF1EB),

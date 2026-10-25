@@ -20,9 +20,15 @@ on 2026-10-23/24; "verified" means a command was run and its result is quoted in
 | Notifications inbox | Existing screens, API-backed | Push (FCM) is **not** implemented. |
 | Payments list | Existing screen, API-backed | |
 | AI workout coach | Existing screens, API-backed | |
-| Workouts, Classes, Progress, Membership detail, Trainer, Trainer chat, Documents, Exercise library, Running tracker | **Hidden from member navigation** | These screens still render sample content (no API calls). They were removed from the member tabs and menu rather than deleted; re-enable each one when it reads real data. |
-| Owner / trainer / admin shells | Unchanged | Not audited in this pass; some screens likely contain sample content. |
-| Localisation (ta/ml/kn/te) | Not done | `core/localization` exists but the new screens use English strings. |
+| Fitness goal + suggested workouts (2026-10-25) | Implemented, widget/API-tested | First sign-in asks once for goal, level, days/week, session length and focus areas (`features/coaching/views/goal_setup_view.dart`). `PUT /coaching/me/goal` appends (history kept). `GET /coaching/me/suggestions` builds a weekly split from the global exercise library (`app/services/coaching.py`). Shown as the member **Workouts** tab and a home hero card. |
+| Guided workout runner | Implemented, widget-tested | Set-by-set with countdown ring for timed sets and rest. Runs on the phone only: **sessions are not saved to the server** (logging needs a workout assignment; see `/fitness/sessions`). |
+| My trainer, trainer/PT requests | Implemented, API-tested | Member sees assigned trainer(s) and messages them; can request a trainer or personal training, optionally naming one (`POST /coaching/requests`, one pending at a time, cancellable). Owner/manager (`trainers.assign`) approves by picking a trainer, which creates the normal `TrainerClient` assignment, or declines with a note. In-app notifications both ways. |
+| Trainer ⇄ member chat | Implemented | `/chat/*`. Polls every 8 s while a thread is open (no push yet). |
+| Trainer shell | Real data | Home (today's sessions, clients, unread), Clients, Schedule (`/trainers/me/schedule`), Messages, More. The old sample "Plans" tab (`trainer_create_workout_view.dart`) is no longer reachable. |
+| Owner shell | Partly audited | More → Trainer requests (pending badge) and Appearance added. Dashboard/finance/front desk not re-audited. |
+| Classes, Progress, Membership detail, Documents, Exercise library, Running tracker | **Hidden from member navigation** | Still sample content; re-enable each when it reads real data. |
+| Theme | Light / dark / follow phone (default) | Screens read `context.palette` (`app/theme/repsi_palette.dart`) so dark mode no longer shows light-only colours. |
+| Localisation | en (stable), ta / ml / hi (**Beta**) | ARB catalogues in `lib/l10n`. Non-English languages are labelled Beta in the picker: they are drafts awaiting native-speaker review. Overflow tests at 320/412 px in en/ta/ml, light and dark (`test/coaching_screens_test.dart`). |
 | iOS | Not done | Only `NSCameraUsageDescription` was added; Health Connect is Android-only. |
 
 ### Why Health Connect and not "Google Fit"
@@ -50,7 +56,8 @@ installs the Health Connect app (the screen links to it).
 
 `/auth/login`, `/auth/google`, `/auth/refresh`, `/auth/me` (GET, DELETE), `/auth/me/password`, `/auth/logout`,
 `/members/me`, `/attendance/check-in`, `/attendance/check-out`, `/attendance/member/me`,
-`/attendance/member/me/pass`, `/attendance/scan-qr` (staff), `/health/daily`, `/payments/`, `/notifications/*`, `/ai/*`.
+`/attendance/member/me/pass`, `/attendance/scan-qr` (staff), `/health/daily`, `/payments/`, `/notifications/*`, `/ai/*`,
+`/coaching/*` (goals, suggestions, trainer requests), `/chat/*`, `/trainers/me/clients`, `/trainers/me/schedule`.
 
 ## 4. Setup
 

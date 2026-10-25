@@ -6,6 +6,7 @@ import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_search_field.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AdminGymsView extends StatefulWidget {
   const AdminGymsView({super.key});
@@ -53,7 +54,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -92,10 +93,10 @@ class _AdminGymsViewState extends State<AdminGymsView> {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: AppColors.primarySoft,
+                                color: context.palette.primarySoft,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.storefront_rounded, color: AppColors.primaryDark, size: 22),
+                              child: Icon(Icons.storefront_rounded, color: context.palette.primaryDark, size: 22),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -109,7 +110,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
                                         style: AppTypography.headingSmall.copyWith(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.text,
+                                          color: context.palette.text,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
@@ -134,7 +135,7 @@ class _AdminGymsViewState extends State<AdminGymsView> {
                                   Text(
                                     context.l10n.adminOwnerPlan('${gym['owner']}', '${gym['plan']}'),
                                     style: AppTypography.caption.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -149,14 +150,14 @@ class _AdminGymsViewState extends State<AdminGymsView> {
                                   style: AppTypography.headingSmall.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.text,
+                                    color: context.palette.text,
                                   ),
                                 ),
                                 Text(
                                   'members',
                                   style: AppTypography.caption.copyWith(
                                     fontSize: 11,
-                                    color: AppColors.textMuted,
+                                    color: context.palette.textMuted,
                                   ),
                                 ),
                               ],

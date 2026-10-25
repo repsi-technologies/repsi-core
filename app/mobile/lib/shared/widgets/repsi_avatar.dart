@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import 'repsi_skeleton.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiAvatar extends StatelessWidget {
   final String name;
@@ -21,10 +22,11 @@ class RepsiAvatar extends StatelessWidget {
   });
 
   String get _initials {
-    final parts = name.trim().split(' ');
-    if (parts.isEmpty || parts[0].isEmpty) return 'R';
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    // Grapheme-safe: Tamil/Devanagari names must not be split mid-character.
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return 'R';
+    if (parts.length == 1) return parts[0].characters.first.toUpperCase();
+    return '${parts[0].characters.first}${parts[1].characters.first}'.toUpperCase();
   }
 
   @override
@@ -35,10 +37,10 @@ class RepsiAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSubtle,
+        color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSubtle,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
+          color: isDark ? AppColors.darkBorder : context.palette.border,
           width: 1.5,
         ),
       ),
@@ -71,10 +73,10 @@ class RepsiAvatar extends StatelessWidget {
             width: size * 0.28,
             height: size * 0.28,
             decoration: BoxDecoration(
-              color: isOnline ? AppColors.success : AppColors.darkTextMuted,
+              color: isOnline ? context.palette.success : AppColors.darkTextMuted,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppColors.darkSurface : AppColors.surface,
+                color: isDark ? AppColors.darkSurface : context.palette.surface,
                 width: 2,
               ),
             ),

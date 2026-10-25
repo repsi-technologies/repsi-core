@@ -12,6 +12,7 @@ import '../../../shared/widgets/repsi_error_state.dart';
 import '../models/notification_model.dart';
 import '../providers/notification_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class NotificationInboxView extends ConsumerStatefulWidget {
   const NotificationInboxView({super.key});
@@ -63,9 +64,9 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
       case NotificationType.classBooking:
         return const Color(0xFF7C3AED);
       case NotificationType.workout:
-        return AppColors.success;
+        return context.palette.success;
       case NotificationType.system:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -76,13 +77,13 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         title: Text(
           context.l10n.commonNotifications,
           style: AppTypography.headingSmall.copyWith(
             fontWeight: FontWeight.w700,
-            color: isDark ? AppColors.darkText : AppColors.text,
+            color: isDark ? AppColors.darkText : context.palette.text,
           ),
         ),
         actions: [
@@ -108,7 +109,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? AppColors.darkBorder : AppColors.border,
+                  color: isDark ? AppColors.darkBorder : context.palette.border,
                   width: 1,
                 ),
               ),
@@ -232,7 +233,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSuccess : AppColors.success,
+                  color: isDark ? AppColors.darkSuccess : context.palette.success,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
                 ),
                 child: const Icon(LucideIcons.check, color: Colors.white, size: 22),
@@ -247,12 +248,12 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: item.isRead
-                        ? (isDark ? AppColors.darkSurface : AppColors.surface)
-                        : (isDark ? AppColors.darkPrimarySoft : AppColors.primarySoft),
+                        ? (isDark ? AppColors.darkSurface : context.palette.surface)
+                        : (isDark ? AppColors.darkPrimarySoft : context.palette.primarySoft),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
                     border: Border.all(
                       color: item.isRead
-                          ? (isDark ? AppColors.darkBorder : AppColors.border)
+                          ? (isDark ? AppColors.darkBorder : context.palette.border)
                           : AppColors.primary.withValues(alpha: 0.35),
                       width: item.isRead ? 1 : 1.2,
                     ),
@@ -289,7 +290,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                                     style: AppTypography.headingSmall.copyWith(
                                       fontSize: 14.5,
                                       fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w700,
-                                      color: isDark ? AppColors.darkText : AppColors.text,
+                                      color: isDark ? AppColors.darkText : context.palette.text,
                                     ),
                                   ),
                                 ),
@@ -311,7 +312,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                               item.message,
                               style: AppTypography.bodySecondary.copyWith(
                                 fontSize: 13,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                                color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -319,7 +320,7 @@ class _NotificationInboxViewState extends ConsumerState<NotificationInboxView> w
                               item.timeAgo(),
                               style: AppTypography.caption.copyWith(
                                 fontSize: 11,
-                                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                                color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
                               ),
                             ),
                           ],

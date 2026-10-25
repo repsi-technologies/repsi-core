@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/repsi_palette.dart';
 
 /// RepsiScreenBackground
 /// Provides a subtle, premium illustration background for screens.
@@ -44,9 +44,9 @@ class RepsiScreenBackground extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.background.withValues(alpha: 0.95),
-                  AppColors.background.withValues(alpha: 0.85),
-                  AppColors.background.withValues(alpha: 0.98),
+                  context.palette.background.withValues(alpha: 0.95),
+                  context.palette.background.withValues(alpha: 0.85),
+                  context.palette.background.withValues(alpha: 0.98),
                 ],
               ),
             ),

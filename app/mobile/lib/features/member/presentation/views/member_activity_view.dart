@@ -12,6 +12,7 @@ import '../../../attendance/providers/attendance_provider.dart';
 import '../../../health/data/health_models.dart';
 import '../../../health/providers/health_provider.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 /// Member progress, built only from data the member actually has: Health Connect totals the
 /// backend stores for them and their own gym visits.
@@ -35,7 +36,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
     final health = ref.watch(healthProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -66,7 +67,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.l10n.gymVisits, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
+                    Text(context.l10n.gymVisits, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: context.palette.text)),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -79,7 +80,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
                     const Divider(height: 24),
                     if (a.recentVisits.isEmpty)
                       Text(context.l10n.noVisitsStartStreak,
-                          style: AppTypography.bodySecondary.copyWith(color: AppColors.textSecondary))
+                          style: AppTypography.bodySecondary.copyWith(color: context.palette.textSecondary))
                     else
                       for (final v in a.recentVisits.take(8))
                         Padding(
@@ -90,7 +91,7 @@ class _MemberActivityViewState extends ConsumerState<MemberActivityView> {
                               const SizedBox(width: 10),
                               Expanded(child: Text(DateFormat('EEE, d MMM · h:mm a').format(v.checkInTime))),
                               Text(v.isOpen ? context.l10n.inProgress : v.durationLabel,
-                                  style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                                  style: AppTypography.caption.copyWith(color: context.palette.textSecondary)),
                             ],
                           ),
                         ),
@@ -131,7 +132,7 @@ class _StepsCard extends StatelessWidget {
           health.availability == HealthAvailability.unsupported
               ? context.l10n.healthStepsAndroidOnly
               : context.l10n.healthConnectFromHome,
-          style: AppTypography.bodySecondary.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.bodySecondary.copyWith(color: context.palette.textSecondary),
         ),
       );
     }
@@ -143,10 +144,10 @@ class _StepsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.l10n.stepsThisWeek, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: AppColors.text)),
+          Text(context.l10n.stepsThisWeek, style: AppTypography.sectionHeading.copyWith(fontSize: 16, color: context.palette.text)),
           const SizedBox(height: 4),
           Text(context.l10n.healthStepsSummary(nf.format(health.summary.totalSteps), nf.format(health.summary.averageSteps)),
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+              style: AppTypography.caption.copyWith(color: context.palette.textSecondary)),
           const SizedBox(height: 16),
           SizedBox(
             height: 160,
@@ -218,8 +219,8 @@ class _Figure extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: AppTypography.heading.copyWith(fontSize: 20, color: AppColors.text))),
-          Text(label, textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+          FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: AppTypography.heading.copyWith(fontSize: 20, color: context.palette.text))),
+          Text(label, textAlign: TextAlign.center, style: AppTypography.caption.copyWith(color: context.palette.textSecondary)),
         ],
       ),
     );

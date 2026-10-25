@@ -3248,4 +3248,567 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get startWorkout => 'വർക്ക്ഔട്ട് ആരംഭിക്കുക';
+
+  @override
+  String get languageBeta => 'ബീറ്റ';
+
+  @override
+  String get languageBetaNote =>
+      'ബീറ്റ എന്ന് അടയാളപ്പെടുത്തിയ ഭാഷകൾ പുതിയ വിവർത്തനങ്ങളാണ്; തെറ്റുകൾ ഉണ്ടാകാം. ഇംഗ്ലീഷ് എപ്പോഴും പൂർണ്ണമാണ്.';
+
+  @override
+  String get appearance => 'രൂപഭാവം';
+
+  @override
+  String get themeSystem => 'ഫോൺ ക്രമീകരണം';
+
+  @override
+  String get themeLight => 'ലൈറ്റ്';
+
+  @override
+  String get themeDark => 'ഡാർക്ക്';
+
+  @override
+  String get commonDone => 'പൂർത്തിയായി';
+
+  @override
+  String get letsTrain => 'നമുക്ക് പരിശീലിക്കാം';
+
+  @override
+  String get viewAll => 'എല്ലാം കാണുക';
+
+  @override
+  String get tomorrow => 'നാളെ';
+
+  @override
+  String get yesterday => 'ഇന്നലെ';
+
+  @override
+  String get thisWeek => 'ഈ ആഴ്ച';
+
+  @override
+  String get decline => 'നിരസിക്കുക';
+
+  @override
+  String get pause => 'താൽക്കാലികമായി നിർത്തുക';
+
+  @override
+  String get resume => 'തുടരുക';
+
+  @override
+  String get past => 'മുൻപത്തേത്';
+
+  @override
+  String get errorLoadPlan => 'നിങ്ങളുടെ വർക്ക്ഔട്ട് പ്ലാൻ ലോഡ് ചെയ്യാനായില്ല.';
+
+  @override
+  String get errorLoadTrainer => 'ട്രെയിനർ വിവരങ്ങൾ ലോഡ് ചെയ്യാനായില്ല.';
+
+  @override
+  String get errorOpenChat => 'ചാറ്റ് തുറക്കാനായില്ല.';
+
+  @override
+  String get errorLoadSchedule => 'ഷെഡ്യൂൾ ലോഡ് ചെയ്യാനായില്ല.';
+
+  @override
+  String get errorLoadMessages => 'സന്ദേശങ്ങൾ ലോഡ് ചെയ്യാനായില്ല.';
+
+  @override
+  String unitMinutes(int count) {
+    return '$count മിനിറ്റ്';
+  }
+
+  @override
+  String unitSeconds(int count) {
+    return '$count സെ';
+  }
+
+  @override
+  String restSeconds(int seconds) {
+    return 'വിശ്രമം $seconds സെ';
+  }
+
+  @override
+  String plusSeconds(int seconds) {
+    return '+$seconds സെ';
+  }
+
+  @override
+  String get goalGeneralFitness => 'ഫിറ്റും ആരോഗ്യവാനും';
+
+  @override
+  String get goalMobility => 'ചലനശേഷിയും വഴക്കവും';
+
+  @override
+  String get goalFatLossDesc =>
+      'ശക്തി, കണ്ടീഷനിംഗ് പരിശീലനത്തിലൂടെ കൊഴുപ്പ് കുറയ്ക്കാം.';
+
+  @override
+  String get goalMuscleGainDesc => 'കേന്ദ്രീകൃത പരിശീലനത്തിലൂടെ പേശി വളർത്താം.';
+
+  @override
+  String get goalStrengthDesc =>
+      'കുറഞ്ഞ റെപ്പ് കോമ്പൗണ്ട് ലിഫ്റ്റുകളിലൂടെ കൂടുതൽ ഭാരം ഉയർത്താം.';
+
+  @override
+  String get goalEnduranceDesc =>
+      'കാർഡിയോയും സർക്യൂട്ടുകളും വഴി സ്റ്റാമിന കൂട്ടാം.';
+
+  @override
+  String get goalGeneralFitnessDesc =>
+      'എല്ലാ ദിവസവും കരുത്തോടെ ഇരിക്കാൻ സന്തുലിതമായ മിശ്രണം.';
+
+  @override
+  String get goalMobilityDesc =>
+      'നന്നായി ചലിക്കാം, മുറുക്കം കുറയ്ക്കാം, പരിക്ക് തടയാം.';
+
+  @override
+  String get levelBeginner => 'തുടക്കക്കാരൻ';
+
+  @override
+  String get levelIntermediate => 'ഇടത്തരം';
+
+  @override
+  String get levelAdvanced => 'അഡ്വാൻസ്ഡ്';
+
+  @override
+  String get levelBeginnerDesc =>
+      'പരിശീലനത്തിൽ പുതിയവർ അല്ലെങ്കിൽ ഇടവേളയ്ക്ക് ശേഷം തിരിച്ചെത്തുന്നവർ.';
+
+  @override
+  String get levelIntermediateDesc =>
+      '6 മാസമോ അതിലധികമോ സ്ഥിരമായി പരിശീലിക്കുന്നവർ.';
+
+  @override
+  String get levelAdvancedDesc => 'വർഷങ്ങളായി ചിട്ടയായ പരിശീലനം.';
+
+  @override
+  String get focusFullBody => 'മുഴുവൻ ശരീരം';
+
+  @override
+  String get focusUpperBody => 'മേൽ ശരീരം';
+
+  @override
+  String get focusLowerBody => 'കീഴ് ശരീരം';
+
+  @override
+  String get focusCore => 'കോർ & വയറ്';
+
+  @override
+  String get focusArms => 'കൈകൾ';
+
+  @override
+  String get focusBack => 'പുറം';
+
+  @override
+  String get focusChest => 'നെഞ്ച്';
+
+  @override
+  String get focusGlutes => 'ഗ്ലൂട്ട്സ്';
+
+  @override
+  String get focusCardio => 'കാർഡിയോ';
+
+  @override
+  String get focusFlexibility => 'വഴക്കം';
+
+  @override
+  String get dayFullBody => 'ഫുൾ ബോഡി';
+
+  @override
+  String get dayUpper => 'അപ്പർ ബോഡി';
+
+  @override
+  String get dayLower => 'ലോവർ ബോഡി';
+
+  @override
+  String get dayPush => 'പുഷ്';
+
+  @override
+  String get dayPull => 'പുൾ';
+
+  @override
+  String get dayLegs => 'കാലുകൾ';
+
+  @override
+  String get dayConditioning => 'കണ്ടീഷനിംഗ്';
+
+  @override
+  String get dayCardio => 'കാർഡിയോ';
+
+  @override
+  String get dayMobility => 'മൊബിലിറ്റി';
+
+  @override
+  String dayNumber(int number) {
+    return 'ദിവസം $number';
+  }
+
+  @override
+  String goalStepCounter(int current, int total) {
+    return 'ഘട്ടം $current / $total';
+  }
+
+  @override
+  String get goalQuestionTitle => 'നിങ്ങളുടെ പ്രധാന ലക്ഷ്യം എന്താണ്?';
+
+  @override
+  String get goalQuestionSubtitle =>
+      'അതിനനുസരിച്ച് ആഴ്ചതോറുമുള്ള പ്ലാൻ ഒരുക്കാം. എപ്പോൾ വേണമെങ്കിലും മാറ്റാം.';
+
+  @override
+  String get levelQuestionTitle => 'നിങ്ങളുടെ പരിചയം എത്രയാണ്?';
+
+  @override
+  String get levelQuestionSubtitle =>
+      'ഇതനുസരിച്ച് വ്യായാമങ്ങളും സെറ്റുകളും വിശ്രമവും ക്രമീകരിക്കും.';
+
+  @override
+  String get scheduleQuestionTitle => 'എത്ര തവണ പരിശീലിക്കാം?';
+
+  @override
+  String get scheduleQuestionSubtitle =>
+      'നിങ്ങളുടെ ആഴ്ചയ്ക്ക് യോജിച്ചത് തിരഞ്ഞെടുക്കുക — സ്ഥിരതയാണ് പ്രധാനം.';
+
+  @override
+  String get daysPerWeekLabel => 'ആഴ്ചയിൽ ദിവസങ്ങൾ';
+
+  @override
+  String daysPerWeekValue(int count) {
+    return 'ആഴ്ചയിൽ $count ദിവസം';
+  }
+
+  @override
+  String get sessionLengthLabel => 'ഓരോ സെഷനും സമയം';
+
+  @override
+  String get focusQuestionTitle => 'പ്രത്യേക ശ്രദ്ധ വേണ്ടത് എന്തിലാണ്?';
+
+  @override
+  String get focusQuestionSubtitle =>
+      'നിർബന്ധമില്ല. നിങ്ങളുടെ ട്രെയിനറും ഇത് കാണും.';
+
+  @override
+  String get buildMyPlan => 'എന്റെ പ്ലാൻ ഒരുക്കുക';
+
+  @override
+  String get goalSaveFailed =>
+      'ലക്ഷ്യം സേവ് ചെയ്യാനായില്ല. വീണ്ടും ശ്രമിക്കുക.';
+
+  @override
+  String get goalSavedTitle => 'നിങ്ങളുടെ പ്ലാൻ തയ്യാർ';
+
+  @override
+  String get goalSavedSubtitle =>
+      'നിങ്ങളുടെ ലക്ഷ്യവും ആഴ്ചയും അനുസരിച്ച് ഒരുക്കിയത്.';
+
+  @override
+  String get myWorkoutPlan => 'എന്റെ വർക്ക്ഔട്ട് പ്ലാൻ';
+
+  @override
+  String get editGoal => 'ലക്ഷ്യം മാറ്റുക';
+
+  @override
+  String get yourGoal => 'നിങ്ങളുടെ ലക്ഷ്യം';
+
+  @override
+  String get noGoalTitle => 'ആദ്യം നിങ്ങളുടെ ലക്ഷ്യം നിശ്ചയിക്കുക';
+
+  @override
+  String get noGoalMessage =>
+      'എന്തിനാണ് പരിശീലിക്കുന്നതെന്ന് പറയൂ, ആഴ്ചതോറുമുള്ള പ്ലാൻ നിർദ്ദേശിക്കാം.';
+
+  @override
+  String get setMyGoal => 'എന്റെ ലക്ഷ്യം നിശ്ചയിക്കുക';
+
+  @override
+  String get setGoalCardTitle => 'എന്തിനാണ് നിങ്ങൾ പരിശീലിക്കുന്നത്?';
+
+  @override
+  String get setGoalCardBody =>
+      '4 ചെറിയ ചോദ്യങ്ങൾക്ക് ഉത്തരം നൽകി നിങ്ങൾക്കായുള്ള പ്ലാൻ നേടൂ.';
+
+  @override
+  String exerciseCount(int count) {
+    return '$count വ്യായാമങ്ങൾ';
+  }
+
+  @override
+  String get howToDoIt => 'ചെയ്യേണ്ട വിധം';
+
+  @override
+  String get myGoalAndPlan => 'എന്റെ ലക്ഷ്യവും പ്ലാനും';
+
+  @override
+  String exerciseOfTotal(int current, int total) {
+    return 'വ്യായാമം $current / $total';
+  }
+
+  @override
+  String setOfTotal(int current, int total) {
+    return 'സെറ്റ് $current / $total';
+  }
+
+  @override
+  String nextUpName(String name) {
+    return 'അടുത്തത്: $name';
+  }
+
+  @override
+  String get restTime => 'വിശ്രമം';
+
+  @override
+  String get repsLabel => 'റെപ്പുകൾ';
+
+  @override
+  String get holdOrMove => 'തുടരുക';
+
+  @override
+  String get startSet => 'ആരംഭിക്കുക';
+
+  @override
+  String get setDone => 'സെറ്റ് പൂർത്തിയായി';
+
+  @override
+  String get skipRest => 'വിശ്രമം ഒഴിവാക്കുക';
+
+  @override
+  String get endWorkoutTitle => 'ഈ വർക്ക്ഔട്ട് അവസാനിപ്പിക്കണോ?';
+
+  @override
+  String get endWorkoutBody => 'ഈ സെഷനിലെ പുരോഗതി സൂക്ഷിക്കില്ല.';
+
+  @override
+  String get keepGoing => 'തുടരുക';
+
+  @override
+  String get endWorkout => 'വർക്ക്ഔട്ട് അവസാനിപ്പിക്കുക';
+
+  @override
+  String get workoutCompleteTitle => 'വർക്ക്ഔട്ട് പൂർത്തിയായി!';
+
+  @override
+  String workoutCompleteSubtitle(String focus) {
+    return 'മികച്ച $focus സെഷൻ. നന്നായി വിശ്രമിച്ച് കൂടുതൽ കരുത്തോടെ വരൂ.';
+  }
+
+  @override
+  String get statDuration => 'ദൈർഘ്യം';
+
+  @override
+  String get statExercises => 'വ്യായാമങ്ങൾ';
+
+  @override
+  String get statSets => 'സെറ്റുകൾ';
+
+  @override
+  String get myTrainer => 'എന്റെ ട്രെയിനർ';
+
+  @override
+  String get yourTrainer => 'നിങ്ങളുടെ ട്രെയിനർ';
+
+  @override
+  String get messageTrainer => 'ട്രെയിനർക്ക് സന്ദേശം';
+
+  @override
+  String get getATrainer => 'പേഴ്സണൽ ട്രെയിനറെ നേടൂ';
+
+  @override
+  String get getATrainerHint =>
+      'നിങ്ങൾക്ക് ട്രെയിനറെ നിയോഗിക്കാൻ ജിമ്മിനോട് ആവശ്യപ്പെടുക.';
+
+  @override
+  String get noTrainerTitle => 'ഒരു കോച്ചിനൊപ്പം പരിശീലിക്കൂ';
+
+  @override
+  String get noTrainerMessage =>
+      'ട്രെയിനറെയോ പേഴ്സണൽ ട്രെയിനിംഗോ അഭ്യർത്ഥിക്കുക. ജിം ഉടമ പരിശോധിച്ച് ഒരാളെ നിയോഗിക്കും.';
+
+  @override
+  String get trainerPerkPlan => 'നിങ്ങളുടെ ലക്ഷ്യത്തിന് യോജിച്ച പ്ലാൻ';
+
+  @override
+  String get trainerPerkChat => 'ആപ്പിൽ നേരിട്ട് ചാറ്റ്';
+
+  @override
+  String get trainerPerkProgress => 'ഫോം പരിശോധനയും പുരോഗതി അവലോകനവും';
+
+  @override
+  String get requestATrainer => 'ട്രെയിനറെ അഭ്യർത്ഥിക്കുക';
+
+  @override
+  String get requestPersonalTraining => 'പേഴ്സണൽ ട്രെയിനിംഗ് അഭ്യർത്ഥിക്കുക';
+
+  @override
+  String get requestPersonalTrainingHint => 'ജിം ഒരുക്കുന്ന വ്യക്തിഗത സെഷനുകൾ.';
+
+  @override
+  String get requestKindTrainer => 'ട്രെയിനർ';
+
+  @override
+  String get requestKindPt => 'പേഴ്സണൽ ട്രെയിനിംഗ്';
+
+  @override
+  String get requestSheetTitle => 'ട്രെയിനറെ ആവശ്യപ്പെടുക';
+
+  @override
+  String get requestSheetSubtitle =>
+      'ഈ അഭ്യർത്ഥന ജിം ഉടമയ്ക്ക് ലഭിക്കും, അവർ ട്രെയിനറെ നിയോഗിക്കും.';
+
+  @override
+  String get preferredTrainerOptional => 'ഇഷ്ടപ്പെട്ട ട്രെയിനർ (നിർബന്ധമില്ല)';
+
+  @override
+  String get anyTrainer => 'ഏത് ട്രെയിനറും';
+
+  @override
+  String get anyTrainerHint => 'ഏറ്റവും അനുയോജ്യനെ ജിം തിരഞ്ഞെടുക്കട്ടെ';
+
+  @override
+  String get trainerFull => 'ബുക്കിംഗ് നിറഞ്ഞു';
+
+  @override
+  String get requestMessageHint => 'ജിം അറിയേണ്ടത്? സമയം, പരിക്കുകൾ…';
+
+  @override
+  String get sendRequest => 'അഭ്യർത്ഥന അയയ്ക്കുക';
+
+  @override
+  String get requestSent => 'അഭ്യർത്ഥന ജിമ്മിലേക്ക് അയച്ചു';
+
+  @override
+  String get requestPendingTitle => 'അഭ്യർത്ഥന പരിഗണനയിൽ';
+
+  @override
+  String get requestPendingShort =>
+      'ജിം ട്രെയിനറെ നിയോഗിക്കാൻ കാത്തിരിക്കുന്നു.';
+
+  @override
+  String get requestPendingBody =>
+      'ജിം ഉടൻ പരിശോധിക്കും. ട്രെയിനറെ നിയോഗിച്ചാൽ അറിയിപ്പ് ലഭിക്കും.';
+
+  @override
+  String get cancelRequest => 'അഭ്യർത്ഥന റദ്ദാക്കുക';
+
+  @override
+  String get cancelRequestTitle => 'ഈ അഭ്യർത്ഥന റദ്ദാക്കണോ?';
+
+  @override
+  String get cancelRequestBody =>
+      'എപ്പോൾ വേണമെങ്കിലും പുതിയ അഭ്യർത്ഥന അയയ്ക്കാം.';
+
+  @override
+  String get requestHistory => 'മുൻ അഭ്യർത്ഥനകൾ';
+
+  @override
+  String get requestApproved => 'അംഗീകരിച്ചു';
+
+  @override
+  String get requestDeclined => 'നിരസിച്ചു';
+
+  @override
+  String get requestCancelled => 'റദ്ദാക്കി';
+
+  @override
+  String get requestStatusPending => 'പരിഗണനയിൽ';
+
+  @override
+  String preferredTrainerValue(String name) {
+    return 'ഇഷ്ടം: $name';
+  }
+
+  @override
+  String assignedTrainerValue(String name) {
+    return '$name നിയോഗിക്കപ്പെട്ടു';
+  }
+
+  @override
+  String get chatIntro =>
+      'പ്ലാൻ, ഫോം, ഭക്ഷണം എന്നിവയെക്കുറിച്ച് ചോദിക്കൂ. ട്രെയിനർ ഇവിടെ മറുപടി നൽകും.';
+
+  @override
+  String get trainerRequests => 'ട്രെയിനർ അഭ്യർത്ഥനകൾ';
+
+  @override
+  String get trainerRequestsDesc => 'ട്രെയിനർ/PT ആവശ്യപ്പെടുന്ന അംഗങ്ങൾ';
+
+  @override
+  String get requestTabPending => 'പരിഗണനയിൽ';
+
+  @override
+  String get requestTabAll => 'എല്ലാം';
+
+  @override
+  String get noPendingRequests => 'പരിഗണനയിലുള്ള അഭ്യർത്ഥനകളില്ല';
+
+  @override
+  String get noRequests => 'ഇതുവരെ അഭ്യർത്ഥനകളില്ല';
+
+  @override
+  String get noRequestsMessage =>
+      'അംഗങ്ങൾ ആപ്പിൽ ട്രെയിനറെ ആവശ്യപ്പെടുമ്പോൾ ഇവിടെ കാണാം.';
+
+  @override
+  String get assignTrainer => 'ട്രെയിനറെ നിയോഗിക്കുക';
+
+  @override
+  String get chooseTrainer => 'ട്രെയിനറെ തിരഞ്ഞെടുക്കുക';
+
+  @override
+  String get memberPreferred => 'അംഗത്തിന്റെ തിരഞ്ഞെടുപ്പ്';
+
+  @override
+  String get noActiveTrainers => 'സജീവ ട്രെയിനർമാരില്ല. ആദ്യം ഒരാളെ ചേർക്കുക.';
+
+  @override
+  String get declineRequestTitle => 'അഭ്യർത്ഥന നിരസിക്കുക';
+
+  @override
+  String get declineReasonHint => 'അംഗത്തിനുള്ള കാരണം (നിർബന്ധമില്ല)';
+
+  @override
+  String get requestApprovedToast => 'ട്രെയിനറെ നിയോഗിച്ചു. അംഗത്തെ അറിയിച്ചു.';
+
+  @override
+  String get requestDeclinedToast => 'അഭ്യർത്ഥന നിരസിച്ചു.';
+
+  @override
+  String get clientNoGoal => 'ഈ അംഗം ഇതുവരെ ആപ്പിൽ ലക്ഷ്യം നിശ്ചയിച്ചിട്ടില്ല.';
+
+  @override
+  String get sessionsToday => 'ഇന്നത്തെ സെഷനുകൾ';
+
+  @override
+  String get activeClients => 'സജീവ ക്ലയന്റുകൾ';
+
+  @override
+  String get unreadMessages => 'വായിക്കാത്ത സന്ദേശങ്ങൾ';
+
+  @override
+  String get noSessionsToday => 'ഇന്ന് സെഷനുകളൊന്നും ബുക്ക് ചെയ്തിട്ടില്ല.';
+
+  @override
+  String get noUpcomingSessions => 'വരാനിരിക്കുന്ന സെഷനുകളില്ല';
+
+  @override
+  String get noPastSessions => 'മുൻ സെഷനുകളില്ല';
+
+  @override
+  String get sessionsBookedHint =>
+      'ജിമ്മോ അംഗങ്ങളോ ബുക്ക് ചെയ്ത സെഷനുകൾ ഇവിടെ കാണാം.';
+
+  @override
+  String get myClasses => 'എന്റെ ക്ലാസുകൾ';
+
+  @override
+  String get sessionScheduled => 'ഷെഡ്യൂൾ ചെയ്തു';
+
+  @override
+  String get sessionCompleted => 'പൂർത്തിയായി';
+
+  @override
+  String get sessionCancelled => 'റദ്ദാക്കി';
+
+  @override
+  String get sessionNoShow => 'വന്നില്ല';
 }

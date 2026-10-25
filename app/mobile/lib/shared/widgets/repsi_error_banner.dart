@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 class RepsiErrorBanner extends StatelessWidget {
   final String message;
   final String? title;
@@ -30,11 +30,11 @@ class RepsiErrorBanner extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.error.withValues(alpha: 0.12)
-            : AppColors.errorLight,
+            ? context.palette.error.withValues(alpha: 0.12)
+            : context.palette.errorLight,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.25),
+          color: context.palette.error.withValues(alpha: 0.25),
         ),
       ),
       child: Row(
@@ -45,7 +45,7 @@ class RepsiErrorBanner extends StatelessWidget {
             child: Icon(
               icon,
               size: 18,
-              color: AppColors.error,
+              color: context.palette.error,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -58,7 +58,7 @@ class RepsiErrorBanner extends StatelessWidget {
                   Text(
                     title!,
                     style: AppTypography.labelMedium.copyWith(
-                      color: isDark ? const Color(0xFFFCA5A5) : AppColors.error,
+                      color: isDark ? const Color(0xFFFCA5A5) : context.palette.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -67,7 +67,7 @@ class RepsiErrorBanner extends StatelessWidget {
                 Text(
                   message,
                   style: AppTypography.bodySmall.copyWith(
-                    color: isDark ? const Color(0xFFFCA5A5) : AppColors.error,
+                    color: isDark ? const Color(0xFFFCA5A5) : context.palette.error,
                     fontWeight: FontWeight.w400,
                     height: 1.3,
                   ),
@@ -86,13 +86,13 @@ class RepsiErrorBanner extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.15),
+                  color: context.palette.error.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   context.l10n.commonRetry,
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.error,
+                    color: context.palette.error,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

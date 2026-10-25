@@ -4,6 +4,7 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import 'repsi_card.dart';
+import '../../app/theme/repsi_palette.dart';
 
 class RepsiMetricCard extends StatelessWidget {
   final String title;
@@ -49,7 +50,7 @@ class RepsiMetricCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.labelMedium.copyWith(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -75,7 +76,7 @@ class RepsiMetricCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.headingMedium.copyWith(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
               fontWeight: FontWeight.w700,
               fontSize: 20,
             ),
@@ -87,13 +88,13 @@ class RepsiMetricCard extends StatelessWidget {
                 Icon(
                   trendPct! >= 0 ? LucideIcons.trendingUp : LucideIcons.trendingDown,
                   size: 13,
-                  color: trendPct! >= 0 ? AppColors.success : AppColors.error,
+                  color: trendPct! >= 0 ? context.palette.success : context.palette.error,
                 ),
                 const SizedBox(width: AppSpacing.xs / 2),
                 Text(
                   '${trendPct! >= 0 ? '+' : ''}${trendPct!.toStringAsFixed(1)}%',
                   style: AppTypography.caption.copyWith(
-                    color: trendPct! >= 0 ? AppColors.success : AppColors.error,
+                    color: trendPct! >= 0 ? context.palette.success : context.palette.error,
                     fontWeight: FontWeight.w600,
                     fontSize: 11,
                   ),
@@ -106,7 +107,7 @@ class RepsiMetricCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.caption.copyWith(
-                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                        color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
                         fontSize: 11,
                       ),
                     ),
@@ -120,7 +121,7 @@ class RepsiMetricCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.caption.copyWith(
-                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
                 fontSize: 11,
               ),
             ),

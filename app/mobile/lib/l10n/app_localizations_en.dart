@@ -3225,4 +3225,569 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startWorkout => 'Start workout';
+
+  @override
+  String get languageBeta => 'Beta';
+
+  @override
+  String get languageBetaNote =>
+      'Languages marked Beta are new translations and may contain mistakes. English is always complete.';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'Use phone setting';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get letsTrain => 'Let\'s train';
+
+  @override
+  String get viewAll => 'View all';
+
+  @override
+  String get tomorrow => 'Tomorrow';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get decline => 'Decline';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get past => 'Past';
+
+  @override
+  String get errorLoadPlan => 'Couldn\'t load your workout plan.';
+
+  @override
+  String get errorLoadTrainer => 'Couldn\'t load your trainer details.';
+
+  @override
+  String get errorOpenChat => 'Couldn\'t open the chat.';
+
+  @override
+  String get errorLoadSchedule => 'Couldn\'t load your schedule.';
+
+  @override
+  String get errorLoadMessages => 'Couldn\'t load messages.';
+
+  @override
+  String unitMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String unitSeconds(int count) {
+    return '$count s';
+  }
+
+  @override
+  String restSeconds(int seconds) {
+    return 'Rest $seconds s';
+  }
+
+  @override
+  String plusSeconds(int seconds) {
+    return '+$seconds s';
+  }
+
+  @override
+  String get goalGeneralFitness => 'Stay fit & healthy';
+
+  @override
+  String get goalMobility => 'Mobility & flexibility';
+
+  @override
+  String get goalFatLossDesc =>
+      'Burn fat and get leaner with strength and conditioning.';
+
+  @override
+  String get goalMuscleGainDesc =>
+      'Build size with focused hypertrophy training.';
+
+  @override
+  String get goalStrengthDesc => 'Lift heavier with low-rep compound lifts.';
+
+  @override
+  String get goalEnduranceDesc => 'Boost stamina with cardio and circuits.';
+
+  @override
+  String get goalGeneralFitnessDesc =>
+      'A balanced mix to feel strong every day.';
+
+  @override
+  String get goalMobilityDesc =>
+      'Move better, ease stiffness and prevent injury.';
+
+  @override
+  String get levelBeginner => 'Beginner';
+
+  @override
+  String get levelIntermediate => 'Intermediate';
+
+  @override
+  String get levelAdvanced => 'Advanced';
+
+  @override
+  String get levelBeginnerDesc =>
+      'New to training or coming back after a break.';
+
+  @override
+  String get levelIntermediateDesc =>
+      'Training regularly for 6 months or more.';
+
+  @override
+  String get levelAdvancedDesc => 'Years of consistent, structured training.';
+
+  @override
+  String get focusFullBody => 'Full body';
+
+  @override
+  String get focusUpperBody => 'Upper body';
+
+  @override
+  String get focusLowerBody => 'Lower body';
+
+  @override
+  String get focusCore => 'Core & abs';
+
+  @override
+  String get focusArms => 'Arms';
+
+  @override
+  String get focusBack => 'Back';
+
+  @override
+  String get focusChest => 'Chest';
+
+  @override
+  String get focusGlutes => 'Glutes';
+
+  @override
+  String get focusCardio => 'Cardio';
+
+  @override
+  String get focusFlexibility => 'Flexibility';
+
+  @override
+  String get dayFullBody => 'Full body';
+
+  @override
+  String get dayUpper => 'Upper body';
+
+  @override
+  String get dayLower => 'Lower body';
+
+  @override
+  String get dayPush => 'Push';
+
+  @override
+  String get dayPull => 'Pull';
+
+  @override
+  String get dayLegs => 'Legs';
+
+  @override
+  String get dayConditioning => 'Conditioning';
+
+  @override
+  String get dayCardio => 'Cardio';
+
+  @override
+  String get dayMobility => 'Mobility';
+
+  @override
+  String dayNumber(int number) {
+    return 'Day $number';
+  }
+
+  @override
+  String goalStepCounter(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get goalQuestionTitle => 'What\'s your main goal?';
+
+  @override
+  String get goalQuestionSubtitle =>
+      'We\'ll build a weekly plan around it. You can change it any time.';
+
+  @override
+  String get levelQuestionTitle => 'How experienced are you?';
+
+  @override
+  String get levelQuestionSubtitle =>
+      'This sets the exercises, sets and rest for you.';
+
+  @override
+  String get scheduleQuestionTitle => 'How often can you train?';
+
+  @override
+  String get scheduleQuestionSubtitle =>
+      'Pick what fits your week — consistency beats intensity.';
+
+  @override
+  String get daysPerWeekLabel => 'Days per week';
+
+  @override
+  String daysPerWeekValue(int count) {
+    return '$count days a week';
+  }
+
+  @override
+  String get sessionLengthLabel => 'Time per session';
+
+  @override
+  String get focusQuestionTitle => 'Anything to focus on?';
+
+  @override
+  String get focusQuestionSubtitle => 'Optional. Your trainer sees this too.';
+
+  @override
+  String get buildMyPlan => 'Build my plan';
+
+  @override
+  String get goalSaveFailed => 'Couldn\'t save your goal. Please try again.';
+
+  @override
+  String get goalSavedTitle => 'Your plan is ready';
+
+  @override
+  String get goalSavedSubtitle => 'Built around your goal and your week.';
+
+  @override
+  String get myWorkoutPlan => 'My workout plan';
+
+  @override
+  String get editGoal => 'Edit goal';
+
+  @override
+  String get yourGoal => 'Your goal';
+
+  @override
+  String get noGoalTitle => 'Set your goal first';
+
+  @override
+  String get noGoalMessage =>
+      'Tell us what you\'re training for and we\'ll suggest a weekly plan.';
+
+  @override
+  String get setMyGoal => 'Set my goal';
+
+  @override
+  String get setGoalCardTitle => 'What are you training for?';
+
+  @override
+  String get setGoalCardBody =>
+      'Answer 4 quick questions and get a weekly plan made for you.';
+
+  @override
+  String exerciseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get howToDoIt => 'How to do it';
+
+  @override
+  String get myGoalAndPlan => 'My goal & plan';
+
+  @override
+  String exerciseOfTotal(int current, int total) {
+    return 'Exercise $current of $total';
+  }
+
+  @override
+  String setOfTotal(int current, int total) {
+    return 'Set $current of $total';
+  }
+
+  @override
+  String nextUpName(String name) {
+    return 'Next: $name';
+  }
+
+  @override
+  String get restTime => 'Rest';
+
+  @override
+  String get repsLabel => 'reps';
+
+  @override
+  String get holdOrMove => 'keep going';
+
+  @override
+  String get startSet => 'Start';
+
+  @override
+  String get setDone => 'Set done';
+
+  @override
+  String get skipRest => 'Skip rest';
+
+  @override
+  String get endWorkoutTitle => 'End this workout?';
+
+  @override
+  String get endWorkoutBody => 'Your progress in this session won\'t be kept.';
+
+  @override
+  String get keepGoing => 'Keep going';
+
+  @override
+  String get endWorkout => 'End workout';
+
+  @override
+  String get workoutCompleteTitle => 'Workout complete!';
+
+  @override
+  String workoutCompleteSubtitle(String focus) {
+    return 'Great $focus session. Rest well and come back stronger.';
+  }
+
+  @override
+  String get statDuration => 'Duration';
+
+  @override
+  String get statExercises => 'Exercises';
+
+  @override
+  String get statSets => 'Sets';
+
+  @override
+  String get myTrainer => 'My trainer';
+
+  @override
+  String get yourTrainer => 'Your trainer';
+
+  @override
+  String get messageTrainer => 'Message trainer';
+
+  @override
+  String get getATrainer => 'Get a personal trainer';
+
+  @override
+  String get getATrainerHint => 'Ask your gym to assign a trainer to you.';
+
+  @override
+  String get noTrainerTitle => 'Train with a coach';
+
+  @override
+  String get noTrainerMessage =>
+      'Request a trainer or personal training. Your gym owner will review it and assign someone.';
+
+  @override
+  String get trainerPerkPlan => 'A plan tuned to your goal';
+
+  @override
+  String get trainerPerkChat => 'Chat directly in the app';
+
+  @override
+  String get trainerPerkProgress => 'Form checks and progress reviews';
+
+  @override
+  String get requestATrainer => 'Request a trainer';
+
+  @override
+  String get requestPersonalTraining => 'Request personal training';
+
+  @override
+  String get requestPersonalTrainingHint =>
+      'One-on-one sessions, arranged by your gym.';
+
+  @override
+  String get requestKindTrainer => 'Trainer';
+
+  @override
+  String get requestKindPt => 'Personal training';
+
+  @override
+  String get requestSheetTitle => 'Ask for a trainer';
+
+  @override
+  String get requestSheetSubtitle =>
+      'Your gym owner gets this request and assigns a trainer.';
+
+  @override
+  String get preferredTrainerOptional => 'Preferred trainer (optional)';
+
+  @override
+  String get anyTrainer => 'Any trainer';
+
+  @override
+  String get anyTrainerHint => 'Let the gym pick the best match';
+
+  @override
+  String get trainerFull => 'Fully booked';
+
+  @override
+  String get requestMessageHint =>
+      'Anything the gym should know? Timings, injuries…';
+
+  @override
+  String get sendRequest => 'Send request';
+
+  @override
+  String get requestSent => 'Request sent to your gym';
+
+  @override
+  String get requestPendingTitle => 'Request pending';
+
+  @override
+  String get requestPendingShort => 'Waiting for your gym to assign a trainer.';
+
+  @override
+  String get requestPendingBody =>
+      'Your gym will review it soon. You\'ll get a notification when a trainer is assigned.';
+
+  @override
+  String get cancelRequest => 'Cancel request';
+
+  @override
+  String get cancelRequestTitle => 'Cancel this request?';
+
+  @override
+  String get cancelRequestBody => 'You can send a new request any time.';
+
+  @override
+  String get requestHistory => 'Past requests';
+
+  @override
+  String get requestApproved => 'Approved';
+
+  @override
+  String get requestDeclined => 'Declined';
+
+  @override
+  String get requestCancelled => 'Cancelled';
+
+  @override
+  String get requestStatusPending => 'Pending';
+
+  @override
+  String preferredTrainerValue(String name) {
+    return 'Preferred: $name';
+  }
+
+  @override
+  String assignedTrainerValue(String name) {
+    return 'Assigned to $name';
+  }
+
+  @override
+  String get chatIntro =>
+      'Ask about your plan, form or diet. Your trainer replies here.';
+
+  @override
+  String get trainerRequests => 'Trainer requests';
+
+  @override
+  String get trainerRequestsDesc => 'Members asking for a trainer or PT';
+
+  @override
+  String get requestTabPending => 'Pending';
+
+  @override
+  String get requestTabAll => 'All';
+
+  @override
+  String get noPendingRequests => 'No pending requests';
+
+  @override
+  String get noRequests => 'No requests yet';
+
+  @override
+  String get noRequestsMessage =>
+      'When members ask for a trainer or personal training from the app, it shows up here.';
+
+  @override
+  String get assignTrainer => 'Assign trainer';
+
+  @override
+  String get chooseTrainer => 'Choose a trainer';
+
+  @override
+  String get memberPreferred => 'Member\'s choice';
+
+  @override
+  String get noActiveTrainers => 'No active trainers. Add one first.';
+
+  @override
+  String get declineRequestTitle => 'Decline request';
+
+  @override
+  String get declineReasonHint => 'Reason for the member (optional)';
+
+  @override
+  String get requestApprovedToast =>
+      'Trainer assigned. The member has been notified.';
+
+  @override
+  String get requestDeclinedToast => 'Request declined.';
+
+  @override
+  String get clientNoGoal => 'This member hasn\'t set a goal in the app yet.';
+
+  @override
+  String get sessionsToday => 'Sessions today';
+
+  @override
+  String get activeClients => 'Active clients';
+
+  @override
+  String get unreadMessages => 'Unread messages';
+
+  @override
+  String get noSessionsToday => 'No sessions booked for today.';
+
+  @override
+  String get noUpcomingSessions => 'No upcoming sessions';
+
+  @override
+  String get noPastSessions => 'No past sessions';
+
+  @override
+  String get sessionsBookedHint =>
+      'Sessions booked by your gym or members appear here.';
+
+  @override
+  String get myClasses => 'My classes';
+
+  @override
+  String get sessionScheduled => 'Scheduled';
+
+  @override
+  String get sessionCompleted => 'Completed';
+
+  @override
+  String get sessionCancelled => 'Cancelled';
+
+  @override
+  String get sessionNoShow => 'No-show';
 }

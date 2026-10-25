@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class OwnerSearchModal extends ConsumerStatefulWidget {
   const OwnerSearchModal({super.key});
@@ -167,8 +168,8 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.88,
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      decoration: BoxDecoration(
+        color: context.palette.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -180,7 +181,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: context.palette.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -194,7 +195,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border, width: 1.2),
+                border: Border.all(color: context.palette.border, width: 1.2),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x08000000),
@@ -206,7 +207,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               child: Row(
                 children: [
                   const SizedBox(width: 14),
-                  const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 22),
+                  Icon(Icons.search_rounded, color: context.palette.textMuted, size: 22),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
@@ -217,12 +218,12 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       style: AppTypography.body.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                       decoration: InputDecoration(
                         hintText: context.l10n.searchHint,
                         hintStyle: TextStyle(
-                          color: AppColors.textMuted,
+                          color: context.palette.textMuted,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -244,7 +245,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                     const SizedBox(width: 14),
                   ] else if (_searchController.text.isNotEmpty) ...[
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
+                      icon: Icon(Icons.close_rounded, size: 18, color: context.palette.textMuted),
                       onPressed: () {
                         _searchController.clear();
                         _onSearchChanged('');
@@ -256,7 +257,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       child: Text(
                         context.l10n.commonCancel,
                         style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -267,7 +268,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: context.palette.border),
 
           // Search Content Body
           Expanded(
@@ -292,7 +293,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                 style: AppTypography.caption.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -303,7 +304,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
-                    color: AppColors.primaryDark,
+                    color: context.palette.primaryDark,
                   ),
                 ),
               ),
@@ -314,21 +315,21 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.palette.border),
             ),
             child: Column(
               children: _recentSearches.map((item) {
                 return ListTile(
                   dense: true,
-                  leading: const Icon(Icons.history_rounded, size: 18, color: AppColors.textMuted),
+                  leading: Icon(Icons.history_rounded, size: 18, color: context.palette.textMuted),
                   title: Text(
                     item,
                     style: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: context.palette.text,
                     ),
                   ),
-                  trailing: const Icon(Icons.arrow_outward_rounded, size: 16, color: AppColors.textMuted),
+                  trailing: Icon(Icons.arrow_outward_rounded, size: 16, color: context.palette.textMuted),
                   onTap: () {
                     _searchController.text = item;
                     _onSearchChanged(item);
@@ -346,7 +347,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           style: AppTypography.caption.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 12,
-            color: AppColors.textSecondary,
+            color: context.palette.textSecondary,
             letterSpacing: 0.5,
           ),
         ),
@@ -370,7 +371,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.palette.border),
                 ),
                 child: Row(
                   children: [
@@ -378,10 +379,10 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.primarySoft,
+                        color: context.palette.primarySoft,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(f['icon'] as IconData, size: 18, color: AppColors.primaryDark),
+                      child: Icon(f['icon'] as IconData, size: 18, color: context.palette.primaryDark),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -394,7 +395,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                             style: AppTypography.bodySmall.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -402,7 +403,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                           Text(
                             f['category'] as String,
                             style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                               fontSize: 11,
                             ),
                           ),
@@ -429,18 +430,18 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
+              Icon(Icons.search_off_rounded, size: 48, color: context.palette.textMuted),
               const SizedBox(height: 12),
               Text(
                 _searchError != null ? context.l10n.searchUnavailable : context.l10n.searchNoResults(_query),
                 textAlign: TextAlign.center,
-                style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, color: AppColors.text),
+                style: AppTypography.body.copyWith(fontWeight: FontWeight.w700, color: context.palette.text),
               ),
               const SizedBox(height: 6),
               Text(
                 _searchError ?? context.l10n.searchEmptyHint,
                 textAlign: TextAlign.center,
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(color: context.palette.textSecondary),
               ),
             ],
           ),
@@ -463,7 +464,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 11.5,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -483,7 +484,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               style: AppTypography.caption.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: 11.5,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -501,7 +502,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               style: AppTypography.caption.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: 11.5,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -526,7 +527,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
         boxShadow: const [
           BoxShadow(
             color: Color(0x05000000),
@@ -545,16 +546,16 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.palette.primarySoft,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   name.isNotEmpty ? name[0].toUpperCase() : 'M',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: AppColors.primaryDark,
+                    color: context.palette.primaryDark,
                     fontSize: 16,
                   ),
                 ),
@@ -569,7 +570,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       style: AppTypography.bodySmall.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -577,14 +578,14 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       children: [
                         Text(
                           context.l10n.memberIdLabel,
-                          style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
+                          style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 12),
                         ),
                         Text(
                           code,
                           style: AppTypography.caption.copyWith(
                             fontFamily: 'monospace',
                             fontWeight: FontWeight.w700,
-                            color: AppColors.text,
+                            color: context.palette.text,
                             fontSize: 12,
                           ),
                         ),
@@ -615,7 +616,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           ),
 
           const SizedBox(height: 12),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: context.palette.border),
           const SizedBox(height: 10),
 
           // Detail specs and Actions: Attendance View & Profile View
@@ -625,11 +626,11 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
               // Membership Pill
               Row(
                 children: [
-                  const Icon(Icons.card_membership_rounded, size: 14, color: AppColors.textSecondary),
+                  Icon(Icons.card_membership_rounded, size: 14, color: context.palette.textSecondary),
                   const SizedBox(width: 4),
                   Text(
                     context.l10n.commonMembership,
-                    style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
+                    style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 12),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -637,7 +638,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: isActive ? AppColors.primaryDark : const Color(0xFFD97706),
+                      color: isActive ? context.palette.primaryDark : const Color(0xFFD97706),
                     ),
                   ),
                 ],
@@ -652,14 +653,14 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: context.palette.border),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(
                       context.l10n.commonAttendance,
                       style: AppTypography.caption.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: context.palette.text,
                         fontSize: 11.5,
                       ),
                     ),
@@ -704,7 +705,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Row(
         children: [
@@ -728,13 +729,13 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
                   style: AppTypography.bodySmall.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
-                    color: AppColors.text,
+                    color: context.palette.text,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$code • $spec',
-                  style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 12),
+                  style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -773,7 +774,7 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: ListTile(
         dense: true,
@@ -781,33 +782,33 @@ class _OwnerSearchModalState extends ConsumerState<OwnerSearchModal> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.primarySoft,
+            color: context.palette.primarySoft,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.primaryDark, size: 18),
+          child: Icon(icon, color: context.palette.primaryDark, size: 18),
         ),
         title: Text(
           title,
           style: AppTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 13.5,
-            color: AppColors.text,
+            color: context.palette.text,
           ),
         ),
         subtitle: Text(
           desc,
-          style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11),
+          style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 11),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.palette.background,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.palette.border),
           ),
           child: Text(
             cat,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: context.palette.textSecondary),
           ),
         ),
         onTap: () => _navigateToRoute(route, recentTerm: title),

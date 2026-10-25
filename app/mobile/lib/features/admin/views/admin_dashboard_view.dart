@@ -5,6 +5,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../shared/animations/repsi_stagger.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AdminDashboardView extends StatelessWidget {
   const AdminDashboardView({super.key});
@@ -12,7 +13,7 @@ class AdminDashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -37,14 +38,14 @@ class AdminDashboardView extends StatelessWidget {
                             style: AppTypography.heading.copyWith(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.text,
+                              color: context.palette.text,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             context.l10n.platformMetrics,
                             style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                               fontSize: 13,
                             ),
                             maxLines: 1,
@@ -130,7 +131,7 @@ class AdminDashboardView extends StatelessWidget {
                             value: '₹14.2L',
                             subtext: context.l10n.mrrThisMonth,
                             icon: Icons.account_balance_wallet_outlined,
-                            valueColor: AppColors.primaryDark,
+                            valueColor: context.palette.primaryDark,
                           ),
                         ),
                         SizedBox(width: 12),
@@ -171,14 +172,14 @@ class AdminDashboardView extends StatelessWidget {
                           style: AppTypography.headingSmall.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.text,
+                            color: context.palette.text,
                           ),
                         ),
                       ),
                       Text(
                         context.l10n.adminUptime('99.98'),
                         style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -217,7 +218,7 @@ class _AdminStatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,11 +229,11 @@ class _AdminStatCard extends StatelessWidget {
               Text(
                 label,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   fontSize: 12,
                 ),
               ),
-              Icon(icon, size: 18, color: AppColors.textMuted),
+              Icon(icon, size: 18, color: context.palette.textMuted),
             ],
           ),
           const SizedBox(height: 8),
@@ -241,14 +242,14 @@ class _AdminStatCard extends StatelessWidget {
             style: AppTypography.heading.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w800,
-              color: valueColor ?? AppColors.text,
+              color: valueColor ?? context.palette.text,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             subtext,
             style: AppTypography.caption.copyWith(
-              color: AppColors.textMuted,
+              color: context.palette.textMuted,
               fontSize: 11,
             ),
           ),

@@ -17,6 +17,7 @@ import '../../workspaces/providers/workspace_provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'owner_search_modal.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
@@ -100,7 +101,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                         _SectionTitle(context.l10n.needsAttention, palette: c),
                         _AttentionRow(
                           icon: Icons.event_busy_rounded,
-                          tone: isDark ? AppColors.darkWarning : AppColors.warning,
+                          tone: isDark ? AppColors.darkWarning : context.palette.warning,
                           title: context.l10n.dashExpiringSoon(metrics.expiringMemberships),
                           subtitle: context.l10n.remindToRenew,
                           onTap: () => context.go(RouteNames.members),
@@ -266,15 +267,15 @@ class _TrialBanner extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkPrimarySoft : AppColors.primarySoft,
+          color: isDark ? AppColors.darkPrimarySoft : context.palette.primarySoft,
           borderRadius: BorderRadius.circular(AppSpacing.radiusDefault),
         ),
         child: Row(
           children: [
-            Icon(Icons.hourglass_bottom_rounded, size: 18, color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark),
+            Icon(Icons.hourglass_bottom_rounded, size: 18, color: isDark ? AppColors.darkPrimaryLight : context.palette.primaryDark),
             const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: Text(text, style: AppTypography.bodySmall.copyWith(color: isDark ? AppColors.darkText : AppColors.text)),
+              child: Text(text, style: AppTypography.bodySmall.copyWith(color: isDark ? AppColors.darkText : context.palette.text)),
             ),
           ],
         ),
@@ -618,7 +619,7 @@ class _AttendanceChart extends StatelessWidget {
                 ),
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => palette.dark ? AppColors.darkSurfaceElevated : AppColors.text,
+                    getTooltipColor: (_) => palette.dark ? AppColors.darkSurfaceElevated : context.palette.text,
                     getTooltipItem: (group, _, rod, __) => BarTooltipItem(
                       context.l10n.dashCheckinsCount(rod.toY.toInt()),
                       AppTypography.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w600),

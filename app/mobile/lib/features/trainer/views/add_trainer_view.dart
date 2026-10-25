@@ -11,6 +11,7 @@ import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../../operations/providers/operations_provider.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class AddTrainerView extends ConsumerStatefulWidget {
   const AddTrainerView({super.key});
@@ -102,20 +103,20 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           context.l10n.addNewTrainer,
           style: AppTypography.headingSmall.copyWith(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
         ),
         leading: IconButton(
           icon: Icon(
             LucideIcons.arrowLeft,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
@@ -169,7 +170,7 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
                 Text(
                   context.l10n.specialization,
                   style: AppTypography.labelMedium.copyWith(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -184,12 +185,12 @@ class _AddTrainerViewState extends ConsumerState<AddTrainerView> {
                       onSelected: (selected) {
                         if (selected) setState(() => _selectedSpecialization = spec);
                       },
-                      selectedColor: AppColors.primarySoft,
-                      backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                      selectedColor: context.palette.primarySoft,
+                      backgroundColor: isDark ? AppColors.darkSurface : context.palette.surface,
                       labelStyle: TextStyle(
                         color: isSelected
                             ? AppColors.primary
-                            : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                            : (isDark ? AppColors.darkTextPrimary : context.palette.textPrimary),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         fontSize: 12,
                       ),

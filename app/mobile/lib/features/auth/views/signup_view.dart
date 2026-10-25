@@ -11,6 +11,7 @@ import '../../../shared/widgets/repsi_text_field.dart';
 import '../providers/auth_provider.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 class SignupView extends ConsumerStatefulWidget {
   const SignupView({super.key});
 
@@ -86,14 +87,14 @@ class _SignupViewState extends ConsumerState<SignupView> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             LucideIcons.arrowLeft,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
           ),
           onPressed: () {
             if (_currentStep == 1) {
@@ -128,7 +129,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                       decoration: BoxDecoration(
                         color: _currentStep == 1
                             ? AppColors.primary
-                            : (isDark ? AppColors.darkSurfaceElevated : AppColors.border),
+                            : (isDark ? AppColors.darkSurfaceElevated : context.palette.border),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -139,7 +140,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
               Text(
                 _currentStep == 0 ? context.l10n.createAccountTitle : context.l10n.joinGymTitle,
                 style: AppTypography.headingLarge.copyWith(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -148,7 +149,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                     ? context.l10n.signupStep1
                     : context.l10n.signupStep2,
                 style: AppTypography.bodySmall.copyWith(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -156,12 +157,12 @@ class _SignupViewState extends ConsumerState<SignupView> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.error.withValues(alpha: 0.15) : AppColors.errorLight,
+                    color: isDark ? context.palette.error.withValues(alpha: 0.15) : context.palette.errorLight,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
                   child: Text(
                     authState.errorMessage!,
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.error),
+                    style: AppTypography.bodySmall.copyWith(color: context.palette.error),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -187,7 +188,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.user,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
             validator: (val) => val == null || val.trim().isEmpty ? context.l10n.fullNameRequired : null,
           ),
@@ -200,7 +201,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.mail,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
             validator: (val) {
               if (val == null || val.trim().isEmpty) return context.l10n.emailRequired;
@@ -217,7 +218,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.lock,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
             validator: (val) {
               if (val == null || val.isEmpty) return context.l10n.passwordRequired;
@@ -251,7 +252,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.building,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
             validator: (val) => val == null || val.trim().isEmpty ? context.l10n.gymCodeRequired : null,
           ),
@@ -259,9 +260,9 @@ class _SignupViewState extends ConsumerState<SignupView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.surfaceSubtle,
+              color: isDark ? AppColors.darkSurface : context.palette.surfaceSubtle,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+              border: Border.all(color: isDark ? AppColors.darkBorder : context.palette.border),
             ),
             child: Row(
               children: [
@@ -272,7 +273,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                     context.l10n.signupJoining(_generatedSlug.isEmpty ? 'your-gym' : _generatedSlug),
                     style: AppTypography.caption.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                      color: isDark ? AppColors.darkTextPrimary : context.palette.textPrimary,
                     ),
                   ),
                 ),
@@ -288,7 +289,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.phone,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -299,7 +300,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
             prefixIcon: Icon(
               LucideIcons.mapPin,
               size: 18,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: isDark ? AppColors.darkTextMuted : context.palette.textMuted,
             ),
           ),
           const SizedBox(height: AppSpacing.xxl),

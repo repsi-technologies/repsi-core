@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
+import '../../app/theme/repsi_palette.dart';
 
 enum RepsiBadgeVariant {
   active,
@@ -36,34 +36,34 @@ class RepsiBadge extends StatelessWidget {
     switch (variant) {
       case RepsiBadgeVariant.active:
       case RepsiBadgeVariant.success:
-        bg = AppColors.badgeActiveBg;
-        fg = AppColors.badgeActiveFg;
+        bg = context.palette.badgeActiveBg;
+        fg = context.palette.badgeActiveFg;
         break;
       case RepsiBadgeVariant.expiring:
       case RepsiBadgeVariant.warning:
-        bg = AppColors.badgeExpiringBg;
-        fg = AppColors.badgeExpiringFg;
+        bg = context.palette.badgeExpiringBg;
+        fg = context.palette.badgeExpiringFg;
         break;
       case RepsiBadgeVariant.expired:
       case RepsiBadgeVariant.error:
-        bg = AppColors.badgeExpiredBg;
-        fg = AppColors.badgeExpiredFg;
+        bg = context.palette.badgeExpiredBg;
+        fg = context.palette.badgeExpiredFg;
         break;
       case RepsiBadgeVariant.frozen:
-        bg = AppColors.badgeFrozenBg;
-        fg = AppColors.badgeFrozenFg;
+        bg = context.palette.badgeFrozenBg;
+        fg = context.palette.badgeFrozenFg;
         break;
       case RepsiBadgeVariant.cancelled:
-        bg = AppColors.badgeCancelledBg;
-        fg = AppColors.badgeCancelledFg;
+        bg = context.palette.badgeCancelledBg;
+        fg = context.palette.badgeCancelledFg;
         break;
       case RepsiBadgeVariant.info:
         bg = const Color(0xFFEFF6FF);
         fg = const Color(0xFF2563EB);
         break;
       case RepsiBadgeVariant.neutral:
-        bg = AppColors.surfaceSubtle;
-        fg = AppColors.textSecondary;
+        bg = context.palette.surfaceSubtle;
+        fg = context.palette.textSecondary;
         break;
     }
 

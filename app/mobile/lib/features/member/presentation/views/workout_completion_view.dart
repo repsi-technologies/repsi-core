@@ -5,6 +5,7 @@ import '../../../../shared/models/workout_models.dart';
 import '../../../../shared/widgets/repsi_button.dart';
 import '../../../../shared/widgets/repsi_card.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../app/theme/repsi_palette.dart';
 
 class WorkoutCompletionView extends StatefulWidget {
   final int durationSeconds;
@@ -37,11 +38,11 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(context.l10n.workoutSummary, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.text)),
+        title: Text(context.l10n.workoutSummary, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: context.palette.text)),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -54,11 +55,11 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: context.palette.primarySoft,
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.primary, width: 2),
               ),
-              child: const Icon(Icons.emoji_events_rounded, color: AppColors.primaryDark, size: 40),
+              child: Icon(Icons.emoji_events_rounded, color: context.palette.primaryDark, size: 40),
             ),
             const SizedBox(height: 14),
             Text(
@@ -67,14 +68,14 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.1,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               context.l10n.workoutRecorded,
               textAlign: TextAlign.center,
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 13),
+              style: AppTypography.caption.copyWith(color: context.palette.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 20),
 
@@ -126,7 +127,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildStatBox(context.l10n.exercises, '🏋️ 6 done', Icons.fitness_center_rounded, AppColors.primaryDark),
+                _buildStatBox(context.l10n.exercises, '🏋️ 6 done', Icons.fitness_center_rounded, context.palette.primaryDark),
                 const SizedBox(width: 12),
                 _buildStatBox(context.l10n.totalVolume, '4,250 kg', Icons.bar_chart_rounded, const Color(0xFF8B5CF6)),
               ],
@@ -158,7 +159,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                         SizedBox(height: 2),
                         Text(
                           'Bench Press: 60 kg × 10 reps (Set 4)',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.text),
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: context.palette.text),
                         ),
                       ],
                     ),
@@ -173,7 +174,7 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
               alignment: Alignment.centerLeft,
               child: Text(
                 context.l10n.howDidItFeel,
-                style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.text),
+                style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, fontSize: 13, color: context.palette.text),
               ),
             ),
             const SizedBox(height: 10),
@@ -186,9 +187,9 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                   selected: isSelected,
                   onSelected: (_) => setState(() => _selectedRating = rating),
                   selectedColor: AppColors.primary,
-                  backgroundColor: AppColors.surfaceSubtle,
+                  backgroundColor: context.palette.surfaceSubtle,
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    color: isSelected ? Colors.white : context.palette.textSecondary,
                     fontWeight: FontWeight.bold,
                     fontSize: 11,
                   ),
@@ -233,17 +234,17 @@ class _WorkoutCompletionViewState extends State<WorkoutCompletionView> {
                 const SizedBox(width: 6),
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 11, color: context.palette.textSecondary, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: AppColors.text,
+                color: context.palette.text,
               ),
             ),
           ],

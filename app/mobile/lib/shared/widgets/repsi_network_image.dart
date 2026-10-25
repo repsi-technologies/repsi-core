@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import 'repsi_skeleton.dart';
+import '../../app/theme/repsi_palette.dart';
 
 /// High-performance cached network image widget with bounded memory decoding,
 /// lightweight skeleton shimmer placeholders, and graceful error fallbacks.
@@ -72,14 +73,14 @@ class RepsiNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceElevated : AppColors.surfaceSubtle,
+        color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSubtle,
         borderRadius: borderRadius,
       ),
       alignment: Alignment.center,
       child: Icon(
         Icons.broken_image_outlined,
         size: (width != null && height != null) ? (width! < height! ? width! * 0.4 : height! * 0.4) : 24,
-        color: isDark ? AppColors.darkTextMuted : AppColors.textTertiary,
+        color: isDark ? AppColors.darkTextMuted : context.palette.textTertiary,
       ),
     );
   }

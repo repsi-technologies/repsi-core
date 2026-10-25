@@ -27,6 +27,12 @@ class CoachingRepository {
     return Conversation.fromJson(res.data!);
   }
 
+  /// Member side: the API only allows a currently assigned trainer.
+  Future<Conversation> openWithTrainer(String trainerId) async {
+    final res = await _api.post<Map<String, dynamic>>('/chat/conversations', data: {'trainer_id': trainerId});
+    return Conversation.fromJson(res.data!);
+  }
+
   Future<List<ThreadMessage>> messages(String conversationId) async {
     final res = await _api.get<List<dynamic>>('/chat/conversations/$conversationId/messages');
     await _api.post<Map<String, dynamic>>('/chat/conversations/$conversationId/read');

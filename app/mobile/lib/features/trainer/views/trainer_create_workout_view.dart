@@ -8,6 +8,7 @@ import '../../../shared/widgets/repsi_button.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../../shared/widgets/repsi_text_field.dart';
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class TrainerCreateWorkoutView extends StatefulWidget {
   const TrainerCreateWorkoutView({super.key});
@@ -117,7 +118,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
               Expanded(
                 child: ListView.separated(
                   itemCount: _libraryExercises.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border),
+                  separatorBuilder: (_, __) => Divider(height: 1, color: context.palette.border),
                   itemBuilder: (context, idx) {
                     final exName = _libraryExercises[idx];
                     return ListTile(
@@ -125,13 +126,13 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primarySoft,
+                          color: context.palette.primarySoft,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.fitness_center_rounded, color: AppColors.primaryDark, size: 20),
+                        child: Icon(Icons.fitness_center_rounded, color: context.palette.primaryDark, size: 20),
                       ),
                       title: Text(exName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                      subtitle: Text(context.l10n.compoundHypertrophy, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      subtitle: Text(context.l10n.compoundHypertrophy, style: TextStyle(color: context.palette.textSecondary, fontSize: 12)),
                       trailing: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary),
                       onTap: () {
                         setState(() {
@@ -178,7 +179,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.l10n.trainerAssignTo(_nameController.text), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(context.l10n.trainerAssignTo(_nameController.text), style: TextStyle(color: context.palette.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ...clients.map((c) {
                     final isSel = selectedClient == c;
@@ -190,7 +191,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                           children: [
                             Icon(
                               isSel ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
-                              color: isSel ? AppColors.primary : AppColors.textMuted,
+                              color: isSel ? AppColors.primary : context.palette.textMuted,
                               size: 20,
                             ),
                             const SizedBox(width: 10),
@@ -232,12 +233,12 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.text),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.palette.text),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -286,7 +287,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                       style: AppTypography.sectionHeading.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.text,
+                        color: context.palette.text,
                       ),
                     ),
                     TextButton.icon(
@@ -332,7 +333,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                   width: 32,
                                   height: 32,
                                   decoration: BoxDecoration(
-                                    color: AppColors.primarySoft,
+                                    color: context.palette.primarySoft,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Center(
@@ -340,7 +341,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                       '${index + 1}',
                                       style: AppTypography.headingSmall.copyWith(
                                         fontSize: 14,
-                                        color: AppColors.primaryDark,
+                                        color: context.palette.primaryDark,
                                       ),
                                     ),
                                   ),
@@ -355,14 +356,14 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                         style: AppTypography.headingSmall.copyWith(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.text,
+                                          color: context.palette.text,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
                                         context.l10n.trainerSetsRepsWeight('${ex['sets']}', '${ex['reps']}', '${ex['weight']}'),
                                         style: AppTypography.caption.copyWith(
-                                          color: AppColors.primaryDark,
+                                          color: context.palette.primaryDark,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 12,
                                         ),
@@ -373,14 +374,14 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.textMuted),
+                                      icon: Icon(Icons.delete_outline_rounded, size: 20, color: context.palette.textMuted),
                                       onPressed: () {
                                         setState(() {
                                           _exercises.removeAt(index);
                                         });
                                       },
                                     ),
-                                    const Icon(Icons.drag_indicator_rounded, color: AppColors.textMuted),
+                                    Icon(Icons.drag_indicator_rounded, color: context.palette.textMuted),
                                   ],
                                 ),
                               ],
@@ -389,17 +390,17 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceSubtle,
+                                color: context.palette.surfaceSubtle,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(context.l10n.trainerRest('${ex['rest']}'), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                                  Text(context.l10n.trainerTempo('${ex['tempo']}'), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  Text(context.l10n.trainerRest('${ex['rest']}'), style: TextStyle(fontSize: 11, color: context.palette.textSecondary)),
+                                  Text(context.l10n.trainerTempo('${ex['tempo']}'), style: TextStyle(fontSize: 11, color: context.palette.textSecondary)),
                                   Text(
                                     ex['notes'] as String,
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+                                    style: TextStyle(fontSize: 11, color: context.palette.textSecondary, fontStyle: FontStyle.italic),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
@@ -423,7 +424,7 @@ class _TrainerCreateWorkoutViewState extends State<TrainerCreateWorkoutView> {
                       children: [
                         Text(
                           context.l10n.saveAsTemplate,
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.text),
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: context.palette.text),
                         ),
                         Switch(
                           value: _saveAsTemplate,

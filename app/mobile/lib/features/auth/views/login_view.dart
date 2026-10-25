@@ -20,6 +20,7 @@ import '../widgets/auth_layout.dart';
 import 'verify_otp_view.dart';
 
 import '../../../l10n/l10n.dart';
+import '../../../app/theme/repsi_palette.dart';
 /// Sign-in entry. Mobile number + WhatsApp code is the default; email/password and Google stay
 /// available for accounts that use them.
 class LoginView extends ConsumerStatefulWidget {
@@ -156,7 +157,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
             children: [
               Text(
                 context.l10n.ownerSignupExplainer,
-                style: AppTypography.bodySecondary.copyWith(color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                style: AppTypography.bodySecondary.copyWith(color: isDark ? AppColors.darkTextSecondary : context.palette.textSecondary),
               ),
               const SizedBox(height: AppSpacing.xxl),
               RepsiButton(
@@ -188,8 +189,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
             (authState.status == AuthStatus.error || authState.status == AuthStatus.unauthenticated)
         ? authState.errorMessage
         : null;
-    final textColor = isDark ? AppColors.darkText : AppColors.text;
-    final secondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final textColor = isDark ? AppColors.darkText : context.palette.text;
+    final secondary = isDark ? AppColors.darkTextSecondary : context.palette.textSecondary;
 
     return AuthLayout(
       showBack: false,
@@ -207,7 +208,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
               child: Text(
                 context.l10n.startOnRepsi,
                 style: AppTypography.bodySmall.copyWith(
-                  color: isDark ? AppColors.darkPrimaryLight : AppColors.primaryDark,
+                  color: isDark ? AppColors.darkPrimaryLight : context.palette.primaryDark,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -301,7 +302,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           ),
           if (_phoneError != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(_phoneError!, style: AppTypography.caption.copyWith(color: AppColors.error)),
+            Text(_phoneError!, style: AppTypography.caption.copyWith(color: context.palette.error)),
           ],
           const SizedBox(height: AppSpacing.xl),
           RepsiButton(

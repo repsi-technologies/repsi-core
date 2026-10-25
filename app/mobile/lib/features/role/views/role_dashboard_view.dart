@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/models/user_model.dart';
+import '../../../app/theme/repsi_palette.dart';
 
 class RoleDashboardView extends StatelessWidget {
   final UserRole role;
@@ -19,19 +19,19 @@ class RoleDashboardView extends StatelessWidget {
         : const [('Membership', 'Active'), ('Today\'s workout', 'Not assigned'), ('Attendance', '0 days')];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.palette.background,
       appBar: AppBar(title: const Text('REPSI'), actions: const [Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.account_circle_outlined))]),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          Text(title, style: AppTypography.headingLarge.copyWith(color: AppColors.textPrimary)),
+          Text(title, style: AppTypography.headingLarge.copyWith(color: context.palette.textPrimary)),
           const SizedBox(height: AppSpacing.xs),
-          Text(subtitle, style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary)),
+          Text(subtitle, style: AppTypography.bodyMedium.copyWith(color: context.palette.textSecondary)),
           const SizedBox(height: AppSpacing.xl),
           ...cards.map((card) => Card(
                 child: ListTile(
                   title: Text(card.$1, style: AppTypography.labelLarge),
-                  trailing: Text(card.$2, style: AppTypography.headingMedium.copyWith(color: AppColors.primaryDark)),
+                  trailing: Text(card.$2, style: AppTypography.headingMedium.copyWith(color: context.palette.primaryDark)),
                 ),
               )),
         ],

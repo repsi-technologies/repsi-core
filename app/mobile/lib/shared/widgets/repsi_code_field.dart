@@ -6,6 +6,7 @@ import '../../app/theme/app_typography.dart';
 import '../animations/repsi_motion.dart';
 
 import '../../l10n/l10n.dart';
+import '../../app/theme/repsi_palette.dart';
 /// One-time code entry shown as separate digit boxes, backed by a single text field so paste,
 /// SMS/WhatsApp autofill and backspace all behave like a normal input.
 class RepsiCodeField extends StatefulWidget {
@@ -118,12 +119,12 @@ class _RepsiCodeFieldState extends State<RepsiCodeField> {
     final digit = i < code.length ? code[i] : '';
     final isCurrent = focused && (i == code.length || (i == widget.length - 1 && code.length == widget.length));
     final borderColor = widget.hasError
-        ? AppColors.error
+        ? context.palette.error
         : isCurrent
             ? AppColors.primary
             : digit.isNotEmpty
-                ? (isDark ? AppColors.darkBorderStrong : AppColors.borderStrong)
-                : (isDark ? AppColors.darkBorder : AppColors.border);
+                ? (isDark ? AppColors.darkBorderStrong : context.palette.borderStrong)
+                : (isDark ? AppColors.darkBorder : context.palette.border);
 
     return AspectRatio(
       aspectRatio: 0.86,
@@ -131,7 +132,7 @@ class _RepsiCodeFieldState extends State<RepsiCodeField> {
         duration: RepsiMotion.input,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.surface,
+          color: isDark ? AppColors.darkSurface : context.palette.surface,
           borderRadius: BorderRadius.circular(AppSpacing.radiusInput),
           border: Border.all(color: borderColor, width: isCurrent || widget.hasError ? 1.5 : 1),
         ),
@@ -140,7 +141,7 @@ class _RepsiCodeFieldState extends State<RepsiCodeField> {
           style: AppTypography.tabularNumber(
             fontSize: 22,
             fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.darkText : AppColors.text,
+            color: isDark ? AppColors.darkText : context.palette.text,
           ),
         ),
       ),
