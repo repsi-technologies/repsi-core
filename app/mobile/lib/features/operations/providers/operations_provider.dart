@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/config/app_config.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../core/api/api_time.dart';
 
@@ -63,7 +64,7 @@ final insideListProvider = FutureProvider.autoDispose<List<InsidePerson>>((ref) 
             attendanceId: j['attendance_id'].toString(),
             memberId: j['member_id']?.toString(),
             name: j['name']?.toString() ?? L10n.current.commonMember,
-            avatarUrl: j['avatar_url']?.toString(),
+            avatarUrl: AppConfig.resolveMediaUrl(j['avatar_url']?.toString()),
             planName: j['plan_name']?.toString(),
             duration: j['duration_formatted']?.toString() ?? '',
             checkIn: _dt(j['check_in_time']) ?? DateTime.now(),

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/config/app_config.dart';
 import '../../../core/api/api_error.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/providers/api_provider.dart';
@@ -84,7 +85,7 @@ class InsideNow {
 
   factory InsideNow.fromJson(Map<String, dynamic> j) => InsideNow(
         name: j['name']?.toString() ?? L10n.current.commonMember,
-        avatarUrl: j['avatar_url']?.toString(),
+        avatarUrl: AppConfig.resolveMediaUrl(j['avatar_url']?.toString()),
         planName: j['plan_name']?.toString(),
         personType: j['person_type']?.toString() ?? 'member',
         duration: j['duration_formatted']?.toString() ?? '',

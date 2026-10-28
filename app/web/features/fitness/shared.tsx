@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, ImageOff, Loader2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fitnessApi, type ApiFitnessContext, type ApiFitnessMeta, type ApiPlanItem, type FitMediaType } from "@/lib/fitness-api";
@@ -209,8 +209,11 @@ export function ExerciseMedia({
   const effectiveType = type || (matched ? "gif" : null);
   const thumbUrl = matched?.thumbUrl || (effectiveUrl && effectiveUrl.endsWith(".gif") ? effectiveUrl.replace(/\.gif$/, ".thumb.webp") : null);
 
+  const imgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
-    setState("loading");
+    // A cached image can finish before onLoad is attached; don't leave the overlay up for it.
+    const img = imgRef.current;
+    setState(img?.complete && img.naturalWidth > 0 ? "ready" : "loading");
   }, [effectiveUrl]);
 
   const box = `relative w-full ${compact ? "aspect-[4/3]" : "aspect-video"} rounded-xl overflow-hidden bg-[var(--surface-elevated)] border border-[var(--border)] group select-none ${className}`;
@@ -306,6 +309,7 @@ export function ExerciseMedia({
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imgRef}
             src={isPlaying ? effectiveUrl : (thumbUrl || effectiveUrl)}
             alt={`${name} proper form demonstration`}
             loading="lazy"

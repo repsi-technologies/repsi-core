@@ -5,6 +5,12 @@
   "windows": [
     "main"
   ],
+  "remote": {
+    "urls": [
+      "https://repsi.app/*",
+      "http://localhost:3000/*"
+    ]
+  },
   "permissions": [
     "core:default",
     "opener:default"

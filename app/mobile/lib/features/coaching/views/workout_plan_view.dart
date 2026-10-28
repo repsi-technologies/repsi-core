@@ -554,12 +554,16 @@ class _TabButton extends StatelessWidget {
               color: selected ? AppColors.primary : palette.textMuted,
             ),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? palette.text : palette.textSecondary,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected ? palette.text : palette.textSecondary,
+                ),
               ),
             ),
           ],
@@ -1099,7 +1103,7 @@ class ExerciseRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Row(
+                      Wrap(
                         children: [
                           Text(
                             prescription(l, exercise),

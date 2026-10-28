@@ -448,12 +448,16 @@ class _TrainerAttendanceCardState extends ConsumerState<_TrainerAttendanceCard> 
                       children: [
                         Row(
                           children: [
-                            Text(
-                              isClockedIn ? 'On Floor Duty' : 'Off Duty',
-                              style: AppTypography.headingSmall.copyWith(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: palette.text,
+                            Flexible(
+                              child: Text(
+                                isClockedIn ? 'On Floor Duty' : 'Off Duty',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.headingSmall.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.text,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),

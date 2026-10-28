@@ -68,13 +68,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        {loading && (
-          <span
-            aria-hidden="true"
-            className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin shrink-0 mr-1.5"
-          />
+        {/* Slot needs exactly one child, so asChild renders the child alone. */}
+        {asChild ? children : (
+          <>
+            {loading && (
+              <span
+                aria-hidden="true"
+                className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin shrink-0 mr-1.5"
+              />
+            )}
+            {children}
+          </>
         )}
-        {children}
       </Comp>
     );
   }

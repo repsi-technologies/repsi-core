@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Loader2, Mail, MessageCircle } from "lucide-react";
@@ -10,6 +10,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { OtpVerification } from "@/components/auth/otp-verification";
 import { ApiError, SIGNUP_TICKET_KEY, applySession, authApi, safeRedirect, type SessionToken } from "@/lib/auth-client";
 import { isValidPhone, splitPhone } from "@/lib/countries";
+import { getAuthUser, hasAuthSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n";
 
@@ -37,6 +38,14 @@ function LoginForm() {
   const [otpError, setOtpError] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+
+  // Already signed in (e.g. reopening the desktop app): go straight to the workspace.
+  useEffect(() => {
+    const user = hasAuthSession() ? getAuthUser() : null;
+    if (!user) return;
+    if (user.onboardingRequired) router.replace("/onboarding");
+    else if (user.workspaceSlug) router.replace(redirect || `/${user.workspaceSlug}/dashboard`);
+  }, [redirect, router]);
 
   function finish(session: SessionToken) {
     const next = applySession(session);

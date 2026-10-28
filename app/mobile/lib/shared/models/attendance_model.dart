@@ -1,4 +1,5 @@
 import '../../core/api/api_time.dart';
+import '../../app/config/app_config.dart';
 enum AttendanceStatus {
   present,
   absent,
@@ -60,7 +61,7 @@ class AttendanceRecordModel {
       id: json['id']?.toString() ?? '',
       memberId: json['member_id']?.toString() ?? '',
       memberName: json['member_name'] as String? ?? json['member']?['full_name'] as String?,
-      memberPhotoUrl: json['member_photo_url'] as String?,
+      memberPhotoUrl: AppConfig.resolveMediaUrl(json['member_photo_url'] as String?),
       checkInMethod: json['check_in_method'] as String? ?? 'QR_SCAN',
       checkInTime: json['check_in_time'] != null
           ? parseApiDateTime(json['check_in_time'])!

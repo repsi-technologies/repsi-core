@@ -1,3 +1,4 @@
+import '../../app/config/app_config.dart';
 
 import '../../l10n/l10n.dart';/// What staff need to see at a glance: membership state for active accounts (from the real end
 /// date), or the account state when the account itself is blocked.
@@ -82,7 +83,7 @@ class MemberModel {
       lastName: json['last_name']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
       phone: json['phone']?.toString(),
-      avatarUrl: json['avatar_url']?.toString(),
+      avatarUrl: AppConfig.resolveMediaUrl(json['avatar_url']?.toString()),
       gender: json['gender']?.toString(),
       dateOfBirth: json['date_of_birth']?.toString(),
       emergencyContact: json['emergency_contact']?.toString(),

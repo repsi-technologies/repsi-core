@@ -22,7 +22,7 @@ cd app/desktop
 npm run dev
 ```
 
-This starts the Next.js web app on port 3000 and launches the Tauri window.
+This starts the Next.js web app on port 3000 and launches the Tauri window on the sign-in page.
 
 Useful checks:
 
@@ -45,3 +45,13 @@ REPSI_DESKTOP_URL=https://repsi.app npm run build
 ```
 
 This is intentional: the Next.js workspace contains dynamic authenticated routes and must remain server-rendered. Development mode uses the local Next.js server through `devUrl`.
+
+## Icons
+
+The app icons in `src-tauri/icons` are generated from the mobile app icon:
+
+```bash
+npx tauri icon ../mobile/assets/logos/app_icon.png
+```
+
+Delete the `android/` and `ios/` folders it also creates; the desktop bundle does not use them.

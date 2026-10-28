@@ -334,7 +334,7 @@ export const EXERCISE_DEMONSTRATIONS: ExerciseDemonstration[] = [
     category: "full_body",
     equipment: "kettlebell",
     gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/kettlebell-swing.gif",
-    thumbUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/kettlebell-swing.thumb.webp",
+    thumbUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/glutes/kettlebell-swing.gif",
   },
   {
     id: "burpee",
@@ -354,7 +354,7 @@ export const EXERCISE_DEMONSTRATIONS: ExerciseDemonstration[] = [
     category: "cardio",
     equipment: "treadmill",
     gifUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/run-equipment.gif",
-    thumbUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/run-equipment.thumb.webp",
+    thumbUrl: "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/cardio/run-equipment.gif",
   },
   {
     id: "stationary-bike-run-v-3",

@@ -1,4 +1,5 @@
 import '../../../core/api/api_time.dart';
+import '../../../app/config/app_config.dart';
 
 enum FitnessGoal {
   fatLoss('fat_loss'),
@@ -96,7 +97,7 @@ class CoachProfile {
         specialization: _blank(j['specialization']),
         bio: _blank(j['bio']),
         experience: _blank(j['experience']),
-        photoUrl: _blank(j['profile_photo']),
+        photoUrl: AppConfig.resolveMediaUrl(_blank(j['profile_photo'])),
         acceptingClients: j['accepting_clients'] as bool? ?? true,
         relationshipId: j['relationship_id'] as String?,
       );
@@ -249,7 +250,7 @@ class PlannedExercise {
       equipment: list('equipment'),
       instructions: list('instructions'),
       description: _blank(j['description']),
-      mediaUrl: _blank(j['media_url']),
+      mediaUrl: AppConfig.resolveMediaUrl(_blank(j['media_url'])),
       mediaType: _blank(j['media_type']),
       section: (j['section'] as String?) ?? 'main',
       groupType: j['group_type'] as String?,
@@ -284,8 +285,8 @@ class PlannedDay {
         estimatedMinutes: (j['estimated_minutes'] as num?)?.toInt() ?? 45,
         name: j['name'] as String?,
         notes: j['notes'] as String?,
-        exercises: ((j['exercises'] ?? j['items'] as List?) ?? const [])
-            .map((e) => PlannedExercise.fromJson(Map<String, dynamic>.from(e as Map)))
+        exercises: ((j['exercises'] ?? j['items']) as List? ?? const [])
+            .map<PlannedExercise>((e) => PlannedExercise.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(),
       );
 }

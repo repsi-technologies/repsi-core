@@ -1,3 +1,4 @@
+import '../../app/config/app_config.dart';
 class TrainerModel {
   final String id;
   final String workspaceId;
@@ -34,7 +35,7 @@ class TrainerModel {
       phone: json['phone'] as String?,
       specialization: json['specialization'] as String?,
       bio: json['bio'] as String?,
-      photoUrl: json['photo_url'] as String?,
+      photoUrl: AppConfig.resolveMediaUrl(json['photo_url'] as String?),
       rating: (json['rating'] as num?)?.toDouble() ?? 4.8,
       activeClientsCount: (json['active_clients_count'] as num?)?.toInt() ?? 0,
       isActive: json['is_active'] as bool? ?? true,

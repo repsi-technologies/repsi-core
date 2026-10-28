@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { DesktopShell } from "@/components/layout/desktop-shell";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -129,6 +130,7 @@ export default function RootLayout({
             <AuthProvider>
               <LanguageProvider>
                 <DynamicPageTitle />
+                <DesktopShell />
                 {children}
               </LanguageProvider>
             </AuthProvider>

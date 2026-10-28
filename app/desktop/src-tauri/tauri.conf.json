@@ -5,18 +5,23 @@
   "identifier": "com.repsi.desktop",
   "build": {
     "frontendDist": "../desktop-dist",
-    "devUrl": "http://localhost:3000",
+    "devUrl": "http://localhost:3000/login",
     "beforeDevCommand": "npm run dev --prefix ../web",
     "beforeBuildCommand": "npm run desktop:prepare"
   },
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "REPSI",
-        "width": 800,
-        "height": 600,
+        "width": 1280,
+        "height": 820,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "center": true,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "backgroundColor": "#F7F9F8"
       }
     ],
     "security": {

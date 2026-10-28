@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  CalendarDays, Check, ChevronLeft, ChevronRight, CircleAlert, CloudOff, Dumbbell, Flag, Info, Loader2, Pause, Play, Plus, Timer, XCircle,
+  CalendarDays, Check, ChevronLeft, ChevronRight, CircleAlert, CloudOff, Dumbbell, Flag, Info, Loader2, Pause, Play, Plus, Sparkles, Timer, XCircle,
 } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -468,6 +470,7 @@ function FeedbackBox({ session, onSaved }: { session: ApiWorkoutSessionDetail; o
 // ------------------------------------------------------------------ member "my workouts" page
 
 export function MemberWorkouts() {
+  const { workspace } = useParams<{ workspace: string }>();
   const [refresh, setRefresh] = useState(0);
   const [today, setToday] = useState<ApiScheduleOccurrence[] | null>(null);
   const [unfinished, setUnfinished] = useState<ApiWorkoutSession[]>([]);
@@ -520,7 +523,14 @@ export function MemberWorkouts() {
       <Card className="p-4">
         <h2 className="text-base font-bold text-[var(--text)] flex items-center gap-2"><Dumbbell className="h-4 w-4" /> Today&apos;s workout</h2>
         {!today ? <LoadingRow /> : todays.length === 0 ? (
-          <p className="mt-2 text-sm text-[var(--text-muted)]">{today.some((o) => o.is_rest_day) ? "Rest day — recover well." : "Nothing scheduled today. Check your week below."}</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-[var(--text-muted)]">{today.some((o) => o.is_rest_day) ? "Rest day — recover well." : "Nothing scheduled today. Check your week below."}</p>
+            {!today.some((o) => o.is_rest_day) && workspace && (
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/${workspace}/member/ai-coach`}><Sparkles /> Get a routine from AI Coach</Link>
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="mt-3 space-y-2">
             {todays.map((o) => (

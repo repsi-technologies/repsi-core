@@ -290,7 +290,7 @@ const Map<String, ExerciseMediaInfo> kExerciseMediaCatalog = {
   'kettlebell swing': ExerciseMediaInfo(
     title: 'Kettlebell Swing',
     gifUrl: '$_kCdnBase/glutes/kettlebell-swing.gif',
-    thumbUrl: '$_kCdnBase/glutes/kettlebell-swing.thumb.webp',
+    thumbUrl: '$_kCdnBase/glutes/kettlebell-swing.gif',
     primaryMuscle: 'Glutes',
     secondaryMuscles: ['Hamstrings', 'Lower Back', 'Core'],
     equipment: 'Kettlebell',
@@ -308,7 +308,7 @@ const Map<String, ExerciseMediaInfo> kExerciseMediaCatalog = {
   'treadmill run': ExerciseMediaInfo(
     title: 'Treadmill Run',
     gifUrl: '$_kCdnBase/cardio/run-equipment.gif',
-    thumbUrl: '$_kCdnBase/cardio/run-equipment.thumb.webp',
+    thumbUrl: '$_kCdnBase/cardio/run-equipment.gif',
     primaryMuscle: 'Cardio',
     secondaryMuscles: ['Legs'],
     equipment: 'Machine',
@@ -530,6 +530,16 @@ String _normalizeText(String s) {
       .trim();
 }
 
+bool _isImageUrl(String? url) {
+  if (url == null || url.isEmpty) return false;
+  final uri = Uri.tryParse(url);
+  if (uri == null || !uri.hasScheme) return false;
+  final host = uri.host.toLowerCase();
+  if (host.contains('youtube.com') || host == 'youtu.be' || host.contains('vimeo.com')) return false;
+  final path = uri.path.toLowerCase();
+  return !RegExp(r'\.(mp4|mov|webm|m4v|m3u8)$').hasMatch(path) && !path.contains('/video/upload/');
+}
+
 ExerciseMediaInfo? findExerciseDemonstration(String? name) {
   if (name == null || name.trim().isEmpty) return null;
   final clean = _normalizeText(name);
@@ -731,9 +741,9 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
   @override
   Widget build(BuildContext context) {
     final info = findExerciseDemonstration(widget.exerciseName);
-    final effectiveUrl = (widget.mediaUrl != null && widget.mediaUrl!.isNotEmpty)
-        ? widget.mediaUrl!
-        : (info?.gifUrl ?? '');
+    // YouTube links and video files can't be drawn by Image.network; use the catalog GIF instead.
+    final ownUrl = _isImageUrl(widget.mediaUrl) ? widget.mediaUrl! : null;
+    final effectiveUrl = ownUrl ?? (info?.gifUrl ?? '');
     final thumbUrl = info?.thumbUrl;
 
     final radius = widget.borderRadius ?? BorderRadius.circular(12);
