@@ -1,5 +1,7 @@
 "use client";
 
+import { openProtectedFile } from "@/components/ui/auth-image";
+import { PaymentMethodsCard } from "@/features/payments/payment-methods-card";
 import { useState, useEffect, use } from "react";
 import { 
   Banknote, 
@@ -24,6 +26,7 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
   const params = use(props.params);
   const [payments, setPayments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<ApiPaymentSubmission[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Active Invoice for demo / member
@@ -41,12 +44,14 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
   const loadData = async () => {
     setLoading(true);
     try {
-      const [payData, subData] = await Promise.all([
+      const [payData, subData, invData] = await Promise.all([
         repsiApi.getPayments(),
         repsiApi.getPaymentSubmissions().catch(() => []),
+        repsiApi.getInvoices(),
       ]);
       setPayments(payData);
       setSubmissions(subData);
+      setInvoices(invData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,18 +66,25 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
     return () => window.removeEventListener("repsi_storage_update", handleUpdate);
   }, []);
 
-  // Outstanding Invoice Mock / Fallback if none in backend yet
   const pendingSub = submissions.find((s) => s.status === "pending_review");
   const rejectedSub = submissions.find((s) => s.status === "rejected");
 
-  const currentInvoice = {
-    id: pendingSub?.invoice_id || rejectedSub?.invoice_id || "INV-2026-0042",
-    amount: 1500,
-    amount_paid: 0,
-    outstanding_balance: 1500,
-    due_date: "25 October 2026",
-    plan_name: "Monthly Gym Membership",
-  };
+  // The member's real dues: the invoice a receipt is about, else the oldest one with a balance.
+  const owing = invoices
+    .filter((i) => (i.outstanding_balance ?? i.total_amount - (i.amount_paid ?? 0)) > 0 && i.status !== "paid" && i.status !== "void")
+    .sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)));
+  const inv = invoices.find((i) => i.id === (pendingSub?.invoice_id || rejectedSub?.invoice_id)) ?? owing[0];
+  const currentInvoice = inv
+    ? {
+        id: inv.id as string,
+        number: inv.invoice_number as string,
+        amount: Number(inv.total_amount),
+        amount_paid: Number(inv.amount_paid ?? 0),
+        outstanding_balance: Number(inv.outstanding_balance ?? inv.total_amount - (inv.amount_paid ?? 0)),
+        due_date: inv.due_date ? new Date(inv.due_date).toLocaleDateString(undefined, { dateStyle: "medium" }) : undefined,
+        plan_name: (inv.notes as string) || "Membership fee",
+      }
+    : null;
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -83,12 +95,19 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
         </p>
       </div>
 
+      <PaymentMethodsCard />
+
       {/* Outstanding Invoice Banner */}
+      {loading ? null : !currentInvoice ? (
+        <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--text-muted)]">
+          No dues right now. When the gym bills you, the invoice appears here and you can pay it with the details above.
+        </div>
+      ) : (
       <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-6 space-y-4 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-[var(--text-muted)]">Invoice #{currentInvoice.id}</span>
+              <span className="text-xs font-mono font-bold text-[var(--text-muted)]">Invoice #{currentInvoice.number}</span>
               {pendingSub ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
                   <Clock className="w-3 h-3" />
@@ -107,7 +126,7 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
               )}
             </div>
             <h2 className="text-lg font-bold text-[var(--text)] mt-1">{currentInvoice.plan_name}</h2>
-            <p className="text-xs text-[var(--text-muted)]">Due by {currentInvoice.due_date}</p>
+            {currentInvoice.due_date && <p className="text-xs text-[var(--text-muted)]">Due by {currentInvoice.due_date}</p>}
           </div>
 
           <div className="text-left sm:text-right">
@@ -181,6 +200,8 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
         )}
       </div>
 
+      )}
+
       {/* Past Submissions Tracker */}
       {submissions.length > 0 && (
         <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3 shadow-sm">
@@ -224,15 +245,15 @@ export default function MemberPaymentsPage(props: { params: Promise<{ workspace:
                     </span>
                   )}
 
-                  <a
-                    href={repsiApi.getReceiptUrl(sub.id)}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openProtectedFile(repsiApi.getReceiptUrl(sub.id))}
                     className="p-1 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
                     title="View Uploaded Receipt"
+                    aria-label="View uploaded receipt"
                   >
                     <Eye className="w-3.5 h-3.5" />
-                  </a>
+                  </button>
                 </div>
               </div>
             ))}

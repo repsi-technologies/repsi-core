@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthImage } from "@/components/ui/auth-image";
 import { useState, useEffect } from "react";
 import { 
   CreditCard, 
@@ -236,10 +237,10 @@ export function MemberFeePaymentDialog({ invoice, onClose, onSuccess }: MemberFe
                         <span>{t("payments.gym_merchant_qr_code")}</span>
                       </div>
                       <div className="p-3 rounded-lg bg-[var(--background-secondary)] flex flex-col items-center justify-center">
-                        <img
+                        <AuthImage
                           src={repsiApi.getMerchantQrUrl()}
                           alt={t("payments.gym_qr_code")}
-                          className="max-h-48 max-w-full rounded-lg border border-[var(--border)] shadow-md object-contain"
+                          className="max-h-48 max-w-full rounded-lg border border-[var(--border)] shadow-md"
                         />
                         <span className="text-[10px] text-[var(--text-secondary)] mt-2">{t("payments.scan_using_any_payment_app_gpay")}</span>
                       </div>

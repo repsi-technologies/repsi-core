@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -127,26 +129,19 @@ class MemberRepository {
     }).whereType<MemberPayment>().toList();
   }
 
+  /// The gym's real payment details. Errors propagate: showing made-up account details would
+  /// send members' money to the wrong place.
   Future<GymPaymentInstructions> getPaymentInstructions() async {
-    try {
-      final res = await _apiClient.get<Map<String, dynamic>>('/payments/instructions');
-      if (res.data != null) {
-        return GymPaymentInstructions.fromJson(res.data!);
-      }
-    } catch (_) {}
-    return const GymPaymentInstructions(
-      gymName: 'Nitheesh Gym',
-      referenceCode: 'PAY-MEM',
-      amountDue: 1500.0,
-      hasActiveMethods: true,
-      upiId: 'gym@okhdfcbank',
-      upiName: 'Nitheesh Gym Workspace',
-      bankAccountName: 'Nitheesh Gym Pvt Ltd',
-      bankName: 'HDFC Bank',
-      bankAccountNumber: '50200012345678',
-      bankIfsc: 'HDFC0000123',
-      bankBranch: 'Main Branch',
-    );
+    final res = await _apiClient.get<Map<String, dynamic>>('/payments/instructions');
+    return GymPaymentInstructions.fromJson(res.data ?? const {});
+  }
+
+  /// The gym's uploaded payment QR image (needs the auth header, so it can't be a plain network image).
+  Future<Uint8List?> getMerchantQr() async {
+    final res = await _apiClient.get<List<int>>('/payments/settings/qr-code',
+        options: Options(responseType: ResponseType.bytes));
+    final data = res.data;
+    return data == null || data.isEmpty ? null : Uint8List.fromList(data);
   }
 
   Future<List<PaymentSubmissionItem>> getPaymentSubmissions() async {
@@ -236,10 +231,10 @@ class GymPaymentInstructions {
     final bank = json['bank'] as Map<String, dynamic>?;
 
     return GymPaymentInstructions(
-      gymName: json['gym_name'] as String? ?? 'Nitheesh Gym',
-      referenceCode: json['reference_code'] as String? ?? 'PAY-DUE',
-      amountDue: (json['amount_due'] as num?)?.toDouble() ?? 1500.0,
-      hasActiveMethods: json['has_active_methods'] as bool? ?? true,
+      gymName: json['gym_name'] as String? ?? '',
+      referenceCode: json['reference_code'] as String? ?? '',
+      amountDue: (json['outstanding_balance'] as num? ?? json['amount_due'] as num?)?.toDouble() ?? 0,
+      hasActiveMethods: json['has_active_methods'] as bool? ?? false,
       upiId: upi?['upi_id'] as String?,
       upiName: upi?['upi_name'] as String?,
       upiUri: upi?['payment_uri'] as String?,
@@ -326,6 +321,10 @@ final memberPaymentsProvider = FutureProvider<List<MemberPayment>>((ref) async {
 final gymPaymentInstructionsProvider = FutureProvider<GymPaymentInstructions>((ref) async {
   final repo = ref.watch(memberRepositoryProvider);
   return repo.getPaymentInstructions();
+});
+
+final merchantQrProvider = FutureProvider.autoDispose<Uint8List?>((ref) async {
+  return ref.watch(memberRepositoryProvider).getMerchantQr();
 });
 
 final paymentSubmissionsProvider = FutureProvider<List<PaymentSubmissionItem>>((ref) async {

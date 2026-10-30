@@ -136,6 +136,7 @@ const memberNavGroups: NavGroupDef[] = [
       { label: "Dashboard", path: "/member/dashboard", icon: LayoutDashboard },
       { label: "Workout", path: "/member/workout", icon: Dumbbell },
       { label: "AI Coach", path: "/member/ai-coach", icon: BrainCircuit },
+      { label: "Diet Plan", path: "/member/diet", icon: Salad },
       { label: "Exercise Library", path: "/member/exercises", icon: BookOpen },
       { label: "Progress", path: "/member/progress", icon: TrendingUp },
       { label: "Activity / Running", path: "/member/running", icon: Navigation },

@@ -13,6 +13,7 @@ import { QuickActions } from "@/features/dashboard/quick-actions";
 import { RepsiMascot } from "@/components/ui/repsi-mascot";
 import { GettingStartedDialog } from "@/components/layout/getting-started-dialog";
 import { TrialCountdownCard } from "@/features/dashboard/trial-countdown-card";
+import { PaymentCollectionCard } from "@/features/dashboard/payment-collection-card";
 import { repsiApi } from "@/lib/api";
 import { getAuthUser } from "@/lib/auth";
 import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
@@ -197,6 +198,9 @@ export function DashboardClient({ workspace }: { workspace: string }) {
 
       {/* 14-Day Free Trial Countdown Card */}
       <TrialCountdownCard workspace={workspace} />
+
+      {/* Member payment proofs awaiting approval + the UPI / QR / bank details members see */}
+      <PaymentCollectionCard workspace={workspace} />
 
       {/* Adaptive Setup Checklist Banner (when in setup phase) */}
       {isSetupMode ? (

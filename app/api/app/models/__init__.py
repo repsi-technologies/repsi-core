@@ -36,7 +36,7 @@ from app.models.trainer import (
 from app.models.user import User, UserRole, Workspace, WorkspaceMember
 from app.models.workout import Workout, WorkoutPlan, WorkoutStatus
 from app.models.coaching import MemberGoal, TrainerRequest
-from app.models.nutrition import (ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan,
+from app.models.nutrition import (ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan, DietPreference,
                                   DietPlanVersion, MealLog, WaterLog)
 from app.models.fitness import (
     BodyMeasurement,

@@ -4102,4 +4102,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatReportSent => 'Report sent to the gym owner.';
+
+  @override
+  String get dietBuildTitle => 'Build my diet';
+
+  @override
+  String get dietFoodPreference => 'Food preference';
+
+  @override
+  String get dietTypeVegetarian => 'Vegetarian';
+
+  @override
+  String get dietTypeEggetarian => 'Egg + veg';
+
+  @override
+  String get dietTypeNonVeg => 'Non-vegetarian';
+
+  @override
+  String get dietTypeVegan => 'Vegan';
+
+  @override
+  String get dietFoodsYouHave => 'Foods you have at home';
+
+  @override
+  String get dietGoal => 'Goal';
+
+  @override
+  String get dietWeightKg => 'Body weight (kg)';
+
+  @override
+  String get dietMealsPerDay => 'Meals per day';
+
+  @override
+  String get dietAvoid => 'Allergies or foods to avoid (optional)';
+
+  @override
+  String get dietSuggest => 'Suggest a plan';
+
+  @override
+  String get dietAskTrainer => 'Ask my trainer for a plan';
+
+  @override
+  String get dietUseThisPlan => 'Use this as my plan';
+
+  @override
+  String get dietPersonaliseAi => 'Personalise with AI';
+
+  @override
+  String get dietNowFollowing => 'This is now your diet plan.';
+
+  @override
+  String get dietTrainerAsked =>
+      'Sent to your trainer. They\'ll assign a plan that fits your foods.';
+
+  @override
+  String get dietNoTrainer =>
+      'Saved. You don\'t have a trainer yet — the gym can assign one.';
+
+  @override
+  String get dietEnterWeight => 'Enter your weight to get a suggestion.';
 }

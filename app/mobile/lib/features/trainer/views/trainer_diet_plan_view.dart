@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../shared/widgets/repsi_card.dart';
 import '../../nutrition/data/coaching_repository.dart';
+import '../../nutrition/views/diet_builder_view.dart';
 import '../../../l10n/l10n.dart';
 
 /// Today's assigned diet plan with what's been logged. Members ([memberId] null) can log meals
@@ -47,8 +48,20 @@ class TrainerDietPlanView extends ConsumerWidget {
       }
     }
 
+    void openBuilder() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DietBuilderView()));
+
     return Scaffold(
-      appBar: AppBar(title: Text(memberName == null ? context.l10n.dietPlan : context.l10n.trainerDietTitle(memberName!))),
+      appBar: AppBar(
+        title: Text(memberName == null ? context.l10n.dietPlan : context.l10n.trainerDietTitle(memberName!)),
+        actions: [
+          if (isMember)
+            IconButton(
+              tooltip: context.l10n.dietBuildTitle,
+              icon: const Icon(Icons.restaurant_menu_rounded),
+              onPressed: () => openBuilder(),
+            ),
+        ],
+      ),
       body: dayAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
@@ -63,11 +76,21 @@ class TrainerDietPlanView extends ConsumerWidget {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(
-                  isMember ? context.l10n.noDietPlanMember : context.l10n.noDietPlanTrainer,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodySecondary,
-                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(
+                    isMember ? context.l10n.noDietPlanMember : context.l10n.noDietPlanTrainer,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodySecondary,
+                  ),
+                  if (isMember) ...[
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: openBuilder,
+                      icon: const Icon(Icons.restaurant_menu_rounded),
+                      label: Text(context.l10n.dietBuildTitle),
+                    ),
+                  ],
+                ]),
               ),
             );
           }

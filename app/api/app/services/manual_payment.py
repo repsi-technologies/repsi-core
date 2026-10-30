@@ -1,5 +1,6 @@
 import os
 import uuid
+from urllib.parse import quote
 from datetime import datetime, date, timedelta, timezone
 from typing import Optional, List, Dict, Any, Tuple
 from fastapi import HTTPException, status
@@ -259,7 +260,7 @@ class ManualPaymentService:
         else:
             inv_id = "general"
             inv_number = "MEM-DUE"
-            outstanding = 1500.0
+            outstanding = 0.0  # nothing billed: never invent an amount for the member to pay
             inv_due = None
             ref_code = f"PAY-{self.workspace_id[:6].upper()}"
 
@@ -277,9 +278,11 @@ class ManualPaymentService:
         # UPI payload generator
         upi_data = None
         if settings.upi_enabled and settings.upi_id:
+            # Without a known amount the payer's UPI app asks for it instead of pre-filling one.
+            amount_part = f"&am={outstanding:.2f}" if outstanding > 0 else ""
             upi_uri = (
-                f"upi://pay?pa={settings.upi_id}&pn={settings.upi_name or gym_name}"
-                f"&am={outstanding:.2f}&tn={ref_code}&cu=INR"
+                f"upi://pay?pa={quote(settings.upi_id)}&pn={quote(settings.upi_name or gym_name)}"
+                f"{amount_part}&tn={quote(ref_code)}&cu=INR"
             )
             upi_data = {
                 "enabled": True,
@@ -319,10 +322,12 @@ class ManualPaymentService:
 
         has_active = bool(upi_data or qr_data or phone_data or bank_data)
 
+        amount_line = (f"2. Transfer exact fee of ₹{outstanding:,.2f} using any enabled method.\n" if outstanding > 0
+                       else "2. Transfer the amount your gym told you, using any enabled method.\n")
         instructions_text = (
             f"1. Open your UPI or banking application (Google Pay, PhonePe, Paytm, or Net Banking).\n"
-            f"2. Transfer exact fee of ₹{outstanding:,.2f} using any enabled method.\n"
-            f"3. In the transfer note/narration, please mention: {ref_code}\n"
+            + amount_line
+            + f"3. In the transfer note/narration, please mention: {ref_code}\n"
             f"4. Take a screenshot or download the receipt PDF after payment.\n"
             f"5. Return here and upload the receipt under 'Submit Payment Receipt'."
         )

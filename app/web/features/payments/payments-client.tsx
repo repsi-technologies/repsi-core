@@ -39,6 +39,11 @@ export function PaymentsClient() {
   const [paymentError, setPaymentError] = useState("");
 
   const [viewTab, setViewTab] = useState<"ledger" | "verification" | "settings">("ledger");
+  // Deep links from the dashboard: ?tab=verification | settings
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "verification" || tab === "settings") setViewTab(tab);
+  }, []);
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {

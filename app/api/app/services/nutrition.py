@@ -18,7 +18,8 @@ from app.core.audit import record_audit
 from app.middleware.tenant import TenantContext
 from app.models.member import Member
 from app.models.nutrition import (
-    ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan, DietPlanVersion, MealLog, WaterLog,
+    ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan, DietPlanVersion, DietPreference,
+    MealLog, WaterLog,
 )
 from app.models.trainer import Trainer, TrainerClient, TrainerClientStatus
 from app.services.fitness import FitnessActor
@@ -96,7 +97,8 @@ class NutritionService:
 
     def list_plans(self, search: Optional[str] = None, include_archived: bool = False) -> list:
         self.actor.require_staff()
-        q = self.db.query(DietPlan).filter(DietPlan.workspace_id == self.ws)
+        # Members' personal plans are theirs, not part of the gym's reusable library.
+        q = self.db.query(DietPlan).filter(DietPlan.workspace_id == self.ws, DietPlan.owner_member_id.is_(None))
         if not include_archived:
             q = q.filter(DietPlan.status == "active")
         if search:
@@ -175,6 +177,8 @@ class NutritionService:
         self.actor.require("nutrition.assign", "You don't have permission to assign diet plans.")
         member = self.actor.member_for(member_id)
         p = self._plan(data.plan_id)
+        if p.owner_member_id and p.owner_member_id != member.id:
+            raise HTTPException(status_code=409, detail="That is another member's personal plan.")
         if p.status != "active" or not p.current_version_id:
             raise HTTPException(status_code=409, detail="Only active diet plans can be assigned.")
         start = data.start_date or self.today()
@@ -224,6 +228,86 @@ class NutritionService:
             DietAssignment.workspace_id == self.ws, DietAssignment.member_id == mid,
         ).order_by(DietAssignment.start_date.desc(), DietAssignment.created_at.desc()).all()
         return [self.assignment_out(a) for a in rows]
+
+    # ------------------------------------------------------- member self-service
+
+    def _require_member(self):
+        if self.actor.kind != "member":
+            raise HTTPException(status_code=403, detail="Only members can do this for themselves.")
+        return self.actor.member
+
+    @staticmethod
+    def preference_out(p: Optional[DietPreference]) -> Optional[dict]:
+        if not p:
+            return None
+        return {"id": p.id, "member_id": p.member_id, "diet_type": p.diet_type, "goal": p.goal,
+                "ingredients": json.loads(p.ingredients or "[]"), "notes": p.notes,
+                "asked_trainer": bool(p.asked_trainer), "created_at": p.created_at}
+
+    def preferences(self, member_id: Optional[str]) -> Optional[dict]:
+        """The member's latest food preferences (members: their own; staff: an accessible member's)."""
+        mid = self._member_id(member_id)
+        p = self.db.query(DietPreference).filter(
+            DietPreference.workspace_id == self.ws, DietPreference.member_id == mid,
+        ).order_by(DietPreference.created_at.desc()).first()
+        return self.preference_out(p)
+
+    def save_preferences(self, data) -> dict:
+        """Appends the member's preferences; with ask_trainer, notifies their active trainers."""
+        from app.models.system import Notification
+        from app.services.ai_features import INGREDIENTS, _DIET_ALLOWS
+
+        member = self._require_member()
+        unknown = [k for k in data.ingredients if k not in INGREDIENTS]
+        if unknown:
+            raise HTTPException(status_code=422, detail="Unknown ingredient.")
+        ingredients = [k for k in dict.fromkeys(data.ingredients) if INGREDIENTS[k][1] in _DIET_ALLOWS[data.diet_type]]
+        p = DietPreference(workspace_id=self.ws, member_id=member.id, diet_type=data.diet_type, goal=data.goal,
+                           ingredients=json.dumps(ingredients), notes=(data.notes or "").strip() or None,
+                           asked_trainer=data.ask_trainer, created_by_user_id=self.tenant.user_id)
+        self.db.add(p)
+        self.db.flush()
+        notified = 0
+        if data.ask_trainer:
+            rows = self.db.query(Trainer.user_id).join(TrainerClient, TrainerClient.trainer_id == Trainer.id).filter(
+                TrainerClient.workspace_id == self.ws, TrainerClient.client_id == member.id,
+                TrainerClient.status == TrainerClientStatus.ACTIVE,
+            ).all()
+            name = f"{member.first_name} {member.last_name or ''}".strip()
+            food = data.diet_type.replace("_", "-")
+            for (uid,) in rows:
+                if uid:
+                    self.db.add(Notification(
+                        workspace_id=self.ws, user_id=uid, title="Diet plan requested",
+                        message=f"{name} asked for a {food} diet plan using the foods they have.",
+                        action_url=f"/trainer/clients/{member.id}", is_read=False))
+                    notified += 1
+        self.db.commit()
+        return {**self.preference_out(p), "trainers_notified": notified}
+
+    def choose_own_plan(self, data) -> dict:
+        """A member saves a plan for themselves (e.g. a suggested one) and starts following it.
+        It's a personal plan (owner_member_id), so it never appears in the gym's plan library."""
+        member = self._require_member()
+        p = DietPlan(workspace_id=self.ws, name=data.name.strip(), goal=data.goal, diet_type=data.diet_type,
+                     created_by_user_id=self.tenant.user_id, owner_member_id=member.id)
+        self.db.add(p)
+        self.db.flush()
+        v = self._add_version(p, data)
+        start = self.today()
+        for prev in self.db.query(DietAssignment).filter(
+            DietAssignment.workspace_id == self.ws, DietAssignment.member_id == member.id,
+            DietAssignment.status == "active",
+        ).with_for_update().all():
+            prev.status, prev.ended_on = "ended", start
+        a = DietAssignment(workspace_id=self.ws, member_id=member.id, plan_id=p.id, version_id=v.id, title=p.name,
+                           assigned_by_user_id=self.tenant.user_id, start_date=start, notes="Chosen by the member")
+        self.db.add(a)
+        self.db.flush()
+        record_audit(self.db, self.ws, self.tenant.user_id, "diet_plan.self_assigned", resource_type="diet_assignment",
+                     resource_id=a.id, details={"plan_id": p.id})
+        self.db.commit()
+        return self.assignment_out(a)
 
     def _active_assignment(self, member_id: str) -> Optional[DietAssignment]:
         return self.db.query(DietAssignment).filter(

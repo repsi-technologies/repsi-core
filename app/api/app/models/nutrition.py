@@ -7,7 +7,7 @@ are member-recorded actuals, kept apart from the plan. Chat messages are append-
 
 Status fields are plain strings validated in services; list-valued fields are JSON text.
 """
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 
 from app.core.database import Base
 from app.models.base import TenantMixin, TimestampMixin, generate_uuid
@@ -23,6 +23,8 @@ class DietPlan(Base, TimestampMixin, TenantMixin):
     status = Column(String(20), nullable=False, default="active", index=True)  # active | archived
     created_by_user_id = Column(String(64), nullable=True, index=True)
     current_version_id = Column(String(64), nullable=True)
+    # Set when a member saved this plan for themselves; such plans stay out of the gym's plan library.
+    owner_member_id = Column(String(64), nullable=True, index=True)
 
 
 class DietPlanVersion(Base, TimestampMixin, TenantMixin):
@@ -167,3 +169,18 @@ class ChatReportEvent(Base, TimestampMixin, TenantMixin):
     from_status = Column(String(20), nullable=True)
     to_status = Column(String(20), nullable=False)
     note = Column(Text, nullable=True)
+
+
+class DietPreference(Base, TimestampMixin, TenantMixin):
+    """What a member eats and has at home, saved for building diet plans. Append-only: the latest row
+    is current, earlier rows are history. `asked_trainer` marks a request for a trainer-made plan."""
+    __tablename__ = "diet_preferences"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
+    diet_type = Column(String(30), nullable=False)  # vegetarian | vegan | eggetarian | non_vegetarian
+    goal = Column(String(30), nullable=True)
+    ingredients = Column(Text, nullable=True)  # JSON list of ingredient keys
+    notes = Column(Text, nullable=True)
+    asked_trainer = Column(Boolean, nullable=False, default=False)
+    created_by_user_id = Column(String(64), nullable=True)

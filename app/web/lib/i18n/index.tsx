@@ -58,6 +58,10 @@ export function translate(language: LanguageCode, key: string, fallback?: string
 
 /** Language of the last render; lets code outside components (config arrays, validators) translate lazily. */
 let activeLanguage: LanguageCode = DEFAULT_LANGUAGE;
+/** Keeps `tr()` (used outside React) on the provider's language; called during render so it is never a frame behind. */
+function setActiveLanguage(code: LanguageCode) {
+  activeLanguage = code;
+}
 
 /**
  * Translate outside a component, e.g. in a module-level config read during render
@@ -99,7 +103,7 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<LanguageCode>(DEFAULT_LANGUAGE);
-  activeLanguage = language;
+  setActiveLanguage(language);
 
   useEffect(() => {
     const detected = detectLanguage(savedLanguage(), navigator.languages ?? []);

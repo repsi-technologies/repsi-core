@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { repsiApi, type ApiAdherence, type ApiDietAssignment, type ApiDietPlan } from "@/lib/api";
+import { repsiApi, type ApiAdherence, type ApiDietAssignment, type ApiDietPlan, type ApiDietPreference } from "@/lib/api";
 import { EmptyBlock, Field, inputClass, LoadingRow, Notice, StatusBadge } from "@/features/fitness/shared";
 import { DietVersionView } from "@/features/nutrition/diet-plans";
 import { useTranslation } from "@/lib/i18n";
@@ -20,6 +20,7 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
+  const [prefs, setPrefs] = useState<ApiDietPreference | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -35,7 +36,8 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
   useEffect(() => {
     load();
     repsiApi.listDietPlans().then(setPlans).catch(() => setPlans([]));
-  }, [load]);
+    repsiApi.getDietPreferences(memberId).then(setPrefs).catch(() => setPrefs(null));
+  }, [load, memberId]);
 
   const assign = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +60,21 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
 
   return (
     <div className="space-y-4">
+      {prefs && (
+        <div className={`rounded-[12px] border p-3 text-sm ${prefs.asked_trainer && !active ? "border-[var(--primary)]/40 bg-[var(--primary-soft)]" : "border-[var(--border)] bg-[var(--surface)]"}`}>
+          <p className="font-medium text-[var(--text)]">
+            {prefs.asked_trainer && !active ? "Asked you for a diet plan" : "Food preferences"}
+            <span className="ml-2 text-xs font-normal text-[var(--text-muted)]">{new Date(prefs.created_at).toLocaleDateString()}</span>
+          </p>
+          <p className="mt-1 text-[var(--text-secondary)]">
+            {prefs.diet_type.replace("_", "-")}
+            {prefs.goal ? ` · goal: ${prefs.goal.replace("_", " ")}` : ""}
+            {prefs.ingredients.length > 0 ? ` · has: ${prefs.ingredients.join(", ")}` : ""}
+          </p>
+          {prefs.notes && <p className="mt-1 text-[var(--text-secondary)]">Avoid: {prefs.notes}</p>}
+          <p className="mt-1 text-xs text-[var(--text-muted)]">The AI Diet Coach starts from these preferences.</p>
+        </div>
+      )}
       {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
       <Card className="p-4">
         <form onSubmit={assign} className="flex flex-wrap items-end gap-3">

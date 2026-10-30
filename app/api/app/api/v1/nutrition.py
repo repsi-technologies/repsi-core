@@ -124,6 +124,32 @@ def member_assignments(member_id: Optional[str] = None, s: NutritionService = De
     return s.member_assignments(member_id)
 
 
+class DietPreferenceIn(BaseModel):
+    diet_type: Literal["vegetarian", "vegan", "eggetarian", "non_vegetarian"]
+    goal: Optional[str] = Field(None, max_length=30)
+    ingredients: List[str] = Field(default_factory=list, max_length=40)
+    notes: Optional[str] = Field(None, max_length=500)
+    ask_trainer: bool = False
+
+
+@router.get("/preferences")
+def get_preferences(member_id: Optional[str] = None, s: NutritionService = Depends(svc)):
+    """Latest food preferences: a member's own, or (staff) an accessible member's."""
+    return s.preferences(member_id)
+
+
+@router.post("/me/preferences", status_code=201)
+def save_my_preferences(data: DietPreferenceIn, s: NutritionService = Depends(svc)):
+    """Members record what they eat and have at home; `ask_trainer` asks their trainer for a plan."""
+    return s.save_preferences(data)
+
+
+@router.post("/me/plan", status_code=201)
+def choose_my_plan(data: DietPlanSave, s: NutritionService = Depends(svc)):
+    """Members save a plan for themselves (e.g. a suggested one) and start following it."""
+    return s.choose_own_plan(data)
+
+
 @router.get("/day")
 def nutrition_day(member_id: Optional[str] = None, on: Optional[date] = None, s: NutritionService = Depends(svc)):
     return s.day(member_id, on)

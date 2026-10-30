@@ -279,6 +279,21 @@ function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/**
+ * Fetches a protected file (merchant QR, payment receipt) with the bearer token and returns an object
+ * URL. A plain <img src> or link can't send the token, so these files never loaded that way.
+ * Callers revoke the URL with URL.revokeObjectURL when done.
+ */
+export async function fetchProtectedFile(url: string): Promise<{ url: string; type: string }> {
+  const res = await fetch(url, { headers: { ...getAuthHeader() }, cache: "no-store" });
+  if (!res.ok) {
+    checkAuthResponse(res);
+    throw new Error(res.status === 404 ? "File not found" : "Couldn't load the file");
+  }
+  const blob = await res.blob();
+  return { url: URL.createObjectURL(blob), type: blob.type };
+}
+
 function checkAuthResponse(res: Response) {
   if (res.status === 401 && typeof window !== "undefined") {
     localStorage.removeItem("repsi_auth_token");
@@ -377,8 +392,10 @@ export interface ApiDietFood { food: string; portion?: string | null; calories?:
 export interface ApiDietMeal { slot: string; time?: string | null; title?: string | null; items: ApiDietFood[] }
 export interface ApiDietVersion { id: string; version_number: number; meals: ApiDietMeal[]; totals: { calories: number; protein: number; carbs: number; fat: number }; calories_target: number | null; protein_target: number | null; carbs_target: number | null; fat_target: number | null; water_ml_target: number | null; notes: string | null; change_summary: string | null; created_at: string }
 export interface ApiDietPlan { id: string; name: string; goal: string | null; diet_type: string | null; status: string; can_edit: boolean; current_version_id: string | null; current_version?: ApiDietVersion | null; versions?: { id: string; version_number: number; change_summary: string | null; created_at: string }[]; updated_at: string }
+export type DietType = "vegetarian" | "vegan" | "eggetarian" | "non_vegetarian";
+export interface ApiDietPreference { id: string; member_id: string; diet_type: DietType; goal: string | null; ingredients: string[]; notes: string | null; asked_trainer: boolean; created_at: string }
 export interface ApiDietPlanSave { name: string; goal?: string | null; diet_type?: string | null; meals: ApiDietMeal[]; calories_target?: number | null; protein_target?: number | null; water_ml_target?: number | null; notes?: string | null; change_summary?: string | null }
-export interface ApiDietAssignment { id: string; member_id: string; plan_id: string | null; title: string; start_date: string; status: string; ended_on: string | null; version: ApiDietVersion | null }
+export interface ApiDietAssignment { id: string; member_id: string; plan_id: string | null; title: string; start_date: string; status: string; ended_on: string | null; notes?: string | null; version: ApiDietVersion | null }
 export interface ApiAdherence { planned_meals: number; followed: number; modified: number; skipped: number; not_logged: number; adherence_pct: number | null }
 export interface ApiConversation { id: string; member_id: string; trainer_id: string; member_name: string; trainer_name: string; last_message_at: string | null; last_message: string | null; unread: number; can_send: boolean }
 export type ChatReportReason = "harassment" | "inappropriate" | "spam" | "off_topic" | "safety" | "other";
@@ -724,6 +741,18 @@ export const repsiApi = {
 
   async assignDietPlan(memberId: string, planId: string): Promise<ApiDietAssignment> {
     return memberRequest(`/nutrition/members/${memberId}/assignments`, "POST", { plan_id: planId }, "Failed to assign diet plan");
+  },
+
+  async getDietPreferences(memberId?: string): Promise<ApiDietPreference | null> {
+    return memberRequest(`/nutrition/preferences${memberId ? `?member_id=${encodeURIComponent(memberId)}` : ""}`, "GET", undefined, "Couldn't load food preferences");
+  },
+
+  async saveMyDietPreferences(data: { diet_type: DietType; goal?: string; ingredients: string[]; notes?: string; ask_trainer: boolean }): Promise<ApiDietPreference & { trainers_notified: number }> {
+    return memberRequest("/nutrition/me/preferences", "POST", data, "Couldn't save your preferences");
+  },
+
+  async chooseMyDietPlan(data: ApiDietPlanSave & { carbs_target?: number | null; fat_target?: number | null }): Promise<ApiDietAssignment> {
+    return memberRequest("/nutrition/me/plan", "POST", data, "Couldn't save this plan");
   },
 
   async getDietAssignments(memberId?: string): Promise<ApiDietAssignment[]> {
@@ -3304,6 +3333,10 @@ export const repsiApi = {
       throw new Error(err.detail || "Failed to delete QR image");
     }
     return await res.json();
+  },
+
+  async getGeneralPaymentInstructions(): Promise<ApiPaymentInstructions> {
+    return memberRequest("/payments/instructions", "GET", undefined, "Failed to load payment details");
   },
 
   async getInvoicePaymentInstructions(invoiceId: string): Promise<ApiPaymentInstructions> {

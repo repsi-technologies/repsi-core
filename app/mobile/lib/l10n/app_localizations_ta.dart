@@ -4114,4 +4114,63 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get chatReportSent => 'புகார் ஜிம் உரிமையாளருக்கு அனுப்பப்பட்டது.';
+
+  @override
+  String get dietBuildTitle => 'என் உணவுத் திட்டம் உருவாக்கு';
+
+  @override
+  String get dietFoodPreference => 'உணவு விருப்பம்';
+
+  @override
+  String get dietTypeVegetarian => 'சைவம்';
+
+  @override
+  String get dietTypeEggetarian => 'முட்டை + சைவம்';
+
+  @override
+  String get dietTypeNonVeg => 'அசைவம்';
+
+  @override
+  String get dietTypeVegan => 'வீகன்';
+
+  @override
+  String get dietFoodsYouHave => 'வீட்டில் உள்ள உணவுகள்';
+
+  @override
+  String get dietGoal => 'இலக்கு';
+
+  @override
+  String get dietWeightKg => 'உடல் எடை (கிலோ)';
+
+  @override
+  String get dietMealsPerDay => 'ஒரு நாளுக்கு உணவுகள்';
+
+  @override
+  String get dietAvoid => 'ஒவ்வாமை அல்லது தவிர்க்க வேண்டிய உணவுகள் (விருப்பம்)';
+
+  @override
+  String get dietSuggest => 'திட்டம் பரிந்துரை';
+
+  @override
+  String get dietAskTrainer => 'பயிற்சியாளரிடம் திட்டம் கேள்';
+
+  @override
+  String get dietUseThisPlan => 'இதை என் திட்டமாகப் பயன்படுத்து';
+
+  @override
+  String get dietPersonaliseAi => 'AI மூலம் தனிப்பயனாக்கு';
+
+  @override
+  String get dietNowFollowing => 'இது இப்போது உங்கள் உணவுத் திட்டம்.';
+
+  @override
+  String get dietTrainerAsked =>
+      'உங்கள் பயிற்சியாளருக்கு அனுப்பப்பட்டது. உங்கள் உணவுகளுக்கு ஏற்ற திட்டத்தை அவர் வழங்குவார்.';
+
+  @override
+  String get dietNoTrainer =>
+      'சேமிக்கப்பட்டது. உங்களுக்கு இன்னும் பயிற்சியாளர் இல்லை — ஜிம் ஒருவரை நியமிக்கலாம்.';
+
+  @override
+  String get dietEnterWeight => 'பரிந்துரை பெற உங்கள் எடையை உள்ளிடவும்.';
 }

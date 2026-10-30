@@ -58,12 +58,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       const role = user?.role?.toUpperCase();
 
       if (role === "USER" || role === "MEMBER") {
-        // Members are restricted to member portal, chat, and profile
-        const allowedMemberPrefixes = ["member", "chat", "profile"];
+        // Members are restricted to the member portal, chat, profile and their own notifications
+        const allowedMemberPrefixes = ["member", "chat", "profile", "notifications"];
         // Exact segment match: a prefix check let "/members" (staff directory) through as "member".
         const isAllowed = allowedMemberPrefixes.includes(subRoute);
         if (!isAllowed) {
-          console.warn(`Member role blocked from owner/trainer route: /${requestedSlug}/${subRoute}`);
+          // "/dashboard" is the generic post-login landing page; sending members home is expected, not a warning.
+          if (subRoute !== "dashboard") console.warn(`Member role blocked from owner/trainer route: /${requestedSlug}/${subRoute}`);
           setAuthorized(false);
           router.replace(`/${authorizedSlug || requestedSlug}/member/dashboard`);
           return;

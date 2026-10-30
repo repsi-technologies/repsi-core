@@ -4055,4 +4055,63 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get chatReportSent => 'रिपोर्ट जिम मालिक को भेज दी गई।';
+
+  @override
+  String get dietBuildTitle => 'मेरा डाइट बनाएं';
+
+  @override
+  String get dietFoodPreference => 'भोजन पसंद';
+
+  @override
+  String get dietTypeVegetarian => 'शाकाहारी';
+
+  @override
+  String get dietTypeEggetarian => 'अंडा + शाकाहारी';
+
+  @override
+  String get dietTypeNonVeg => 'मांसाहारी';
+
+  @override
+  String get dietTypeVegan => 'वीगन';
+
+  @override
+  String get dietFoodsYouHave => 'घर में उपलब्ध खाद्य पदार्थ';
+
+  @override
+  String get dietGoal => 'लक्ष्य';
+
+  @override
+  String get dietWeightKg => 'शरीर का वजन (किलो)';
+
+  @override
+  String get dietMealsPerDay => 'दिन में भोजन';
+
+  @override
+  String get dietAvoid => 'एलर्जी या परहेज़ वाले खाद्य (वैकल्पिक)';
+
+  @override
+  String get dietSuggest => 'प्लान सुझाएं';
+
+  @override
+  String get dietAskTrainer => 'ट्रेनर से प्लान मांगें';
+
+  @override
+  String get dietUseThisPlan => 'इसे मेरा प्लान बनाएं';
+
+  @override
+  String get dietPersonaliseAi => 'AI से पर्सनलाइज़ करें';
+
+  @override
+  String get dietNowFollowing => 'अब यह आपका डाइट प्लान है।';
+
+  @override
+  String get dietTrainerAsked =>
+      'आपके ट्रेनर को भेज दिया गया। वे आपके खाने के अनुसार प्लान देंगे।';
+
+  @override
+  String get dietNoTrainer =>
+      'सेव हो गया। अभी आपका कोई ट्रेनर नहीं है — जिम एक ट्रेनर दे सकता है।';
+
+  @override
+  String get dietEnterWeight => 'सुझाव पाने के लिए अपना वजन डालें।';
 }

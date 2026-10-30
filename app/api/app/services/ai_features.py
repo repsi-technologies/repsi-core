@@ -652,6 +652,44 @@ DIET_QUESTIONS = [
     {"key": "notes", "label": "Allergies or foods to avoid? (optional)", "type": "text"},
 ]
 
+# Foods a member can tick as "I have this". kind: vegan < veg < egg < nonveg (what each diet allows);
+# role: protein | carb | produce; per-portion macros (kcal, protein, carbs, fat) are typical Indian values.
+INGREDIENTS = {
+    "paneer": ("Paneer", "veg", "protein", ("lunch", "dinner"), ("Paneer bhurji", "100 g", 265, 18, 4, 20)),
+    "curd": ("Curd / yogurt", "veg", "protein", ("breakfast", "lunch", "snack"), ("Curd (dahi)", "1 bowl", 110, 8, 9, 4)),
+    "milk": ("Milk", "veg", "protein", ("breakfast", "snack"), ("Milk", "1 glass", 150, 8, 12, 8)),
+    "dal": ("Dal / lentils", "vegan", "protein", ("lunch", "dinner"), ("Dal", "1.5 cups", 230, 15, 30, 5)),
+    "chana": ("Chana / chickpeas", "vegan", "protein", ("lunch", "dinner", "snack"), ("Chana masala", "1 cup", 270, 14, 40, 6)),
+    "rajma": ("Rajma", "vegan", "protein", ("lunch", "dinner"), ("Rajma", "1 cup", 240, 15, 40, 2)),
+    "soya": ("Soya chunks", "vegan", "protein", ("lunch", "dinner"), ("Soya chunks curry", "50 g dry", 170, 26, 17, 1)),
+    "tofu": ("Tofu", "vegan", "protein", ("lunch", "dinner"), ("Tofu stir-fry", "150 g", 220, 20, 6, 12)),
+    "sprouts": ("Sprouts", "vegan", "protein", ("breakfast", "snack"), ("Sprouts salad", "1 cup", 120, 8, 20, 1)),
+    "peanuts": ("Peanuts", "vegan", "protein", ("snack",), ("Roasted peanuts", "30 g", 170, 8, 5, 14)),
+    "eggs": ("Eggs", "egg", "protein", ("breakfast", "snack", "dinner"), ("Boiled eggs", "2", 155, 13, 1, 11)),
+    "chicken": ("Chicken", "nonveg", "protein", ("lunch", "dinner"), ("Grilled chicken", "150 g", 250, 46, 0, 6)),
+    "fish": ("Fish", "nonveg", "protein", ("lunch", "dinner"), ("Fish curry", "150 g", 260, 30, 6, 12)),
+    "rice": ("Rice", "vegan", "carb", ("lunch", "dinner"), ("Rice", "1 cup", 200, 4, 44, 1)),
+    "wheat": ("Wheat / roti", "vegan", "carb", ("lunch", "dinner"), ("Roti (whole wheat)", "2", 160, 6, 30, 2)),
+    "oats": ("Oats", "vegan", "carb", ("breakfast",), ("Oats", "1 cup cooked", 160, 6, 27, 3)),
+    "idli": ("Idli / dosa batter", "vegan", "carb", ("breakfast", "dinner"), ("Idli with sambar", "3 + 1 bowl", 300, 10, 55, 4)),
+    "poha": ("Poha", "vegan", "carb", ("breakfast",), ("Vegetable poha", "1.5 cups", 300, 7, 52, 7)),
+    "bread": ("Whole-wheat bread", "vegan", "carb", ("breakfast",), ("Whole-wheat toast", "2 slices", 160, 6, 28, 3)),
+    "millet": ("Ragi / millets", "vegan", "carb", ("breakfast", "dinner"), ("Ragi / millet", "1 cup", 210, 6, 42, 2)),
+    "vegetables": ("Vegetables", "vegan", "produce", ("lunch", "dinner"), ("Mixed vegetable sabzi", "1 cup", 150, 5, 18, 7)),
+    "greens": ("Leafy greens", "vegan", "produce", ("lunch", "dinner"), ("Sauteed greens", "1 cup", 90, 4, 10, 4)),
+    "banana": ("Bananas", "vegan", "produce", ("breakfast", "snack"), ("Banana", "1", 100, 1, 26, 0)),
+    "fruit": ("Other fruit", "vegan", "produce", ("breakfast", "snack"), ("Seasonal fruit", "1 cup", 80, 1, 20, 0)),
+    "nuts": ("Nuts / almonds", "vegan", "produce", ("breakfast", "snack"), ("Almonds", "10 pcs", 70, 3, 2, 6)),
+}
+_DIET_ALLOWS = {"vegan": {"vegan"}, "vegetarian": {"vegan", "veg"}, "eggetarian": {"vegan", "veg", "egg"},
+                "non_vegetarian": {"vegan", "veg", "egg", "nonveg"}}
+DIET_QUESTIONS.insert(len(DIET_QUESTIONS) - 2, {
+    "key": "ingredients", "label": "What do you have at home? (optional)", "type": "multi",
+    "options": [[k, v[0]] for k, v in INGREDIENTS.items()],
+    # Lets the app hide foods the chosen diet excludes (e.g. chicken for vegetarians).
+    "diet_of": {k: v[1] for k, v in INGREDIENTS.items()},
+})
+
 DIET_TARGETS = {
     "fat_loss": (27, 2.0), "muscle_gain": (38, 2.0), "strength": (34, 1.8),
     "endurance": (35, 1.6), "general_fitness": (31, 1.6), "mobility": (29, 1.4),
@@ -721,9 +759,33 @@ def _diet_answers(a: dict) -> dict:
         raise HTTPException(status_code=422, detail="Enter the member's body weight in kg.")
     if not 25 <= weight <= 250:
         raise HTTPException(status_code=422, detail="Body weight must be between 25 and 250 kg.")
-    return {"goal": choice("goal", "general_fitness"), "diet_type": choice("diet_type", "vegetarian"),
+    diet_type = choice("diet_type", "vegetarian")
+    # Foods the chosen diet excludes are dropped rather than rejected (the list may predate a diet change).
+    ingredients = [k for k in multi("ingredients") if INGREDIENTS[k][1] in _DIET_ALLOWS[diet_type]]
+    return {"goal": choice("goal", "general_fitness"), "diet_type": diet_type,
             "weight_kg": round(weight, 1), "meals_per_day": choice("meals_per_day", 3),
+            "ingredients": ingredients,
             "health_flags": multi("health_flags"), "notes": clean_text(scrub_pii(a.get("notes") or ""), 200)}
+
+
+def _with_ingredients(keep: list, ingredients: list) -> list:
+    """Rebuilds each meal from the member's own foods (one protein, carb and produce per main meal),
+    keeping the template's items for any meal their foods can't cover."""
+    have = [(k, INGREDIENTS[k]) for k in ingredients]
+    used: dict[str, int] = {}
+    out = []
+    for slot, time, title, items in keep:
+        roles = ("protein", "produce") if slot == "snack" else ("protein", "carb", "produce")
+        picked = []
+        for role in roles:
+            options = [(k, v) for k, v in have if v[2] == role and slot in v[3]]
+            if options:
+                # Least-used first, so lunch and dinner don't repeat when there's a choice.
+                k, v = min(options, key=lambda kv: used.get(kv[0], 0))
+                used[k] = used.get(k, 0) + 1
+                picked.append(v[4])
+        out.append((slot, time, title, picked if len(picked) >= (1 if slot == "snack" else 2) else items))
+    return out
 
 
 def _diet_targets(ans: dict) -> dict:
@@ -743,11 +805,15 @@ def _scale_meals(ans: dict, targets: dict) -> list:
     if ans["meals_per_day"] == 5:
         keep = template + [("snack", "11:00", "Mid-morning snack",
                             [("Fruit bowl", "1 cup", 90, 1, 22, 0), ("Mixed nuts", "20 g", 120, 4, 5, 10)])]
+    if ans.get("ingredients"):
+        keep = _with_ingredients(keep, ans["ingredients"])
     base_kcal = sum(cal for _, _, _, items in keep for _, _, cal, _, _, _ in items)
     factor = targets["calories_target"] / base_kcal if base_kcal else 1.0
     meals = []
     for slot, time, title, items in keep:
-        scaled = [{"food": food, "portion": portion, "calories": round(cal * factor),
+        # Calories are scaled to the target, so the portion must say so too ("1 cup × 1.4").
+        size = f" × {factor:.1f}" if abs(factor - 1) >= 0.15 else ""
+        scaled = [{"food": food, "portion": f"{portion}{size}", "calories": round(cal * factor),
                    "protein": round(p * factor), "carbs": round(c * factor), "fat": round(f * factor)}
                   for food, portion, cal, p, c, f in items]
         meals.append({"slot": slot, "time": time, "title": title, "items": scaled})
@@ -812,7 +878,8 @@ def diet_suggestion(db: Session, ctx: AiContext, answers: dict, use_ai: bool) ->
                 'Shape: {"name": str, "meals": [{"slot": str, "time": "HH:MM", "title": str, "items": '
                 '[{"food": str, "portion": str, "calories": int, "protein": int, "carbs": int, "fat": int}]}], "notes": str}'),
         prompt=json.dumps({"targets": targets, "diet_type": ans["diet_type"], "goal": ans["goal"],
-                           "meals_per_day": ans["meals_per_day"]})
+                           "meals_per_day": ans["meals_per_day"],
+                           "build_mainly_from_foods_they_have": [INGREDIENTS[k][0] for k in ans["ingredients"]]})
         + (f"\n<avoid>{ans['notes']}</avoid>" if ans["notes"] else ""),
         validate=validate, fallback=lambda: plan, max_tokens=1200, temperature=0.5,
         key=ai_core.cache_key("diet", ctx.workspace_id, [ans]), ttl=timedelta(days=14),

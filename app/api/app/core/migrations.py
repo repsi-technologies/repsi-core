@@ -226,6 +226,9 @@ def _apply_operations_module_migrations(conn, inspector, dialect_name: str) -> N
         ("custom_grace_days", "INTEGER"),
         ("custom_ai_daily_calls", "INTEGER"),
     ])
+    _add_missing_columns(conn, inspector, "diet_plans", [
+        ("owner_member_id", "VARCHAR(64)"),  # member-saved personal plans (kept out of the gym library)
+    ])
     for statement in (
         "CREATE INDEX IF NOT EXISTS ix_payments_receipt_number ON payments (receipt_number)",
     ):

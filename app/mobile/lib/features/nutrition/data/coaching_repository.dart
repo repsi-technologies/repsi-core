@@ -57,6 +57,45 @@ class CoachingRepository {
     });
   }
 
+  /// Diet builder questions, including the "foods you have" list and which diet each food fits.
+  Future<Map<String, dynamic>> dietQuestions() async {
+    final res = await _api.get<Map<String, dynamic>>('/ai/diet/questions');
+    return res.data ?? const {};
+  }
+
+  /// A calculated (or, with [useAi], AI-personalised) one-day plan; `plan` is null with a safety message.
+  Future<Map<String, dynamic>> suggestDiet(Map<String, dynamic> answers, {bool useAi = false}) async {
+    final res = await _api.post<Map<String, dynamic>>('/ai/diet/suggest', data: {'answers': answers, 'use_ai': useAi});
+    return res.data ?? const {};
+  }
+
+  /// Saves [plan] as the member's own diet and starts following it (the previous one is ended).
+  Future<void> chooseMyDietPlan(Map<String, dynamic> plan) async {
+    await _api.post<Map<String, dynamic>>('/nutrition/me/plan', data: {
+      for (final k in const ['name', 'goal', 'diet_type', 'meals', 'notes', 'calories_target', 'protein_target', 'carbs_target', 'water_ml_target'])
+        if (plan[k] != null) k: plan[k],
+    });
+  }
+
+  /// Records food preferences; with [askTrainer] the member's trainer is asked to assign a plan.
+  /// Returns how many trainers were notified.
+  Future<int> saveDietPreferences({required String dietType, String? goal, required List<String> ingredients,
+      String? notes, bool askTrainer = false}) async {
+    final res = await _api.post<Map<String, dynamic>>('/nutrition/me/preferences', data: {
+      'diet_type': dietType,
+      if (goal != null) 'goal': goal,
+      'ingredients': ingredients,
+      if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+      'ask_trainer': askTrainer,
+    });
+    return (res.data?['trainers_notified'] as num?)?.toInt() ?? 0;
+  }
+
+  Future<Map<String, dynamic>?> myDietPreferences() async {
+    final res = await _api.get<dynamic>('/nutrition/preferences');
+    return res.data is Map<String, dynamic> ? res.data as Map<String, dynamic> : null;
+  }
+
   Future<NutritionDay> day({String? memberId}) async {
     final res = await _api.get<Map<String, dynamic>>('/nutrition/day',
         queryParameters: {if (memberId != null) 'member_id': memberId});

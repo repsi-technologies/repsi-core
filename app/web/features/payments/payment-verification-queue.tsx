@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthImage, openProtectedFile } from "@/components/ui/auth-image";
 import { useState, useEffect } from "react";
 import { 
   CheckCircle2, 
@@ -395,23 +396,18 @@ export function PaymentVerificationQueue() {
             <div className="space-y-2">
               <span className="text-xs font-semibold text-[var(--text)]">{t("payments.uploaded_receipt_screenshot")}</span>
               <div className="p-2 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex flex-col items-center justify-center min-h-[220px] max-h-[360px] overflow-auto">
-                <img
+                <AuthImage
                   src={repsiApi.getReceiptUrl(selectedSub.id)}
                   alt={t("payments.receipt_preview")}
-                  className="max-h-[340px] max-w-full rounded object-contain"
-                  onError={(e) => {
-                    // Fallback for PDF or broken link
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
+                  className="max-h-[340px] max-w-full rounded"
                 />
                 <div className="mt-3">
-                  <a
-                    href={repsiApi.getReceiptUrl(selectedSub.id)}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openProtectedFile(repsiApi.getReceiptUrl(selectedSub.id))}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-secondary)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text)] font-medium transition-colors"
                   >
-                    {richText(t("payments.externallinkopen_original_document_new_tab"), { externallink: <ExternalLink className="w-3.5 h-3.5" /> })}</a>
+                    {richText(t("payments.externallinkopen_original_document_new_tab"), { externallink: <ExternalLink className="w-3.5 h-3.5" /> })}</button>
                 </div>
               </div>
             </div>

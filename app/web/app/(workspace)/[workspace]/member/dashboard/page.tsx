@@ -11,6 +11,7 @@ import {
   Dumbbell,
   Flame,
   QrCode,
+  Salad,
   Receipt,
   RefreshCw,
   TrendingUp,
@@ -127,7 +128,7 @@ export default function MemberDashboardPage({ params }: { params: Promise<{ work
   const quick = [
     { icon: QrCode, label: t("nav.digital_qr_pass", "My Pass"), href: `${base}/member/qr` },
     { icon: UserRound, label: t("nav.trainer", "My Trainer"), href: `${base}/member/trainer` },
-    { icon: Dumbbell, label: t("nav.workout", "Workout"), href: `${base}/member/workout` },
+    { icon: Salad, label: t("nav.diet_plan", "Diet plan"), href: `${base}/member/diet` },
     { icon: TrendingUp, label: t("nav.progress", "Progress"), href: `${base}/member/progress` },
     { icon: Receipt, label: t("nav.my_payments", "Payments"), href: `${base}/member/payments` },
     { icon: Bot, label: t("nav.ai_coach", "AI Coach"), href: `${base}/member/ai-coach` },

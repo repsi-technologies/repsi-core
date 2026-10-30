@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthImage } from "@/components/ui/auth-image";
 import React, { useState, useEffect, useRef } from "react";
 import {
   QrCode,
@@ -369,10 +370,11 @@ export function PaymentSettingsTab() {
             {/* QR Preview Box */}
             <div className="w-36 h-36 rounded-2xl border-2 border-dashed border-[var(--border)] bg-[var(--surface-hover)]/30 flex flex-col items-center justify-center p-2 relative overflow-hidden flex-shrink-0">
               {qrImageUrl ? (
-                <img
-                  src="/api/v1/payments/settings/qr-code"
+                <AuthImage
+                  src={repsiApi.getMerchantQrUrl()}
+                  version={qrFilename}
                   alt={t("settings.merchant_qr")}
-                  className="w-full h-full object-contain rounded-xl"
+                  className="w-full h-full rounded-xl"
                 />
               ) : (
                 <div className="text-center p-2 text-[var(--text-muted)] space-y-1">

@@ -27,7 +27,8 @@ export default function MemberQRCheckinPage(props: { params: Promise<{ workspace
 
   const loadAttendance = useCallback(async () => {
     try {
-      setHistory(await repsiApi.getAttendance());
+      // The member's own visits; gym-wide history needs staff permissions.
+      setHistory((await repsiApi.getMyPersonalAttendance()).recent_sessions);
     } catch {
       /* history is secondary on this page */
     }

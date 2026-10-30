@@ -94,9 +94,13 @@ def diet_questions(tenant: TenantContext = Depends(get_current_tenant)):
     return {"questions": ai_features.DIET_QUESTIONS, "disclaimer": ai_features.DISCLAIMER}
 
 
-@router.post("/diet/suggest", dependencies=[Depends(require_feature("ai_workouts"))])
+@router.post("/diet/suggest")
 def diet_suggest(data: DietRequest, tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)):
-    """A rule-based meal plan instantly (shaped to save as a diet plan); `use_ai=true` personalises it."""
+    """A rule-based meal plan instantly (shaped to save as a diet plan); `use_ai=true` personalises it.
+
+    The calculated plan is available on every plan; only AI personalisation needs the AI feature."""
+    if data.use_ai:
+        require_feature("ai_workouts")(tenant, db)
     return ai_features.diet_suggestion(db, ai_context(tenant, db), data.answers, data.use_ai)
 
 

@@ -502,3 +502,15 @@ def test_language_preference_api(client: TestClient, setup_tenants: dict):
     # Verify profile reflects 'ta'
     res_me_updated = client.get("/api/v1/auth/me", headers=headers_member)
     assert res_me_updated.json()["preferred_language"] == "ta"
+
+
+def test_general_instructions_never_invent_an_amount(client: TestClient, setup_tenants: dict):
+    env = setup_tenants
+    owner = auth_header(env["owner1"].id, env["ws1"].id, "OWNER")
+    client.put("/api/v1/payments/settings", json={"upi_enabled": True, "upi_id": "gym@okaxis", "upi_name": "Gym One"},
+               headers=owner)
+    # Owners preview what members see; with nothing billed the UPI link leaves the amount to the payer.
+    data = client.get("/api/v1/payments/instructions", headers=owner).json()
+    assert data["upi"]["upi_id"] == "gym@okaxis"
+    assert "&am=" not in data["upi"]["payment_uri"]
+    assert "1,500" not in data["instructions_text"] and "1500" not in data["upi"]["payment_uri"]

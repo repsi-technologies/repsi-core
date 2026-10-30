@@ -172,20 +172,19 @@ def get_invoices(
 ):
     repo = BaseTenantRepository[Invoice](Invoice, db, tenant.workspace_id)
     if tenant.role == "USER":
-        user = db.query(User).filter(User.id == tenant.user_id).first()
-        if user:
-            from app.models.member import Member
-            m = db.query(Member).filter(
-                Member.workspace_id == tenant.workspace_id,
-                (Member.email == user.email) | (Member.phone == user.phone)
-            ).first()
-            if m:
-                invoices = db.query(Invoice).filter(
-                    Invoice.workspace_id == tenant.workspace_id,
-                    Invoice.member_id == m.id
-                ).order_by(Invoice.created_at.desc()).all()
-                return [_format_invoice(inv) for inv in invoices]
+        # Members see only their own invoices, via the account link (matching on email/phone could
+        # pick another member's record, e.g. NULL phone == NULL phone).
+        from app.models.member import Member
+        m = db.query(Member).filter(
+            Member.workspace_id == tenant.workspace_id, Member.user_id == tenant.user_id,
+        ).first()
+        if not m:
             return []
+        invoices = db.query(Invoice).filter(
+            Invoice.workspace_id == tenant.workspace_id,
+            Invoice.member_id == m.id
+        ).order_by(Invoice.created_at.desc()).all()
+        return [_format_invoice(inv) for inv in invoices]
     invoices = repo.get_multi(limit=50) or []
     return [_format_invoice(inv) for inv in invoices]
 
@@ -198,9 +197,19 @@ def get_invoice_by_id(
 ):
     repo = BaseTenantRepository[Invoice](Invoice, db, tenant.workspace_id)
     inv = repo.get(invoice_id)
-    if not inv:
+    if not inv or not _member_may_see_invoice(db, tenant, inv):
         raise HTTPException(status_code=404, detail="Invoice not found")
     return _format_invoice(inv)
+
+
+def _member_may_see_invoice(db: Session, tenant: TenantContext, inv: Invoice) -> bool:
+    """Members only reach their own invoices; other roles are scoped by workspace already."""
+    if tenant.role != "USER":
+        return True
+    from app.models.member import Member
+    own = db.query(Member.id).filter(Member.workspace_id == tenant.workspace_id,
+                                     Member.user_id == tenant.user_id).first()
+    return bool(own) and inv.member_id == own[0]
 
 
 from pydantic import BaseModel
@@ -416,6 +425,9 @@ def get_invoice_payment_instructions(
     Fetches exact payment instructions, copyable UPI/bank details, QR code,
     and unique transfer narration reference for an authorized invoice.
     """
+    inv = db.query(Invoice).filter(Invoice.workspace_id == tenant.workspace_id, Invoice.id == invoice_id).first()
+    if not inv or not _member_may_see_invoice(db, tenant, inv):
+        raise HTTPException(status_code=404, detail="Invoice not found")
     svc = ManualPaymentService(db, tenant.workspace_id)
     return svc.get_payment_instructions(invoice_id, tenant.user_id)
 

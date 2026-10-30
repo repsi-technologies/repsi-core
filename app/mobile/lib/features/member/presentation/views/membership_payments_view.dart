@@ -92,16 +92,16 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
                   ),
                   child: const Center(child: CircularProgressIndicator()),
                 ),
-                error: (_, __) => _buildDueBanner(
-                  context,
-                  const GymPaymentInstructions(
-                    gymName: 'Nitheesh Gym',
-                    referenceCode: 'PAY-MEM',
-                    amountDue: 1500.0,
-                    hasActiveMethods: true,
-                    upiId: 'gym@okhdfcbank',
-                  ),
-                  isDark,
+                // Never fall back to sample payment details: members could pay the wrong account.
+                error: (_, __) => RepsiCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(children: [
+                    Expanded(
+                      child: Text("Couldn't load the gym's payment details. Check your connection and try again.",
+                          style: AppTypography.bodySecondary.copyWith(color: context.palette.textSecondary)),
+                    ),
+                    TextButton(onPressed: () => ref.invalidate(gymPaymentInstructionsProvider), child: const Text('Retry')),
+                  ]),
                 ),
               ),
 
@@ -349,6 +349,13 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
   }
 
   Widget _buildOwnerPaymentChannels(BuildContext context, GymPaymentInstructions instructions, bool isDark) {
+    if (!instructions.hasActiveMethods) {
+      return RepsiCard(
+        padding: const EdgeInsets.all(16),
+        child: Text("Your gym hasn't added online payment details yet. Please pay at the front desk.",
+            style: AppTypography.bodySecondary.copyWith(color: context.palette.textSecondary)),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -375,7 +382,8 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
         ),
         const SizedBox(height: 10),
 
-        // QR Code Card
+        // QR Code Card (only when the gym uploaded one)
+        if (instructions.qrUrl != null)
         RepsiCard(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -415,9 +423,9 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
               ),
               const SizedBox(height: 14),
 
-              // Mock / Real QR Container
+              // The gym's uploaded QR, fetched with the member's session.
               Container(
-                height: 140,
+                height: 220,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E1E22) : const Color(0xFFF9FAFB),
@@ -442,7 +450,19 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
                             ),
                           ],
                         ),
-                        child: const Icon(LucideIcons.qrCode, size: 64, color: Color(0xFF111827)),
+                        child: SizedBox(
+                          width: 160,
+                          height: 160,
+                          child: Consumer(builder: (context, ref, _) {
+                            return ref.watch(merchantQrProvider).when(
+                                  data: (bytes) => bytes == null
+                                      ? const Icon(LucideIcons.qrCode, size: 64, color: Color(0xFF111827))
+                                      : Image.memory(bytes, fit: BoxFit.contain, gaplessPlayback: true),
+                                  loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                  error: (_, __) => const Icon(LucideIcons.imageOff, size: 40, color: Color(0xFF9CA3AF)),
+                                );
+                          }),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -510,7 +530,8 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
 
         const SizedBox(height: 10),
 
-        // Bank Details Expansion Card
+        // Bank Details Card (only when the gym added bank details)
+        if (instructions.bankAccountNumber != null)
         RepsiCard(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -555,16 +576,16 @@ class _MembershipPaymentsViewState extends ConsumerState<MembershipPaymentsView>
               _buildDetailRow(
                 context,
                 'Account Number',
-                instructions.bankAccountNumber ?? '50200012345678',
-                onCopy: () => _copyToClipboard(context, instructions.bankAccountNumber ?? '50200012345678', 'Account number'),
+                instructions.bankAccountNumber!,
+                onCopy: () => _copyToClipboard(context, instructions.bankAccountNumber!, 'Account number'),
                 isDark: isDark,
               ),
               const SizedBox(height: 8),
               _buildDetailRow(
                 context,
                 'IFSC Code',
-                instructions.bankIfsc ?? 'HDFC0000123',
-                onCopy: () => _copyToClipboard(context, instructions.bankIfsc ?? 'HDFC0000123', 'IFSC Code'),
+                instructions.bankIfsc ?? '',
+                onCopy: () => _copyToClipboard(context, instructions.bankIfsc ?? '', 'IFSC Code'),
                 isDark: isDark,
               ),
             ],

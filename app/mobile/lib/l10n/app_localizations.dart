@@ -7230,6 +7230,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report sent to the gym owner.'**
   String get chatReportSent;
+
+  /// No description provided for @dietBuildTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build my diet'**
+  String get dietBuildTitle;
+
+  /// No description provided for @dietFoodPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Food preference'**
+  String get dietFoodPreference;
+
+  /// No description provided for @dietTypeVegetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetarian'**
+  String get dietTypeVegetarian;
+
+  /// No description provided for @dietTypeEggetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg + veg'**
+  String get dietTypeEggetarian;
+
+  /// No description provided for @dietTypeNonVeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-vegetarian'**
+  String get dietTypeNonVeg;
+
+  /// No description provided for @dietTypeVegan.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegan'**
+  String get dietTypeVegan;
+
+  /// No description provided for @dietFoodsYouHave.
+  ///
+  /// In en, this message translates to:
+  /// **'Foods you have at home'**
+  String get dietFoodsYouHave;
+
+  /// No description provided for @dietGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get dietGoal;
+
+  /// No description provided for @dietWeightKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight (kg)'**
+  String get dietWeightKg;
+
+  /// No description provided for @dietMealsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals per day'**
+  String get dietMealsPerDay;
+
+  /// No description provided for @dietAvoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies or foods to avoid (optional)'**
+  String get dietAvoid;
+
+  /// No description provided for @dietSuggest.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest a plan'**
+  String get dietSuggest;
+
+  /// No description provided for @dietAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask my trainer for a plan'**
+  String get dietAskTrainer;
+
+  /// No description provided for @dietUseThisPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this as my plan'**
+  String get dietUseThisPlan;
+
+  /// No description provided for @dietPersonaliseAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalise with AI'**
+  String get dietPersonaliseAi;
+
+  /// No description provided for @dietNowFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'This is now your diet plan.'**
+  String get dietNowFollowing;
+
+  /// No description provided for @dietTrainerAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your trainer. They\'ll assign a plan that fits your foods.'**
+  String get dietTrainerAsked;
+
+  /// No description provided for @dietNoTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. You don\'t have a trainer yet — the gym can assign one.'**
+  String get dietNoTrainer;
+
+  /// No description provided for @dietEnterWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your weight to get a suggestion.'**
+  String get dietEnterWeight;
 }
 
 class _AppLocalizationsDelegate
