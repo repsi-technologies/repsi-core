@@ -4051,4 +4051,48 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get dietNonVegetarian => 'നോൺ-വെജ്';
+
+  @override
+  String get chatReport => 'റിപ്പോർട്ട്';
+
+  @override
+  String get chatReportMessage => 'സന്ദേശം റിപ്പോർട്ട് ചെയ്യുക';
+
+  @override
+  String get chatReportTitle => 'സംഭാഷണം റിപ്പോർട്ട് ചെയ്യുക';
+
+  @override
+  String get chatReportDesc =>
+      'നിങ്ങളുടെ ജിം ഉടമ ഇത് പരിശോധിക്കും. ആരാണ് റിപ്പോർട്ട് ചെയ്തതെന്ന് മറ്റേയാളെ അറിയിക്കില്ല.';
+
+  @override
+  String get chatReportReason => 'എന്താണ് പ്രശ്നം?';
+
+  @override
+  String get chatReasonHarassment => 'ഉപദ്രവം അല്ലെങ്കിൽ ഭീഷണി';
+
+  @override
+  String get chatReasonInappropriate => 'അനുചിതമായ ഉള്ളടക്കം';
+
+  @override
+  String get chatReasonOffTopic => 'അനാവശ്യ വ്യക്തിപരമായ സന്ദേശങ്ങൾ';
+
+  @override
+  String get chatReasonSpam => 'സ്പാം അല്ലെങ്കിൽ വിൽപ്പന';
+
+  @override
+  String get chatReasonSafety =>
+      'സുരക്ഷിതമല്ലാത്ത പരിശീലനം അല്ലെങ്കിൽ ആരോഗ്യ ഉപദേശം';
+
+  @override
+  String get chatReasonOther => 'മറ്റെന്തെങ്കിലും';
+
+  @override
+  String get chatReportDetails => 'വിശദാംശങ്ങൾ (ഐച്ഛികം)';
+
+  @override
+  String get chatReportSend => 'റിപ്പോർട്ട് അയയ്ക്കുക';
+
+  @override
+  String get chatReportSent => 'റിപ്പോർട്ട് ജിം ഉടമയ്ക്ക് അയച്ചു.';
 }

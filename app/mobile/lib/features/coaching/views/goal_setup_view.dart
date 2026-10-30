@@ -233,7 +233,7 @@ class _GoalSetupViewState extends ConsumerState<GoalSetupView> {
                   text: _step == _steps - 1 ? l.buildMyPlan : l.commonContinue,
                   isFullWidth: true,
                   isLoading: _saving,
-                  trailingIcon: Icon(_step == _steps - 1 ? Icons.auto_awesome_rounded : Icons.arrow_forward_rounded, size: 18),
+                  trailingIcon: Icon(_step == _steps - 1 ? Icons.check_rounded : Icons.arrow_forward_rounded, size: 18),
                   onPressed: _canContinue ? _next : null,
                 ),
               ),

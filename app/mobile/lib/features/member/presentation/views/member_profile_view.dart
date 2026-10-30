@@ -48,7 +48,7 @@ class MemberProfileView extends ConsumerWidget {
         'badge': null
       },
       {
-        'icon': LucideIcons.sparkles,
+        'icon': LucideIcons.brainCircuit,
         'title': context.l10n.aiWorkoutCoach,
         'route': 'aiCoach',
         'badge': 'AI'

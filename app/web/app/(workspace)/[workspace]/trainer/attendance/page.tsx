@@ -60,8 +60,19 @@ export default function TrainerAttendancePage(props: { params: Promise<{ workspa
 
   const loadAttendance = async () => {
     try {
-      const records = await repsiApi.getAttendance();
-      setHistory(records);
+      // Own shifts only: gym-wide attendance history needs attendance.view, which trainers don't have.
+      const mine = await repsiApi.getMyShiftAttendance();
+      const time = (v: string) => new Date(v).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      setHistory(mine.records.map((r) => ({
+        id: r.id,
+        name: "",
+        personType: "trainer",
+        checkInTime: time(r.check_in_time),
+        checkOutTime: r.check_out_time ? time(r.check_out_time) : undefined,
+        durationMinutes: r.minutes,
+        status: r.check_out_time ? "out" : "in",
+        method: "qr",
+      } as ApiAttendance)));
     } catch (e) {
       console.warn("Failed to load trainer attendance", e);
     }

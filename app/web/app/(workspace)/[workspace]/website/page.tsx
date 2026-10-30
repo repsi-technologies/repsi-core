@@ -22,7 +22,6 @@ import {
   Mail,
   MapPin,
   Clock,
-  Sparkles,
   Palette,
   Layout as LayoutIcon,
   Settings as SettingsIcon,
@@ -54,7 +53,8 @@ import {
   Star,
   Quote,
   ShieldAlert,
-  FolderOpen
+  FolderOpen,
+  BrainCircuit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1244,7 +1244,7 @@ export default function WebsiteBuilderPage(props: { params: Promise<{ workspace:
                     </div>
                     <div className="p-3 rounded-xl bg-[var(--primary-soft)] border border-[var(--primary)]/20 text-xs text-[var(--primary)] space-y-1">
                       <p className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5" /> Live Repsi DB Synced
+                        <BrainCircuit className="h-3.5 w-3.5" /> Live Repsi DB Synced
                       </p>
                       <p className="text-[11px] opacity-80 leading-relaxed text-[var(--text-secondary)]">
                         Cards for this section automatically reflect your live membership plans and trainer profiles.

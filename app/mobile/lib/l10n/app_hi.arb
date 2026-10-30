@@ -1173,5 +1173,19 @@
   "dietVegetarian": "शाकाहारी",
   "dietVegan": "वीगन",
   "dietEggetarian": "एगेटेरियन",
-  "dietNonVegetarian": "मांसाहारी"
+  "dietNonVegetarian": "मांसाहारी",
+  "chatReport": "रिपोर्ट",
+  "chatReportMessage": "संदेश रिपोर्ट करें",
+  "chatReportTitle": "बातचीत रिपोर्ट करें",
+  "chatReportDesc": "आपके जिम के मालिक इसकी समीक्षा करेंगे। दूसरे व्यक्ति को नहीं बताया जाएगा कि रिपोर्ट किसने की।",
+  "chatReportReason": "क्या समस्या है?",
+  "chatReasonHarassment": "उत्पीड़न या धमकाना",
+  "chatReasonInappropriate": "अनुचित सामग्री",
+  "chatReasonOffTopic": "अवांछित निजी संदेश",
+  "chatReasonSpam": "स्पैम या बिक्री",
+  "chatReasonSafety": "असुरक्षित ट्रेनिंग या स्वास्थ्य सलाह",
+  "chatReasonOther": "कुछ और",
+  "chatReportDetails": "विवरण (वैकल्पिक)",
+  "chatReportSend": "रिपोर्ट भेजें",
+  "chatReportSent": "रिपोर्ट जिम मालिक को भेज दी गई।"
 }

@@ -12,8 +12,10 @@ class MemberRepository(BaseTenantRepository[Member]):
 
     def _filtered(self, query: str = "", status: Optional[str] = None, plan_id: Optional[str] = None,
                   joined_from: Optional[date] = None, joined_to: Optional[date] = None,
-                  include_archived: bool = False):
+                  include_archived: bool = False, member_ids: Optional[set] = None):
         q = self.db.query(Member).filter(Member.workspace_id == self.workspace_id)
+        if member_ids is not None:  # caller may only see these members (e.g. a trainer's clients)
+            q = q.filter(Member.id.in_(member_ids or {""}))
         if query:
             term = f"%{query.strip()}%"
             q = q.filter(or_(

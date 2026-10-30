@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, MessageSquare, Send } from "lucide-react";
+import { Flag, Loader2, MessageSquare, Send } from "lucide-react";
 import { FormAlert } from "@/components/organization/form-fields";
 import { getAuthUser } from "@/lib/auth";
 import { repsiApi, type ApiChatMessage, type ApiConversation } from "@/lib/api";
+import { ReportChatDialog } from "@/features/communications/report-chat-dialog";
 
 /**
  * One-to-one trainer ⇄ member chat. The backend decides who may read or send: trainers only reach
@@ -19,8 +20,9 @@ export default function ChatPage() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<{ message: ApiChatMessage | null } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const isTrainer = getAuthUser()?.role === "TRAINER";
+  const [isTrainer, setIsTrainer] = useState(false);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -35,6 +37,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     setMe(getAuthUser()?.id ?? null);
+    setIsTrainer(getAuthUser()?.role === "TRAINER");
     loadConversations();
   }, [loadConversations]);
 
@@ -118,7 +121,15 @@ export default function ChatPage() {
             <section className="flex min-h-0 flex-col" aria-label={`Conversation with ${isTrainer ? active.member_name : active.trainer_name}`}>
               <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
                 <button type="button" className="text-xs text-[var(--text-muted)] md:hidden" onClick={() => setActiveId(null)}>← Back</button>
-                <span className="font-medium text-[var(--text)]">{isTrainer ? active.member_name : active.trainer_name}</span>
+                <span className="min-w-0 flex-1 truncate font-medium text-[var(--text)]">{isTrainer ? active.member_name : active.trainer_name}</span>
+                <button
+                  type="button"
+                  onClick={() => setReporting({ message: null })}
+                  className="inline-flex items-center gap-1.5 rounded-[8px] px-2 py-1.5 text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--background)] hover:text-[var(--error)]"
+                >
+                  <Flag className="h-3.5 w-3.5" aria-hidden />
+                  Report
+                </button>
               </header>
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4" aria-live="polite">
                 {messages === null ? (
@@ -128,7 +139,7 @@ export default function ChatPage() {
                 ) : messages.map((m) => {
                   const mine = m.sender_user_id === me;
                   return (
-                    <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div key={m.id} className={`group flex items-center gap-1 ${mine ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-[75%] rounded-[12px] px-3 py-2 text-sm ${mine ? "bg-[var(--primary)] text-white" : "bg-[var(--background)] text-[var(--text)]"}`}>
                         {m.body && <p className="whitespace-pre-wrap break-words">{m.body}</p>}
                         {m.attachment_type && <p className="mt-1 text-xs opacity-80">Shared {m.attachment_type.replace("_", " ")}</p>}
@@ -137,6 +148,17 @@ export default function ChatPage() {
                           {mine && m.read_at ? " · Read" : ""}
                         </p>
                       </div>
+                      {!mine && (
+                        <button
+                          type="button"
+                          onClick={() => setReporting({ message: m })}
+                          aria-label="Report this message"
+                          title="Report this message"
+                          className="rounded-[6px] p-1.5 text-[var(--text-muted)] opacity-60 hover:bg-[var(--background)] hover:text-[var(--error)] hover:opacity-100 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                        >
+                          <Flag className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -166,6 +188,15 @@ export default function ChatPage() {
                 </p>
               )}
             </section>
+          )}
+          {active && (
+            <ReportChatDialog
+              open={reporting !== null}
+              onOpenChange={(o) => !o && setReporting(null)}
+              conversationId={active.id}
+              otherName={isTrainer ? active.member_name : active.trainer_name}
+              message={reporting?.message ?? null}
+            />
           )}
         </div>
       )}

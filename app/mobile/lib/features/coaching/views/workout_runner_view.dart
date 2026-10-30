@@ -158,6 +158,8 @@ class _WorkoutRunnerViewState extends State<WorkoutRunnerView> {
     final palette = context.palette;
     final e = _current;
     final isRest = _phase == _Phase.rest;
+    // Big enough to read the movement, small enough to keep the set controls on screen.
+    final demoHeight = (MediaQuery.sizeOf(context).height * 0.28).clamp(170.0, 280.0);
     final next = _set < e.sets
         ? null
         : (_exercise + 1 < _exercises.length ? _exercises[_exercise + 1] : null);
@@ -281,12 +283,12 @@ class _WorkoutRunnerViewState extends State<WorkoutRunnerView> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(16),
                             child: SizedBox(
-                              height: 140,
+                              height: demoHeight,
                               width: double.infinity,
                               child: ExerciseDemonstrationMedia(
                                 mediaUrl: e.mediaUrl,
                                 exerciseName: e.name,
-                                height: 140,
+                                height: demoHeight,
                                 width: double.infinity,
                                 borderRadius: BorderRadius.circular(16),
                                 showControls: true,

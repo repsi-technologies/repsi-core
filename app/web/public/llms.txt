@@ -1,0 +1,48 @@
+# Repsi
+
+> Repsi is gym management software for gyms, fitness studios, yoga studios, swimming pools and personal trainers, built in India. Owners manage members, memberships, QR attendance, UPI and online payments, renewal reminders, trainers, classes, workout plans and diet plans from one web dashboard; members and trainers use the Repsi mobile app.
+
+Key facts:
+- Category: gym management software / fitness business management platform (SaaS).
+- Made in Coimbatore, Tamil Nadu, India. Website: https://repsi.app
+- Platforms: web app, Android app, desktop app (Windows).
+- Languages: English, Tamil, Malayalam, Hindi.
+- Pricing: monthly plans from ₹199/month (Lite) up to Enterprise, priced by number of active members, with discounts for 3-, 6- and 12-month billing. Free trial available. Current plans: https://repsi.app/pricing
+- Each gym's data is isolated in its own workspace with role-based access (owner, admin, manager, front desk, trainer, member).
+
+## Product
+
+- [Features overview](https://repsi.app/features): all modules in one place.
+- [Member management](https://repsi.app/features/member-management): member profiles, CSV import, duplicate detection, documents, status history.
+- [Gym billing and payments](https://repsi.app/features/gym-billing): memberships, partial payments, invoices, receipts, UPI and Razorpay.
+- [Attendance](https://repsi.app/features/gym-attendance): QR code check-in, member passes, attendance reports.
+- [Trainer management](https://repsi.app/features/trainer-management): trainer profiles, client assignment, permissions, trainer–member chat.
+- [Workout management](https://repsi.app/features/workout-management): exercise library, workout programs, splits, assignments and session logging.
+- [Diet management](https://repsi.app/features/diet-management): versioned diet plans and meal adherence.
+- [Gym CRM](https://repsi.app/features/gym-crm): leads and follow-ups.
+- [Gym website builder](https://repsi.app/features/gym-website-builder): a public site for the gym.
+- [Analytics](https://repsi.app/features/gym-analytics): revenue, renewals, attendance and retention reports.
+
+## Who it is for
+
+- [Gyms](https://repsi.app/solutions/gyms)
+- [Fitness studios](https://repsi.app/solutions/fitness-studios)
+- [Yoga studios](https://repsi.app/solutions/yoga-studios)
+- [Swimming pools](https://repsi.app/solutions/swimming-pools)
+- [Personal trainers](https://repsi.app/solutions/personal-trainers)
+- [Multi-branch gyms](https://repsi.app/solutions/multi-branch-gyms)
+- [Gym management software in India](https://repsi.app/gym-management-software-india)
+
+## Compare
+
+- [Repsi vs GymForce](https://repsi.app/compare/repsi-vs-gymforce)
+- [Repsi vs FitnessForce](https://repsi.app/compare/repsi-vs-fitnessforce)
+- [Repsi vs Mindbody](https://repsi.app/compare/repsi-vs-mindbody)
+- [Repsi vs GymMaster](https://repsi.app/compare/repsi-vs-gymmaster)
+
+## Optional
+
+- [Pricing](https://repsi.app/pricing)
+- [Download the app](https://repsi.app/download)
+- [Help center](https://repsi.app/help)
+- [Contact](https://repsi.app/contact)

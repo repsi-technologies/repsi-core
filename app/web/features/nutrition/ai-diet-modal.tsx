@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Loader2, CheckCircle2, AlertCircle, Utensils, Flame, Dumbbell, ShieldCheck, HeartPulse } from "lucide-react";
+import { Sparkles, Loader2, CheckCircle2, AlertCircle, Utensils, Flame, Dumbbell, ShieldCheck, HeartPulse, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal, Notice, Field, inputClass } from "@/features/fitness/shared";
@@ -205,7 +205,7 @@ export function AiDietModal({ memberId, workoutTitle, onClose, onAssigned }: AiD
                 />
                 <div>
                   <span className="font-semibold text-[var(--text)] flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <BrainCircuit className="w-3.5 h-3.5 text-amber-500" />
                     AI Deep Macro Personalization
                   </span>
                   <p className="text-[10px] text-[var(--text-muted)]">Balances protein/carb ratios based on weight ({weightKg}kg) and target focus</p>
@@ -225,7 +225,7 @@ export function AiDietModal({ memberId, workoutTitle, onClose, onAssigned }: AiD
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <BrainCircuit className="w-4 h-4" />
                   <span>Generate AI Diet Plan</span>
                 </>
               )}

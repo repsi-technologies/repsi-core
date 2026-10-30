@@ -8,6 +8,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { LanguageProvider } from "@/lib/i18n";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
 import { DynamicPageTitle } from "@/components/layout/dynamic-page-title";
+import { THEME_IDS } from "@/lib/themes";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -98,7 +99,7 @@ export default function RootLayout({
         {/*
           Inline script to prevent flash of incorrect theme.
           Runs before React hydration — sets the class immediately.
-          Defaults to light theme.
+          Defaults to light theme. Theme ids double as the <html> class (see lib/themes).
         */}
         <script
           suppressHydrationWarning
@@ -106,12 +107,12 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
+                  var themes = ${JSON.stringify(THEME_IDS)};
                   var theme = localStorage.getItem('repsi-theme');
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
+                  if (themes.indexOf(theme) === -1) theme = 'light';
+                  var cl = document.documentElement.classList;
+                  themes.forEach(function (t) { cl.remove(t); });
+                  cl.add(theme);
                 } catch(e) {}
               })();
             `,
@@ -122,6 +123,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
+          themes={THEME_IDS}
           enableSystem={false}
           disableTransitionOnChange
           storageKey="repsi-theme"

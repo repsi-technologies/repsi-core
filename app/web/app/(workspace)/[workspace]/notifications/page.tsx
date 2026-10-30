@@ -5,6 +5,8 @@ import { Bell, AlertTriangle, CheckCircle2, Info, Check, RefreshCw } from "lucid
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { NOTIFICATIONS_CHANGED_EVENT, resolveWorkspaceLink } from "@/lib/workspace";
 import { NotificationPreferencesCard } from "@/features/communications/notification-preferences";
 
 interface NotificationItem {
@@ -18,7 +20,11 @@ interface NotificationItem {
   created_at: string;
 }
 
+const announceChange = () => window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
+
 export default function WorkspaceNotificationsPage() {
+  const params = useParams();
+  const workspace = params?.workspace as string | undefined;
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,6 +53,7 @@ export default function WorkspaceNotificationsPage() {
         prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
+      announceChange();
     } catch (err) {
       console.error("Failed to mark notification as read", err);
     }
@@ -58,6 +65,7 @@ export default function WorkspaceNotificationsPage() {
       await api.markAllNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
+      announceChange();
     } catch (err) {
       console.error("Failed to mark all as read", err);
     } finally {
@@ -187,7 +195,8 @@ export default function WorkspaceNotificationsPage() {
                   {n.action_url && (
                     <div className="mt-2">
                       <Link
-                        href={n.action_url}
+                        href={resolveWorkspaceLink(n.action_url, workspace)}
+                        onClick={() => { if (isUnread) handleMarkAsRead(n.id); }}
                         className="text-xs font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1"
                       >
                         View Details →

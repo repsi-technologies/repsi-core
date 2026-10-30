@@ -268,6 +268,18 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> with WidgetsBin
     }
   }
 
+  Future<void> _report({ThreadMessage? message}) async {
+    final sent = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _ReportSheet(conversationId: widget.conversation.id, message: message),
+    );
+    if (sent == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.chatReportSent)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -294,6 +306,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> with WidgetsBin
             ]),
           ),
         ]),
+        actions: [
+          IconButton(
+            tooltip: l.chatReport,
+            icon: Icon(Icons.flag_outlined, color: palette.textSecondary),
+            onPressed: () => _report(),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -326,7 +345,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> with WidgetsBin
                                           style: AppTypography.caption.copyWith(color: palette.textSecondary, fontSize: 11)),
                                     ),
                                   ),
-                                _Bubble(message: m, mine: m.senderKind == myKind, key: ValueKey(m.id)),
+                                GestureDetector(
+                                  key: ValueKey(m.id),
+                                  // Long-press the other person's message to report it.
+                                  onLongPress: m.senderKind == myKind ? null : () => _report(message: m),
+                                  child: _Bubble(message: m, mine: m.senderKind == myKind),
+                                ),
                               ]);
                             },
                           ),
@@ -393,7 +417,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> with WidgetsBin
 class _Bubble extends StatelessWidget {
   final ThreadMessage message;
   final bool mine;
-  const _Bubble({super.key, required this.message, required this.mine});
+  const _Bubble({required this.message, required this.mine});
 
   @override
   Widget build(BuildContext context) {
@@ -450,6 +474,116 @@ class _Bubble extends StatelessWidget {
               ]),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportSheet extends ConsumerStatefulWidget {
+  final String conversationId;
+  final ThreadMessage? message;
+  const _ReportSheet({required this.conversationId, this.message});
+
+  @override
+  ConsumerState<_ReportSheet> createState() => _ReportSheetState();
+}
+
+class _ReportSheetState extends ConsumerState<_ReportSheet> {
+  final _details = TextEditingController();
+  String? _reason;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _details.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_reason == null || _busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(coachingRepositoryProvider).report(widget.conversationId,
+          reason: _reason!, details: _details.text, messageId: widget.message?.id);
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) setState(() => _error = _errorText(context, e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final palette = context.palette;
+    final reasons = <(String, String)>[
+      ('harassment', l.chatReasonHarassment),
+      ('inappropriate', l.chatReasonInappropriate),
+      ('off_topic', l.chatReasonOffTopic),
+      ('spam', l.chatReasonSpam),
+      ('safety', l.chatReasonSafety),
+      ('other', l.chatReasonOther),
+    ];
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.pageHorizontalPadding, 16, AppSpacing.pageHorizontalPadding, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.message != null ? l.chatReportMessage : l.chatReportTitle,
+                style: AppTypography.sectionHeading.copyWith(color: palette.text)),
+            const SizedBox(height: 4),
+            Text(l.chatReportDesc, style: AppTypography.bodySecondary.copyWith(color: palette.textSecondary)),
+            if (widget.message?.body != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: palette.surfaceSecondary,
+                  borderRadius: BorderRadius.circular(10),
+                  border: const BorderDirectional(start: BorderSide(color: AppColors.primary, width: 2)),
+                ),
+                child: Text(widget.message!.body!, maxLines: 3, overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(color: palette.text)),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(l.chatReportReason, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700, color: palette.text)),
+            RadioGroup<String>(
+              groupValue: _reason,
+              onChanged: (v) => setState(() => _reason = v),
+              child: Column(children: [
+                for (final (id, label) in reasons)
+                  RadioListTile<String>(value: id, title: Text(label), dense: true, contentPadding: EdgeInsets.zero),
+              ]),
+            ),
+            TextField(
+              controller: _details,
+              maxLength: 2000,
+              maxLines: 3,
+              minLines: 2,
+              decoration: InputDecoration(labelText: l.chatReportDetails),
+            ),
+            if (_error != null) ...[
+              Text(_error!, style: AppTypography.bodySmall.copyWith(color: palette.errorDark)),
+              const SizedBox(height: 8),
+            ],
+            FilledButton(
+              onPressed: _reason == null || _busy ? null : _submit,
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              child: _busy
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(l.chatReportSend),
+            ),
+          ],
         ),
       ),
     );

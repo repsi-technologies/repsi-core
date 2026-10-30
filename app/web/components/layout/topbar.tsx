@@ -1,10 +1,10 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useState, useEffect, useCallback } from "react";
-import { Sun, Moon, Monitor, Bell, Search, ChevronRight, Sparkles } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelector } from "@/components/language-selector";
+import { ThemeMenu } from "@/components/layout/theme-picker";
 import { TrialNavbarBadge } from "@/components/layout/trial-navbar-badge";
 import { GettingStartedDialog } from "@/components/layout/getting-started-dialog";
 import {
@@ -31,38 +31,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useTranslation } from "@/lib/i18n";
+import { accountPathForRole, NOTIFICATIONS_CHANGED_EVENT } from "@/lib/workspace";
 import { clearStorageKeepingLanguage } from "@/lib/i18n/persist";
-
-// ─── Theme Toggle ─────────────────────────────────────────────────────────────
-
-function ThemeToggle() {
-  const { t } = useTranslation();
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <div className="h-9 w-9 rounded-[8px] bg-[var(--border)] animate-pulse" />;
-  }
-
-  const currentTheme = resolvedTheme || theme;
-  const isDark = currentTheme === "dark";
-
-  return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      aria-label={t("layout.toggle_theme")}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      title={isDark ? t("layout.switch_to_light_mode") : t("layout.switch_to_dark_mode")}
-    >
-      {isDark ? <Moon className="h-4 w-4 text-[var(--primary)]" /> : <Sun className="h-4 w-4 text-[var(--primary)]" />}
-    </Button>
-  );
-}
 
 // ─── User Menu ────────────────────────────────────────────────────────────────
 
@@ -137,15 +107,17 @@ function UserMenu({ workspace }: { workspace?: string }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href={`/${currentWorkspace}/settings`} className="w-full">
+          <Link href={`/${currentWorkspace}${accountPathForRole(user?.role)}`} className="w-full">
             {t("user.account", "Account")}
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href={`/${currentWorkspace}/settings`} className="w-full">
-            {t("nav.settings", "Settings")}
-          </Link>
-        </DropdownMenuItem>
+        {!["USER", "TRAINER"].includes((user?.role || "").toUpperCase()) && (
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href={`/${currentWorkspace}/settings`} className="w-full">
+              {t("nav.settings", "Settings")}
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link href="/help" className="w-full">
             {t("user.help", "Help Center")}
@@ -181,6 +153,10 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
   const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [showGettingStarted, setShowGettingStarted] = useState(false);
+  const [isBusinessRole, setIsBusinessRole] = useState(false);
+  useEffect(() => {
+    setIsBusinessRole(["OWNER", "ADMIN", "MANAGER"].includes((getAuthUser()?.role || "").toUpperCase()));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -194,9 +170,14 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
     };
     fetchUnread();
     const interval = setInterval(fetchUnread, 30000);
+    const onVisible = () => { if (document.visibilityState === "visible") fetchUnread(); };
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, fetchUnread);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       active = false;
       clearInterval(interval);
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, fetchUnread);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
@@ -238,29 +219,27 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1.5 sm:gap-2.5">
-        <div className="mr-0.5 sm:mr-1 shrink-0">
-          <TrialNavbarBadge workspace={workspace} />
-        </div>
-
-        {/* Mobile search */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          aria-label={t("common.search", "Search")}
-        >
-          <Search className="h-4 w-4" />
-        </Button>
+        {/* The gym's REPSI subscription is the business's concern, not members' or trainers'. */}
+        {isBusinessRole && (
+          <div className="mr-0.5 sm:mr-1 shrink-0">
+            <TrialNavbarBadge workspace={workspace} />
+          </div>
+        )}
 
         {/* Notifications */}
-        <Link href={workspace ? `/${workspace}/notifications` : "/notifications"}>
+        <Link href={workspace ? `/${workspace}/notifications` : "/superadmin/notifications"}>
           <div className="relative">
             <Button variant="ghost" size="icon" aria-label={t("nav.notifications")}>
               <Bell className="h-4 w-4" />
             </Button>
             {/* Unread indicator */}
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[8px] h-2 px-0.5 rounded-full bg-[var(--primary)] text-[9px] font-bold text-[var(--primary-foreground)] flex items-center justify-center animate-pulse" />
+              <span
+                className="pointer-events-none absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[var(--primary)] text-[10px] font-bold leading-none text-[var(--primary-foreground)] flex items-center justify-center"
+                aria-label={t("layout.unread_count", "{count} unread", { count: unreadCount })}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
             )}
           </div>
         </Link>
@@ -269,7 +248,7 @@ export function Topbar({ title, breadcrumbs, mobileMenuButton }: TopbarProps) {
         <LanguageSelector />
 
         {/* Theme */}
-        <ThemeToggle />
+        <ThemeMenu />
 
         {/* Divider */}
         <div className="w-px h-5 bg-[var(--border)] mx-1" />

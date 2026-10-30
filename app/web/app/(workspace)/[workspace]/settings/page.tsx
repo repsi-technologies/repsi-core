@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { slugToGymName } from "@/lib/workspace";
+import { accountPathForRole, slugToGymName } from "@/lib/workspace";
 import { repsiApi } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
@@ -41,6 +41,7 @@ import {
   TeamSection,
 } from "@/features/settings/organization-settings";
 import { getAuthUser } from "@/lib/auth";
+import { AppearanceSection } from "@/features/settings/account-settings";
 
 export default function WorkspaceSettingsPage() {
   const router = useRouter();
@@ -55,8 +56,14 @@ export default function WorkspaceSettingsPage() {
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get("tab");
     if (tab) setActiveTab(tab);
-    setMyRole((getAuthUser()?.role || "USER").toUpperCase());
-  }, []);
+    const role = (getAuthUser()?.role || "USER").toUpperCase();
+    // Gym settings are for the business; members and trainers have their own profile page.
+    if (role === "USER" || role === "TRAINER") {
+      router.replace(`/${workspace}${accountPathForRole(role)}`);
+      return;
+    }
+    setMyRole(role);
+  }, [router, workspace]);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -260,6 +267,7 @@ export default function WorkspaceSettingsPage() {
     { id: "team", label: "Team & Access", icon: Users },
     { id: "payments", label: "Payments & Collections", icon: CreditCard },
     { id: "profile", label: "My Profile & Sign-in", icon: UserCircle },
+    { id: "appearance", label: "Appearance & Language", icon: Sliders },
     { id: "danger", label: "Danger Zone", icon: AlertTriangle },
   ];
 
@@ -324,6 +332,7 @@ export default function WorkspaceSettingsPage() {
               {activeTab === "hours" && <HoursSection />}
               {activeTab === "branches" && <BranchesSection />}
               {activeTab === "profile" && <ProfileSection />}
+              {activeTab === "appearance" && <AppearanceSection />}
           {activeTab === "payments" && (
             <PaymentSettingsTab />
           )}

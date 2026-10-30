@@ -18,7 +18,7 @@ from app.core.audit import record_audit
 from app.middleware.tenant import TenantContext
 from app.models.member import Member
 from app.models.nutrition import (
-    ChatMessage, Conversation, DietAssignment, DietPlan, DietPlanVersion, MealLog, WaterLog,
+    ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan, DietPlanVersion, MealLog, WaterLog,
 )
 from app.models.trainer import Trainer, TrainerClient, TrainerClientStatus
 from app.services.fitness import FitnessActor
@@ -467,3 +467,160 @@ class ChatService:
         ).update({ChatMessage.read_at: utcnow()}, synchronize_session=False)
         self.db.commit()
         return self._out(c)
+
+
+REPORT_REASONS = ("harassment", "inappropriate", "spam", "off_topic", "safety", "other")
+REPORT_STATUSES = ("open", "reviewing", "resolved", "dismissed")
+REVIEWER_ROLES = {"OWNER", "ADMIN", "MANAGER"}
+MAX_REPORTS_PER_DAY = 10
+
+
+class ChatReportService:
+    """Members and trainers report a conversation; owners/admins/managers review it.
+
+    Reviewers never browse chats freely: they can read a conversation only through a report on it.
+    """
+
+    def __init__(self, db: Session, tenant: TenantContext):
+        self.db = db
+        self.tenant = tenant
+        self.ws = tenant.workspace_id
+
+    # -- filing (member / trainer)
+    def file(self, conversation_id: str, data) -> dict:
+        chat = ChatService(self.db, self.tenant)  # only participants get past this
+        c = chat._conversation(conversation_id)
+        if data.reason not in REPORT_REASONS:
+            raise HTTPException(status_code=422, detail="Choose a reason for the report.")
+        excerpt = None
+        if data.message_id:
+            m = self.db.query(ChatMessage).filter(
+                ChatMessage.workspace_id == self.ws, ChatMessage.conversation_id == c.id,
+                ChatMessage.id == data.message_id).first()
+            if not m:
+                raise HTTPException(status_code=404, detail="Message not found in this conversation.")
+            if m.sender_user_id == self.tenant.user_id:
+                raise HTTPException(status_code=422, detail="You cannot report your own message.")
+            excerpt = (m.body or "")[:1000] or None
+        # Abuse controls: one open report per conversation per reporter, and a daily cap.
+        open_dup = self.db.query(ChatReport.id).filter(
+            ChatReport.workspace_id == self.ws, ChatReport.conversation_id == c.id,
+            ChatReport.reporter_user_id == self.tenant.user_id, ChatReport.status.in_(("open", "reviewing")),
+        ).first()
+        if open_dup:
+            raise HTTPException(status_code=409, detail="You already reported this conversation. The gym is reviewing it.")
+        since = utcnow() - timedelta(days=1)
+        recent = self.db.query(func.count(ChatReport.id)).filter(
+            ChatReport.workspace_id == self.ws, ChatReport.reporter_user_id == self.tenant.user_id,
+            ChatReport.created_at >= since).scalar() or 0
+        if recent >= MAX_REPORTS_PER_DAY:
+            raise HTTPException(status_code=429, detail="Too many reports today. Please contact the gym directly.")
+
+        kind = chat.actor.kind
+        r = ChatReport(workspace_id=self.ws, conversation_id=c.id, message_id=data.message_id, message_excerpt=excerpt,
+                       reporter_user_id=self.tenant.user_id, reporter_kind=kind,
+                       reported_kind="member" if kind == "trainer" else "trainer", reason=data.reason,
+                       details=(data.details or "").strip()[:2000] or None, status="open")
+        self.db.add(r)
+        self.db.flush()
+        self.db.add(ChatReportEvent(workspace_id=self.ws, report_id=r.id, actor_user_id=self.tenant.user_id,
+                                    from_status=None, to_status="open"))
+        record_audit(self.db, self.ws, self.tenant.user_id, "chat_report.filed", resource_type="chat_report",
+                     resource_id=r.id, details={"conversation_id": c.id, "reason": r.reason})
+        self._notify_reviewers(r)
+        self.db.commit()
+        return {"id": r.id, "status": r.status, "created_at": r.created_at}
+
+    def _notify_reviewers(self, r: ChatReport) -> None:
+        from app.models.system import Notification
+        from app.models.user import UserRole, WorkspaceMember
+        reviewers = self.db.query(WorkspaceMember.user_id).filter(
+            WorkspaceMember.workspace_id == self.ws, WorkspaceMember.is_active.is_(True),
+            WorkspaceMember.role.in_((UserRole.OWNER, UserRole.ADMIN, UserRole.MANAGER))).all()
+        who = "A trainer" if r.reporter_kind == "trainer" else "A member"
+        reason = r.reason.replace("_", " ")
+        for (uid,) in reviewers:
+            self.db.add(Notification(workspace_id=self.ws, user_id=uid, title="Chat reported",
+                                     message=f"{who} reported a conversation ({reason}). Please review it.",
+                                     action_url=f"/chat/reports?report={r.id}", is_read=False))
+
+    # -- review (owner / admin / manager)
+    def _require_reviewer(self) -> None:
+        if self.tenant.role not in REVIEWER_ROLES:
+            raise HTTPException(status_code=403, detail="Only the gym's owner, admins and managers can review chat reports.")
+
+    def _get(self, report_id: str) -> ChatReport:
+        r = self.db.query(ChatReport).filter(ChatReport.workspace_id == self.ws, ChatReport.id == report_id).first()
+        if not r:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        return r
+
+    def _out(self, r: ChatReport) -> dict:
+        c = self.db.query(Conversation).filter(Conversation.id == r.conversation_id).first()
+        member = self.db.query(Member).filter(Member.id == c.member_id).first() if c else None
+        trainer = self.db.query(Trainer).filter(Trainer.id == c.trainer_id).first() if c else None
+        member_name = f"{member.first_name} {member.last_name or ''}".strip() if member else ""
+        trainer_name = trainer.name if trainer else ""
+        return {
+            "id": r.id, "conversation_id": r.conversation_id, "message_id": r.message_id,
+            "message_excerpt": r.message_excerpt, "reason": r.reason, "details": r.details, "status": r.status,
+            "reporter_kind": r.reporter_kind, "reported_kind": r.reported_kind,
+            "reporter_name": trainer_name if r.reporter_kind == "trainer" else member_name,
+            "reported_name": trainer_name if r.reported_kind == "trainer" else member_name,
+            "member_id": c.member_id if c else None, "trainer_id": c.trainer_id if c else None,
+            "resolution_note": r.resolution_note, "reviewed_at": r.reviewed_at, "created_at": r.created_at,
+        }
+
+    def list(self, status: Optional[str] = None) -> list:
+        self._require_reviewer()
+        q = self.db.query(ChatReport).filter(ChatReport.workspace_id == self.ws)
+        if status:
+            q = q.filter(ChatReport.status == status)
+        return [self._out(r) for r in q.order_by(ChatReport.created_at.desc()).limit(200).all()]
+
+    def detail(self, report_id: str) -> dict:
+        self._require_reviewer()
+        r = self._get(report_id)
+        # Context: the 30 messages up to (and including) the reported one, or the latest 30.
+        q = self.db.query(ChatMessage).filter(ChatMessage.workspace_id == self.ws,
+                                              ChatMessage.conversation_id == r.conversation_id)
+        if r.message_id:
+            anchor = q.filter(ChatMessage.id == r.message_id).first()
+            if anchor:
+                q = q.filter(ChatMessage.created_at <= anchor.created_at)
+        rows = list(reversed(q.order_by(ChatMessage.created_at.desc()).limit(30).all()))
+        events = self.db.query(ChatReportEvent).filter(ChatReportEvent.report_id == r.id).order_by(
+            ChatReportEvent.created_at).all()
+        record_audit(self.db, self.ws, self.tenant.user_id, "chat_report.viewed", resource_type="chat_report",
+                     resource_id=r.id)
+        self.db.commit()
+        return {**self._out(r), "messages": [ChatService.message_out(m) for m in rows],
+                "events": [{"from_status": e.from_status, "to_status": e.to_status, "note": e.note,
+                            "created_at": e.created_at} for e in events]}
+
+    def update(self, report_id: str, status: str, note: Optional[str]) -> dict:
+        self._require_reviewer()
+        if status not in REPORT_STATUSES:
+            raise HTTPException(status_code=422, detail="Unknown report status.")
+        r = self._get(report_id)
+        note = (note or "").strip()[:2000] or None
+        if status == r.status and not note:
+            return self._out(r)
+        self.db.add(ChatReportEvent(workspace_id=self.ws, report_id=r.id, actor_user_id=self.tenant.user_id,
+                                    from_status=r.status, to_status=status, note=note))
+        r.status = status
+        if note:
+            r.resolution_note = note
+        r.reviewed_by_user_id, r.reviewed_at = self.tenant.user_id, utcnow()
+        record_audit(self.db, self.ws, self.tenant.user_id, f"chat_report.{status}", resource_type="chat_report",
+                     resource_id=r.id)
+        self.db.commit()
+        return self._out(r)
+
+    def mine(self) -> list:
+        """The caller's own reports (status only), so a reporter can see the gym acted."""
+        rows = self.db.query(ChatReport).filter(ChatReport.workspace_id == self.ws,
+                                                ChatReport.reporter_user_id == self.tenant.user_id).order_by(
+            ChatReport.created_at.desc()).limit(50).all()
+        return [{"id": r.id, "conversation_id": r.conversation_id, "reason": r.reason, "status": r.status,
+                 "created_at": r.created_at} for r in rows]

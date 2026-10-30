@@ -1173,5 +1173,19 @@
   "dietVegetarian": "വെജിറ്റേറിയൻ",
   "dietVegan": "വീഗൻ",
   "dietEggetarian": "എഗ്ഗറ്റേറിയൻ",
-  "dietNonVegetarian": "നോൺ-വെജ്"
+  "dietNonVegetarian": "നോൺ-വെജ്",
+  "chatReport": "റിപ്പോർട്ട്",
+  "chatReportMessage": "സന്ദേശം റിപ്പോർട്ട് ചെയ്യുക",
+  "chatReportTitle": "സംഭാഷണം റിപ്പോർട്ട് ചെയ്യുക",
+  "chatReportDesc": "നിങ്ങളുടെ ജിം ഉടമ ഇത് പരിശോധിക്കും. ആരാണ് റിപ്പോർട്ട് ചെയ്തതെന്ന് മറ്റേയാളെ അറിയിക്കില്ല.",
+  "chatReportReason": "എന്താണ് പ്രശ്നം?",
+  "chatReasonHarassment": "ഉപദ്രവം അല്ലെങ്കിൽ ഭീഷണി",
+  "chatReasonInappropriate": "അനുചിതമായ ഉള്ളടക്കം",
+  "chatReasonOffTopic": "അനാവശ്യ വ്യക്തിപരമായ സന്ദേശങ്ങൾ",
+  "chatReasonSpam": "സ്പാം അല്ലെങ്കിൽ വിൽപ്പന",
+  "chatReasonSafety": "സുരക്ഷിതമല്ലാത്ത പരിശീലനം അല്ലെങ്കിൽ ആരോഗ്യ ഉപദേശം",
+  "chatReasonOther": "മറ്റെന്തെങ്കിലും",
+  "chatReportDetails": "വിശദാംശങ്ങൾ (ഐച്ഛികം)",
+  "chatReportSend": "റിപ്പോർട്ട് അയയ്ക്കുക",
+  "chatReportSent": "റിപ്പോർട്ട് ജിം ഉടമയ്ക്ക് അയച്ചു."
 }

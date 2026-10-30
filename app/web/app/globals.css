@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *, .midnight, .midnight *));
 
 .font-handwriting {
   font-family: "Caveat", cursive;
@@ -90,7 +90,9 @@
 /* REPSI Design Tokens — Dark Theme                                   */
 /* Deep Charcoal Background                                           */
 /* ─────────────────────────────────────────────────────────────────── */
-.dark {
+.dark,
+.midnight {
+  color-scheme: dark;
   /* Backgrounds */
   --background: #17191C;
   --background-secondary: #24272B;
@@ -157,7 +159,9 @@
 /* Force light theme for .light scope even inside html.dark */
 .light,
 html.dark .light,
-html.dark .light * {
+html.dark .light *,
+html.midnight .light,
+html.midnight .light * {
   --background: #F7F7F5;
   --background-secondary: #EFEEEA;
   --surface: #ffffff;
@@ -200,6 +204,89 @@ html.dark .light * {
   --nav-active-indicator: #E25822;
   --nav-hover-bg: #EFEEEA;
   color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Gray — neutral cool-gray light theme (less glare than Light)       */
+/* ─────────────────────────────────────────────────────────────────── */
+.gray {
+  color-scheme: light;
+  --background: #E6E7E9;
+  --background-secondary: #DCDEE1;
+  --surface: #F3F4F5;
+  --surface-secondary: #E6E7E9;
+  --surface-elevated: #F7F8F9;
+  --surface-soft: #E6E7E9;
+  --surface-hover: #DCDEE1;
+  --raised: #DCDEE1;
+  --sidebar: #EDEEF0;
+  --sidebar-border: #CDD0D4;
+  --text: #16181B;
+  --text-secondary: #575B62;
+  --text-muted: #575B62;
+  --text-disabled: #8E9298;
+  --border: #CDD0D4;
+  --border-strong: #B3B7BD;
+  --divider: #CDD0D4;
+  --ring-offset: #E6E7E9;
+  --primary-soft: #FBE3D8;
+  --nav-active-bg: #FBE3D8;
+  --nav-hover-bg: #DCDEE1;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Midnight — true-black (OLED) variant of Dark                       */
+/* ─────────────────────────────────────────────────────────────────── */
+.midnight {
+  --background: #000000;
+  --background-secondary: #0B0B0C;
+  --surface: #111214;
+  --surface-secondary: #191A1D;
+  --surface-elevated: #191A1D;
+  --surface-soft: #191A1D;
+  --surface-hover: #1F2023;
+  --raised: #191A1D;
+  --sidebar: #0A0A0B;
+  --sidebar-border: #26272A;
+  --border: #26272A;
+  --border-strong: #34363A;
+  --divider: #26272A;
+  --ring-offset: #000000;
+  --nav-hover-bg: #1F2023;
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Indic scripts (Tamil, Malayalam, Hindi)                            */
+/* Translations run 30–80% longer than English and the glyphs are     */
+/* taller, so layouts tuned for English wrap into extra lines. These  */
+/* rules keep the same components and spacing while letting text fit: */
+/* no negative tracking (it breaks conjuncts), no forced line breaks  */
+/* in display headings, slightly smaller display sizes, and safe      */
+/* wrapping. Body text keeps the same size in every language.         */
+/* ─────────────────────────────────────────────────────────────────── */
+:is(:lang(ta), :lang(ml), :lang(hi)) :is(h1, h2, h3, h4, .font-heading, [class*="tracking-tight"], [class*="tracking-tighter"]) {
+  letter-spacing: normal;
+}
+:is(:lang(ta), :lang(ml), :lang(hi)) :is(h1, h2, h3) {
+  line-height: 1.3;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+:is(:lang(ta), :lang(ml), :lang(hi)) :is(h1, h2, .display-heading) br {
+  display: none;
+}
+/* Marketing display headings are sized for short English lines; cap them for the wider scripts. */
+:is(:lang(ta), :lang(ml)) .marketing-root .display-heading {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.6rem);
+}
+:is(:lang(ta), :lang(ml)) .marketing-root h2 {
+  font-size: clamp(1.4rem, 1.05rem + 1.3vw, 2.1rem);
+}
+:lang(hi) .marketing-root .display-heading {
+  font-size: clamp(1.9rem, 1.3rem + 2.2vw, 2.9rem);
+}
+:is(:lang(ta), :lang(ml), :lang(hi)) :is(p, li, span, a, button, label, td, th) {
+  overflow-wrap: break-word;
 }
 
 @keyframes marquee {

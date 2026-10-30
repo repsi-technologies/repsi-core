@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Trash2, Sparkles } from "lucide-react";
+import { Plus, Trash2, BrainCircuit } from "lucide-react";
 import { AiDietModal } from "./ai-diet-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -166,7 +166,7 @@ export function DietPlansPage() {
         <h1 className="text-xl font-bold text-[var(--text)]">{t("nutrition.diet_plans")}</h1>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" className="gap-1.5 border-orange-500/40 text-orange-600 dark:text-orange-400 hover:bg-orange-500/10 font-semibold" onClick={() => setAiModalOpen(true)}>
-            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+            <BrainCircuit className="w-3.5 h-3.5 text-orange-500" />
             AI Diet Coach
           </Button>
           <Button size="sm" onClick={() => setEditing("new")}>{richText(t("nutrition.plusnew_diet_plan"), { plus: <Plus /> })}</Button>

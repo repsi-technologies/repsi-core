@@ -2,7 +2,23 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  CalendarDays, Check, ChevronLeft, ChevronRight, CircleAlert, CloudOff, Dumbbell, Flag, Info, Loader2, Pause, Play, Plus, Sparkles, Timer, XCircle,
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CloudOff,
+  Dumbbell,
+  Flag,
+  Info,
+  Loader2,
+  Pause,
+  Play,
+  Plus,
+  Sparkles,
+  Timer,
+  XCircle,
+  BrainCircuit,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -527,7 +543,7 @@ export function MemberWorkouts() {
             <p className="text-sm text-[var(--text-muted)]">{today.some((o) => o.is_rest_day) ? "Rest day — recover well." : "Nothing scheduled today. Check your week below."}</p>
             {!today.some((o) => o.is_rest_day) && workspace && (
               <Button asChild size="sm" variant="outline">
-                <Link href={`/${workspace}/member/ai-coach`}><Sparkles /> Get a routine from AI Coach</Link>
+                <Link href={`/${workspace}/member/ai-coach`}><BrainCircuit /> Get a routine from AI Coach</Link>
               </Button>
             )}
           </div>

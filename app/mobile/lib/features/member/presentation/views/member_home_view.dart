@@ -102,7 +102,7 @@ class _MemberHomeViewState extends ConsumerState<MemberHomeView> {
       (LucideIcons.userRound, l.myTrainer, () => _push(const MyTrainerView())),
       (LucideIcons.salad, l.dietPlan, () => _push(const TrainerDietPlanView())),
       (LucideIcons.receipt, l.commonPayments, () => _push(const MembershipPaymentsView())),
-      (LucideIcons.sparkles, l.aiCoach, () => _push(const AiWorkoutCoachView())),
+      (LucideIcons.brainCircuit, l.aiCoach, () => _push(const AiWorkoutCoachView())),
       (LucideIcons.dumbbell, l.navWorkout, widget.onOpenWorkouts ?? () => _push(const WorkoutPlanView())),
     ];
     var i = 0;
@@ -348,7 +348,7 @@ class _AssignedHomeCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(LucideIcons.sparkles, size: 12, color: Colors.white),
+                      const Icon(LucideIcons.brainCircuit, size: 12, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
                         program.badge?.toUpperCase() ?? 'ASSIGNED PLAN',
@@ -494,7 +494,8 @@ class _MembershipCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(m.planName,
+                    // Plan name and pricing stay on the membership screen; home shows status only.
+                    Text(context.l10n.commonMembership,
                         style: AppTypography.sectionHeading
                             .copyWith(color: context.palette.text)),
                     const SizedBox(height: 2),

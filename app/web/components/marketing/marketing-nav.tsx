@@ -139,20 +139,20 @@ export function MarketingNav() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-8">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navItems.map((item) => {
               return item.href ? (
                 <Link
                   key={tr(item.title)}
                   href={item.href}
-                  className={`text-sm font-semibold transition-colors py-2 px-1 ${defaultLinkClass}`}
+                  className={`whitespace-nowrap text-sm font-semibold transition-colors py-2 px-1 ${defaultLinkClass}`}
                 >
                   {tr(item.title)}
                 </Link>
               ) : (
                 <div key={tr(item.title)} className="relative group">
                   <button
-                    className={`flex items-center gap-1 text-sm font-semibold transition-colors py-2 cursor-pointer ${defaultLinkClass}`}
+                    className={`flex items-center gap-1 whitespace-nowrap text-sm font-semibold transition-colors py-2 cursor-pointer ${defaultLinkClass}`}
                   >
                     <span>{tr(item.title)}</span>
                     <ChevronDown className="w-3.5 h-3.5 transition-all duration-200 group-hover:translate-y-0.5 opacity-60 group-hover:opacity-100" />
@@ -200,7 +200,7 @@ export function MarketingNav() {
           </div>
 
           {/* Mobile menu hamburger button */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setMobileOpen(true)}
               className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[#191919] hover:bg-black/5 transition-colors cursor-pointer"
@@ -218,7 +218,7 @@ export function MarketingNav() {
       {mounted &&
         mobileOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] md:hidden">
+          <div className="fixed inset-0 z-[9999] lg:hidden">
             {/* Backdrop: covers entire viewport, tap to dismiss */}
             <div
               className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-200"

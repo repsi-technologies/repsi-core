@@ -62,7 +62,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
   if (trial?.is_paid && !trial?.is_trial) {
     return (
       <Link
-        href={`/${workspace}/settings?tab=billing`}
+        href={`/${workspace}/settings/billing`}
         className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[var(--success-soft)] text-[var(--success-foreground)] border border-[var(--success)]/25 hover:bg-[var(--success-soft)] transition-all"
         title={t("layout.subscription_active_view_billing")}
       >
@@ -79,7 +79,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
   if (isExpired) {
     return (
       <Link
-        href={`/${workspace}/settings?tab=billing`}
+        href={`/${workspace}/settings/billing`}
         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--error-soft)] text-[var(--error-foreground)] border border-[var(--error)]/30 hover:bg-[var(--error-soft)] transition-all"
         title={t("layout.trial_expired_choose_a_plan_to")}
       >
@@ -91,7 +91,7 @@ export function TrialNavbarBadge({ workspace }: { workspace?: string }) {
 
   return (
     <Link
-      href={`/${workspace}/settings?tab=billing`}
+      href={`/${workspace}/settings/billing`}
       className={`group shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium border transition-all shadow-xs ${
         isUrgent
           ? "bg-[var(--warning-soft)] text-[var(--warning-foreground)] border-[var(--warning)]/30 hover:bg-[var(--warning-soft)]"

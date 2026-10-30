@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { repsiApi, type ApiAdherence, type ApiDietAssignment, type ApiDietPlan } from "@/lib/api";
@@ -77,7 +77,7 @@ export function MemberNutrition({ memberId }: { memberId: string }) {
               onClick={() => setShowAiModal(true)}
               className="gap-1.5 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 hover:bg-orange-50 font-semibold"
             >
-              <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+              <BrainCircuit className="w-3.5 h-3.5 text-orange-500" />
               AI Diet Suggestion
             </Button>
           </div>

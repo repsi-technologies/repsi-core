@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.middleware.tenant import TenantContext, get_current_tenant
-from app.services.nutrition import ChatService, NutritionService
+from app.services.nutrition import REPORT_REASONS, REPORT_STATUSES, ChatReportService, ChatService, NutritionService
 
 router = APIRouter(prefix="/nutrition", tags=["Nutrition"])
 chat_router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -180,3 +180,46 @@ def send_message(conversation_id: str, data: MessageIn, s: ChatService = Depends
 @chat_router.post("/conversations/{conversation_id}/read")
 def mark_read(conversation_id: str, s: ChatService = Depends(chat_svc)):
     return s.mark_read(conversation_id)
+
+
+# ─── Chat reports ────────────────────────────────────────────────────────────
+
+class ChatReportIn(BaseModel):
+    reason: Literal[REPORT_REASONS]  # type: ignore[valid-type]
+    details: Optional[str] = Field(None, max_length=2000)
+    message_id: Optional[str] = Field(None, max_length=64)
+
+
+class ChatReportReviewIn(BaseModel):
+    status: Literal[REPORT_STATUSES]  # type: ignore[valid-type]
+    note: Optional[str] = Field(None, max_length=2000)
+
+
+def report_svc(tenant: TenantContext = Depends(get_current_tenant), db: Session = Depends(get_db)) -> ChatReportService:
+    return ChatReportService(db, tenant)
+
+
+@chat_router.post("/conversations/{conversation_id}/report", status_code=201)
+def report_conversation(conversation_id: str, data: ChatReportIn, s: ChatReportService = Depends(report_svc)):
+    """A participant flags the conversation (optionally one message) for the gym to review."""
+    return s.file(conversation_id, data)
+
+
+@chat_router.get("/reports/mine")
+def my_reports(s: ChatReportService = Depends(report_svc)):
+    return s.mine()
+
+
+@chat_router.get("/reports")
+def list_reports(status: Optional[Literal[REPORT_STATUSES]] = None, s: ChatReportService = Depends(report_svc)):  # type: ignore[valid-type]
+    return s.list(status)
+
+
+@chat_router.get("/reports/{report_id}")
+def report_detail(report_id: str, s: ChatReportService = Depends(report_svc)):
+    return s.detail(report_id)
+
+
+@chat_router.patch("/reports/{report_id}")
+def review_report(report_id: str, data: ChatReportReviewIn, s: ChatReportService = Depends(report_svc)):
+    return s.update(report_id, data.status, data.note)

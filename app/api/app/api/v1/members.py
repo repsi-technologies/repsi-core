@@ -44,6 +44,23 @@ def require_member_manage_access(tenant: TenantContext = Depends(get_current_ten
     return tenant
 
 
+def trainer_member_reach(db: Session, tenant: TenantContext) -> Optional[set]:
+    """Member ids a trainer may read; None when the caller sees the whole directory.
+
+    Trainers see only their assigned clients unless the owner granted `members.view`, or
+    `attendance.record` (front-desk check-ins need to look up any member).
+    """
+    from app.core.permissions import has_permission
+    from app.services.fitness import FitnessActor
+
+    role_str = tenant.role.value if hasattr(tenant.role, "value") else str(tenant.role)
+    if role_str != UserRole.TRAINER.value:
+        return None
+    if has_permission(db, tenant, "members.view") or has_permission(db, tenant, "attendance.record"):
+        return None
+    return FitnessActor(db, tenant).client_ids() or set()
+
+
 def require_member_mutation_access(tenant: TenantContext = Depends(get_current_tenant)) -> TenantContext:
     allowed = {UserRole.OWNER.value, UserRole.SUPER_ADMIN.value, UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.STAFF.value}
     role_str = tenant.role.value if hasattr(tenant.role, "value") else str(tenant.role)
@@ -72,6 +89,7 @@ def list_members(
     filters = dict(
         query=query or "", status=status, plan_id=plan_id, joined_from=joined_from,
         joined_to=joined_to, include_archived=include_archived,
+        member_ids=trainer_member_reach(db, tenant),
     )
     items = repo.search(**filters, sort=sort, skip=skip, limit=page_size)
     total = repo.count_search(**filters)
@@ -221,7 +239,8 @@ def get_member(
 ):
     repo = MemberRepository(db, tenant.workspace_id)
     member = repo.get(id)
-    if not member:
+    reach = trainer_member_reach(db, tenant)
+    if not member or (reach is not None and member.id not in reach):
         raise HTTPException(status_code=404, detail="Member not found in this workspace")
     return member
 

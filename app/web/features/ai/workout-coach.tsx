@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Dumbbell, ListChecks, RotateCcw, ShieldAlert, Sparkles } from "lucide-react";
+import { Dumbbell, ListChecks, RotateCcw, ShieldAlert, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { aiApi, SOURCE_LABEL, type WorkoutPlan, type WorkoutQuestion, type WorkoutSuggestion } from "@/lib/ai-api";
@@ -136,7 +136,7 @@ export function WorkoutCoach() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-2">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><Sparkles className="h-5 w-5" /></div>
+        <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><BrainCircuit className="h-5 w-5" /></div>
         <div>
           <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("navItem.ai_coach")}</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">{t("ai.answer_a_few_questions_and_get")}</p>
@@ -159,10 +159,10 @@ export function WorkoutCoach() {
           q.type === "text" ? (
             <Field key={q.key} label={q.label} htmlFor={`coach-${q.key}`}>
               <input id={`coach-${q.key}`} className={inputClass} maxLength={200} value={(answers[q.key] as string) || ""}
-                onChange={(e) => setAnswers({ ...answers, [q.key]: e.target.value })} />
+                onChange={(e) => { const v = e.target.value; setAnswers((cur) => ({ ...cur, [q.key]: v })); }} />
             </Field>
           ) : (
-            <Choice key={q.key} q={q} value={answers[q.key]} onChange={(v) => setAnswers({ ...answers, [q.key]: v })} />
+            <Choice key={q.key} q={q} value={answers[q.key]} onChange={(v) => setAnswers((cur) => ({ ...cur, [q.key]: v }))} />
           ),
         )}
         {error && <Notice kind="error" onDismiss={() => setError(null)}>{error}</Notice>}
@@ -170,7 +170,7 @@ export function WorkoutCoach() {
           <Button onClick={() => suggest(false)} disabled={!complete || !!busy}>{busy === "rules" ? t("ai.building") : t("ai.suggest_a_routine")}</Button>
           {result?.plan && (
             <Button variant="outline" className="gap-1.5" onClick={() => suggest(true)} disabled={!!busy}>
-              <Sparkles className="h-4 w-4" /> {busy === "ai" ? t("ai.personalising") : t("ai.personalise_with_ai")}
+              <BrainCircuit className="h-4 w-4" /> {busy === "ai" ? t("ai.personalising") : t("ai.personalise_with_ai")}
             </Button>
           )}
           {result && (

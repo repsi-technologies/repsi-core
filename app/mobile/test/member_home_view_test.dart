@@ -115,7 +115,9 @@ void main() {
     await pumpHome(tester, source: _Source(HealthAvailability.available));
 
     expect(find.textContaining('Asha'), findsWidgets);
-    expect(find.text('Gold Plan'), findsOneWidget);
+    // Home shows membership status only; the plan name stays on the membership screen.
+    expect(find.text('Gold Plan'), findsNothing);
+    expect(find.text('Membership'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('11'), findsOneWidget); // visits this month
     expect(find.textContaining('Rahul'), findsNothing);

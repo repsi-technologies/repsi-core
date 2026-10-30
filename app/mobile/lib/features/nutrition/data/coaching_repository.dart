@@ -48,6 +48,15 @@ class CoachingRepository {
     return ThreadMessage.fromJson(res.data!);
   }
 
+  /// Flags the conversation (or one of the other person's messages) for the gym owner to review.
+  Future<void> report(String conversationId, {required String reason, String? details, String? messageId}) async {
+    await _api.post<Map<String, dynamic>>('/chat/conversations/$conversationId/report', data: {
+      'reason': reason,
+      if (details != null && details.trim().isNotEmpty) 'details': details.trim(),
+      if (messageId != null) 'message_id': messageId,
+    });
+  }
+
   Future<NutritionDay> day({String? memberId}) async {
     final res = await _api.get<Map<String, dynamic>>('/nutrition/day',
         queryParameters: {if (memberId != null) 'member_id': memberId});

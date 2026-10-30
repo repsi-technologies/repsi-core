@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarClock, ChevronDown, ChevronUp, History, Loader2, Pause, Pencil, Play, Plus, Sparkles, Square, XCircle } from "lucide-react";
+import { CalendarClock, ChevronDown, ChevronUp, History, Loader2, Pause, Pencil, Play, Plus, Square, XCircle, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -162,7 +162,7 @@ function PlansTab({ ctx, memberId, refresh, onChanged }: { ctx: ApiFitnessContex
                     onClick={() => setAiDietFor(a)}
                     className="text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-semibold gap-1"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-orange-500" /> AI Diet Plan
+                    <BrainCircuit className="w-3.5 h-3.5 text-orange-500" /> AI Diet Plan
                   </Button>
                 )}
                 {editable && <Button variant="outline" size="sm" onClick={() => openEditor(a)}><Pencil /> Customise</Button>}

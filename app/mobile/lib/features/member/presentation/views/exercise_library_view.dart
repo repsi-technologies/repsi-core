@@ -1319,7 +1319,7 @@ class _ExerciseLibraryViewState extends ConsumerState<ExerciseLibraryView> {
                                         ExerciseDemonstrationMedia(
                                           mediaUrl: ex.mediaUrl,
                                           exerciseName: ex.name,
-                                          height: 140,
+                                          height: 180,
                                           width: double.infinity,
                                           borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                                           showControls: true,

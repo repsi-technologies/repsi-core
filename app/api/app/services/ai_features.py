@@ -551,8 +551,11 @@ def _rule_plan(ans: dict, cands: list[Exercise]) -> dict:
         items = []
         for e in chosen:
             cardio = (str(e.exercise_type or "") == "cardio") or (str(e.movement_pattern or "") == "locomotion")
+            # Timed holds (plank, dead hang…) are prescribed in seconds, not reps.
+            timed = not cardio and str(getattr(e, "tracking_type", "") or "") == "duration"
             items.append({"exercise_id": str(e.id), "name": str(e.name),
-                          "sets": 1 if cardio else sets, "reps": "8-12 min" if cardio else reps,
+                          "sets": 1 if cardio else sets,
+                          "reps": "8-12 min" if cardio else "30-45s" if timed else reps,
                           "rest_seconds": 0 if cardio else rest, "note": ""})
         plan_days.append({"name": f"Day {i + 1}: {name}" + (f" ({'AB'[rotation % 2]})" if split == "full" and days > 1 else ""),
                           "focus": name, "exercises": items})

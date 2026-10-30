@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { SOLUTIONS_DATA } from "@/lib/solutions-data";
+import { SOLUTION_ALIASES, SOLUTIONS_DATA } from "@/lib/solutions-data";
 import { constructMetadata, getFaqSchema } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: solution.title,
     description: solution.metaDescription,
     keywords: solution.keywords,
-    path: `/solutions/${slug}`,
+    path: `/solutions/${SOLUTION_ALIASES[slug] ?? slug}`,
   });
 }
 

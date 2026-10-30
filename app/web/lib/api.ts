@@ -381,6 +381,18 @@ export interface ApiDietPlanSave { name: string; goal?: string | null; diet_type
 export interface ApiDietAssignment { id: string; member_id: string; plan_id: string | null; title: string; start_date: string; status: string; ended_on: string | null; version: ApiDietVersion | null }
 export interface ApiAdherence { planned_meals: number; followed: number; modified: number; skipped: number; not_logged: number; adherence_pct: number | null }
 export interface ApiConversation { id: string; member_id: string; trainer_id: string; member_name: string; trainer_name: string; last_message_at: string | null; last_message: string | null; unread: number; can_send: boolean }
+export type ChatReportReason = "harassment" | "inappropriate" | "spam" | "off_topic" | "safety" | "other";
+export type ChatReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
+export interface ApiChatReport {
+  id: string; conversation_id: string; message_id: string | null; message_excerpt: string | null;
+  reason: ChatReportReason; details: string | null; status: ChatReportStatus;
+  reporter_kind: "trainer" | "member"; reported_kind: "trainer" | "member"; reporter_name: string; reported_name: string;
+  member_id: string | null; trainer_id: string | null; resolution_note: string | null; reviewed_at: string | null; created_at: string;
+}
+export interface ApiChatReportDetail extends ApiChatReport {
+  messages: ApiChatMessage[];
+  events: { from_status: ChatReportStatus | null; to_status: ChatReportStatus; note: string | null; created_at: string }[];
+}
 export interface ApiChatMessage { id: string; sender_user_id: string; sender_kind: "trainer" | "member"; body: string | null; attachment_type: string | null; attachment_ref: string | null; read_at: string | null; created_at: string }
 
 export interface ApiStaffPermissions {
@@ -427,6 +439,65 @@ export async function memberRequest(path: string, method: string, body: unknown,
     throw new Error(extractErrorMessage(err, fallbackError));
   }
   return res.status === 204 ? null : await res.json();
+}
+
+
+// ─── Member self-service (members/me, coaching/me) ──────────────────────────
+export interface ApiMemberSelf {
+  id: string;
+  first_name: string;
+  last_name?: string | null;
+  status: string;
+  joined_date: string;
+  memberships: { id: string; plan_name?: string | null; start_date: string; end_date: string; status: string }[];
+}
+
+export interface ApiCoachProfile {
+  id: string;
+  name: string;
+  specialization?: string | null;
+  bio?: string | null;
+  experience?: string | number | null;
+  profile_photo?: string | null;
+  certifications?: string | null;
+}
+
+export interface ApiTrainerRequest {
+  id: string;
+  kind: "trainer" | "personal_training";
+  message?: string | null;
+  status: string;
+  preferred_trainer_name?: string | null;
+  assigned_trainer_name?: string | null;
+  created_at?: string;
+}
+
+export interface ApiHealthDay {
+  day: string;
+  source: "health_connect" | "google_fit" | "apple_health" | "manual";
+  steps: number;
+  distance_meters: number;
+  active_calories: number;
+  active_minutes: number;
+  avg_heart_rate?: number | null;
+}
+
+export interface ApiHealthSummary {
+  days: ApiHealthDay[];
+  total_steps: number;
+  total_distance_meters: number;
+  total_active_calories: number;
+  average_steps: number;
+  today_steps: number;
+  last_synced_at: string | null;
+}
+
+export interface ApiCoachingMe {
+  member_id: string;
+  goal: { goal: string; fitness_level: string; days_per_week: number; session_minutes: number; focus_areas: string[] } | null;
+  trainers: (ApiCoachProfile & { relationship_id: string; assigned_at: string })[];
+  requests: ApiTrainerRequest[];
+  has_pending_request: boolean;
 }
 
 export const repsiApi = {
@@ -682,6 +753,22 @@ export const repsiApi = {
 
   async markConversationRead(conversationId: string): Promise<ApiConversation> {
     return memberRequest(`/chat/conversations/${conversationId}/read`, "POST", undefined, "Failed to update conversation");
+  },
+
+  async reportConversation(conversationId: string, data: { reason: ChatReportReason; details?: string; message_id?: string }): Promise<{ id: string; status: ChatReportStatus }> {
+    return memberRequest(`/chat/conversations/${conversationId}/report`, "POST", data, "Couldn't send the report");
+  },
+
+  async listChatReports(status?: ChatReportStatus): Promise<ApiChatReport[]> {
+    return memberRequest(`/chat/reports${status ? `?status=${status}` : ""}`, "GET", undefined, "Failed to load reports");
+  },
+
+  async getChatReport(id: string): Promise<ApiChatReportDetail> {
+    return memberRequest(`/chat/reports/${id}`, "GET", undefined, "Failed to load report");
+  },
+
+  async reviewChatReport(id: string, data: { status: ChatReportStatus; note?: string }): Promise<ApiChatReport> {
+    return memberRequest(`/chat/reports/${id}`, "PATCH", data, "Failed to update report");
   },
 
   // ─── Staff permissions & audit ───────────────────────────────────────
@@ -1070,6 +1157,39 @@ export const repsiApi = {
       throw new Error(err.detail || "Failed to load member attendance history");
     }
     return await res.json();
+  },
+
+  async getMySelf(): Promise<ApiMemberSelf> {
+    return memberRequest("/members/me", "GET", undefined, "Couldn't load your profile");
+  },
+
+  async getMyCoaching(): Promise<ApiCoachingMe> {
+    return memberRequest("/coaching/me", "GET", undefined, "Couldn't load your coaching details");
+  },
+
+  async getAvailableCoaches(): Promise<ApiCoachProfile[]> {
+    return memberRequest("/coaching/trainers", "GET", undefined, "Couldn't load trainers");
+  },
+
+  async requestTrainer(data: { kind: "trainer" | "personal_training"; preferred_trainer_id?: string; message?: string }): Promise<ApiTrainerRequest> {
+    return memberRequest("/coaching/requests", "POST", data, "Couldn't send your request");
+  },
+
+  async cancelTrainerRequest(id: string): Promise<void> {
+    await memberRequest(`/coaching/requests/${id}/cancel`, "POST", undefined, "Couldn't cancel the request");
+  },
+
+  async getMyHealthSummary(days = 7): Promise<ApiHealthSummary> {
+    return memberRequest(`/health/daily?days=${days}`, "GET", undefined, "Couldn't load your activity");
+  },
+
+  async deleteMyHealthData(): Promise<{ deleted: number }> {
+    return memberRequest("/health/daily", "DELETE", undefined, "Couldn't remove your activity data");
+  },
+
+  /** A trainer's own shift records (not gym-wide member check-ins). */
+  async getMyShiftAttendance(): Promise<{ active: { id: string } | null; records: { id: string; check_in_time: string; check_out_time: string | null; minutes: number }[] }> {
+    return memberRequest("/staff-attendance/me", "GET", undefined, "Couldn't load your shifts");
   },
 
   async getMyPersonalAttendance(): Promise<ApiMemberPersonalAttendance> {

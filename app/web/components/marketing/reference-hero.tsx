@@ -111,14 +111,14 @@ export function ReferenceHero() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mb-6 sm:mb-8">
           {/* Left Text Column */}
           <div className="lg:col-span-7 xl:col-span-7 max-w-2xl pt-2 sm:pt-4">
-            {/* Eyebrow component completely removed as requested */}
+            {/* Page topic for search engines and screen readers; the display line below is the visual headline. */}
+            <h1 className="mb-2 text-xs sm:text-sm font-semibold uppercase tracking-wider text-[#AC3A0E]">
+              {t("hero.seo_h1", "Gym management software for gyms, studios & personal trainers")}
+            </h1>
 
-            {/* Headline */}
-            <motion.h1
-              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.08 }}
-              className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[40px] xl:text-[46px] 2xl:text-[50px] text-[#191919] leading-[1.08] tracking-tight mb-3 sm:mb-3.5"
+            {/* Headline — rendered visible on the server (no fade-in) because it is the LCP element. */}
+            <p
+              className="display-heading font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[40px] xl:text-[46px] 2xl:text-[50px] text-[#191919] leading-[1.08] tracking-tight mb-3 sm:mb-3.5"
             >
               {t("hero.headline_part1", "You run your")} <br />
               {t("hero.headline_part2", "fitness business,")} <br />
@@ -143,7 +143,7 @@ export function ReferenceHero() {
                   </svg>
                 </span>
               </span>
-            </motion.h1>
+            </p>
 
             {/* Supporting Copy */}
             <motion.p

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GLOBAL_PLANS } from "@/lib/pricing-data";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://repsi.app";
 
@@ -37,13 +38,10 @@ export function constructMetadata({
   const combinedKeywords = Array.from(new Set([...defaultKeywords, ...keywords]));
 
   return {
-    title:
-      title === "Repsi" || path === "/"
-        ? { absolute: "Repsi" }
-        : {
-            default: title,
-            template: "%s | Repsi",
-          },
+    // Absolute so a parent "%s | Repsi" template can't append the brand twice.
+    title: {
+      absolute: title === "Repsi" || path === "/" || /\|\s*Repsi\s*$/i.test(title) ? title : `${title} | Repsi`,
+    },
     description,
     keywords: combinedKeywords,
     authors: [{ name: "Repsi", url: SITE_URL }],
@@ -130,30 +128,58 @@ export function getOrganizationSchema() {
 }
 
 /**
- * Generate SoftwareApplication JSON-LD Schema
+ * Generate SoftwareApplication JSON-LD Schema.
+ * Prices come from the public plan catalogue (monthly INR). No ratings are claimed: only add an
+ * aggregateRating here once it is backed by real, published reviews.
  */
 export function getSoftwareAppSchema() {
+  const monthly = GLOBAL_PLANS.map((p) => p.pricing.INR.monthly.perMonth);
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Repsi Fitness Management Software",
-    operatingSystem: "Web, iOS, Android",
+    name: "Repsi",
+    alternateName: "Repsi Gym Management Software",
+    url: SITE_URL,
+    operatingSystem: "Web, Android, iOS, Windows",
     applicationCategory: "BusinessApplication",
+    applicationSubCategory: "Gym management software",
+    inLanguage: ["en", "ta", "ml", "hi"],
     offers: {
-      "@type": "Offer",
-      price: "0",
+      "@type": "AggregateOffer",
       priceCurrency: "INR",
-      priceValidUntil: "2027-12-31",
-      availability: "https://schema.org/InStock",
+      lowPrice: String(Math.min(...monthly)),
+      highPrice: String(Math.max(...monthly)),
+      offerCount: String(monthly.length),
+      url: `${SITE_URL}/pricing`,
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      ratingCount: "348",
-      bestRating: "5",
-      worstRating: "1",
-    },
-    description: "All-in-one gym management software with QR attendance, UPI payments, WhatsApp billing, trainer management, and member portal.",
+    featureList: [
+      "Member and membership management",
+      "QR code attendance and check-in",
+      "Online and UPI payments, invoices and receipts",
+      "WhatsApp, SMS and email renewal reminders",
+      "Trainer management, workout plans and diet plans",
+      "Trainer–member chat",
+      "Member mobile app with workout tracking",
+      "CRM, leads and gym website builder",
+      "Reports, analytics and multi-branch support",
+    ],
+    description:
+      "Repsi is gym management software for gyms, fitness studios, yoga studios, swimming pools and personal trainers. It handles members, memberships, attendance, payments, trainers, workouts, diet plans and reminders in one web and mobile platform.",
+    publisher: { "@type": "Organization", name: "Repsi", url: SITE_URL },
+  };
+}
+
+/**
+ * Generate WebSite JSON-LD Schema (site name for search results).
+ */
+export function getWebsiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Repsi",
+    alternateName: ["REPSI", "repsi.app"],
+    url: SITE_URL,
+    inLanguage: "en-IN",
   };
 }
 

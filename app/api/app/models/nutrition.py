@@ -130,3 +130,40 @@ class ChatMessage(Base, TimestampMixin, TenantMixin):
         Index("ix_chat_messages_conv_created", "conversation_id", "created_at"),
         UniqueConstraint("conversation_id", "sender_user_id", "client_ref", name="uq_chat_message_client_ref"),
     )
+
+
+class ChatReport(Base, TimestampMixin, TenantMixin):
+    """A member or trainer flagging a conversation (optionally one message) for the gym to review.
+
+    The reported message's text is snapshotted so the report stays meaningful as the chat grows.
+    Status changes are appended to ChatReportEvent; this row only mirrors the latest state.
+    """
+    __tablename__ = "chat_reports"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    conversation_id = Column(String(64), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
+    message_id = Column(String(64), nullable=True)
+    message_excerpt = Column(Text, nullable=True)
+    reporter_user_id = Column(String(64), nullable=False, index=True)
+    reporter_kind = Column(String(10), nullable=False)  # trainer | member
+    reported_kind = Column(String(10), nullable=False)  # trainer | member
+    reason = Column(String(30), nullable=False)  # harassment | inappropriate | spam | off_topic | safety | other
+    details = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="open", index=True)  # open | reviewing | resolved | dismissed
+    resolution_note = Column(Text, nullable=True)
+    reviewed_by_user_id = Column(String(64), nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (Index("ix_chat_reports_ws_status", "workspace_id", "status"),)
+
+
+class ChatReportEvent(Base, TimestampMixin, TenantMixin):
+    """Append-only history of a report: filed, then each review status change."""
+    __tablename__ = "chat_report_events"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    report_id = Column(String(64), ForeignKey("chat_reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    actor_user_id = Column(String(64), nullable=False)
+    from_status = Column(String(20), nullable=True)
+    to_status = Column(String(20), nullable=False)
+    note = Column(Text, nullable=True)

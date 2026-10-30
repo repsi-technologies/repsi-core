@@ -2227,5 +2227,19 @@
   "dietVegetarian": "Vegetarian",
   "dietVegan": "Vegan",
   "dietEggetarian": "Eggetarian",
-  "dietNonVegetarian": "Non-veg"
+  "dietNonVegetarian": "Non-veg",
+  "chatReport": "Report",
+  "chatReportMessage": "Report message",
+  "chatReportTitle": "Report conversation",
+  "chatReportDesc": "Your gym's owner will review this. The other person is not told who reported.",
+  "chatReportReason": "What's wrong?",
+  "chatReasonHarassment": "Harassment or bullying",
+  "chatReasonInappropriate": "Inappropriate or sexual content",
+  "chatReasonOffTopic": "Unwanted personal / off-topic messages",
+  "chatReasonSpam": "Spam or selling",
+  "chatReasonSafety": "Unsafe training or health advice",
+  "chatReasonOther": "Something else",
+  "chatReportDetails": "Details (optional)",
+  "chatReportSend": "Send report",
+  "chatReportSent": "Report sent to the gym owner."
 }

@@ -150,3 +150,73 @@ def test_trainer_presets_and_delegation(gym):
     assert client.put(f"/api/v1/team/{wm_id}/permissions", json={"preset": "nope"}, headers=gym["owner"]).status_code == 422
     # Trainers can't change permissions (including their own).
     assert client.put(f"/api/v1/team/{wm_id}/permissions", json={"preset": "trainer_admin"}, headers=gym["t1"]).status_code == 403
+
+
+def test_chat_report_reaches_owner_with_context_and_history(gym):
+    cid = client.post(f"{C}/conversations", json={"member_id": gym["m1_id"]}, headers=gym["t1"]).json()["id"]
+    bad = client.post(f"{C}/conversations/{cid}/messages", json={"body": "unwanted message"}, headers=gym["t1"]).json()
+    mine = client.post(f"{C}/conversations/{cid}/messages", json={"body": "please stop"}, headers=gym["m1"]).json()
+
+    # Only participants can report, and not their own message.
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "harassment"}, headers=gym["m2"]).status_code == 404
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "harassment"}, headers=gym["owner"]).status_code == 403
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "spam", "message_id": mine["id"]},
+                       headers=gym["m1"]).status_code == 422
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "nonsense"}, headers=gym["m1"]).status_code == 422
+
+    r = client.post(f"{C}/conversations/{cid}/report",
+                    json={"reason": "harassment", "details": "Off-topic personal messages", "message_id": bad["id"]},
+                    headers=gym["m1"])
+    assert r.status_code == 201, r.text
+    rid = r.json()["id"]
+    # One open report per conversation per reporter.
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "spam"}, headers=gym["m1"]).status_code == 409
+    # The trainer can report the same conversation independently.
+    assert client.post(f"{C}/conversations/{cid}/report", json={"reason": "off_topic"}, headers=gym["t1"]).status_code == 201
+
+    # Owner is notified and sees reporter, reported user, reason, excerpt and conversation context.
+    notes = client.get("/api/v1/notifications", headers=gym["owner"]).json()["items"]
+    assert any(n["title"] == "Chat reported" and rid in (n["action_url"] or "") for n in notes)
+    listed = client.get(f"{C}/reports", params={"status": "open"}, headers=gym["owner"]).json()
+    assert {x["id"] for x in listed} >= {rid}
+    detail = client.get(f"{C}/reports/{rid}", headers=gym["owner"]).json()
+    assert detail["reporter_kind"] == "member" and detail["reported_kind"] == "trainer"
+    assert detail["message_excerpt"] == "unwanted message" and detail["reason"] == "harassment"
+    assert [m["body"] for m in detail["messages"]] == ["unwanted message"]
+
+    # Reviewers only; members, trainers and other tenants cannot read reports.
+    assert client.get(f"{C}/reports", headers=gym["m1"]).status_code == 403
+    assert client.get(f"{C}/reports/{rid}", headers=gym["t1"]).status_code == 403
+    assert client.get(f"{C}/reports/{rid}", headers=gym["owner_b"]).status_code == 404
+
+    # Review appends history instead of overwriting it.
+    client.patch(f"{C}/reports/{rid}", json={"status": "reviewing"}, headers=gym["owner"])
+    done = client.patch(f"{C}/reports/{rid}", json={"status": "resolved", "note": "Spoke to the trainer."}, headers=gym["owner"])
+    assert done.status_code == 200 and done.json()["status"] == "resolved"
+    events = client.get(f"{C}/reports/{rid}", headers=gym["owner"]).json()["events"]
+    assert [e["to_status"] for e in events] == ["open", "reviewing", "resolved"]
+    assert client.get(f"{C}/reports/mine", headers=gym["m1"]).json()[0]["status"] == "resolved"
+
+
+def test_trainer_member_directory_is_limited_to_assigned_clients(gym):
+    M = "/api/v1/members"
+    # t1 is assigned m1 only: the directory and detail never expose m2.
+    ids = {m["id"] for m in client.get(M, headers=gym["t1"]).json()["items"]}
+    assert ids == {gym["m1_id"]}
+    assert client.get(f"{M}/{gym['m1_id']}", headers=gym["t1"]).status_code == 200
+    assert client.get(f"{M}/{gym['m2_id']}", headers=gym["t1"]).status_code == 404
+    # Gym roles still see everyone; members and other tenants are refused.
+    owner_ids = {m["id"] for m in client.get(M, headers=gym["owner"]).json()["items"]}
+    assert {gym["m1_id"], gym["m2_id"]} <= owner_ids
+    assert client.get(M, headers=gym["m1"]).status_code == 403
+    assert client.get(f"{M}/{gym['m1_id']}", headers=gym["owner_b"]).status_code == 404
+    # An owner-granted member permission widens a trainer's reach (front-desk check-ins).
+    db = TestingSessionLocal()
+    from app.models.user import User
+    from app.core.permissions import serialize_overrides
+    u = db.query(User).filter(User.email == "trainer1@a.test").one()
+    wm = db.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == gym["ws_a"], WorkspaceMember.user_id == u.id).one()
+    wm.permissions = serialize_overrides(["attendance.record"], [])
+    db.commit()
+    db.close()
+    assert client.get(f"{M}/{gym['m2_id']}", headers=gym["t1"]).status_code == 200

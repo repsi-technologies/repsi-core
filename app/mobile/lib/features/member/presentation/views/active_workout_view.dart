@@ -123,11 +123,11 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView> {
 
                     // Looping Exercise Demonstration GIF
                     SizedBox(
-                      height: 140,
+                      height: (MediaQuery.sizeOf(context).height * 0.28).clamp(170.0, 280.0),
                       width: double.infinity,
                       child: ExerciseDemonstrationMedia(
                         exerciseName: ex['name'] as String,
-                        height: 140,
+                        height: (MediaQuery.sizeOf(context).height * 0.28).clamp(170.0, 280.0),
                         width: double.infinity,
                         borderRadius: BorderRadius.circular(14),
                         showControls: true,

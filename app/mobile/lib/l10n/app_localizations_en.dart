@@ -4059,4 +4059,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dietNonVegetarian => 'Non-veg';
+
+  @override
+  String get chatReport => 'Report';
+
+  @override
+  String get chatReportMessage => 'Report message';
+
+  @override
+  String get chatReportTitle => 'Report conversation';
+
+  @override
+  String get chatReportDesc =>
+      'Your gym\'s owner will review this. The other person is not told who reported.';
+
+  @override
+  String get chatReportReason => 'What\'s wrong?';
+
+  @override
+  String get chatReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get chatReasonInappropriate => 'Inappropriate or sexual content';
+
+  @override
+  String get chatReasonOffTopic => 'Unwanted personal / off-topic messages';
+
+  @override
+  String get chatReasonSpam => 'Spam or selling';
+
+  @override
+  String get chatReasonSafety => 'Unsafe training or health advice';
+
+  @override
+  String get chatReasonOther => 'Something else';
+
+  @override
+  String get chatReportDetails => 'Details (optional)';
+
+  @override
+  String get chatReportSend => 'Send report';
+
+  @override
+  String get chatReportSent => 'Report sent to the gym owner.';
 }

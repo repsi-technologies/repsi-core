@@ -151,7 +151,7 @@ class _WorkoutTabState extends ConsumerState<_WorkoutTab> {
                               gradient: const LinearGradient(colors: AppColors.energyGradient),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(LucideIcons.sparkles, color: Colors.white, size: 18),
+                            child: const Icon(LucideIcons.brainCircuit, color: Colors.white, size: 18),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -209,7 +209,7 @@ class _DietTab extends ConsumerWidget {
               height: 46,
               decoration: BoxDecoration(
                   gradient: const LinearGradient(colors: AppColors.energyGradient), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(LucideIcons.sparkles, color: Colors.white),
+              child: const Icon(LucideIcons.brainCircuit, color: Colors.white),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -474,7 +474,7 @@ class _DietSuggestViewState extends ConsumerState<_DietSuggestView> {
             text: l.generatePlan,
             isFullWidth: true,
             isLoading: _loading,
-            leadingIcon: const Icon(LucideIcons.sparkles, size: 18),
+            leadingIcon: const Icon(LucideIcons.brainCircuit, size: 18),
             onPressed: _loading ? null : _suggest,
           ),
           if (_safety != null) ...[

@@ -435,3 +435,6 @@ export const SOLUTIONS_DATA: Record<string, SolutionDetail> = {
     ]
   }
 };
+
+/** Short slugs that duplicate a longer page; their canonical (and sitemap entry) is the long one. */
+export const SOLUTION_ALIASES: Record<string, string> = { yoga: "yoga-studios", pools: "swimming-pools", studios: "fitness-studios" };

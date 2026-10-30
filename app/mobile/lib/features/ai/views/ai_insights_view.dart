@@ -91,7 +91,7 @@ class AiInsightsView extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(i.generatedByAi ? Icons.auto_awesome_rounded : Icons.insights_rounded,
+                            Icon(i.generatedByAi ? Icons.psychology_outlined : Icons.insights_rounded,
                                 size: 18, color: d ? AppColors.darkPrimaryLight : context.palette.primaryDark),
                             const SizedBox(width: AppSpacing.sm),
                             Text(i.generatedByAi ? context.l10n.summaryByAi : context.l10n.summary,

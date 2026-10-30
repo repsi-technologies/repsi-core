@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { navGroupsForRole } from "./sidebar";
 import { navLabelKey, useTranslation } from "@/lib/i18n";
-import { getAuthUser } from "@/lib/auth";
-import { apiUrl } from "@/lib/auth-client";
-import { useTheme } from "next-themes";
-import { X, Building2, Menu, Sun, Moon } from "lucide-react";
+import { getAuthUser, type AuthUser } from "@/lib/auth";
+import { X, Building2, Menu } from "lucide-react";
+import { RepsiWordmark } from "@/components/ui/repsi-wordmark";
+import { ThemeMenu } from "./theme-picker";
 import { cn } from "@/lib/utils";
-import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
+import { accountPathForRole, getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
 
 interface MobileNavProps {
   open: boolean;
@@ -22,43 +21,17 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
   const { t } = useTranslation();
   const workspace = getWorkspaceFromPath(pathname);
-  const { theme, setTheme, resolvedTheme } = useTheme();
   // Same role-based menus as the desktop sidebar; resolved after mount (auth lives in the browser).
   const [role, setRole] = useState<string | null>(null);
-  useEffect(() => setRole(getAuthUser()?.role || "OWNER"), []);
-  const [gymLogo, setGymLogo] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("repsi_gym_logo");
-      if (stored) return stored;
-      const user = getAuthUser();
-      if (user?.gymLogoUrl) return user.gymLogoUrl;
-    }
-    return null;
-  });
-  const [gymName, setGymName] = useState(() => {
-    const user = typeof window !== "undefined" ? getAuthUser() : null;
-    return user?.gymName || slugToGymName(workspace);
-  });
-
+  const [user, setUser] = useState<AuthUser | null>(null);
   useEffect(() => {
-    const handleLogoUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent<string | null>;
-      setGymLogo(customEvent.detail);
-    };
-    window.addEventListener("repsi_logo_updated", handleLogoUpdate);
-
-    const user = getAuthUser();
-    if (user?.gymName) setGymName(user.gymName);
-    if (user?.gymLogoUrl) setGymLogo(user.gymLogoUrl);
-    else if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("repsi_gym_logo");
-      if (stored) setGymLogo(stored);
-    }
-
-    return () => {
-      window.removeEventListener("repsi_logo_updated", handleLogoUpdate);
-    };
-  }, [workspace]);
+    const u = getAuthUser();
+    setUser(u);
+    setRole(u?.role || "OWNER");
+  }, []);
+  const gymName = user?.gymName || slugToGymName(workspace);
+  const displayName = user?.name || "";
+  const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "R";
 
   // Close on route change
   useEffect(() => {
@@ -108,28 +81,8 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)]">
-          <Link href={`/${workspace}/dashboard`} className="flex items-center gap-2.5 overflow-hidden">
-            {gymLogo ? (
-              <div className="w-8 h-8 rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--surface)] p-0.5 shrink-0 flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={apiUrl(gymLogo)}
-                  alt={gymName}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            ) : (
-              <Image
-                src="/logos/logo-dark.png"
-                alt="REPSI"
-                width={32}
-                height={32}
-                className="rounded-md object-contain shrink-0"
-              />
-            )}
-            <span className="font-bold text-sm text-[var(--text)] tracking-tight truncate max-w-[170px]">
-              {gymName}
-            </span>
+          <Link href={`/${workspace}`} aria-label="REPSI home">
+            <RepsiWordmark className="h-9 w-[108px]" />
           </Link>
 
           <button
@@ -201,28 +154,19 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
         {/* Footer */}
         <div className="p-3 border-t border-[var(--border)]">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-[8px] bg-[var(--background)] flex-1 min-w-0">
+            <Link
+              href={`/${workspace}${accountPathForRole(role)}`}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-[8px] bg-[var(--background)] flex-1 min-w-0 hover:bg-[var(--nav-hover-bg)]"
+            >
               <div className="w-7 h-7 rounded-full bg-[var(--primary-soft)] flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-semibold text-[var(--primary-dark)] dark:text-[var(--primary-hover)]">NK</span>
+                <span className="text-xs font-semibold text-[var(--primary-dark)] dark:text-[var(--primary-hover)]">{initials}</span>
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium text-[var(--text)] truncate">Gym Owner</p>
-                <p className="text-[10px] text-[var(--text-muted)] truncate">{role || "Owner"}</p>
+                <p className="text-xs font-medium text-[var(--text)] truncate">{displayName || t("user.account", "Account")}</p>
+                <p className="text-[10px] text-[var(--text-muted)] truncate">{t("settings.my_profile", "My Profile & Settings")}</p>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setTheme((resolvedTheme || theme) === "dark" ? "light" : "dark")}
-              className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] border border-[var(--border)] bg-[var(--background)] text-[var(--text)] hover:bg-[var(--nav-hover-bg)] transition-colors cursor-pointer"
-              aria-label="Toggle theme"
-              title={(resolvedTheme || theme) === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {(resolvedTheme || theme) === "dark" ? (
-                <Sun className="h-4 w-4 text-[var(--primary)]" />
-              ) : (
-                <Moon className="h-4 w-4 text-[var(--primary)]" />
-              )}
-            </button>
+            </Link>
+            <ThemeMenu />
           </div>
         </div>
       </div>

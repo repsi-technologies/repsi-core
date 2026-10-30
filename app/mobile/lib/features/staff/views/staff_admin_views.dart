@@ -297,7 +297,7 @@ class _PermissionEditorState extends ConsumerState<_PermissionEditor> {
                       Wrap(spacing: 8, runSpacing: 8, children: [
                         for (final p in catalog!.trainerPresets)
                           ActionChip(
-                            avatar: const Icon(LucideIcons.sparkles, size: 14),
+                            avatar: const Icon(LucideIcons.brainCircuit, size: 14),
                             label: Text(p.label),
                             onPressed: _saving ? null : () => _save(preset: p.key),
                           ),

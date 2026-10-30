@@ -6,6 +6,13 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "app/web", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "web-local-api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "app/web", "run", "dev"],
+      "env": { "REMOTE_API_URL": "http://127.0.0.1:8000/api/v1", "NEXT_TELEMETRY_DISABLED": "1" },
+      "port": 3000
     }
   ]
 }

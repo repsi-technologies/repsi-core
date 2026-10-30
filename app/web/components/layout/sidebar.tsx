@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -32,19 +31,20 @@ import {
   Target,
   Globe,
   Megaphone,
-  Sparkles,
   TicketPercent,
   LifeBuoy,
   FileText,
   Salad,
+  ShieldAlert,
+  BrainCircuit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getWorkspaceFromPath, slugToGymName } from "@/lib/workspace";
 import { getAuthUser, AuthUser } from "@/lib/auth";
-import { apiUrl, orgApi } from "@/lib/auth-client";
 import { useEffect } from "react";
 import { navLabelKey, useTranslation } from "@/lib/i18n";
+import { RepsiWordmark } from "@/components/ui/repsi-wordmark";
 
 // ─── Navigation Structure ─────────────────────────────────────────────────────
 
@@ -95,8 +95,9 @@ const ownerNavGroups: NavGroupDef[] = [
     title: "BUSINESS",
     items: [
       { label: "Reports", path: "/reports", icon: BarChart3 },
-      { label: "AI Insights", path: "/insights", icon: Sparkles },
+      { label: "AI Insights", path: "/insights", icon: BrainCircuit },
       { label: "Broadcasts", path: "/broadcasts", icon: Megaphone },
+      { label: "Chat Reports", path: "/chat/reports", icon: ShieldAlert },
       { label: "Notifications", path: "/notifications", icon: Bell },
       { label: "Activity", path: "/activity", icon: Activity },
     ],
@@ -124,7 +125,6 @@ const trainerNavGroups: NavGroupDef[] = [
       { label: "Schedule", path: "/trainer/schedule", icon: Calendar },
       { label: "Classes", path: "/trainer/classes", icon: CalendarCheck },
       { label: "Messages", path: "/chat", icon: MessageSquare },
-      { label: "Profile", path: "/trainer/profile", icon: Settings },
     ],
   },
 ];
@@ -135,7 +135,7 @@ const memberNavGroups: NavGroupDef[] = [
     items: [
       { label: "Dashboard", path: "/member/dashboard", icon: LayoutDashboard },
       { label: "Workout", path: "/member/workout", icon: Dumbbell },
-      { label: "AI Coach", path: "/member/ai-coach", icon: Sparkles },
+      { label: "AI Coach", path: "/member/ai-coach", icon: BrainCircuit },
       { label: "Exercise Library", path: "/member/exercises", icon: BookOpen },
       { label: "Progress", path: "/member/progress", icon: TrendingUp },
       { label: "Activity / Running", path: "/member/running", icon: Navigation },
@@ -185,105 +185,19 @@ const superAdminNavGroups: NavGroupDef[] = [
   },
 ];
 
-// ─── Gym Brand Header (Top Left Dashboard Logo) ───────────────────────────────
+// ─── REPSI Brand Header (Top Left) ────────────────────────────────────────────
 
-function GymBrandHeader({ collapsed, workspace }: { collapsed: boolean; workspace: string }) {
-  const [gymLogo, setGymLogo] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("repsi_gym_logo");
-      if (stored) return stored;
-      const user = getAuthUser();
-      if (user?.gymLogoUrl) return user.gymLogoUrl;
-    }
-    return null;
-  });
-
-  const [gymName, setGymName] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const user = getAuthUser();
-      if (user?.gymName) return user.gymName;
-      if (workspace && !/^[0-9a-f]{8}-[0-9a-f]{4}/i.test(workspace)) return slugToGymName(workspace);
-    }
-    return "Apex Fitness";
-  });
-
-  useEffect(() => {
-    const handleLogoUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent<string | null>;
-      setGymLogo(customEvent.detail);
-    };
-
-    window.addEventListener("repsi_logo_updated", handleLogoUpdate);
-
-    const user = getAuthUser();
-    if (user?.gymName) setGymName(user.gymName);
-    if (user?.gymLogoUrl) {
-      setGymLogo(user.gymLogoUrl);
-      localStorage.setItem("repsi_gym_logo", user.gymLogoUrl);
-    } else {
-      orgApi.profile().then((p) => {
-        if (p?.logo_url) {
-          setGymLogo(p.logo_url);
-          localStorage.setItem("repsi_gym_logo", p.logo_url);
-        }
-        if (p?.name) {
-          setGymName(p.name);
-        }
-      }).catch(() => {});
-    }
-
-    return () => {
-      window.removeEventListener("repsi_logo_updated", handleLogoUpdate);
-    };
-  }, [workspace]);
-
+function BrandHeader({ collapsed, workspace }: { collapsed: boolean; workspace: string }) {
   return (
-    <Link 
-      href={`/${workspace}/dashboard`} 
-      className="flex items-center gap-3 px-4 h-16 border-b border-[var(--border)] transition-opacity hover:opacity-90 overflow-hidden"
-      title={gymName}
-    >
-      {collapsed ? (
-        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-2xs p-1">
-          {gymLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={apiUrl(gymLogo)}
-              alt={gymName}
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <div className="w-full h-full rounded-lg bg-[var(--primary-soft)] text-[var(--primary-dark)] font-black text-xs flex items-center justify-center">
-              {gymName.slice(0, 2).toUpperCase()}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 h-10 w-full overflow-hidden">
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-2xs p-1">
-            {gymLogo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={apiUrl(gymLogo)}
-                alt={gymName}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <div className="w-full h-full rounded-lg bg-[var(--primary-soft)] text-[var(--primary-dark)] font-black text-xs flex items-center justify-center">
-                {gymName.slice(0, 2).toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold text-[var(--text)] truncate leading-tight tracking-tight">
-              {gymName}
-            </div>
-            <div className="text-[10px] font-semibold text-[var(--primary-dark)] uppercase tracking-wider leading-tight mt-0.5">
-              Gym Workspace
-            </div>
-          </div>
-        </div>
+    <Link
+      href={`/${workspace}`}
+      className={cn(
+        "flex h-16 items-center border-b border-[var(--border)] transition-opacity hover:opacity-90",
+        collapsed ? "justify-center px-2" : "px-4",
       )}
+      aria-label="REPSI home"
+    >
+      <RepsiWordmark compact={collapsed} />
     </Link>
   );
 }
@@ -452,8 +366,8 @@ export function Sidebar() {
           collapsed ? "w-[72px]" : "w-[240px]"
         )}
       >
-        {/* Gym Brand Logo (Top Left) */}
-        <GymBrandHeader collapsed={collapsed} workspace={workspace} />
+        {/* REPSI Brand (Top Left) */}
+        <BrandHeader collapsed={collapsed} workspace={workspace} />
 
         {/* Gym Selector */}
         <GymSelector collapsed={collapsed} workspace={workspace} />

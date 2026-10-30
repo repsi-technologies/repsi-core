@@ -22,14 +22,14 @@ import {
   X,
   ExternalLink,
   User as UserIcon,
-  Sparkles,
+  BrainCircuit,
 } from "lucide-react";
 import { logoutSession, getAuthUser } from "@/lib/auth";
 import { repsiApi } from "@/lib/api";
 
 const sidebarNavItems = [
   { name: "Dashboard", href: "/superadmin/dashboard", icon: LayoutDashboard },
-  { name: "Content & Growth", href: "/superadmin/content-growth", icon: Sparkles },
+  { name: "Content & Growth", href: "/superadmin/content-growth", icon: BrainCircuit },
   { name: "Gyms", href: "/superadmin/gyms", icon: Building2 },
   { name: "Members", href: "/superadmin/members", icon: Users },
   { name: "Trainers", href: "/superadmin/trainers", icon: Dumbbell },
@@ -37,7 +37,7 @@ const sidebarNavItems = [
   { name: "Payments", href: "/superadmin/payments", icon: Banknote },
   { name: "Support", href: "/superadmin/support", icon: HelpCircle },
   { name: "Notifications", href: "/superadmin/notifications", icon: Bell },
-  { name: "AI Usage", href: "/superadmin/ai", icon: Sparkles },
+  { name: "AI Usage", href: "/superadmin/ai", icon: BrainCircuit },
   { name: "Audit Logs", href: "/superadmin/audit-logs", icon: FileText },
   { name: "System Health", href: "/superadmin/health", icon: Activity },
   { name: "Settings", href: "/superadmin/settings", icon: Settings },

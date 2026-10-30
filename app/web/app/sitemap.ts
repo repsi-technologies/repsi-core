@@ -1,95 +1,46 @@
 import { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
+import { FEATURES_DATA } from "@/lib/features-data";
+import { COMPARISON_DATA } from "@/lib/compare-data";
+import { CITY_DATA } from "@/lib/city-data";
+import { SOLUTION_ALIASES, SOLUTIONS_DATA } from "@/lib/solutions-data";
 
+type Freq = MetadataRoute.Sitemap[number]["changeFrequency"];
+
+/**
+ * Only indexable, existing pages. Dynamic sections are derived from the same data the pages
+ * render from, so a removed page can't linger here as a 404.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const currentDate = new Date().toISOString();
-
-  // Core Pages
-  const coreRoutes = [
-    "",
-    "/pricing",
-    "/about",
-    "/contact",
-    "/demo",
-    "/blog",
-    "/gym-management-software-india",
-  ].map((route) => ({
-    url: `${SITE_URL}${route}`,
-    lastModified: currentDate,
-    changeFrequency: "weekly" as const,
-    priority: route === "" ? 1.0 : 0.8,
-  }));
-
-  // Dedicated Feature Pages
-  const featureRoutes = [
-    "gym-management",
-    "member-management",
-    "gym-crm",
-    "gym-billing",
-    "gym-attendance",
-    "trainer-management",
-    "workout-management",
-    "diet-management",
-    "gym-website-builder",
-    "gym-analytics",
-    "gym-payment-management",
-    "gym-staff-management",
-  ].map((feature) => ({
-    url: `${SITE_URL}/features/${feature}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly" as const,
-    priority: 0.9,
-  }));
-
-  // Dedicated Solution Pages
-  const solutionRoutes = [
-    "gyms",
-    "fitness-studios",
-    "yoga-studios",
-    "swimming-pools",
-    "crossfit",
-    "personal-trainers",
-    "multi-branch-gyms",
-  ].map((solution) => ({
-    url: `${SITE_URL}/solutions/${solution}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly" as const,
-    priority: 0.85,
-  }));
-
-  // Dedicated Comparison Pages
-  const comparisonRoutes = [
-    "repsi-vs-gymforce",
-    "repsi-vs-fitnessforce",
-    "repsi-vs-mindbody",
-    "repsi-vs-gymmaster",
-  ].map((comp) => ({
-    url: `${SITE_URL}/compare/${comp}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  // City Pages
-  const cityRoutes = [
-    "gym-management-software-coimbatore",
-    "gym-management-software-chennai",
-    "gym-management-software-bangalore",
-    "gym-management-software-mumbai",
-    "gym-management-software-hyderabad",
-    "gym-management-software-delhi",
-  ].map((city) => ({
-    url: `${SITE_URL}/cities/${city}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly" as const,
-    priority: 0.75,
-  }));
+  const lastModified = new Date();
+  const entry = (path: string, priority: number, changeFrequency: Freq = "monthly") => ({
+    url: `${SITE_URL}${path}`,
+    lastModified,
+    changeFrequency,
+    priority,
+  });
 
   return [
-    ...coreRoutes,
-    ...featureRoutes,
-    ...solutionRoutes,
-    ...comparisonRoutes,
-    ...cityRoutes,
+    entry("", 1.0, "weekly"),
+    entry("/pricing", 0.9, "weekly"),
+    entry("/features", 0.9),
+    entry("/gym-management-software-india", 0.9),
+    entry("/how-it-works", 0.7),
+    entry("/integrations", 0.6),
+    entry("/download", 0.6),
+    entry("/use-cases", 0.6),
+    entry("/about", 0.5),
+    entry("/contact", 0.5),
+    entry("/help", 0.5),
+    entry("/blog", 0.6, "weekly"),
+    entry("/changelog", 0.4, "weekly"),
+    entry("/privacy", 0.2, "yearly"),
+    entry("/terms", 0.2, "yearly"),
+    ...Object.keys(FEATURES_DATA).map((slug) => entry(`/features/${slug}`, 0.85)),
+    ...Object.keys(SOLUTIONS_DATA)
+      .filter((slug) => !(slug in SOLUTION_ALIASES))
+      .map((slug) => entry(`/solutions/${slug}`, 0.8)),
+    ...Object.keys(COMPARISON_DATA).map((slug) => entry(`/compare/${slug}`, 0.7)),
+    ...Object.keys(CITY_DATA).map((slug) => entry(`/cities/${slug}`, 0.7)),
   ];
 }

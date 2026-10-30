@@ -76,7 +76,7 @@ class TrialLifecycleService:
                             "Your free trial has concluded. Your gym records are safe, "
                             "but paid features require a subscription. Upgrade to continue."
                         ),
-                        action_url="/settings?tab=billing",
+                        action_url="/settings/billing",
                         is_read=False,
                     )
                     db.add(notif)
@@ -152,7 +152,7 @@ class TrialLifecycleService:
                     user_id=owner_member.user_id,
                     title=title,
                     message=msg,
-                    action_url="/settings?tab=billing",
+                    action_url="/settings/billing",
                     is_read=False,
                 )
                 db.add(notif)

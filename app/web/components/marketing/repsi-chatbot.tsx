@@ -7,7 +7,6 @@ import Link from "next/link";
 import {
   X,
   MessageCircle,
-  Sparkles,
   ArrowRight,
   CheckCircle2,
   Calendar,
@@ -22,6 +21,7 @@ import {
   Video,
   Bot,
   MessageSquare,
+  BrainCircuit,
 } from "lucide-react";
 
 type ChatScreen = "menu" | "features" | "pricing" | "website" | "demo_booking" | "qa" | "booking_success";
@@ -350,7 +350,7 @@ export function RepsiChatbot() {
                   >
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
+                        <BrainCircuit className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
                         <span>Ask Repsi AI</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">

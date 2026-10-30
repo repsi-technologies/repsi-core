@@ -111,7 +111,7 @@ class _WorkoutPlanViewState extends ConsumerState<WorkoutPlanView> {
                   Expanded(
                     child: _TabButton(
                       label: 'Workout Splits',
-                      icon: LucideIcons.sparkles,
+                      icon: LucideIcons.brainCircuit,
                       selected: _activeTab == 1,
                       onTap: () {
                         HapticFeedback.selectionClick();
@@ -268,7 +268,7 @@ class _WorkoutPlanViewState extends ConsumerState<WorkoutPlanView> {
                         Expanded(
                           child: RepsiButton(
                             text: 'View Splits',
-                            leadingIcon: const Icon(LucideIcons.sparkles, size: 18),
+                            leadingIcon: const Icon(LucideIcons.brainCircuit, size: 18),
                             onPressed: () => setState(() => _activeTab = 1),
                           ),
                         ),
@@ -943,7 +943,7 @@ class _DayDetail extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(LucideIcons.sparkles, size: 16, color: AppColors.primary),
+                      const Icon(LucideIcons.brainCircuit, size: 16, color: AppColors.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Clock,
-  Sparkles,
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
@@ -12,6 +11,7 @@ import {
   ShieldCheck,
   CreditCard,
   Lock,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { repsiApi } from "@/lib/api";
@@ -135,7 +135,7 @@ export function TrialCountdownCard({
               </p>
             </div>
           </div>
-          <Link href={`/${workspace}/settings?tab=billing`}>
+          <Link href={`/${workspace}/settings/billing`}>
             <Button
               variant="outline"
               size="sm"
@@ -175,7 +175,7 @@ export function TrialCountdownCard({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto shrink-0">
-            <Link href={`/${workspace}/settings?tab=billing`}>
+            <Link href={`/${workspace}/settings/billing`}>
               <Button className="w-full sm:w-auto bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] font-bold text-xs h-12 px-5 rounded-xl shadow-sm gap-1.5 cursor-pointer">
                 <span>{t("dashboard.view_plans_upgrade")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -285,7 +285,7 @@ export function TrialCountdownCard({
 
         {/* CTA Actions */}
         <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
-          <Link href={`/${workspace}/settings?tab=billing`}>
+          <Link href={`/${workspace}/settings/billing`}>
             <Button className={`w-full ${theme.btn} font-bold text-xs h-10 px-5 rounded-xl shadow-sm cursor-pointer gap-1.5`}>
               <CreditCard className="w-3.5 h-3.5" />
               <span>{t("dashboard.view_plans_upgrade")}</span>

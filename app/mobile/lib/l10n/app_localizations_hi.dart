@@ -4012,4 +4012,47 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get dietNonVegetarian => 'मांसाहारी';
+
+  @override
+  String get chatReport => 'रिपोर्ट';
+
+  @override
+  String get chatReportMessage => 'संदेश रिपोर्ट करें';
+
+  @override
+  String get chatReportTitle => 'बातचीत रिपोर्ट करें';
+
+  @override
+  String get chatReportDesc =>
+      'आपके जिम के मालिक इसकी समीक्षा करेंगे। दूसरे व्यक्ति को नहीं बताया जाएगा कि रिपोर्ट किसने की।';
+
+  @override
+  String get chatReportReason => 'क्या समस्या है?';
+
+  @override
+  String get chatReasonHarassment => 'उत्पीड़न या धमकाना';
+
+  @override
+  String get chatReasonInappropriate => 'अनुचित सामग्री';
+
+  @override
+  String get chatReasonOffTopic => 'अवांछित निजी संदेश';
+
+  @override
+  String get chatReasonSpam => 'स्पैम या बिक्री';
+
+  @override
+  String get chatReasonSafety => 'असुरक्षित ट्रेनिंग या स्वास्थ्य सलाह';
+
+  @override
+  String get chatReasonOther => 'कुछ और';
+
+  @override
+  String get chatReportDetails => 'विवरण (वैकल्पिक)';
+
+  @override
+  String get chatReportSend => 'रिपोर्ट भेजें';
+
+  @override
+  String get chatReportSent => 'रिपोर्ट जिम मालिक को भेज दी गई।';
 }

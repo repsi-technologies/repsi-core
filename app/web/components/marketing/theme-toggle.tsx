@@ -1,5 +1,6 @@
 "use client";
 
+import { isDarkTheme } from "@/lib/themes";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
@@ -33,7 +34,7 @@ export function ThemeToggle({
   }
 
   const currentTheme = resolvedTheme || theme;
-  const isDark = currentTheme === "dark";
+  const isDark = isDarkTheme(currentTheme);
 
   // If compact (e.g. mobile bar), render a sleek single-icon glowing button
   if (compact) {

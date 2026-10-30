@@ -1173,5 +1173,19 @@
   "dietVegetarian": "சைவம்",
   "dietVegan": "வீகன்",
   "dietEggetarian": "முட்டை சைவம்",
-  "dietNonVegetarian": "அசைவம்"
+  "dietNonVegetarian": "அசைவம்",
+  "chatReport": "புகார்",
+  "chatReportMessage": "செய்தியைப் புகாரளி",
+  "chatReportTitle": "உரையாடலைப் புகாரளி",
+  "chatReportDesc": "உங்கள் ஜிம் உரிமையாளர் இதை மதிப்பாய்வு செய்வார். புகாரளித்தவர் யார் என்று மற்றவருக்குத் தெரிவிக்கப்படாது.",
+  "chatReportReason": "என்ன பிரச்சனை?",
+  "chatReasonHarassment": "துன்புறுத்தல் அல்லது மிரட்டல்",
+  "chatReasonInappropriate": "பொருத்தமற்ற உள்ளடக்கம்",
+  "chatReasonOffTopic": "தேவையற்ற தனிப்பட்ட செய்திகள்",
+  "chatReasonSpam": "ஸ்பேம் அல்லது விற்பனை",
+  "chatReasonSafety": "பாதுகாப்பற்ற பயிற்சி அல்லது உடல்நல ஆலோசனை",
+  "chatReasonOther": "வேறு ஏதாவது",
+  "chatReportDetails": "விவரங்கள் (விருப்பம்)",
+  "chatReportSend": "புகாரை அனுப்பு",
+  "chatReportSent": "புகார் ஜிம் உரிமையாளருக்கு அனுப்பப்பட்டது."
 }

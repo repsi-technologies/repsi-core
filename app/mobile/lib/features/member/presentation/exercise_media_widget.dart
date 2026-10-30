@@ -826,15 +826,20 @@ class _ExerciseDemonstrationMediaState extends State<ExerciseDemonstrationMedia>
     } else {
       // Active GIF or WebP thumbnail with automatic fallback
       final activeSrc = (_isPlaying || thumbUrl == null || _attemptedFallback) ? effectiveUrl : thumbUrl;
+      // Demo GIFs are square. In a full-width banner, cover would crop the athlete's head and feet,
+      // so banners show the whole frame on the GIF's own white background; thumbnails keep cover.
+      final banner = widget.width == double.infinity && widget.fit == BoxFit.cover;
 
       content = ClipRRect(
         borderRadius: radius,
         child: Stack(
           fit: StackFit.expand,
           children: [
+            if (banner) const ColoredBox(color: Colors.white),
             Image.network(
               activeSrc,
-              fit: widget.fit,
+              fit: banner ? BoxFit.contain : widget.fit,
+              alignment: Alignment.center,
               gaplessPlayback: true,
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;

@@ -7146,6 +7146,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Non-veg'**
   String get dietNonVegetarian;
+
+  /// No description provided for @chatReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get chatReport;
+
+  /// No description provided for @chatReportMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Report message'**
+  String get chatReportMessage;
+
+  /// No description provided for @chatReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report conversation'**
+  String get chatReportTitle;
+
+  /// No description provided for @chatReportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your gym\'s owner will review this. The other person is not told who reported.'**
+  String get chatReportDesc;
+
+  /// No description provided for @chatReportReason.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s wrong?'**
+  String get chatReportReason;
+
+  /// No description provided for @chatReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get chatReasonHarassment;
+
+  /// No description provided for @chatReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate or sexual content'**
+  String get chatReasonInappropriate;
+
+  /// No description provided for @chatReasonOffTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Unwanted personal / off-topic messages'**
+  String get chatReasonOffTopic;
+
+  /// No description provided for @chatReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or selling'**
+  String get chatReasonSpam;
+
+  /// No description provided for @chatReasonSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe training or health advice'**
+  String get chatReasonSafety;
+
+  /// No description provided for @chatReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get chatReasonOther;
+
+  /// No description provided for @chatReportDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get chatReportDetails;
+
+  /// No description provided for @chatReportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get chatReportSend;
+
+  /// No description provided for @chatReportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent to the gym owner.'**
+  String get chatReportSent;
 }
 
 class _AppLocalizationsDelegate

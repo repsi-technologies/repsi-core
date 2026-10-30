@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BellRing, Lightbulb, Send, Sparkles } from "lucide-react";
+import { BellRing, Lightbulb, Send, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { aiApi, SOURCE_LABEL, type AiSummary, type InsightsResponse, type ReminderGroup, type ReportType } from "@/lib/ai-api";
@@ -163,7 +163,7 @@ export function InsightsPanel() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-2">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><Sparkles className="h-5 w-5" /></div>
+        <div className="rounded-xl bg-[var(--primary-soft)] p-2.5 text-[var(--primary)]"><BrainCircuit className="h-5 w-5" /></div>
         <div>
           <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">{t("navItem.ai_insights")}</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">{t("ai.your_last_30_days_in_plain")}</p>

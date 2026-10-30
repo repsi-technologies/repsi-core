@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, ImageOff, Loader2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, ImageOff, Loader2, X, BrainCircuit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fitnessApi, type ApiFitnessContext, type ApiFitnessMeta, type ApiPlanItem, type FitMediaType } from "@/lib/fitness-api";
 
@@ -509,7 +509,7 @@ export function WorkoutExerciseCard({
                   onClick={onSelectDemonstration}
                   className="text-[11px] text-[var(--primary)] hover:underline flex items-center gap-1 font-medium"
                 >
-                  <Sparkles className="h-3 w-3" /> Change GIF
+                  <BrainCircuit className="h-3 w-3" /> Change GIF
                 </button>
               )}
               {onViewDetails && (
