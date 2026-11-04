@@ -2260,5 +2260,27 @@
   "dietNowFollowing": "This is now your diet plan.",
   "dietTrainerAsked": "Sent to your trainer. They'll assign a plan that fits your foods.",
   "dietNoTrainer": "Saved. You don't have a trainer yet — the gym can assign one.",
-  "dietEnterWeight": "Enter your weight to get a suggestion."
+  "dietEnterWeight": "Enter your weight to get a suggestion.",
+  "chatNewChat": "New chat",
+  "chatPickTrainer": "Message a trainer",
+  "chatNoTrainers": "No trainers available yet",
+  "crmCall": "Call",
+  "crmMoveStage": "Move to stage",
+  "crmMoved": "Moved to {stage}",
+  "crmScheduleFollowUp": "Schedule follow-up",
+  "crmFollowUpSet": "Follow-up set for {date}",
+  "@crmMoved": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "@crmFollowUpSet": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,82 +1,69 @@
-"use client";
-
-import { use, useState, useEffect } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  Clock,
-  ArrowLeft,
-  Calendar,
-  User,
-  Share2,
-  Bookmark,
-  ChevronRight,
-  HelpCircle,
-  CheckCircle2,
-  ArrowRight,
-  Sparkles,
-  Tag
-} from "lucide-react";
+import { Clock, ChevronRight, Tag, Sparkles, ArrowRight } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { JsonLd } from "@/components/seo/json-ld";
-import { getStoredBlogs, BlogPost } from "@/lib/content-growth-store";
+import { constructMetadata } from "@/lib/seo";
+import { INITIAL_BLOGS } from "@/lib/blog-data";
+import { BlogShareButton, BlogFaqAccordion } from "@/components/marketing/blog-interactions";
 
-export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [allBlogs, setAllBlogs] = useState<BlogPost[]>([]);
-  const [copied, setCopied] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
-  useEffect(() => {
-    const list = getStoredBlogs();
-    setAllBlogs(list);
-    const found = list.find((b) => b.slug === slug);
-    if (found) {
-      setPost(found);
-    }
-  }, [slug]);
+export async function generateStaticParams() {
+  return INITIAL_BLOGS.filter((b) => b.status === "published").map((post) => ({
+    slug: post.slug,
+  }));
+}
 
-  if (!post && allBlogs.length > 0) {
-    // If not found in loaded blogs
-    const found = allBlogs.find((b) => b.slug === slug);
-    if (!found) {
-      return (
-        <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] flex flex-col justify-between">
-          <MarketingNav />
-          <div className="text-center py-40 px-4">
-            <h1 className="text-3xl font-bold text-white mb-4">Article Not Found</h1>
-            <p className="text-zinc-400 mb-6">The blog post you're looking for might have been moved or unpublished.</p>
-            <Link
-              href="/blog"
-              className="px-5 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-sm font-semibold hover:bg-[var(--primary-hover)]"
-            >
-              ← Back to Blog Hub
-            </Link>
-          </div>
-          <MarketingFooter />
-        </div>
-      );
-    }
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = INITIAL_BLOGS.find((b) => b.slug === slug);
+
+  if (!post) {
+    return constructMetadata({
+      title: "Article Not Found",
+      description: "The requested fitness business article could not be found.",
+      path: `/blog/${slug}`,
+      noIndex: true,
+    });
   }
 
-  const currentPost = post || allBlogs.find((b) => b.slug === slug) || getStoredBlogs()[0];
+  return constructMetadata({
+    title: post.seoTitle || `${post.title} | Repsi Blog`,
+    description: post.seoDescription || post.summary,
+    keywords: [
+      ...post.tags,
+      "Rhapsy",
+      "Rhapsy gym",
+      "Repsi",
+      "gym management software",
+      "fitness studio management",
+    ],
+    path: `/blog/${post.slug}`,
+    ogType: "article",
+    image: post.featuredImage,
+  });
+}
 
-  const relatedPosts = allBlogs.filter(
-    (b) => b.id !== currentPost.id && (currentPost.relatedSlugs?.includes(b.slug) || b.category === currentPost.category)
+export default async function BlogPostPage({ params }: PageProps) {
+  const { slug } = await params;
+  const currentPost = INITIAL_BLOGS.find((b) => b.slug === slug);
+
+  if (!currentPost) {
+    notFound();
+  }
+
+  const relatedPosts = INITIAL_BLOGS.filter(
+    (b) =>
+      b.id !== currentPost.id &&
+      (currentPost.relatedSlugs?.includes(b.slug) || b.category === currentPost.category)
   ).slice(0, 3);
 
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  // Structured Schema data
+  // Structured Schema data for SEO
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -93,6 +80,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     publisher: {
       "@type": "Organization",
       name: "Repsi",
+      alternateName: ["Rhapsy", "REPSI", "Rhapsy Technologies"],
       logo: {
         "@type": "ImageObject",
         url: "https://repsi.app/icon.png",
@@ -104,18 +92,21 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     },
   };
 
-  const faqSchema = currentPost.faqs && currentPost.faqs.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: currentPost.faqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer,
-      },
-    })),
-  } : null;
+  const faqSchema =
+    currentPost.faqs && currentPost.faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: currentPost.faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
 
   return (
     <div className="min-h-screen bg-[#17191C] text-[#F7F7F5] font-sans antialiased flex flex-col selection:bg-[var(--primary)]/30 selection:text-[var(--primary-dark)]">
@@ -130,9 +121,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         <div className="max-w-4xl mx-auto space-y-5">
           {/* Breadcrumb row */}
           <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <Link href="/" className="hover:text-[var(--primary-dark)] transition-colors">Home</Link>
+            <Link href="/" className="hover:text-[var(--primary-dark)] transition-colors">
+              Home
+            </Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-            <Link href="/blog" className="hover:text-[var(--primary-dark)] transition-colors">Blog</Link>
+            <Link href="/blog" className="hover:text-[var(--primary-dark)] transition-colors">
+              Blog
+            </Link>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
             <span className="text-zinc-300 truncate max-w-xs">{currentPost.category}</span>
           </div>
@@ -176,13 +171,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleShare}
-                className="px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 flex items-center gap-1.5 border border-zinc-700 transition-colors"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>{copied ? "Link Copied!" : "Share"}</span>
-              </button>
+              <BlogShareButton />
             </div>
           </div>
         </div>
@@ -204,35 +193,152 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         <article className="prose prose-invert prose-emerald max-w-none space-y-6 text-zinc-300 leading-relaxed text-base sm:text-lg">
           {currentPost.content.split("\n\n").map((block, idx) => {
             const trimmed = block.trim();
+            if (!trimmed) return null;
+
+            if (trimmed === "---") {
+              return <hr key={idx} className="border-zinc-800 my-8" />;
+            }
             if (trimmed.startsWith("## ")) {
               return (
-                <h2 key={idx} className="text-2xl sm:text-3xl font-bold text-white pt-4 pb-2 border-b border-zinc-800">
+                <h2
+                  key={idx}
+                  className="text-2xl sm:text-3xl font-bold text-white pt-6 pb-2 border-b border-zinc-800"
+                >
                   {trimmed.replace("## ", "")}
                 </h2>
               );
             }
             if (trimmed.startsWith("### ")) {
               return (
-                <h3 key={idx} className="text-xl sm:text-2xl font-semibold text-[var(--primary-dark)] pt-3">
+                <h3
+                  key={idx}
+                  className="text-xl sm:text-2xl font-semibold text-[var(--primary-dark)] pt-4"
+                >
                   {trimmed.replace("### ", "")}
                 </h3>
               );
             }
+            if (trimmed.startsWith("#### ")) {
+              return (
+                <h4
+                  key={idx}
+                  className="text-lg sm:text-xl font-semibold text-white pt-3"
+                >
+                  {trimmed.replace("#### ", "")}
+                </h4>
+              );
+            }
+            if (trimmed.startsWith("|") && trimmed.includes("\n|")) {
+              const rows = trimmed.split("\n").filter((r) => r.trim().startsWith("|"));
+              if (rows.length >= 2) {
+                const headerCells = rows[0]
+                  .split("|")
+                  .filter((c, i, arr) => i > 0 && i < arr.length - 1)
+                  .map((c) => c.trim());
+                const bodyRows = rows.slice(2);
+                return (
+                  <div key={idx} className="overflow-x-auto my-6 rounded-xl border border-zinc-800">
+                    <table className="w-full text-left text-sm text-zinc-300">
+                      <thead className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+                        <tr>
+                          {headerCells.map((hc, hIdx) => (
+                            <th key={hIdx} className="px-4 py-3 font-semibold">
+                              {hc.replace(/\*\*/g, "")}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/60 bg-zinc-950/40">
+                        {bodyRows.map((br, bIdx) => {
+                          const cells = br
+                            .split("|")
+                            .filter((c, i, arr) => i > 0 && i < arr.length - 1)
+                            .map((c) => c.trim());
+                          return (
+                            <tr key={bIdx} className="hover:bg-zinc-900/40 transition-colors">
+                              {cells.map((cell, cIdx) => (
+                                <td key={cIdx} className="px-4 py-3 text-xs sm:text-sm">
+                                  {cell.replace(/\*\*/g, "")}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              }
+            }
             if (trimmed.startsWith("- ")) {
               const items = trimmed.split("\n").map((li) => li.replace(/^- /, ""));
               return (
-                <ul key={idx} className="list-disc list-inside space-y-1.5 text-zinc-300 pl-2">
+                <ul key={idx} className="list-disc list-inside space-y-2 text-zinc-300 pl-2">
                   {items.map((item, i) => (
                     <li key={i} className="text-sm sm:text-base">
-                      {item}
+                      {item.includes("**") ? (
+                        <span>
+                          {item.split("**").map((part, pIdx) =>
+                            pIdx % 2 === 1 ? (
+                              <strong key={pIdx} className="font-semibold text-white">
+                                {part}
+                              </strong>
+                            ) : (
+                              part
+                            )
+                          )}
+                        </span>
+                      ) : (
+                        item
+                      )}
                     </li>
                   ))}
                 </ul>
               );
             }
+            if (/^\d+\.\s/.test(trimmed)) {
+              const items = trimmed.split("\n").map((li) => li.replace(/^\d+\.\s*/, ""));
+              return (
+                <ol key={idx} className="list-decimal list-inside space-y-2 text-zinc-300 pl-2">
+                  {items.map((item, i) => (
+                    <li key={i} className="text-sm sm:text-base">
+                      {item.includes("**") ? (
+                        <span>
+                          {item.split("**").map((part, pIdx) =>
+                            pIdx % 2 === 1 ? (
+                              <strong key={pIdx} className="font-semibold text-white">
+                                {part}
+                              </strong>
+                            ) : (
+                              part
+                            )
+                          )}
+                        </span>
+                      ) : (
+                        item
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              );
+            }
             return (
               <p key={idx} className="text-sm sm:text-base text-zinc-300 leading-relaxed">
-                {trimmed}
+                {trimmed.includes("**") ? (
+                  <span>
+                    {trimmed.split("**").map((part, pIdx) =>
+                      pIdx % 2 === 1 ? (
+                        <strong key={pIdx} className="font-semibold text-white">
+                          {part}
+                        </strong>
+                      ) : (
+                        part
+                      )
+                    )}
+                  </span>
+                ) : (
+                  trimmed
+                )}
               </p>
             );
           })}
@@ -254,51 +360,22 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           ))}
         </div>
 
-        {/* FAQs Section if provided */}
+        {/* FAQs Section */}
         {currentPost.faqs && currentPost.faqs.length > 0 && (
-          <section className="space-y-4 pt-6 border-t border-zinc-800">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-[var(--primary-dark)]" />
-              <span>Frequently Asked Questions</span>
-            </h3>
-            <div className="space-y-3">
-              {currentPost.faqs.map((faq, i) => {
-                const isOpen = openFaq === i;
-                return (
-                  <div
-                    key={i}
-                    className="border border-zinc-800 rounded-xl bg-zinc-900/60 overflow-hidden"
-                  >
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? null : i)}
-                      className="w-full p-4 text-left flex items-center justify-between gap-4 font-semibold text-sm text-zinc-200 hover:text-[var(--primary-dark)] transition-colors"
-                    >
-                      <span>{faq.question}</span>
-                      <span className="text-[var(--primary-dark)] text-lg font-mono">{isOpen ? "−" : "+"}</span>
-                    </button>
-                    {isOpen && (
-                      <div className="p-4 pt-0 text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-zinc-800/60 bg-zinc-950/40">
-                        {faq.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+          <BlogFaqAccordion faqs={currentPost.faqs} />
         )}
 
         {/* Mid-Article Repsi Showcase Banner */}
         <div className="rounded-2xl border border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary)]/15 via-zinc-900 to-zinc-950 p-6 sm:p-8 space-y-4 shadow-xl">
           <div className="flex items-center gap-2 text-[var(--primary-dark)] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-4 h-4" />
-            <span>Repsi All-In-One Fitness OS</span>
+            <span>Repsi (Rhapsy) All-In-One Fitness OS</span>
           </div>
           <h4 className="text-xl sm:text-2xl font-bold text-white">
             Transform Your Fitness Business With Zero Complexity
           </h4>
           <p className="text-xs sm:text-sm text-zinc-300 max-w-xl">
-            Join top gyms, studios, and swimming facilities running check-ins, automated WhatsApp billing, and trainer apps on Repsi.
+            Join hundreds of gyms, fitness studios, and personal trainers running QR check-ins, automated WhatsApp billing, and trainer apps on Repsi.
           </p>
           <div className="flex items-center gap-4 pt-2">
             <Link
@@ -309,10 +386,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
-              href="/partners"
+              href="/pricing"
               className="text-xs font-semibold text-zinc-300 hover:text-[var(--primary-dark)] underline underline-offset-4"
             >
-              Become a Repsi Partner →
+              View Plans from ₹199/mo →
             </Link>
           </div>
         </div>

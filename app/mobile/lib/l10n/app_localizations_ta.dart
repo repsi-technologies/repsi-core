@@ -4173,4 +4173,32 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get dietEnterWeight => 'பரிந்துரை பெற உங்கள் எடையை உள்ளிடவும்.';
+
+  @override
+  String get chatNewChat => 'புதிய உரையாடல்';
+
+  @override
+  String get chatPickTrainer => 'பயிற்சியாளருக்குச் செய்தி அனுப்பு';
+
+  @override
+  String get chatNoTrainers => 'இன்னும் பயிற்சியாளர்கள் இல்லை';
+
+  @override
+  String get crmCall => 'அழை';
+
+  @override
+  String get crmMoveStage => 'நிலையை மாற்று';
+
+  @override
+  String crmMoved(String stage) {
+    return '$stage-க்கு மாற்றப்பட்டது';
+  }
+
+  @override
+  String get crmScheduleFollowUp => 'பின்தொடர்தலை அமை';
+
+  @override
+  String crmFollowUpSet(String date) {
+    return '$date-க்கு பின்தொடர்தல் அமைக்கப்பட்டது';
+  }
 }

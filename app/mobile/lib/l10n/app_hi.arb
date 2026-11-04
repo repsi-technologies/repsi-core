@@ -1206,5 +1206,13 @@
   "dietNowFollowing": "अब यह आपका डाइट प्लान है।",
   "dietTrainerAsked": "आपके ट्रेनर को भेज दिया गया। वे आपके खाने के अनुसार प्लान देंगे।",
   "dietNoTrainer": "सेव हो गया। अभी आपका कोई ट्रेनर नहीं है — जिम एक ट्रेनर दे सकता है।",
-  "dietEnterWeight": "सुझाव पाने के लिए अपना वजन डालें।"
+  "dietEnterWeight": "सुझाव पाने के लिए अपना वजन डालें।",
+  "chatNewChat": "नई चैट",
+  "chatPickTrainer": "ट्रेनर को संदेश भेजें",
+  "chatNoTrainers": "अभी कोई ट्रेनर उपलब्ध नहीं",
+  "crmCall": "कॉल करें",
+  "crmMoveStage": "चरण बदलें",
+  "crmMoved": "{stage} में ले जाया गया",
+  "crmScheduleFollowUp": "फॉलो-अप तय करें",
+  "crmFollowUpSet": "{date} के लिए फॉलो-अप तय"
 }

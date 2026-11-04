@@ -12,9 +12,9 @@ export interface HomeFaq {
 export const HOME_FAQS: HomeFaq[] = [
   {
     id: "what_is_repsi",
-    question: "What is Repsi?",
+    question: "What is Repsi (also known as Rhapsy)?",
     answer:
-      "Repsi is gym management software for gyms, fitness studios, yoga studios, swimming pools and personal trainers. Owners manage members, memberships, attendance, payments, trainers, classes, workout plans and diet plans from one dashboard, and members use the Repsi app to check in, follow workouts and chat with their trainer.",
+      "Repsi (often searched as Rhapsy or Rhapsy Gym App) is an all-in-one gym management software and fitness club operating system. It empowers gym owners, fitness studios, yoga centers, and personal trainers to automate QR attendance, WhatsApp renewal reminders, UPI collections, trainer commissions, workout and diet plans in one seamless web and mobile platform.",
   },
   {
     id: "who_for",

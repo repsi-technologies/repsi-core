@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Flag, Loader2, MessageSquare, Send } from "lucide-react";
 import { FormAlert } from "@/components/organization/form-fields";
 import { getAuthUser } from "@/lib/auth";
-import { repsiApi, type ApiChatMessage, type ApiConversation } from "@/lib/api";
+import { repsiApi, type ApiChatMessage, type ApiCoachProfile, type ApiConversation } from "@/lib/api";
 import { ReportChatDialog } from "@/features/communications/report-chat-dialog";
 
 /**
@@ -23,6 +23,20 @@ export default function ChatPage() {
   const [reporting, setReporting] = useState<{ message: ApiChatMessage | null } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const [isTrainer, setIsTrainer] = useState(false);
+  const [picking, setPicking] = useState<ApiCoachProfile[] | null>(null);
+
+  // Members can message any active trainer, not only their assigned one.
+  const startChat = async (trainerId: string) => {
+    try {
+      const c = await repsiApi.openConversation({ trainer_id: trainerId });
+      setPicking(null);
+      setConversations((cur) => (cur?.some((x) => x.id === c.id) ? cur : [c, ...(cur ?? [])]));
+      setActiveId(c.id);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  const openPicker = () => repsiApi.getAvailableCoaches().then(setPicking).catch((e: Error) => setError(e.message));
 
   const loadConversations = useCallback(async () => {
     try {
@@ -84,14 +98,46 @@ export default function ChatPage() {
 
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6">
-      <h1 className="mb-4 text-xl font-semibold text-[var(--text)]">Messages</h1>
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <h1 className="text-xl font-semibold text-[var(--text)]">Messages</h1>
+        {!isTrainer && (
+          <button type="button" onClick={openPicker} className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[var(--primary)] px-3 text-sm font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]">
+            <MessageSquare className="h-4 w-4" aria-hidden /> New message
+          </button>
+        )}
+      </div>
+      {picking && (
+        <div className="mb-4 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-[var(--text)]">Message a trainer</p>
+            <button type="button" onClick={() => setPicking(null)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text)]">Close</button>
+          </div>
+          {picking.length === 0 ? (
+            <p className="text-sm text-[var(--text-muted)]">No trainers available yet.</p>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {picking.map((t) => (
+                <button key={t.id} type="button" onClick={() => startChat(t.id)} className="flex items-center gap-3 rounded-[10px] border border-[var(--border)] p-2.5 text-left hover:border-[var(--primary)]/50 hover:bg-[var(--background)]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary-soft)] text-xs font-bold text-[var(--primary-dark)]">
+                    {t.name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-[var(--text)]">{t.name}</span>
+                    {t.specialization && <span className="block truncate text-xs text-[var(--text-muted)]">{t.specialization}</span>}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       {error && <div className="mb-3"><FormAlert kind="error">{error}</FormAlert></div>}
       {conversations.length === 0 ? (
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--surface)] p-10 text-center">
           <MessageSquare className="mx-auto mb-3 h-8 w-8 text-[var(--text-muted)]" aria-hidden />
           <p className="font-medium text-[var(--text)]">No conversations yet</p>
           <p className="mt-1 text-sm text-[var(--text-muted)]">
-            {isTrainer ? "Open a client's profile and choose Message to start a conversation." : "Once a trainer is assigned to you, you can message them here."}
+            {isTrainer ? "Open a client's profile and choose Message to start a conversation." : "Choose New message to ask any trainer at your gym."}
           </p>
         </div>
       ) : (
@@ -106,7 +152,14 @@ export default function ChatPage() {
                   className={`flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[var(--background)] ${c.id === activeId ? "bg-[var(--background)]" : ""}`}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-[var(--text)]">{isTrainer ? c.member_name : c.trainer_name}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-medium text-[var(--text)]">{isTrainer ? c.member_name : c.trainer_name}</span>
+                      {c.assigned === false ? (
+                        <span className="shrink-0 rounded-full bg-[var(--surface-secondary)] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)]">{isTrainer ? "Question" : "Other trainer"}</span>
+                      ) : !isTrainer && (
+                        <span className="shrink-0 rounded-full bg-[var(--primary-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--nav-active-text)]">Your trainer</span>
+                      )}
+                    </span>
                     <span className="block truncate text-xs text-[var(--text-muted)]">{c.last_message ?? "No messages yet"}</span>
                   </span>
                   {c.unread > 0 && (

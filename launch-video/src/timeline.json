@@ -1,0 +1,20 @@
+{
+  "fps": 30,
+  "duration": 40,
+  "bpm": 120,
+  "scenes": {
+    "hook": [0, 4],
+    "problem": [4, 9],
+    "solution": [9, 16],
+    "features": [16, 27],
+    "experience": [27, 34],
+    "reveal": [34, 40]
+  },
+  "slashHit": 1.5,
+  "problemHits": [4.5, 5.25, 6.0, 6.75],
+  "snap": 8.0,
+  "featureCuts": [16, 17.5, 19, 20.5, 22, 23.5, 25, 26],
+  "experienceCuts": [27, 29.5, 32],
+  "taglineAt": 36,
+  "urlAt": 37.5
+}

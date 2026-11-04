@@ -4114,4 +4114,32 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get dietEnterWeight => 'सुझाव पाने के लिए अपना वजन डालें।';
+
+  @override
+  String get chatNewChat => 'नई चैट';
+
+  @override
+  String get chatPickTrainer => 'ट्रेनर को संदेश भेजें';
+
+  @override
+  String get chatNoTrainers => 'अभी कोई ट्रेनर उपलब्ध नहीं';
+
+  @override
+  String get crmCall => 'कॉल करें';
+
+  @override
+  String get crmMoveStage => 'चरण बदलें';
+
+  @override
+  String crmMoved(String stage) {
+    return '$stage में ले जाया गया';
+  }
+
+  @override
+  String get crmScheduleFollowUp => 'फॉलो-अप तय करें';
+
+  @override
+  String crmFollowUpSet(String date) {
+    return '$date के लिए फॉलो-अप तय';
+  }
 }

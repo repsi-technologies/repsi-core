@@ -1,0 +1,17 @@
+[
+  "dashboard",
+  "members",
+  "trainers",
+  "workouts",
+  "nutrition",
+  "attendance",
+  "payments",
+  "memberships",
+  "notifications",
+  "broadcasts",
+  "analytics",
+  "phone-dashboard",
+  "phone-attendance",
+  "phone-members",
+  "phone-payments"
+]

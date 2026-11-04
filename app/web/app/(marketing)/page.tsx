@@ -13,10 +13,23 @@ import { HOME_FAQS } from "@/lib/home-faq";
 import { constructMetadata, getFaqSchema, getWebsiteSchema } from "@/lib/seo";
 
 export const metadata: Metadata = constructMetadata({
-  title: "Repsi — Gym Management Software for Gyms, Studios & Trainers",
+  title: "Repsi (Rhapsy) — Gym Management Software & Fitness Club Operating System",
   description:
-    "Repsi is gym management software for gyms, fitness studios and personal trainers in India. Manage members, memberships, QR attendance, UPI payments, renewals, trainers, workouts and diet plans in one app. Plans from ₹199/month.",
-  keywords: ["best gym management software", "gym management app", "fitness center management software", "personal trainer management software"],
+    "Repsi (also known as Rhapsy) is India's leading gym management software for gyms, fitness clubs, studios, and personal trainers. Manage members, QR attendance, automated WhatsApp renewals, UPI payments, workouts and diet plans. Plans from ₹199/month.",
+  keywords: [
+    "Rhapsy",
+    "Rhapsy gym",
+    "Rhapsy gym software",
+    "Rhapsy app",
+    "Rhapsy fitness software",
+    "Repsi",
+    "best gym management software",
+    "gym management app",
+    "fitness center management software",
+    "personal trainer management software",
+    "gym CRM software India",
+    "gym billing and attendance software",
+  ],
   path: "/",
 });
 

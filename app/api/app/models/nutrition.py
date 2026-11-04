@@ -111,6 +111,9 @@ class Conversation(Base, TimestampMixin, TenantMixin):
     member_id = Column(String(64), ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True)
     trainer_id = Column(String(64), ForeignKey("trainers.id", ondelete="CASCADE"), nullable=False, index=True)
     last_message_at = Column(DateTime(timezone=True), nullable=True)
+    # coaching: with an assigned trainer (trainer access ends on unassignment);
+    # general: a member asked another trainer a question (open while that trainer is active).
+    kind = Column(String(20), nullable=False, default="coaching", server_default="coaching")
 
     __table_args__ = (UniqueConstraint("workspace_id", "member_id", "trainer_id", name="uq_conversation_pair"),)
 

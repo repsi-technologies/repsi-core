@@ -96,6 +96,14 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [atRiskList, setAtRiskList] = useState<AtRiskMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
+  const [dragLeadId, setDragLeadId] = useState<string | null>(null);
+  const [dropStage, setDropStage] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(id);
+  }, [toast]);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,13 +205,35 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
     }
   };
 
+  // Optimistic: the card moves immediately and snaps back if the API refuses.
   const handleUpdateStatus = async (leadId: string, newStatus: string) => {
+    const before = leads;
+    if (newStatus === "converted") {
+      // Converting needs a plan and payment, so it goes through the convert form.
+      const lead = leads.find((l) => l.id === leadId);
+      if (lead) setSelectedLeadForConvert(lead);
+      return;
+    }
+    setLeads((cur) => cur.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l)));
     try {
       await repsiApi.updateLeadStatus(leadId, newStatus, `Moved to ${newStatus}`);
+      const label = PIPELINE_STAGES.find((st) => st.key === newStatus)?.label ?? newStatus;
+      setToast(`Moved to ${label}`);
       loadData();
     } catch (err: any) {
-      alert("Failed to update status");
+      setLeads(before);
+      setToast(err?.message || "Couldn't move the lead");
     }
+  };
+
+  const scheduleFollowUpFor = (lead: Lead) => {
+    setNewFollowUp({
+      lead_id: lead.id,
+      follow_up_type: "call",
+      scheduled_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      notes: "",
+    });
+    setShowFollowUpModal(true);
   };
 
   const handleConvertLead = async (e: React.FormEvent) => {
@@ -457,13 +487,31 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
             guideLinkText="View CRM guide →"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto pb-4">
+          <div className="space-y-4">
+          <TodayFocus followUps={followUps} leads={leads} onDone={handleCompleteFollowUp} />
+          <p className="text-xs text-text-muted">Drag a card to another stage to move it. Dropping on “Converted Member” opens the conversion form.</p>
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
           {PIPELINE_STAGES.map((stage) => {
             const stageLeads = leads.filter((l) => l.status.toLowerCase() === stage.key);
             const totalValue = stageLeads.reduce((acc, l) => acc + (l.expected_value || 0), 0);
 
             return (
-              <div key={stage.key} className="flex flex-col rounded-2xl bg-surface border border-border p-3 min-w-[260px]">
+              <div
+                key={stage.key}
+                onDragOver={(e) => { if (dragLeadId) { e.preventDefault(); setDropStage(stage.key); } }}
+                onDragLeave={() => setDropStage((cur) => (cur === stage.key ? null : cur))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const id = e.dataTransfer.getData("text/plain") || dragLeadId;
+                  setDropStage(null);
+                  setDragLeadId(null);
+                  const lead = leads.find((l) => l.id === id);
+                  if (id && lead && lead.status.toLowerCase() !== stage.key) handleUpdateStatus(id, stage.key);
+                }}
+                className={`flex w-[280px] shrink-0 snap-start flex-col rounded-2xl border p-3 transition-colors ${
+                  dropStage === stage.key ? "border-primary bg-primary-soft" : "bg-surface border-border"
+                }`}
+              >
                 <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
                   <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full ${stage.color.split(" ")[0].replace("border-", "bg-")}`} />
@@ -487,7 +535,10 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
                     stageLeads.map((lead) => (
                       <div
                         key={lead.id}
-                        className="p-3 rounded-xl bg-surface border border-border hover:border-border transition shadow-sm group relative"
+                        draggable
+                        onDragStart={(e) => { e.dataTransfer.setData("text/plain", lead.id); e.dataTransfer.effectAllowed = "move"; setDragLeadId(lead.id); }}
+                        onDragEnd={() => { setDragLeadId(null); setDropStage(null); }}
+                        className={`p-3 rounded-xl bg-surface border border-border hover:border-primary/40 hover:shadow-md transition shadow-sm group relative cursor-grab active:cursor-grabbing ${dragLeadId === lead.id ? "opacity-50" : ""}`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <h4 className="font-semibold text-sm text-text group-hover:text-primary transition">
@@ -507,6 +558,12 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
                         <div className="text-xs text-text-secondary mb-2 flex items-center gap-1.5">
                           <Phone className="w-3 h-3 text-text-muted" />
                           <span>{lead.phone}</span>
+                        </div>
+                        <LeadDueBadge lead={lead} followUps={followUps} />
+                        <div className="mb-1 flex items-center gap-1">
+                          <a href={`tel:${lead.phone}`} className="rounded-md border border-border px-2 py-1 text-[11px] text-text-secondary hover:border-primary/40 hover:text-text">Call</a>
+                          <a href={waLink(lead.phone)} target="_blank" rel="noreferrer" className="rounded-md border border-border px-2 py-1 text-[11px] text-text-secondary hover:border-success hover:text-success">WhatsApp</a>
+                          <button type="button" onClick={() => scheduleFollowUpFor(lead)} className="rounded-md border border-border px-2 py-1 text-[11px] text-text-secondary hover:border-primary/40 hover:text-text">Follow-up</button>
                         </div>
 
                         <div className="flex items-center justify-between text-[11px] text-text-muted border-t border-border pt-2 mt-2">
@@ -549,7 +606,14 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
             );
           })}
         </div>
+        </div>
         )
+      )}
+
+      {toast && (
+        <div role="status" className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-text px-4 py-2 text-sm text-background shadow-lg">
+          {toast}
+        </div>
       )}
 
       {/* TAB 2: ALL LEADS LIST */}
@@ -1506,6 +1570,73 @@ export default function CrmManagementPage(props: { params: Promise<{ workspace: 
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+const waLink = (phone: string) => `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
+
+/** Pending follow-ups that are overdue or due today, so the pipeline opens on what needs doing now. */
+function TodayFocus({ followUps, leads, onDone }: { followUps: FollowUp[]; leads: Lead[]; onDone: (id: string) => void }) {
+  const today = dayKey(new Date());
+  const due = followUps
+    .filter((f) => f.status === "pending" && f.scheduled_at && f.scheduled_at.slice(0, 10) <= today)
+    .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+  if (due.length === 0) {
+    const open = leads.filter((l) => !["converted", "lost"].includes(l.status.toLowerCase())).length;
+    return (
+      <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-text-secondary">
+        Nothing due today · {open} open lead{open === 1 ? "" : "s"} in the pipeline.
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-4">
+      <p className="mb-3 text-sm font-semibold text-text">Today&apos;s focus · {due.length} follow-up{due.length === 1 ? "" : "s"} due</p>
+      <div className="flex gap-3 overflow-x-auto pb-1">
+        {due.map((f) => {
+          const overdue = f.scheduled_at.slice(0, 10) < today;
+          return (
+            <div key={f.id} className={`w-64 shrink-0 rounded-xl border p-3 ${overdue ? "border-error bg-error-soft" : "border-warning bg-warning-soft"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-sm font-medium text-text">{f.lead_name || "Lead"}</span>
+                <span className={`shrink-0 text-[10px] font-semibold uppercase ${overdue ? "text-error" : "text-warning"}`}>{overdue ? "Overdue" : "Today"}</span>
+              </div>
+              <p className="mt-0.5 truncate text-xs capitalize text-text-secondary">{f.follow_up_type.replace("_", " ")}{f.notes ? ` · ${f.notes}` : ""}</p>
+              <div className="mt-2 flex gap-1.5">
+                {f.lead_phone && <a href={`tel:${f.lead_phone}`} className="rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-text">Call</a>}
+                {f.lead_phone && <a href={waLink(f.lead_phone)} target="_blank" rel="noreferrer" className="rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-text">WhatsApp</a>}
+                <button type="button" onClick={() => onDone(f.id)} className="ml-auto rounded-md bg-success px-2 py-1 text-[11px] font-medium text-white">Done</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Next pending follow-up for a lead, coloured by urgency, plus how old the lead is. */
+function LeadDueBadge({ lead, followUps }: { lead: Lead; followUps: FollowUp[] }) {
+  const next = followUps
+    .filter((f) => f.lead_id === lead.id && f.status === "pending" && f.scheduled_at)
+    .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at))[0];
+  const today = dayKey(new Date());
+  const ageDays = Math.max(0, Math.floor((new Date(today).getTime() - new Date(lead.created_at.slice(0, 10)).getTime()) / 86400000));
+  const when = next?.scheduled_at.slice(0, 10);
+  const tone = !when ? "text-text-muted" : when < today ? "text-error" : when === today ? "text-warning" : "text-text-secondary";
+  const label = !when
+    ? "No follow-up set"
+    : when < today
+      ? "Follow-up overdue"
+      : when === today
+        ? "Follow-up today"
+        : `Next: ${new Date(when).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`;
+  return (
+    <div className="mb-2 flex items-center justify-between text-[11px]">
+      <span className={tone}>{label}</span>
+      <span className="text-text-muted">{ageDays === 0 ? "New today" : `${ageDays}d old`}</span>
     </div>
   );
 }

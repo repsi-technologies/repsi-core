@@ -7344,6 +7344,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your weight to get a suggestion.'**
   String get dietEnterWeight;
+
+  /// No description provided for @chatNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get chatNewChat;
+
+  /// No description provided for @chatPickTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Message a trainer'**
+  String get chatPickTrainer;
+
+  /// No description provided for @chatNoTrainers.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainers available yet'**
+  String get chatNoTrainers;
+
+  /// No description provided for @crmCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get crmCall;
+
+  /// No description provided for @crmMoveStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to stage'**
+  String get crmMoveStage;
+
+  /// No description provided for @crmMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to {stage}'**
+  String crmMoved(String stage);
+
+  /// No description provided for @crmScheduleFollowUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule follow-up'**
+  String get crmScheduleFollowUp;
+
+  /// No description provided for @crmFollowUpSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up set for {date}'**
+  String crmFollowUpSet(String date);
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,7 @@ import { FEATURES_DATA } from "@/lib/features-data";
 import { COMPARISON_DATA } from "@/lib/compare-data";
 import { CITY_DATA } from "@/lib/city-data";
 import { SOLUTION_ALIASES, SOLUTIONS_DATA } from "@/lib/solutions-data";
+import { INITIAL_BLOGS } from "@/lib/blog-data";
 
 type Freq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
@@ -32,7 +33,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/about", 0.5),
     entry("/contact", 0.5),
     entry("/help", 0.5),
-    entry("/blog", 0.6, "weekly"),
+    entry("/blog", 0.8, "weekly"),
+    ...INITIAL_BLOGS.filter(b => b.status === "published").map((b) => entry(`/blog/${b.slug}`, 0.75, "weekly")),
     entry("/changelog", 0.4, "weekly"),
     entry("/privacy", 0.2, "yearly"),
     entry("/terms", 0.2, "yearly"),

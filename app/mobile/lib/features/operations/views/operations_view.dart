@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -331,18 +332,147 @@ class _LeadsTab extends ConsumerStatefulWidget {
 
 class _LeadsTabState extends ConsumerState<_LeadsTab> {
   String _stage = '';
+  String _searchQuery = '';
+  String _quickFilter = 'all'; // 'all', 'high_priority', 'due_today'
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final leads = ref.watch(leadsProvider(_stage));
+    final metricsAsync = ref.watch(crmMetricsProvider);
+
     return Column(
       children: [
+        // Top CRM Metrics Carousel
+        metricsAsync.when(
+          data: (m) => Container(
+            height: 82,
+            margin: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, 4),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _KpiMiniCard(
+                  title: 'Total Leads',
+                  value: '${m.totalLeads}',
+                  subtext: '+${m.newLeads} this mo',
+                  icon: Icons.groups_rounded,
+                  color: AppColors.primary,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _KpiMiniCard(
+                  title: 'Follow-ups',
+                  value: '${m.followUpsDueToday}',
+                  subtext: '${m.overdueFollowUps} overdue',
+                  icon: Icons.access_time_rounded,
+                  color: const Color(0xFFF59E0B),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _KpiMiniCard(
+                  title: 'Active Trials',
+                  value: '${m.trials}',
+                  subtext: 'Free sessions',
+                  icon: Icons.flash_on_rounded,
+                  color: const Color(0xFF8B5CF6),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _KpiMiniCard(
+                  title: 'Pipeline Est.',
+                  value: m.estimatedPipelineValue > 0 ? '₹${(m.estimatedPipelineValue / 1000).toStringAsFixed(1)}k' : '₹0',
+                  subtext: 'Potential',
+                  icon: Icons.account_balance_wallet_outlined,
+                  color: const Color(0xFF10B981),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _KpiMiniCard(
+                  title: 'Conversion',
+                  value: '${m.conversionRate.toStringAsFixed(1)}%',
+                  subtext: 'Lead to member',
+                  icon: Icons.trending_up_rounded,
+                  color: const Color(0xFF06B6D4),
+                  isDark: isDark,
+                ),
+              ],
+            ),
+          ),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+
+        // Search & Quick Filter Row
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 4, AppSpacing.xl, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (q) => setState(() => _searchQuery = q.trim().toLowerCase()),
+                    style: AppTypography.caption.copyWith(color: _text(isDark)),
+                    decoration: InputDecoration(
+                      hintText: 'Search leads, phone, plan...',
+                      hintStyle: AppTypography.caption.copyWith(color: _secondary(isDark)),
+                      prefixIcon: Icon(Icons.search, size: 18, color: _secondary(isDark)),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 16),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: _surface(isDark),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: _border(isDark)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: _border(isDark)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('🔥 Hot'),
+                selected: _quickFilter == 'high_priority',
+                onSelected: (_) => setState(() => _quickFilter = _quickFilter == 'high_priority' ? 'all' : 'high_priority'),
+                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                labelStyle: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: _quickFilter == 'high_priority' ? AppColors.primary : _secondary(isDark),
+                ),
+                side: BorderSide(color: _quickFilter == 'high_priority' ? AppColors.primary : _border(isDark)),
+                backgroundColor: _surface(isDark),
+              ),
+            ],
+          ),
+        ),
+
+        // Stage Choice Chips
         SizedBox(
-          height: 56,
+          height: 48,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 4, AppSpacing.xl, 4),
             itemCount: leadStages.length,
             separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
             itemBuilder: (context, i) {
@@ -363,34 +493,61 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
             },
           ),
         ),
+
+        // Leads List
         Expanded(
           child: leads.when(
             loading: _skeletonList,
             error: (e, _) => RepsiErrorState(
                 title: context.l10n.errorLoadLeads, message: _err(e), onRetry: () => ref.invalidate(leadsProvider(_stage))),
-            data: (list) => RefreshIndicator(
-              color: AppColors.primary,
-              onRefresh: () async => ref.invalidate(leadsProvider(_stage)),
-              child: list.isEmpty
-                  ? ListView(children: [
-                      const SizedBox(height: AppSpacing.xxxl),
-                      RepsiEmptyState(
-                        icon: Icons.person_search_outlined,
-                        title: _stage.isEmpty ? context.l10n.noLeadsYet : context.l10n.noLeadsInStage,
-                        message: context.l10n.leadsEmptyDesc,
-                        actionLabel: context.l10n.addLead,
-                        onAction: () => _addLead(context),
+            data: (list) {
+              var filtered = list;
+              if (_quickFilter == 'high_priority') {
+                filtered = filtered.where((l) => l.priority.toLowerCase() == 'high' || l.priority.toLowerCase() == 'urgent').toList();
+              }
+              if (_searchQuery.isNotEmpty) {
+                filtered = filtered.where((l) {
+                  final name = l.name.toLowerCase();
+                  final phone = l.phone.toLowerCase();
+                  final interest = (l.interest ?? '').toLowerCase();
+                  final source = l.source.toLowerCase();
+                  return name.contains(_searchQuery) ||
+                      phone.contains(_searchQuery) ||
+                      interest.contains(_searchQuery) ||
+                      source.contains(_searchQuery);
+                }).toList();
+              }
+
+              return RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  ref.invalidate(leadsProvider(_stage));
+                  ref.invalidate(crmMetricsProvider);
+                },
+                child: filtered.isEmpty
+                    ? ListView(children: [
+                        const SizedBox(height: AppSpacing.xxxl),
+                        RepsiEmptyState(
+                          icon: Icons.person_search_outlined,
+                          title: _searchQuery.isNotEmpty
+                              ? 'No matching leads'
+                              : (_stage.isEmpty ? context.l10n.noLeadsYet : context.l10n.noLeadsInStage),
+                          message: context.l10n.leadsEmptyDesc,
+                          actionLabel: context.l10n.addLead,
+                          onAction: () => _addLead(context),
+                        ),
+                      ])
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 4, AppSpacing.xl, 96),
+                        itemCount: filtered.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, i) => _LeadCard(lead: filtered[i]),
                       ),
-                    ])
-                  : ListView.separated(
-                      padding: const EdgeInsets.only(bottom: 96),
-                      itemCount: list.length,
-                      separatorBuilder: (_, __) => Divider(height: 1, indent: AppSpacing.xl, color: _border(isDark)),
-                      itemBuilder: (context, i) => _LeadRow(lead: list[i]),
-                    ),
-            ),
+              );
+            },
           ),
         ),
+
         SafeArea(
           top: false,
           child: Padding(
@@ -398,8 +555,8 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
             child: RepsiButton(
               text: context.l10n.addLead,
               isFullWidth: true,
-              variant: RepsiButtonVariant.outline,
-              leadingIcon: Icon(Icons.add_rounded, size: 20, color: _text(isDark)),
+              variant: RepsiButtonVariant.primary,
+              leadingIcon: const Icon(Icons.add_rounded, size: 20, color: Colors.white),
               onPressed: () => _addLead(context),
             ),
           ),
@@ -413,41 +570,434 @@ class _LeadsTabState extends ConsumerState<_LeadsTab> {
   }
 }
 
-class _LeadRow extends StatelessWidget {
-  final LeadItem lead;
+class _KpiMiniCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String subtext;
+  final IconData icon;
+  final Color color;
+  final bool isDark;
 
-  const _LeadRow({required this.lead});
+  const _KpiMiniCard({
+    required this.title,
+    required this.value,
+    required this.subtext,
+    required this.icon,
+    required this.color,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final followUp = lead.nextFollowUp;
-    final overdue = followUp != null && followUp.isBefore(DateTime.now()) && lead.status != 'converted' && lead.status != 'lost';
-    final meta = [
-      if (lead.interest != null) lead.interest!,
-      lead.source,
-      if (followUp != null && lead.status != 'lost') context.l10n.opsFollowUp(DateFormat('d MMM').format(followUp)),
-    ].join(' · ');
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 2),
-      leading: RepsiAvatar(name: lead.name, size: 40),
-      title: Text(lead.name.isEmpty ? lead.phone : lead.name,
-          style: AppTypography.bodySmall.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
-      subtitle: Text(meta,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTypography.caption.copyWith(
-            color: overdue ? (isDark ? AppColors.darkWarning : context.palette.warning) : _secondary(isDark),
-          )),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSecondary,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-        ),
-        child: Text(leadStageLabel(lead.status), style: AppTypography.caption.copyWith(color: _text(isDark), fontWeight: FontWeight.w600)),
+    return Container(
+      width: 114,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: _surface(isDark),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _border(isDark)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: AppTypography.caption.copyWith(fontSize: 10, color: _secondary(isDark), fontWeight: FontWeight.w600)),
+              Icon(icon, size: 14, color: color),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(value, style: AppTypography.bodySmall.copyWith(fontSize: 16, fontWeight: FontWeight.w800, color: _text(isDark))),
+          Text(subtext, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.caption.copyWith(fontSize: 9, color: color, fontWeight: FontWeight.w600)),
+        ],
       ),
     );
+  }
+}
+
+class _LeadCard extends ConsumerWidget {
+  final LeadItem lead;
+
+  const _LeadCard({required this.lead});
+
+  Future<void> _openUrl(BuildContext context, Uri uri) async {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.errorGeneric)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l = context.l10n;
+    final digits = lead.phone.replaceAll(RegExp(r'[^0-9]'), '');
+    final followUp = lead.nextFollowUp;
+    final isOverdue = followUp != null && followUp.isBefore(DateTime.now()) && lead.status != 'converted' && lead.status != 'lost';
+    final isDueToday = followUp != null && !isOverdue &&
+        followUp.year == DateTime.now().year &&
+        followUp.month == DateTime.now().month &&
+        followUp.day == DateTime.now().day;
+    final isHot = lead.priority.toLowerCase() == 'high' || lead.priority.toLowerCase() == 'urgent';
+
+    return Material(
+      color: _surface(isDark),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: isOverdue
+              ? const Color(0xFFEF4444).withValues(alpha: 0.5)
+              : (isDueToday ? const Color(0xFFF59E0B).withValues(alpha: 0.5) : _border(isDark)),
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => RepsiBottomSheet.show<void>(
+          context: context,
+          title: lead.name.isEmpty ? lead.phone : lead.name,
+          child: _LeadActionsSheet(lead: lead),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RepsiAvatar(name: lead.name, size: 42),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                lead.name.isEmpty ? lead.phone : lead.name,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: _text(isDark),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            if (isHot) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  '🔥 HOT',
+                                  style: TextStyle(color: Color(0xFFEF4444), fontSize: 9, fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(lead.phone, style: AppTypography.caption.copyWith(color: _secondary(isDark), fontSize: 12)),
+                            if (lead.expectedValue > 0) ...[
+                              const Text(' · ', style: TextStyle(color: Colors.grey)),
+                              Text(
+                                '₹${lead.expectedValue.toStringAsFixed(0)}',
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: Color(0xFF10B981)),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSecondary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      leadStageLabel(lead.status),
+                      style: AppTypography.caption.copyWith(
+                        color: _text(isDark),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // Badges & Meta
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(lead.source, style: AppTypography.caption.copyWith(fontSize: 10, color: _secondary(isDark))),
+                  ),
+                  if (lead.interest != null && lead.interest!.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        lead.interest!,
+                        style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  if (followUp != null && lead.status != 'lost' && lead.status != 'converted')
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: (isOverdue ? const Color(0xFFEF4444) : (isDueToday ? const Color(0xFFF59E0B) : const Color(0xFF10B981)))
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 10,
+                            color: isOverdue ? const Color(0xFFEF4444) : (isDueToday ? const Color(0xFFF59E0B) : const Color(0xFF10B981)),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isOverdue
+                                ? 'Overdue (${DateFormat('d MMM').format(followUp)})'
+                                : (isDueToday ? 'Due Today' : DateFormat('d MMM').format(followUp)),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isOverdue ? const Color(0xFFEF4444) : (isDueToday ? const Color(0xFFF59E0B) : const Color(0xFF10B981)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+              const Divider(height: 1),
+              const SizedBox(height: 6),
+
+              // Interactive Quick Action Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton.filledTonal(
+                    tooltip: 'Call lead',
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(34, 34),
+                      backgroundColor: isDark ? AppColors.darkSurfaceElevated : context.palette.surfaceSecondary,
+                    ),
+                    onPressed: digits.isEmpty ? null : () => _openUrl(context, Uri(scheme: 'tel', path: digits)),
+                    icon: const Icon(Icons.call_rounded, size: 16),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filledTonal(
+                    tooltip: 'WhatsApp lead',
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(34, 34),
+                      backgroundColor: const Color(0xFF25D366).withValues(alpha: 0.15),
+                    ),
+                    onPressed: digits.isEmpty
+                        ? null
+                        : () {
+                            final greeting = Uri.encodeComponent(
+                              'Hi ${lead.name.isNotEmpty ? lead.name : "there"}! Reaching out from the gym regarding your inquiry. How can we help you achieve your fitness goals?',
+                            );
+                            _openUrl(context, Uri.parse('https://wa.me/$digits?text=$greeting'));
+                          },
+                    icon: const Icon(Icons.chat_bubble_rounded, size: 16, color: Color(0xFF25D366)),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      minimumSize: const Size(0, 34),
+                    ),
+                    onPressed: () => RepsiBottomSheet.show<void>(
+                      context: context,
+                      title: lead.name.isEmpty ? lead.phone : lead.name,
+                      child: _LeadActionsSheet(lead: lead),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l.crmMoveStage, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_rounded, size: 14),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Everything you do with a lead from the phone: call, WhatsApp, move stage, schedule a follow-up.
+class _LeadActionsSheet extends ConsumerStatefulWidget {
+  final LeadItem lead;
+  const _LeadActionsSheet({required this.lead});
+
+  @override
+  ConsumerState<_LeadActionsSheet> createState() => _LeadActionsSheetState();
+}
+
+class _LeadActionsSheetState extends ConsumerState<_LeadActionsSheet> {
+  late String _status = widget.lead.status;
+  bool _busy = false;
+
+  Future<void> _open(Uri uri) async {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.errorGeneric)));
+    }
+  }
+
+  Future<void> _run(Future<void> Function() action, String done) async {
+    setState(() => _busy = true);
+    try {
+      await action();
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_err(e))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final lead = widget.lead;
+    final digits = lead.phone.replaceAll(RegExp(r'[^0-9]'), '');
+    final actions = ref.read(frontDeskActionsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final stagesOrder = ['new', 'contacted', 'visit_scheduled', 'trial', 'negotiation', 'converted'];
+    final curIndex = stagesOrder.indexOf(_status.toLowerCase());
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(lead.phone, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600, color: _secondary(isDark))),
+          if (lead.expectedValue > 0)
+            Text('Deal Value: ₹${lead.expectedValue.toStringAsFixed(0)}',
+                style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF10B981), fontSize: 13)),
+        ],
+      ),
+      if (lead.interest != null && lead.interest!.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text('Interested in: ${lead.interest}', style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+      ],
+      if (lead.notes != null && lead.notes!.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(8)),
+          child: Text(lead.notes!, style: AppTypography.caption.copyWith(color: _text(isDark))),
+        ),
+      ],
+      const SizedBox(height: 12),
+
+      // Visual Pipeline Stepper
+      Text('Sales Pipeline Progress', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+      const SizedBox(height: 8),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: LinearProgressIndicator(
+          value: curIndex >= 0 ? (curIndex + 1) / stagesOrder.length : 0.1,
+          minHeight: 6,
+          backgroundColor: isDark ? Colors.white12 : Colors.black12,
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+        ),
+      ),
+      const SizedBox(height: 16),
+
+      Row(children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: digits.isEmpty ? null : () => _open(Uri(scheme: 'tel', path: digits)),
+            icon: const Icon(Icons.call_outlined, size: 18),
+            label: Text(l.crmCall),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: digits.isEmpty
+                ? null
+                : () {
+                    final greeting = Uri.encodeComponent(
+                      'Hi ${lead.name.isNotEmpty ? lead.name : "there"}! Reaching out from the gym regarding your fitness goals.',
+                    );
+                    _open(Uri.parse('https://wa.me/$digits?text=$greeting'));
+                  },
+            icon: const Icon(Icons.chat_outlined, size: 18, color: Color(0xFF25D366)),
+            label: const Text('WhatsApp'),
+          ),
+        ),
+      ]),
+      const SizedBox(height: 16),
+      Text(l.crmMoveStage, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 8),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final (key, _) in leadStages.where((s) => s.$1.isNotEmpty && s.$1 != 'converted'))
+          ChoiceChip(
+            label: Text(leadStageLabel(key)),
+            selected: _status == key,
+            onSelected: _busy || _status == key
+                ? null
+                : (_) => _run(() async {
+                      await actions.moveLead(lead.id, key);
+                      if (mounted) setState(() => _status = key);
+                    }, l.crmMoved(leadStageLabel(key))),
+          ),
+      ]),
+      const SizedBox(height: 16),
+      FilledButton.icon(
+        onPressed: _busy
+            ? null
+            : () async {
+                final day = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now().add(const Duration(days: 1)),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (day != null) await _run(() => actions.scheduleFollowUp(lead.id, day), l.crmFollowUpSet(DateFormat('d MMM').format(day)));
+              },
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        icon: const Icon(Icons.event_outlined, size: 18),
+        label: Text(l.crmScheduleFollowUp),
+      ),
+    ]);
   }
 }
 

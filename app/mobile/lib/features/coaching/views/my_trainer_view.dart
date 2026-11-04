@@ -75,6 +75,11 @@ class MyTrainerView extends ConsumerWidget {
                     child: _RequestMoreCard(onTap: () => showTrainerRequestSheet(context, ref, defaultKind: 'personal_training')),
                   ),
                 ],
+                const SizedBox(height: 16),
+                RepsiStaggerItem(
+                  index: i++,
+                  child: _OtherGymTrainersSection(assignedTrainerIds: o.trainers.map((t) => t.id).toSet()),
+                ),
                 if (history.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   Text(l.requestHistory, style: AppTypography.sectionHeading.copyWith(color: palette.text)),
@@ -617,6 +622,133 @@ class _TrainerOption extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _OtherGymTrainersSection extends ConsumerWidget {
+  final Set<String> assignedTrainerIds;
+  const _OtherGymTrainersSection({required this.assignedTrainerIds});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
+    final allTrainers = ref.watch(availableTrainersProvider);
+
+    return allTrainers.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (list) {
+        final others = list.where((t) => !assignedTrainerIds.contains(t.id)).toList();
+        if (others.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Our Gym Coaches & Trainers',
+                  style: AppTypography.sectionHeading.copyWith(color: palette.text, fontSize: 16),
+                ),
+                Text(
+                  '${others.length} Coaches',
+                  style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Connect and chat with any certified gym trainer for guidance or questions.',
+              style: AppTypography.caption.copyWith(color: palette.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            for (final t in others)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: palette.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: palette.border),
+                    boxShadow: [
+                      BoxShadow(color: palette.shadow, blurRadius: 10, offset: const Offset(0, 3)),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      RepsiAvatar(name: t.name, imageUrl: t.photoUrl, size: 48),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.name,
+                              style: AppTypography.bodySmall.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: palette.text,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t.specialization ?? 'Gym Coach',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (t.bio != null && t.bio!.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                t.bio!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.caption.copyWith(
+                                  color: palette.textSecondary,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton.tonalIcon(
+                        onPressed: () async {
+                          try {
+                            final conv = await ref.read(coachingRepositoryProvider).openWithTrainer(t.id);
+                            if (!context.mounted) return;
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => ChatThreadView(conversation: conv, asTrainer: false)),
+                            );
+                            ref.invalidate(conversationsProvider);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e is ApiError ? e.message : context.l10n.errorOpenChat)),
+                              );
+                            }
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
+                        label: const Text('Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

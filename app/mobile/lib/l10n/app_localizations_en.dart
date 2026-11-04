@@ -4161,4 +4161,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dietEnterWeight => 'Enter your weight to get a suggestion.';
+
+  @override
+  String get chatNewChat => 'New chat';
+
+  @override
+  String get chatPickTrainer => 'Message a trainer';
+
+  @override
+  String get chatNoTrainers => 'No trainers available yet';
+
+  @override
+  String get crmCall => 'Call';
+
+  @override
+  String get crmMoveStage => 'Move to stage';
+
+  @override
+  String crmMoved(String stage) {
+    return 'Moved to $stage';
+  }
+
+  @override
+  String get crmScheduleFollowUp => 'Schedule follow-up';
+
+  @override
+  String crmFollowUpSet(String date) {
+    return 'Follow-up set for $date';
+  }
 }

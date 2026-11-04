@@ -24,6 +24,14 @@ export function constructMetadata({
 }: PageSeoOptions): Metadata {
   const canonicalUrl = `${SITE_URL}${path}`;
   const defaultKeywords = [
+    "Rhapsy",
+    "Rhapsy gym",
+    "Rhapsy gym software",
+    "Rhapsy app",
+    "Rhapsy fitness software",
+    "Rhapsy gym management",
+    "Repsi",
+    "repsi.app",
     "gym management software",
     "gym management software India",
     "gym management system",
@@ -33,6 +41,7 @@ export function constructMetadata({
     "gym CRM software",
     "gym billing software",
     "gym membership management software",
+    "personal trainer software",
   ];
 
   const combinedKeywords = Array.from(new Set([...defaultKeywords, ...keywords]));
@@ -108,6 +117,7 @@ export function getOrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Repsi",
+    alternateName: ["Rhapsy", "REPSI", "Rhapsy Technologies", "Rhapsy Gym Software"],
     url: SITE_URL,
     logo: `${SITE_URL}/icon.png`,
     sameAs: [
@@ -138,7 +148,13 @@ export function getSoftwareAppSchema() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Repsi",
-    alternateName: "Repsi Gym Management Software",
+    alternateName: [
+      "Repsi Gym Management Software",
+      "Rhapsy",
+      "Rhapsy Gym Software",
+      "Rhapsy Gym Management Software",
+      "Rhapsy Fitness App"
+    ],
     url: SITE_URL,
     operatingSystem: "Web, Android, iOS, Windows",
     applicationCategory: "BusinessApplication",
@@ -177,7 +193,7 @@ export function getWebsiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Repsi",
-    alternateName: ["REPSI", "repsi.app"],
+    alternateName: ["Rhapsy", "REPSI", "repsi.app", "Rhapsy Gym App", "Rhapsy Gym Management Software"],
     url: SITE_URL,
     inLanguage: "en-IN",
   };

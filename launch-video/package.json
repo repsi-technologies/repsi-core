@@ -1,0 +1,24 @@
+{
+  "name": "repsi-launch-video",
+  "private": true,
+  "description": "REPSI launch film (Remotion). Renders 9:16 and 16:9 MP4s from real product captures.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "capture": "node capture/capture.mjs",
+    "audio": "node audio/compose.mjs",
+    "render:vertical": "remotion render src/index.ts LaunchVertical out/REPSI_Launch_Reels_9x16.mp4 --codec=h264 --crf=16",
+    "render:landscape": "remotion render src/index.ts LaunchLandscape out/REPSI_Launch_Landscape_16x9.mp4 --codec=h264 --crf=16",
+    "render": "npm run render:vertical && npm run render:landscape"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "@remotion/google-fonts": "4.0.540",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}

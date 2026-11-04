@@ -397,7 +397,7 @@ export interface ApiDietPreference { id: string; member_id: string; diet_type: D
 export interface ApiDietPlanSave { name: string; goal?: string | null; diet_type?: string | null; meals: ApiDietMeal[]; calories_target?: number | null; protein_target?: number | null; water_ml_target?: number | null; notes?: string | null; change_summary?: string | null }
 export interface ApiDietAssignment { id: string; member_id: string; plan_id: string | null; title: string; start_date: string; status: string; ended_on: string | null; notes?: string | null; version: ApiDietVersion | null }
 export interface ApiAdherence { planned_meals: number; followed: number; modified: number; skipped: number; not_logged: number; adherence_pct: number | null }
-export interface ApiConversation { id: string; member_id: string; trainer_id: string; member_name: string; trainer_name: string; last_message_at: string | null; last_message: string | null; unread: number; can_send: boolean }
+export interface ApiConversation { id: string; member_id: string; trainer_id: string; member_name: string; trainer_name: string; last_message_at: string | null; last_message: string | null; unread: number; can_send: boolean; kind?: "coaching" | "general"; assigned?: boolean }
 export type ChatReportReason = "harassment" | "inappropriate" | "spam" | "off_topic" | "safety" | "other";
 export type ChatReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export interface ApiChatReport {

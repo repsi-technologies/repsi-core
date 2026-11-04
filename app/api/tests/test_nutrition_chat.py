@@ -268,3 +268,24 @@ def test_member_asks_trainer_for_diet_with_preferences(gym):
     assert client.get(f"{N}/preferences", params={"member_id": gym["m1_id"]}, headers=gym["owner_b"]).status_code in (403, 404)
     assert client.get(f"{N}/preferences", headers=gym["m1"]).json()["diet_type"] == "vegetarian"
     assert client.post(f"{N}/me/preferences", json=body, headers=gym["t1"]).status_code == 403
+
+
+def test_member_can_message_any_active_trainer(gym):
+    # m1 is assigned t1 only; asking t2 a question opens a "general" chat both can use.
+    r = client.post(f"{C}/conversations", json={"trainer_id": gym["t2_id"]}, headers=gym["m1"])
+    assert r.status_code == 200, r.text
+    conv = r.json()
+    assert conv["kind"] == "general" and conv["can_send"] and not conv["assigned"]
+    assert client.post(f"{C}/conversations/{conv['id']}/messages", json={"body": "Form tip for squats?"},
+                       headers=gym["m1"]).status_code == 201
+    t2_inbox = client.get(f"{C}/conversations", headers=gym["t2"]).json()
+    assert conv["id"] in {c["id"] for c in t2_inbox}
+    assert client.post(f"{C}/conversations/{conv['id']}/messages", json={"body": "Knees out!"},
+                       headers=gym["t2"]).status_code == 201
+    # Members' inbox now has both trainers; other members and tenants still can't see it.
+    assert len(client.get(f"{C}/conversations", headers=gym["m1"]).json()) >= 1
+    assert client.get(f"{C}/conversations/{conv['id']}/messages", headers=gym["m2"]).status_code == 404
+    assert client.get(f"{C}/conversations/{conv['id']}/messages", headers=gym["t1"]).status_code == 404
+    # Trainers still can't start chats with members who aren't theirs, and unknown trainers 404.
+    assert client.post(f"{C}/conversations", json={"member_id": gym["m1_id"]}, headers=gym["t2"]).status_code == 403
+    assert client.post(f"{C}/conversations", json={"trainer_id": "nope"}, headers=gym["m1"]).status_code == 404

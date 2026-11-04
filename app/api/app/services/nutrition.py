@@ -10,7 +10,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -21,7 +21,7 @@ from app.models.nutrition import (
     ChatMessage, ChatReport, ChatReportEvent, Conversation, DietAssignment, DietPlan, DietPlanVersion, DietPreference,
     MealLog, WaterLog,
 )
-from app.models.trainer import Trainer, TrainerClient, TrainerClientStatus
+from app.models.trainer import Trainer, TrainerClient, TrainerClientStatus, TrainerStatus
 from app.services.fitness import FitnessActor
 from app.services.membership_lifecycle import workspace_today
 
@@ -436,10 +436,21 @@ class ChatService:
                       or (self.actor.kind == "member" and c.member_id == self.actor.member.id))
         if not mine:
             raise HTTPException(status_code=404, detail="Conversation not found.")
-        # Trainers lose access as soon as the member is unassigned; members keep their history.
-        if self.actor.kind == "trainer" and not self._relation_active(c.trainer_id, c.member_id):
+        # Coaching chats: trainers lose access as soon as the member is unassigned; members keep their history.
+        if self.actor.kind == "trainer" and c.kind != "general" and not self._relation_active(c.trainer_id, c.member_id):
             raise HTTPException(status_code=403, detail="This member is no longer assigned to you.")
         return c
+
+    def _trainer_active(self, trainer_id: str) -> bool:
+        return self.db.query(Trainer.id).filter(
+            Trainer.workspace_id == self.ws, Trainer.id == trainer_id,
+            Trainer.status == TrainerStatus.ACTIVE, Trainer.is_active.is_(True),
+        ).first() is not None
+
+    def _can_send(self, c: Conversation) -> bool:
+        if self._relation_active(c.trainer_id, c.member_id):
+            return True
+        return c.kind == "general" and self._trainer_active(c.trainer_id)
 
     def _out(self, c: Conversation) -> dict:
         member = self.db.query(Member).filter(Member.id == c.member_id).first()
@@ -454,18 +465,18 @@ class ChatService:
             "member_name": f"{member.first_name} {member.last_name or ''}".strip() if member else "",
             "trainer_name": trainer.name if trainer else "", "last_message_at": c.last_message_at,
             "last_message": (last.body or "")[:120] if last else None, "unread": int(unread or 0),
-            "can_send": self._relation_active(c.trainer_id, c.member_id),
+            "can_send": self._can_send(c), "kind": c.kind,
+            "assigned": self._relation_active(c.trainer_id, c.member_id),
         }
 
     def list(self) -> list:
         if self.actor.kind == "trainer":
-            cids = self.actor.client_ids()
-            if not cids:
-                return []
+            cids = self.actor.client_ids() or set()
+            # Assigned clients' chats plus questions members sent this trainer directly.
             q = self.db.query(Conversation).filter(
                 Conversation.workspace_id == self.ws,
                 Conversation.trainer_id == self.actor.trainer.id,
-                Conversation.member_id.in_(cids),
+                or_(Conversation.member_id.in_(cids or {""}), Conversation.kind == "general"),
             )
         else:
             q = self.db.query(Conversation).filter(
@@ -483,12 +494,14 @@ class ChatService:
             if not trainer_id:
                 raise HTTPException(status_code=422, detail="trainer_id is required.")
             mid, tid = self.actor.member.id, trainer_id
-            if not self._relation_active(tid, mid):
-                raise HTTPException(status_code=403, detail="You can only message your assigned trainer.")
+            # Members can ask any active trainer in their gym; non-assigned ones start a "general" chat.
+            if not self._relation_active(tid, mid) and not self._trainer_active(tid):
+                raise HTTPException(status_code=404, detail="Trainer not found.")
         c = self.db.query(Conversation).filter(Conversation.workspace_id == self.ws,
                                                Conversation.member_id == mid, Conversation.trainer_id == tid).first()
         if not c:
-            c = Conversation(workspace_id=self.ws, member_id=mid, trainer_id=tid)
+            kind = "coaching" if self._relation_active(tid, mid) else "general"
+            c = Conversation(workspace_id=self.ws, member_id=mid, trainer_id=tid, kind=kind)
             self.db.add(c)
             try:
                 self.db.commit()
@@ -514,8 +527,8 @@ class ChatService:
 
     def send(self, conversation_id: str, data) -> dict:
         c = self._conversation(conversation_id)
-        if not self._relation_active(c.trainer_id, c.member_id):
-            raise HTTPException(status_code=403, detail="This trainer is no longer assigned, so new messages can't be sent.")
+        if not self._can_send(c):
+            raise HTTPException(status_code=403, detail="This trainer is no longer available, so new messages can't be sent.")
         body = (data.body or "").strip()
         if not body and not data.attachment_ref:
             raise HTTPException(status_code=422, detail="Message can't be empty.")

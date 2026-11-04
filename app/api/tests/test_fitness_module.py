@@ -80,7 +80,7 @@ def gym():
         "owner": hdr(owner_a, ws_a, "OWNER"), "t1": hdr(t1_user, ws_a, "TRAINER"), "t2": hdr(t2_user, ws_a, "TRAINER"),
         "m1": hdr(m1_user, ws_a, "USER"), "m2": hdr(m2_user, ws_a, "USER"),
         "owner_b": hdr(owner_b, ws_b, "OWNER"), "mb": hdr(mb_user, ws_b, "USER"),
-        "m1_id": m1.id, "m2_id": m2.id, "m3_id": m3.id, "mb_id": mb.id, "t1_id": t1.id, "rel1_id": rel1.id,
+        "m1_id": m1.id, "m2_id": m2.id, "m3_id": m3.id, "mb_id": mb.id, "t1_id": t1.id, "t2_id": t2.id, "rel1_id": rel1.id,
         "t1_user_id": t1_user.id, "m1_user_id": m1_user.id,
     }
     ctx["ex"] = {e.slug: e.id for e in db.query(Exercise).all()}

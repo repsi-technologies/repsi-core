@@ -7,7 +7,8 @@ import { Search, Clock, ArrowRight, BookOpen, Sparkles, Tag, ChevronRight } from
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FadeIn } from "@/components/ui/fade-in";
-import { getStoredBlogs, BlogPost } from "@/lib/content-growth-store";
+import { getStoredBlogs } from "@/lib/content-growth-store";
+import { INITIAL_BLOGS, BlogPost } from "@/lib/blog-data";
 
 const TOPIC_CLUSTERS = [
   "All Topics",
@@ -20,7 +21,7 @@ const TOPIC_CLUSTERS = [
 ];
 
 export default function BlogIndexPage() {
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [blogs, setBlogs] = useState<BlogPost[]>(() => INITIAL_BLOGS.filter((b) => b.status === "published"));
   const [selectedCategory, setSelectedCategory] = useState("All Topics");
   const [searchQuery, setSearchQuery] = useState("");
 

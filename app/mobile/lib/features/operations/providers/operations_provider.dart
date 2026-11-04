@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../app/config/app_config.dart';
 import '../../../core/providers/api_provider.dart';
 import '../../../core/api/api_time.dart';
@@ -81,6 +82,9 @@ class LeadItem {
   final String priority;
   final String? interest;
   final DateTime? nextFollowUp;
+  final double expectedValue;
+  final String? notes;
+  final String? email;
 
   const LeadItem({
     required this.id,
@@ -91,8 +95,51 @@ class LeadItem {
     required this.priority,
     this.interest,
     this.nextFollowUp,
+    this.expectedValue = 0.0,
+    this.notes,
+    this.email,
   });
 }
+
+class CrmMetrics {
+  final int totalLeads;
+  final int newLeads;
+  final int followUpsDueToday;
+  final int overdueFollowUps;
+  final int trials;
+  final double conversionRate;
+  final double estimatedPipelineValue;
+
+  const CrmMetrics({
+    this.totalLeads = 0,
+    this.newLeads = 0,
+    this.followUpsDueToday = 0,
+    this.overdueFollowUps = 0,
+    this.trials = 0,
+    this.conversionRate = 0.0,
+    this.estimatedPipelineValue = 0.0,
+  });
+
+  factory CrmMetrics.fromJson(Map<String, dynamic> j) => CrmMetrics(
+        totalLeads: (j['total_leads'] as num?)?.toInt() ?? 0,
+        newLeads: (j['new_leads'] as num?)?.toInt() ?? 0,
+        followUpsDueToday: (j['follow_ups_due_today'] as num?)?.toInt() ?? 0,
+        overdueFollowUps: (j['overdue_follow_ups'] as num?)?.toInt() ?? 0,
+        trials: (j['trials'] as num?)?.toInt() ?? 0,
+        conversionRate: (j['conversion_rate_pct'] as num?)?.toDouble() ?? 0.0,
+        estimatedPipelineValue: (j['estimated_pipeline_value'] as num?)?.toDouble() ?? 0.0,
+      );
+}
+
+final crmMetricsProvider = FutureProvider.autoDispose<CrmMetrics>((ref) async {
+  try {
+    final res = await ref.watch(apiClientProvider).get('/crm/dashboard');
+    if (res.data is Map<String, dynamic>) {
+      return CrmMetrics.fromJson(res.data as Map<String, dynamic>);
+    }
+  } catch (_) {}
+  return const CrmMetrics();
+});
 
 const leadStages = [
   ('', 'All'),
@@ -138,6 +185,9 @@ final leadsProvider = FutureProvider.autoDispose.family<List<LeadItem>, String>(
             priority: j['priority']?.toString() ?? 'medium',
             interest: (j['interested_plan'] ?? j['interested_service'])?.toString(),
             nextFollowUp: _dt(j['next_follow_up_at']),
+            expectedValue: (j['expected_value'] as num?)?.toDouble() ?? 0.0,
+            notes: j['notes']?.toString(),
+            email: j['email']?.toString(),
           ))
       .toList();
 });
@@ -198,16 +248,48 @@ class FrontDeskActions {
     _refresh();
   }
 
-  Future<void> addLead({required String name, required String phone, required String source, String? interest}) async {
+  Future<void> addLead({
+    required String name,
+    required String phone,
+    required String source,
+    String? interest,
+    String priority = 'medium',
+    double expectedValue = 0.0,
+    String? notes,
+  }) async {
     await _ref.read(apiClientProvider).post('/crm/leads', data: {
       'full_name': name.trim(),
       'phone': phone.trim(),
       'source': source,
+      'priority': priority,
+      'expected_value': expectedValue,
       if (interest != null && interest.trim().isNotEmpty) 'interested_plan': interest.trim(),
+      if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
     });
+    _refreshLeads();
+  }
+
+  void _refreshLeads() {
+    _ref.invalidate(crmMetricsProvider);
     for (final s in leadStages) {
       _ref.invalidate(leadsProvider(s.$1));
     }
+  }
+
+  /// Moves a lead along the pipeline (history is kept server-side).
+  Future<void> moveLead(String leadId, String status) async {
+    await _ref.read(apiClientProvider).patch('/crm/leads/$leadId/status', data: {'status': status, 'notes': 'Moved from the app'});
+    _refreshLeads();
+  }
+
+  Future<void> scheduleFollowUp(String leadId, DateTime day, {String type = 'call', String? notes}) async {
+    await _ref.read(apiClientProvider).post('/crm/follow-ups', data: {
+      'lead_id': leadId,
+      'follow_up_type': type,
+      'scheduled_date': DateFormat('yyyy-MM-dd').format(day),
+      if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+    });
+    _refreshLeads();
   }
 }
 

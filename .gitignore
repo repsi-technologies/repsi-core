@@ -104,3 +104,9 @@ app/web/e2e/.tmp/
 app/web/playwright-report/
 app/web/test-results/
 app/api/backups/
+
+# Launch video: scratch stack data and render output
+launch-video/.tmp/
+launch-video/out/
+launch-video/node_modules/
+launch-video/public/screens/

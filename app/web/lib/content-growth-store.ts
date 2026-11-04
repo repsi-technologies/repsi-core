@@ -1,29 +1,7 @@
 "use client";
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  category: string;
-  tags: string[];
-  featuredImage: string;
-  author: {
-    name: string;
-    role: string;
-    avatar: string;
-  };
-  status: "draft" | "published";
-  publishDate: string;
-  readTime: string;
-  seoTitle: string;
-  seoDescription: string;
-  canonicalUrl: string;
-  faqs?: { question: string; answer: string }[];
-  relatedSlugs?: string[];
-  views: number;
-}
+import type { BlogPost } from "./blog-data";
+export type { BlogPost };
 
 export interface JobPosting {
   id: string;
@@ -107,135 +85,9 @@ export interface CommissionSettings {
   refundHoldDays: number;
 }
 
-export const INITIAL_BLOGS: BlogPost[] = [
-  {
-    id: "blog-1",
-    title: "10 Proven Ways to Increase Gym Membership and Member Retention in 2026",
-    slug: "how-to-increase-gym-membership",
-    summary: "Discover data-backed marketing, automated WhatsApp engagement, and onboarding retention strategies to scale your fitness center profitably.",
-    content: `
-## The New Economics of Gym Growth in India
+import { INITIAL_BLOGS } from "./blog-data";
+export { INITIAL_BLOGS };
 
-Running a profitable gym in 2026 is no longer just about filling floor space with heavy iron and standard treadmills. With rising urban rents, premium fitness studio alternatives, and digital fitness options, gym owners must operate with modern systems.
-
-### 1. Zero-Friction QR Onboarding and Digital Check-ins
-Long queues at the front desk kill the workout vibe. When members walk into your facility and scan a personalized dynamic QR code on their smartphone, check-in takes less than two seconds. Instant attendance alerts give members a sense of accountability and give front-desk staff real-time floor capacity analytics.
-
-### 2. Automated WhatsApp Lifecycle Messaging
-Email open rates for gym members average under 14%. WhatsApp open rates in India exceed 98%. By setting up automated WhatsApp triggers for:
-- Payment renewal reminders (7 days, 3 days, and 1 day prior)
-- Instant UPI invoice receipts with one-tap download
-- Birthday greetings with a complimentary buddy pass
-- Inactive alerts when a member hasn't checked in for 6 days
-
-Gyms using Repsi report a **34% decrease in subscription churn** within the first 60 days of automated WhatsApp workflows.
-
-### 3. Integrated UPI & Auto-Pay Billing
-Chasing late fees manually through paper registers is embarrassing and inefficient. Offer members direct UPI links (Google Pay, PhonePe, Paytm, Cred) right inside WhatsApp reminders so they can renew in under 15 seconds without waiting in line.
-
-### 4. Trainer Accountability and Goal Tracking
-Members don't quit gyms; they quit lack of progress. Equip your personal trainers with mobile tools to log body composition (BMI, body fat %, muscle mass) and workout routines directly into member profiles. When members see tangible monthly results on their app, renewal becomes a no-brainer.
-    `,
-    category: "Gym Growth",
-    tags: ["Gym Marketing", "Member Retention", "WhatsApp Automation", "Revenue"],
-    featuredImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop",
-    author: {
-      name: "Repsi Editorial Team",
-      role: "Fitness Operations Specialists",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop",
-    },
-    status: "published",
-    publishDate: "2026-09-15",
-    readTime: "6 min read",
-    seoTitle: "How to Increase Gym Membership & Member Retention (2026 Guide) | Repsi",
-    seoDescription: "Learn 10 actionable tactics to increase gym memberships, cut member churn by 34%, and automate renewals using WhatsApp and UPI with Repsi.",
-    canonicalUrl: "https://repsi.app/blog/how-to-increase-gym-membership",
-    views: 3420,
-    faqs: [
-      {
-        question: "How does automated WhatsApp billing increase gym renewals?",
-        answer: "Automated WhatsApp billing sends personalized renewal links with direct UPI payment buttons 7 days, 3 days, and on the expiration date, eliminating manual phone calls and boosting on-time renewals by over 30%."
-      },
-      {
-        question: "What is the average churn rate for Indian commercial gyms?",
-        answer: "Without proactive member engagement software, traditional gyms suffer 40-50% annual member drop-off. Modern automation and attendance tracking bring this below 18%."
-      }
-    ],
-    relatedSlugs: ["gym-management-software", "gym-whatsapp-automation"]
-  },
-  {
-    id: "blog-2",
-    title: "Why Modern Fitness Centers are Replacing Legacy Desktop Software with Cloud OS",
-    slug: "gym-management-software",
-    summary: "A breakdown of why legacy desktop gym software is holding your business back, and how modern cloud-native systems drive profit and multi-branch scalability.",
-    content: `
-## The Hidden Cost of Legacy Gym Software
-
-For over a decade, gyms relied on offline desktop software tied to a single, dusty desktop computer at the reception desk. If the hard drive crashed, members' payment history and active plans were wiped out.
-
-### The Cloud Advantage
-With Repsi's cloud-native architecture:
-1. **Multi-Branch Visibility**: Monitor gym revenue, active members, and staff check-ins across Chennai, Bangalore, and Mumbai from a single owner dashboard.
-2. **Device Independence**: Manage member enrollments and check attendance from your iPhone, Android tablet, MacBook, or reception PC seamlessly.
-3. **Automated Cloud Backups**: Enterprise-grade encryption and real-time database replication ensure zero data loss.
-4. **Member Self-Service**: Members view their workout plans, diet logs, and payment receipts directly on their own mobile app.
-    `,
-    category: "Software & Tech",
-    tags: ["Gym Management Software", "Cloud CRM", "Multi-Branch", "Gym Operating System"],
-    featuredImage: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1200&auto=format&fit=crop",
-    author: {
-      name: "Karthik Subramanian",
-      role: "Lead Product Architect",
-      avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=200&auto=format&fit=crop",
-    },
-    status: "published",
-    publishDate: "2026-09-20",
-    readTime: "5 min read",
-    seoTitle: "Best Fitness Management Software for Modern Gyms & Studios | Repsi",
-    seoDescription: "Compare cloud vs desktop gym management software. Discover how Repsi simplifies billing, attendance, member management, and multi-branch operations.",
-    canonicalUrl: "https://repsi.app/blog/gym-management-software",
-    views: 4180,
-    faqs: [
-      {
-        question: "Can I manage multiple gym branches with Repsi?",
-        answer: "Yes, Repsi provides central multi-branch management where owners can switch between locations, compare branch revenues, and share trainer schedules effortlessly."
-      }
-    ],
-    relatedSlugs: ["how-to-increase-gym-membership", "gym-whatsapp-automation"]
-  },
-  {
-    id: "blog-3",
-    title: "How to Automate Gym Attendance and WhatsApp Billing: The Complete Playbook",
-    slug: "gym-whatsapp-automation",
-    summary: "Stop chasing late fees and manual registers. Learn how QR codes and automated WhatsApp triggers revolutionize day-to-day gym management.",
-    content: `
-## Why WhatsApp is the #1 Growth Channel for Fitness Businesses
-
-In India and across emerging fitness markets, WhatsApp is where members communicate daily. Integrating your gym software with the official WhatsApp Business API transforms front-desk operations.
-
-### Key WhatsApp Automations Built into Repsi:
-- **Instant Welcome Kit**: When a new member joins, they receive their membership ID, locker rules, trainer assignment, and tax invoice instantly on WhatsApp.
-- **Smart Renewal Reminders**: 3-tier automated alerts with zero human intervention required.
-- **Attendance Celebration Milestones**: Celebrate a member's 50th or 100th gym check-in with an automated motivational badge on WhatsApp.
-    `,
-    category: "Automation",
-    tags: ["WhatsApp Automation", "QR Attendance", "UPI Payments", "Billing"],
-    featuredImage: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1200&auto=format&fit=crop",
-    author: {
-      name: "Repsi Editorial Team",
-      role: "Growth Operations",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop",
-    },
-    status: "published",
-    publishDate: "2026-09-28",
-    readTime: "4 min read",
-    seoTitle: "Gym WhatsApp Automation & QR Attendance System | Repsi",
-    seoDescription: "Step-by-step guide to setting up automated WhatsApp renewal reminders, invoice sharing, and QR attendance for your fitness club.",
-    canonicalUrl: "https://repsi.app/blog/gym-whatsapp-automation",
-    views: 2890,
-    relatedSlugs: ["how-to-increase-gym-membership", "gym-management-software"]
-  }
-];
 
 export const INITIAL_JOBS: JobPosting[] = [
   {

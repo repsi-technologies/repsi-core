@@ -128,13 +128,16 @@ class Conversation {
   final String? lastMessage;
   final int unread;
   final bool canSend;
+  /// The trainer is assigned to this member (false for questions to other trainers).
+  final bool assigned;
 
   const Conversation({required this.id, required this.memberId, required this.memberName, required this.trainerName,
-      this.lastMessage, required this.unread, required this.canSend});
+      this.lastMessage, required this.unread, required this.canSend, this.assigned = true});
 
   factory Conversation.fromJson(Map<String, dynamic> j) => Conversation(
         id: j['id'] as String,
         memberId: j['member_id'] as String? ?? '',
+        assigned: j['assigned'] as bool? ?? true,
         memberName: j['member_name'] as String? ?? '',
         trainerName: j['trainer_name'] as String? ?? '',
         lastMessage: j['last_message'] as String?,

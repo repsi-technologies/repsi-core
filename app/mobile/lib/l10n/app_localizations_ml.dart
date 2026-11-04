@@ -4154,4 +4154,32 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get dietEnterWeight => 'നിർദ്ദേശം ലഭിക്കാൻ നിങ്ങളുടെ ഭാരം നൽകുക.';
+
+  @override
+  String get chatNewChat => 'പുതിയ ചാറ്റ്';
+
+  @override
+  String get chatPickTrainer => 'പരിശീലകന് സന്ദേശം അയയ്ക്കുക';
+
+  @override
+  String get chatNoTrainers => 'ഇതുവരെ പരിശീലകരില്ല';
+
+  @override
+  String get crmCall => 'വിളിക്കുക';
+
+  @override
+  String get crmMoveStage => 'ഘട്ടം മാറ്റുക';
+
+  @override
+  String crmMoved(String stage) {
+    return '$stage-ലേക്ക് മാറ്റി';
+  }
+
+  @override
+  String get crmScheduleFollowUp => 'ഫോളോ-അപ്പ് ഷെഡ്യൂൾ ചെയ്യുക';
+
+  @override
+  String crmFollowUpSet(String date) {
+    return '$date-ന് ഫോളോ-അപ്പ് സജ്ജമാക്കി';
+  }
 }
