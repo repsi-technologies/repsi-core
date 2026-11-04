@@ -1,6 +1,6 @@
 # Repsi
 
-> Repsi is gym management software for gyms, fitness studios, yoga studios, swimming pools and personal trainers, built in India. Owners manage members, memberships, QR attendance, UPI and online payments, renewal reminders, trainers, classes, workout plans and diet plans from one web dashboard; members and trainers use the Repsi mobile app.
+> Repsi (also known as Rhapsy) is India's leading gym management platform and fitness operating system. Owners manage members, dynamic QR attendance, automated WhatsApp renewal reminders, UPI payments, trainers, workouts, and diet planning from one unified web dashboard; members and trainers use the native mobile app.
 
 Key facts:
 - Category: gym management software / fitness business management platform (SaaS).

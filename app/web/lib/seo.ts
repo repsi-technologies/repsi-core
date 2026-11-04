@@ -180,7 +180,7 @@ export function getSoftwareAppSchema() {
       "Reports, analytics and multi-branch support",
     ],
     description:
-      "Repsi is gym management software for gyms, fitness studios, yoga studios, swimming pools and personal trainers. It handles members, memberships, attendance, payments, trainers, workouts, diet plans and reminders in one web and mobile platform.",
+      "Repsi (Rhapsy) is the complete operating platform for fitness centers and gyms. Manage member memberships, dynamic QR check-in, automated WhatsApp payment reminders, trainer schedules, and nutrition plans.",
     publisher: { "@type": "Organization", name: "Repsi", url: SITE_URL },
   };
 }
